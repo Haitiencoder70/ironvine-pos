@@ -19,7 +19,8 @@ export async function getInventoryItems(
     search?: string;
   } = {},
 ): Promise<PaginatedResult<InventoryItem>> {
-  const { page = 1, limit = 50, category, search } = options;
+  const { page = 1, category, search } = options;
+  const limit = Math.min(options.limit ?? 50, 200);
   const skip = (page - 1) * limit;
 
   const where: Prisma.InventoryItemWhereInput = {
@@ -53,17 +54,14 @@ export async function getInventoryItems(
 export async function getLowStockItems(input: GetLowStockInput): Promise<InventoryItem[]> {
   const { organizationId, category } = input;
 
-  const items = await prisma.inventoryItem.findMany({
-    where: {
-      organizationId,
-      isActive: true,
-      ...(category ? { category } : {}),
-    },
-    orderBy: { name: 'asc' },
-  });
-
-  // Filter items where quantityOnHand <= reorderPoint
-  return items.filter((item) => item.quantityOnHand <= item.reorderPoint);
+  return prisma.$queryRaw<InventoryItem[]>`
+    SELECT * FROM "InventoryItem"
+    WHERE "organizationId" = ${organizationId}
+      AND "isActive" = true
+      AND "quantityOnHand" <= "reorderPoint"
+      ${category ? Prisma.sql`AND category = ${category}::"InventoryCategory"` : Prisma.empty}
+    ORDER BY name ASC
+  `;
 }
 
 export function getAvailableQuantity(item: {
@@ -82,7 +80,7 @@ export async function adjustStock(input: AdjustStockInput): Promise<InventoryIte
   return prisma.$transaction(async (tx) => {
     const item = await tx.inventoryItem.findUnique({
       where: { id: inventoryItemId },
-      select: { id: true, organizationId: true, quantityOnHand: true, name: true },
+      select: { id: true, organizationId: true, quantityOnHand: true, quantityReserved: true, name: true },
     });
 
     if (!item) {
@@ -97,8 +95,16 @@ export async function adjustStock(input: AdjustStockInput): Promise<InventoryIte
     if (newQuantity < 0) {
       throw new AppError(
         400,
-        `Insufficient stock for "${item.name}". Available: ${item.quantityOnHand}, requested: ${Math.abs(quantityDelta)}`,
+        `Insufficient stock for "${item.name}". On hand: ${item.quantityOnHand}, requested removal: ${Math.abs(quantityDelta)}`,
         'INSUFFICIENT_STOCK',
+      );
+    }
+
+    if (newQuantity < item.quantityReserved) {
+      throw new AppError(
+        400,
+        `Cannot reduce "${item.name}" stock to ${newQuantity} — ${item.quantityReserved} units are reserved`,
+        'STOCK_BELOW_RESERVED',
       );
     }
 
@@ -136,17 +142,22 @@ export async function adjustStock(input: AdjustStockInput): Promise<InventoryIte
 export async function reserveMaterials(input: ReserveMaterialsInput): Promise<InventoryItem> {
   const { organizationId, inventoryItemId, quantity, orderId, performedBy } = input;
 
+  if (quantity <= 0) {
+    throw new AppError(400, 'Quantity must be positive', 'INVALID_QUANTITY');
+  }
+
   return prisma.$transaction(async (tx) => {
-    const item = await tx.inventoryItem.findUnique({
-      where: { id: inventoryItemId },
-      select: {
-        id: true,
-        organizationId: true,
-        quantityOnHand: true,
-        quantityReserved: true,
-        name: true,
-      },
-    });
+    // Lock the row to prevent concurrent over-reservation
+    const rows = await tx.$queryRaw<
+      Array<{ id: string; organizationId: string; quantityOnHand: number; quantityReserved: number; name: string }>
+    >`
+      SELECT id, "organizationId", "quantityOnHand", "quantityReserved", name
+      FROM "InventoryItem"
+      WHERE id = ${inventoryItemId}
+      FOR UPDATE
+    `;
+
+    const item = rows[0];
 
     if (!item) {
       throw new AppError(404, 'Inventory item not found', 'INVENTORY_NOT_FOUND');
@@ -156,7 +167,7 @@ export async function reserveMaterials(input: ReserveMaterialsInput): Promise<In
       throw new AppError(403, 'Access denied', 'FORBIDDEN');
     }
 
-    const available = item.quantityOnHand - item.quantityReserved;
+    const available = getAvailableQuantity(item);
     if (available < quantity) {
       throw new AppError(
         400,
@@ -189,6 +200,10 @@ export async function reserveMaterials(input: ReserveMaterialsInput): Promise<In
 export async function unreserveMaterials(input: ReserveMaterialsInput): Promise<InventoryItem> {
   const { organizationId, inventoryItemId, quantity, orderId, performedBy } = input;
 
+  if (quantity <= 0) {
+    throw new AppError(400, 'Quantity must be positive', 'INVALID_QUANTITY');
+  }
+
   return prisma.$transaction(async (tx) => {
     const item = await tx.inventoryItem.findUnique({
       where: { id: inventoryItemId },
@@ -209,6 +224,14 @@ export async function unreserveMaterials(input: ReserveMaterialsInput): Promise<
     }
 
     const toUnreserve = Math.min(quantity, item.quantityReserved);
+
+    if (toUnreserve < quantity) {
+      logger.warn('unreserveMaterials: requested quantity exceeds reserved amount, clamping', {
+        inventoryItemId,
+        requested: quantity,
+        actual: toUnreserve,
+      });
+    }
 
     const [updated] = await Promise.all([
       tx.inventoryItem.update({
@@ -244,6 +267,10 @@ export async function receiveStock(
   },
 ): Promise<InventoryItem> {
   const { organizationId, inventoryItemId, quantity, orderId, performedBy } = params;
+
+  if (quantity <= 0) {
+    throw new AppError(400, 'Quantity must be positive', 'INVALID_QUANTITY');
+  }
 
   const item = await tx.inventoryItem.findUnique({
     where: { id: inventoryItemId },
