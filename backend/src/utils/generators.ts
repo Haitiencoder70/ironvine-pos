@@ -1,3 +1,4 @@
+import { InventoryCategory } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { randomBytes } from 'node:crypto';
@@ -96,7 +97,7 @@ export function generateSlug(name: string): string {
  * Format: {CATEGORY_PREFIX}-{TIMESTAMP_BASE36}-{RANDOM_HEX4}
  * e.g. BLK-M0XFQZ-A3F1
  */
-export function generateSKU(category: string): string {
+export function generateSKU(category: InventoryCategory): string {
   const prefix = category
     .toUpperCase()
     .replace(/[^A-Z]/g, '')
