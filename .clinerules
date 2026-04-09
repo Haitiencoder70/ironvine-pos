@@ -1,0 +1,395 @@
+# .clinerules
+
+## Project Overview
+A **multi-tenant SaaS POS** for T-shirt graphics businesses. Production-ready, touch-optimized, offline-capable, with built-in multi-tenancy, Clerk auth, and Stripe billing from day one.
+
+---
+
+## Core Principles
+1. **Multi-Tenant First**: Every model has `organizationId`. Every query is tenant-scoped. No exceptions.
+2. **Professional Quality**: Production-ready code, not prototypes.
+3. **Type Safety**: Strict TypeScript everywhere — no `any` types.
+4. **Modern Patterns**: Latest React patterns (hooks, composition, suspense).
+5. **Touch-First**: All touch targets ≥ 44px. Designed for tablets.
+6. **Offline-Capable**: PWA — mutations queue offline, sync on reconnect.
+7. **Accessibility**: WCAG 2.1 AA minimum.
+8. **Performance**: Optimized for speed, lazy loading, code splitting.
+9. **Security**: Tenant isolation is a security boundary — treat it as such.
+
+---
+
+## Technology Stack
+
+### Backend
+- **Runtime**: Node.js 20+
+- **Framework**: Express with TypeScript
+- **Database**: PostgreSQL 15 with Prisma ORM
+- **Authentication**: Clerk (JWT verification via `@clerk/express`)
+- **Authorization**: Role-based (OWNER | MANAGER | STAFF) + subscription limits
+- **Validation**: Zod schemas — all inputs validated
+- **Real-time**: Socket.IO — rooms scoped per `organizationId`
+- **Logging**: Winston
+- **Security**: Helmet, CORS, rate limiting (express-rate-limit)
+- **Billing**: Stripe (`stripe` npm package, webhook handler)
+- **Email**: Resend (`resend` npm package)
+
+### Frontend
+- **Framework**: React 18+ with TypeScript
+- **Build Tool**: Vite
+- **PWA**: `vite-plugin-pwa` + Workbox service worker
+- **Offline Storage**: `idb` (IndexedDB wrapper) for mutation queue
+- **Routing**: React Router v6
+- **Auth**: Clerk React SDK (`@clerk/clerk-react`)
+- **State Management**: Zustand (global UI state), React Query (server state)
+- **Forms**: React Hook Form + Zod resolver
+- **Styling**: Tailwind CSS v3
+- **Components**: Headless UI + custom components
+- **Icons**: Heroicons v2
+- **Animations**: Framer Motion
+- **Charts**: Recharts
+- **Notifications**: React Hot Toast
+- **Date**: date-fns
+- **Hardware**: WebUSB API (receipt printer), HID (barcode scanner)
+
+---
+
+## Multi-Tenancy Rules (CRITICAL)
+
+### Every Prisma model MUST have:
+```typescript
+organizationId  String
+organization    Organization  @relation(fields: [organizationId], references: [id])
+```
+
+### Prisma middleware auto-injects tenantId:
+```typescript
+// Applied to ALL write operations
+params.args.data.organizationId = tenantId;
+
+// Applied to ALL read operations
+params.args.where.organizationId = tenantId;
+```
+
+### Never query without organizationId:
+```typescript
+// WRONG ❌
+prisma.order.findMany()
+
+// RIGHT ✅
+prisma.order.findMany({ where: { organizationId } })
+// Or rely on Prisma middleware — but NEVER disable it
+```
+
+### Socket.IO rooms are tenant-scoped:
+```typescript
+// Users join their org room on connect
+socket.join(`org:${organizationId}`);
+
+// Emit only to that room, never broadcast globally
+io.to(`org:${organizationId}`).emit('order:created', order);
+```
+
+---
+
+## Authentication Rules (Clerk)
+
+### Backend
+- Use `@clerk/express` middleware on every protected route
+- Extract `userId` and `organizationId` from Clerk session
+- Never trust client-provided organizationId — always use Clerk session
+- Validate user belongs to the org before any operation
+
+### Frontend
+- Wrap app in `<ClerkProvider>`
+- Use `useAuth()`, `useOrganization()`, `useUser()` hooks
+- All API calls include Clerk session token
+- Redirect unauthenticated users to sign-in
+
+### User Roles
+- `OWNER`: Full access, billing management, user management
+- `MANAGER`: Full POS access, no billing
+- `STAFF`: Limited to their assigned workflows (create orders, receive stock)
+
+---
+
+## Stripe Billing Rules
+
+### Subscription Plans
+```typescript
+const PLANS = {
+  FREE:       { maxUsers: 1,  maxOrders: 100,  maxInventory: 500  },
+  PRO:        { maxUsers: 10, maxOrders: 5000, maxInventory: 5000 },
+  ENTERPRISE: { maxUsers: -1, maxOrders: -1,   maxInventory: -1   },
+} as const;
+```
+
+### Enforcement
+- Check limits in API middleware before allowing creates
+- Return `403` with clear message when limit exceeded
+- Limits enforced server-side — never trust client
+
+### Webhooks
+- `customer.subscription.updated` → update `Organization.subscriptionStatus`
+- `customer.subscription.deleted` → downgrade to FREE
+- `invoice.payment_failed` → notify owner, restrict new orders after grace period
+
+---
+
+## PWA / Offline Rules
+
+### What must work offline
+- View existing orders, customers, inventory
+- Create new orders (queued in IndexedDB)
+- Print receipts (via local printer)
+
+### Offline mutation queue
+```typescript
+interface QueuedMutation {
+  id: string;
+  action: string;
+  payload: unknown;
+  retryCount: number;
+  createdAt: string;
+}
+```
+- Store in IndexedDB key `offlineQueue`
+- On reconnect, replay in order, handle conflicts
+- Show toast: "You're offline — changes will sync when reconnected"
+
+### Caching strategy (Workbox)
+- Static assets: Cache First
+- API GET requests: Stale While Revalidate (5 min TTL)
+- Mutations: Network Only (queue if offline)
+
+---
+
+## Hardware Integration Rules
+
+### Receipt Printer
+- Adapter interface: `PrinterAdapter` with `print(receipt: ReceiptData): Promise<void>`
+- Implementations: `WebUSBPrinter`, `StarCloudPrinter`, `MockPrinter`
+- All in `src/services/hardware/printer/`
+- Selected via organization settings
+
+### Barcode Scanner
+- Listen for HID keyboard events in `src/services/hardware/scanner.ts`
+- Detect scanner input by rapid keypress timing (<50ms between chars)
+- Emit `scanner:input` event with decoded barcode string
+
+### Cash Drawer
+- Triggered via printer kick command after payment
+- `src/services/hardware/cashdrawer.ts`
+
+---
+
+## Code Style Guidelines
+
+### TypeScript
+- Strict mode — `"strict": true` in tsconfig
+- Explicit return types on all functions
+- `interface` for object shapes, `type` for unions/intersections
+- No `any` — use `unknown` if type is truly unknown
+- Descriptive names — no single letters except loop indices `i`, `j`
+
+### React Components
+- Functional components only
+- Named exports — no default exports
+- Props interface defined directly above the component
+- Destructure props in parameters
+- One component per file (unless tiny sub-components)
+
+### File Naming
+- **Components**: PascalCase — `OrderCard.tsx`, `InventoryTable.tsx`
+- **Utilities**: camelCase — `formatCurrency.ts`, `generateOrderNumber.ts`
+- **Hooks**: camelCase with `use` prefix — `useOrders.ts`, `useOfflineQueue.ts`
+- **Types**: PascalCase — `Order.ts`, or grouped in `types/index.ts`
+- **Services**: camelCase — `orderService.ts`, `printerAdapter.ts`
+
+---
+
+## Folder Structure
+
+### Backend (`backend/src/`)
+```
+src/
+├── index.ts                  # Express app entry
+├── middleware/
+│   ├── auth.ts               # Clerk JWT verification
+│   ├── tenant.ts             # organizationId injection
+│   ├── limits.ts             # Subscription limit enforcement
+│   └── errorHandler.ts
+├── routes/
+│   ├── orders.ts
+│   ├── inventory.ts
+│   ├── customers.ts
+│   ├── vendors.ts
+│   ├── purchaseOrders.ts
+│   ├── shipments.ts
+│   ├── billing.ts            # Stripe portal + webhook
+│   └── sync.ts               # Offline mutation replay
+├── services/
+│   ├── orderService.ts
+│   ├── inventoryService.ts
+│   ├── billingService.ts
+│   └── emailService.ts
+├── sockets/
+│   └── index.ts              # Socket.IO, org-scoped rooms
+├── prisma/
+│   └── client.ts             # Prisma + tenant middleware
+└── types/
+    └── index.ts
+```
+
+### Frontend (`frontend/src/`)
+```
+src/
+├── components/
+│   ├── ui/                   # Button, Input, Card, Modal, Badge, Spinner…
+│   ├── layout/               # AppShell, Sidebar, TopBar, BottomNav
+│   ├── orders/
+│   ├── customers/
+│   ├── inventory/
+│   ├── hardware/             # PrinterStatus, ScannerListener
+│   └── offline/              # OfflineBanner, SyncStatus
+├── pages/
+│   ├── Dashboard.tsx
+│   ├── Orders.tsx
+│   ├── OrderDetail.tsx
+│   ├── NewOrder.tsx
+│   ├── Inventory.tsx
+│   ├── PurchaseOrders.tsx
+│   ├── Customers.tsx
+│   ├── Shipments.tsx
+│   └── Settings.tsx
+├── hooks/
+│   ├── useOrders.ts
+│   ├── useInventory.ts
+│   ├── useOfflineQueue.ts
+│   ├── useSocket.ts
+│   └── useHardware.ts
+├── services/
+│   ├── api.ts                # Axios instance with Clerk token
+│   ├── hardware/
+│   │   ├── printer.ts
+│   │   ├── scanner.ts
+│   │   └── cashdrawer.ts
+│   └── offlineQueue.ts       # IndexedDB mutation queue
+├── store/
+│   ├── uiStore.ts            # Zustand: sidebar, modals, toasts
+│   └── offlineStore.ts       # Zustand: online status, queue count
+├── types/
+│   └── index.ts
+├── utils/
+│   ├── formatCurrency.ts
+│   ├── formatDate.ts
+│   └── generateOrderNumber.ts
+└── App.tsx
+```
+
+---
+
+## Design System
+
+### Colors (Tailwind)
+- Primary: `blue-600` / `blue-700` (hover) / `blue-50` (bg)
+- Success: `green-600` / `green-50`
+- Warning: `amber-500` / `amber-50`
+- Danger: `red-600` / `red-50`
+- Neutral: `gray-900` (text), `gray-600` (muted), `gray-100` (bg)
+
+### Spacing
+- Consistent padding: `p-4` (16px), `p-6` (24px)
+- Touch targets: **minimum 44×44px — no exceptions**
+
+### Touch-Optimized Buttons
+```tsx
+// All buttons use min-h to ensure touch target
+const SIZE_CLASSES = {
+  sm: 'min-h-[44px] px-4 text-sm',
+  md: 'min-h-[44px] px-6 text-base',   // default
+  lg: 'min-h-[52px] px-8 text-base',
+  xl: 'min-h-[60px] px-10 text-lg',
+} as const;
+```
+
+### Border Radius
+- Cards, buttons, inputs: `rounded-xl`
+- Badges: `rounded-full`
+- Modals: `rounded-2xl`
+
+### Shadows
+- Cards: `shadow-sm`
+- Elevated: `shadow-lg`
+- Modals: `shadow-2xl`
+
+### Responsive Breakpoints
+- Mobile: `< 640px` — single column, bottom nav
+- Tablet: `640px–1024px` — two columns, collapsible sidebar (**primary target**)
+- Desktop: `> 1024px` — multi-column, permanent sidebar
+
+---
+
+## When Generating Code — Checklist
+
+1. **Always include imports** at the top
+2. **Add `organizationId`** to every new Prisma model
+3. **Handle loading states** — skeletons or spinners
+4. **Handle error states** — error message + retry button
+5. **Handle empty states** — friendly message + CTA
+6. **Make responsive** — mobile, tablet, desktop
+7. **Touch targets ≥ 44px** — every button, input, link
+8. **Offline-aware** — check `navigator.onLine` before mutations
+9. **Proper TypeScript types** — no `any`, no casting tricks
+10. **Validate with Zod** — both frontend (form) and backend (request body)
+11. **Named exports only** — no default exports
+12. **Complete code** — no `// TODO`, no placeholders
+
+---
+
+## Don't Do This ❌
+- Default exports
+- Inline styles (use Tailwind)
+- Magic numbers (use named constants)
+- `any` types
+- Unused imports or variables
+- `console.log` (use Winston or logger service)
+- Hardcoded strings (use constants or i18n keys)
+- Nested ternaries (use early returns or lookup maps)
+- God components (split at ~200 lines)
+- Querying without `organizationId`
+- Trusting client-provided `organizationId`
+- Building custom auth (use Clerk)
+- Building custom billing (use Stripe)
+
+## Do This ✅
+- Named exports
+- Tailwind classes
+- Named constants (`const MAX_ORDER_ITEMS = 50`)
+- Strict TypeScript types
+- Clean imports (sort: external → internal → relative)
+- Winston for backend logs, logger service for frontend
+- Tenant-scoped queries every time
+- Clerk session for auth context
+- Stripe webhooks for billing events
+- Offline queue for mutations
+- Hardware adapters behind interfaces
+
+---
+
+## Final Checks Before Generating
+- [ ] Is it type-safe? (no `any`)
+- [ ] Is it tenant-scoped? (`organizationId` present)
+- [ ] Is it accessible? (WCAG 2.1 AA)
+- [ ] Is it touch-friendly? (≥ 44px targets)
+- [ ] Does it handle errors?
+- [ ] Does it handle loading?
+- [ ] Does it handle empty states?
+- [ ] Is it offline-aware?
+- [ ] Is it responsive? (mobile / tablet / desktop)
+- [ ] Is it performant?
+- [ ] Is it secure? (no trust of client input)
+- [ ] Is it maintainable? (single responsibility)
+
+---
+
+Remember: We're building a professional multi-tenant SaaS product. Every line of code is production-ready, tenant-isolated, offline-capable, and touch-optimized.

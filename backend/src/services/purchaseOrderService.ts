@@ -338,3 +338,149 @@ export async function getPurchaseOrders(
 
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
+
+// ─── Get By ID ────────────────────────────────────────────────────────────────
+
+export async function getPOById(organizationId: string, poId: string) {
+  const po = await prisma.purchaseOrder.findUnique({
+    where: { id: poId },
+    include: {
+      vendor: true,
+      items: {
+        include: {
+          inventoryItem: { select: { id: true, sku: true, name: true } },
+        },
+      },
+      receivings: {
+        include: { items: true },
+        orderBy: { receivedAt: 'desc' },
+      },
+    },
+  });
+
+  if (!po || po.organizationId !== organizationId) {
+    throw new AppError(404, 'Purchase order not found', 'PO_NOT_FOUND');
+  }
+
+  return po;
+}
+
+// ─── Send to Vendor ───────────────────────────────────────────────────────────
+
+export async function sendToVendor(input: {
+  organizationId: string;
+  poId: string;
+  performedBy: string;
+}): Promise<PurchaseOrder> {
+  const { organizationId, poId, performedBy } = input;
+
+  const po = await prisma.purchaseOrder.findUnique({
+    where: { id: poId },
+    select: {
+      id: true,
+      organizationId: true,
+      status: true,
+      poNumber: true,
+      vendor: { select: { name: true } },
+    },
+  });
+
+  if (!po || po.organizationId !== organizationId) {
+    throw new AppError(404, 'Purchase order not found', 'PO_NOT_FOUND');
+  }
+
+  if (po.status !== 'DRAFT') {
+    throw new AppError(
+      400,
+      `Cannot send PO in status "${po.status}". Must be DRAFT.`,
+      'INVALID_PO_STATUS',
+    );
+  }
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const result = await tx.purchaseOrder.update({
+      where: { id: poId },
+      data: { status: 'SENT' },
+    });
+
+    await tx.activityLog.create({
+      data: {
+        action: 'UPDATED',
+        entityType: 'PurchaseOrder',
+        entityId: poId,
+        entityLabel: po.poNumber,
+        description: `PO ${po.poNumber} sent to vendor "${po.vendor.name}"`,
+        performedBy,
+        organizationId,
+      },
+    });
+
+    return result;
+  });
+
+  logger.info('PO sent to vendor', { poId, poNumber: po.poNumber, organizationId });
+  return updated;
+}
+
+// ─── Update PO Status ─────────────────────────────────────────────────────────
+
+const VALID_PO_TRANSITIONS: Partial<Record<PurchaseOrder['status'], PurchaseOrder['status'][]>> = {
+  DRAFT: ['SENT', 'CANCELLED'],
+  SENT: ['PARTIALLY_RECEIVED', 'RECEIVED', 'CANCELLED'],
+  PARTIALLY_RECEIVED: ['RECEIVED', 'CANCELLED'],
+  RECEIVED: [],
+  CANCELLED: [],
+};
+
+export async function updatePOStatus(input: {
+  organizationId: string;
+  poId: string;
+  newStatus: PurchaseOrder['status'];
+  notes?: string;
+  performedBy: string;
+}): Promise<PurchaseOrder> {
+  const { organizationId, poId, newStatus, notes, performedBy } = input;
+
+  const po = await prisma.purchaseOrder.findUnique({
+    where: { id: poId },
+    select: { id: true, organizationId: true, status: true, poNumber: true },
+  });
+
+  if (!po || po.organizationId !== organizationId) {
+    throw new AppError(404, 'Purchase order not found', 'PO_NOT_FOUND');
+  }
+
+  const allowedNext = VALID_PO_TRANSITIONS[po.status] ?? [];
+  if (!allowedNext.includes(newStatus)) {
+    throw new AppError(
+      400,
+      `Cannot transition PO from ${po.status} to ${newStatus}`,
+      'INVALID_STATUS_TRANSITION',
+    );
+  }
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const result = await tx.purchaseOrder.update({
+      where: { id: poId },
+      data: { status: newStatus },
+    });
+
+    await tx.activityLog.create({
+      data: {
+        action: 'STATUS_CHANGED',
+        entityType: 'PurchaseOrder',
+        entityId: poId,
+        entityLabel: po.poNumber,
+        description: `PO ${po.poNumber} status changed from ${po.status} to ${newStatus}${notes ? `: ${notes}` : ''}`,
+        metadata: { from: po.status, to: newStatus, notes },
+        performedBy,
+        organizationId,
+      },
+    });
+
+    return result;
+  });
+
+  logger.info('PO status updated', { poId, from: po.status, to: newStatus });
+  return updated;
+}

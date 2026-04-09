@@ -1,6 +1,7 @@
-import { Prisma, Order, OrderStatus, OrderItem, StockMovementType } from '@prisma/client';
+import { Prisma, Order, OrderStatus, OrderItem, OrderPriority, StockMovementType } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
+import { emitToOrg } from '../lib/socket';
 import { AppError } from '../middleware/errorHandler';
 import { generateOrderNumber } from '../utils/generators';
 import type {
@@ -166,7 +167,8 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
     return created;
   });
 
-  logger.info('Order created', { orderId: order.id, orderNumber, organizationId });
+  logger.info('Order created', { orderId: order.id, orderNumber: order.orderNumber, organizationId });
+  emitToOrg(organizationId, 'order:created', order);
   return order;
 }
 
@@ -265,6 +267,7 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
   });
 
   logger.info('Order status updated', { orderId, from: order.status, to: newStatus });
+  emitToOrg(organizationId, 'order:status-changed', updated);
   return updated;
 }
 
@@ -362,6 +365,59 @@ export async function getOrderById(organizationId: string, orderId: string) {
   }
 
   return order;
+}
+
+// ─── Update Order Details ─────────────────────────────────────────────────────
+
+export interface UpdateOrderInput {
+  organizationId: string;
+  orderId: string;
+  priority?: OrderPriority;
+  dueDate?: Date | null;
+  notes?: string;
+  internalNotes?: string;
+  designNotes?: string;
+  designFiles?: string[];
+  discount?: number;
+  performedBy: string;
+}
+
+export async function updateOrder(input: UpdateOrderInput): Promise<Order> {
+  const { organizationId, orderId, performedBy, ...updates } = input;
+
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: { id: true, organizationId: true, orderNumber: true },
+  });
+
+  if (!order || order.organizationId !== organizationId) {
+    throw new AppError(404, 'Order not found', 'ORDER_NOT_FOUND');
+  }
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const result = await tx.order.update({
+      where: { id: orderId },
+      data: updates,
+    });
+
+    await tx.activityLog.create({
+      data: {
+        action: 'UPDATED',
+        entityType: 'Order',
+        entityId: orderId,
+        entityLabel: order.orderNumber,
+        description: `Order ${order.orderNumber} details updated`,
+        performedBy,
+        organizationId,
+      },
+    });
+
+    return result;
+  });
+
+  logger.info('Order updated', { orderId, organizationId });
+  emitToOrg(organizationId, 'order:updated', updated);
+  return updated;
 }
 
 // ─── Material Usage ───────────────────────────────────────────────────────────

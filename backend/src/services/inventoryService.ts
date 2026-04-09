@@ -1,6 +1,7 @@
 import { Prisma, InventoryItem, StockMovementType, InventoryCategory } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
+import { emitToOrg } from '../lib/socket';
 import { AppError } from '../middleware/errorHandler';
 import type {
   ReserveMaterialsInput,
@@ -124,6 +125,11 @@ export async function adjustStock(input: AdjustStockInput): Promise<InventoryIte
         },
       }),
     ]);
+
+    // Emit a low-stock event if the stock falls below the reorder point
+    if (updated.quantityOnHand <= updated.reorderPoint) {
+      emitToOrg(organizationId, 'inventory:low-stock', updated);
+    }
 
     logger.info('Stock adjusted', {
       inventoryItemId,
@@ -303,4 +309,81 @@ export async function receiveStock(
   ]);
 
   return updated;
+}
+
+// ─── Get / Update Individual Items ────────────────────────────────────────────
+
+export async function getInventoryItemById(
+  organizationId: string,
+  itemId: string,
+): Promise<InventoryItem> {
+  const item = await prisma.inventoryItem.findUnique({ where: { id: itemId } });
+
+  if (!item || item.organizationId !== organizationId) {
+    throw new AppError(404, 'Inventory item not found', 'INVENTORY_NOT_FOUND');
+  }
+
+  return item;
+}
+
+export interface UpdateInventoryItemInput {
+  organizationId: string;
+  itemId: string;
+  name?: string;
+  category?: InventoryCategory;
+  brand?: string;
+  size?: string;
+  color?: string;
+  reorderPoint?: number;
+  reorderQuantity?: number;
+  costPrice?: number;
+  notes?: string;
+  isActive?: boolean;
+}
+
+export async function updateInventoryItem(input: UpdateInventoryItemInput): Promise<InventoryItem> {
+  const { organizationId, itemId, ...updates } = input;
+
+  const item = await prisma.inventoryItem.findUnique({
+    where: { id: itemId },
+    select: { id: true, organizationId: true },
+  });
+
+  if (!item || item.organizationId !== organizationId) {
+    throw new AppError(404, 'Inventory item not found', 'INVENTORY_NOT_FOUND');
+  }
+
+  const updated = await prisma.inventoryItem.update({
+    where: { id: itemId },
+    data: updates,
+  });
+
+  logger.info('Inventory item updated', { itemId, organizationId });
+  return updated;
+}
+
+// ─── Stock Movement History ───────────────────────────────────────────────────
+
+export async function getStockMovements(
+  organizationId: string,
+  inventoryItemId: string,
+  options: PaginationInput = {},
+): Promise<PaginatedResult<Awaited<ReturnType<typeof prisma.stockMovement.findMany>>[number]>> {
+  const { page = 1 } = options;
+  const limit = Math.min(options.limit ?? 50, 200);
+  const skip = (page - 1) * limit;
+
+  const where = { organizationId, inventoryItemId };
+
+  const [data, total] = await prisma.$transaction([
+    prisma.stockMovement.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.stockMovement.count({ where }),
+  ]);
+
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }

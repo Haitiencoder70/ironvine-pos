@@ -1,0 +1,679 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  STAFF
+}
+
+enum OrderStatus {
+  QUOTE
+  PENDING_APPROVAL
+  APPROVED
+  MATERIALS_ORDERED
+  MATERIALS_RECEIVED
+  IN_PRODUCTION
+  QUALITY_CHECK
+  READY_TO_SHIP
+  SHIPPED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
+
+enum OrderPriority {
+  NORMAL
+  HIGH
+  RUSH
+}
+
+enum PrintMethod {
+  DTF
+  HTV
+  SCREEN_PRINT
+  EMBROIDERY
+  SUBLIMATION
+  DTG
+}
+
+enum PrintLocation {
+  FRONT
+  BACK
+  LEFT_SLEEVE
+  RIGHT_SLEEVE
+  FULL_PRINT
+}
+
+enum InventoryCategory {
+  BLANK_SHIRTS
+  DTF_TRANSFERS
+  VINYL
+  INK
+  PACKAGING
+  EMBROIDERY_THREAD
+  OTHER
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+enum ShipmentStatus {
+  PENDING
+  LABEL_CREATED
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  EXCEPTION
+}
+
+enum ShipmentCarrier {
+  UPS
+  FEDEX
+  USPS
+  DHL
+  OTHER
+}
+
+enum StockMovementType {
+  IN
+  OUT
+  RESERVED
+  UNRESERVED
+  ADJUSTMENT
+  DAMAGED
+  RETURNED
+}
+
+enum ActivityAction {
+  CREATED
+  UPDATED
+  DELETED
+  STATUS_CHANGED
+  ASSIGNED
+  COMMENTED
+  EXPORTED
+  IMPORTED
+  RECEIVED
+  SHIPPED
+  INVOICED
+  PAID
+}
+
+// ─── Organization (Tenant) ────────────────────────────────────────────────────
+
+model Organization {
+  id        String   @id @default(cuid())
+  clerkOrgId String  @unique
+  slug      String   @unique
+  name      String
+  subdomain String   @unique
+  logoUrl   String?
+
+  plan                 SubscriptionPlan @default(FREE)
+  stripeCustomerId     String?          @unique
+  stripeSubscriptionId String?          @unique
+  subscriptionStatus   String?
+
+  maxUsers          Int @default(1)
+  maxOrders         Int @default(100)
+  maxInventoryItems Int @default(500)
+
+  taxRate           Decimal @default(0) @db.Decimal(6, 4)
+  orderNumberPrefix String  @default("ORD")
+  currency          String  @default("USD")
+  timezone          String  @default("America/New_York")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users              User[]
+  customers          Customer[]
+  orders             Order[]
+  inventoryItems     InventoryItem[]
+  purchaseOrders     PurchaseOrder[]
+  vendors            Vendor[]
+  shipments          Shipment[]
+  orderItems         OrderItem[]
+  purchaseOrderItems PurchaseOrderItem[]
+  stockMovements     StockMovement[]
+  orderStatusHistories    OrderStatusHistory[]
+  requiredMaterials       RequiredMaterial[]
+  materialUsages          MaterialUsage[]
+  poReceivings            POReceiving[]
+  poReceivingItems        POReceivingItem[]
+  shipmentStatusHistories ShipmentStatusHistory[]
+  activityLogs            ActivityLog[]
+  sequenceCounters        SequenceCounter[]
+
+  @@map("organizations")
+}
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  clerkUserId  String   @unique
+  email        String
+  firstName    String
+  lastName     String
+  avatarUrl    String?
+  role         UserRole @default(STAFF)
+  isActive     Boolean  @default(true)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, organizationId])
+  @@index([organizationId])
+  @@map("users")
+}
+
+// ─── Customer ─────────────────────────────────────────────────────────────────
+
+model Customer {
+  id          String  @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String?
+  phone       String?
+  company     String?
+  notes       String?
+
+  billingStreet  String?
+  billingCity    String?
+  billingState   String?
+  billingZip     String?
+  billingCountry String? @default("US")
+
+  shippingStreet  String?
+  shippingCity    String?
+  shippingState   String?
+  shippingZip     String?
+  shippingCountry String? @default("US")
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, organizationId])
+  @@index([organizationId])
+  @@map("customers")
+}
+
+// ─── Order ────────────────────────────────────────────────────────────────────
+
+model Order {
+  id          String        @id @default(cuid())
+  orderNumber String
+  status      OrderStatus   @default(QUOTE)
+  priority    OrderPriority @default(NORMAL)
+
+  customerId     String
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  designNotes String?
+  designFiles String[] @default([])
+
+  subtotal   Decimal @default(0) @db.Decimal(10, 2)
+  taxAmount  Decimal @default(0) @db.Decimal(10, 2)
+  discount   Decimal @default(0) @db.Decimal(10, 2)
+  total      Decimal @default(0) @db.Decimal(10, 2)
+
+  dueDate    DateTime?
+  notes      String?
+  internalNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items          OrderItem[]
+  purchaseOrders PurchaseOrder[]
+  shipments      Shipment[]
+  stockMovements StockMovement[]
+  statusHistory  OrderStatusHistory[]
+  materialUsages MaterialUsage[]
+
+  @@unique([orderNumber, organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@map("orders")
+}
+
+// ─── Order Item ───────────────────────────────────────────────────────────────
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productType  String
+  size         String?
+  color        String?
+  sleeveType   String?
+  quantity     Int
+  unitPrice    Decimal @db.Decimal(10, 2)
+  lineTotal    Decimal @db.Decimal(10, 2)
+
+  printMethod    PrintMethod?
+  printLocations PrintLocation[]
+
+  description String?
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  requiredMaterials RequiredMaterial[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([organizationId])
+  @@map("order_items")
+}
+
+// ─── Inventory ────────────────────────────────────────────────────────────────
+
+model InventoryItem {
+  id       String            @id @default(cuid())
+  sku      String
+  name     String
+  category InventoryCategory
+  brand    String?
+  size     String?
+  color    String?
+
+  quantityOnHand   Int @default(0)
+  quantityReserved Int @default(0)
+  reorderPoint     Int @default(10)
+  reorderQuantity  Int @default(50)
+
+  costPrice   Decimal  @db.Decimal(10, 2)
+  notes       String?
+  isActive    Boolean  @default(true)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  purchaseOrderItems PurchaseOrderItem[]
+  stockMovements     StockMovement[]
+  requiredMaterials  RequiredMaterial[]
+  materialUsages     MaterialUsage[]
+  receivingItems     POReceivingItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sku, organizationId])
+  @@index([organizationId])
+  @@map("inventory_items")
+}
+
+// ─── Stock Movement ───────────────────────────────────────────────────────────
+
+model StockMovement {
+  id              String @id @default(cuid())
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+
+  type     StockMovementType
+  quantity Int
+  reason   String?
+  orderId  String?
+  order    Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([inventoryItemId, createdAt(sort: Desc)])
+  @@map("stock_movements")
+}
+
+// ─── Vendor ───────────────────────────────────────────────────────────────────
+
+model Vendor {
+  id          String   @id @default(cuid())
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  website     String?
+  notes       String?
+
+  categories     String[]
+  paymentTerms   String?
+  leadTimeDays   Int?
+  isActive       Boolean  @default(true)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  purchaseOrders PurchaseOrder[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, organizationId])
+  @@index([organizationId])
+  @@map("vendors")
+}
+
+// ─── Purchase Order ───────────────────────────────────────────────────────────
+
+model PurchaseOrder {
+  id       String              @id @default(cuid())
+  poNumber String
+  status   PurchaseOrderStatus @default(DRAFT)
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+
+  linkedOrderId String?
+  linkedOrder   Order?  @relation(fields: [linkedOrderId], references: [id], onDelete: SetNull)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  subtotal   Decimal @default(0) @db.Decimal(10, 2)
+  taxAmount  Decimal @default(0) @db.Decimal(10, 2)
+  total      Decimal @default(0) @db.Decimal(10, 2)
+
+  notes         String?
+  expectedDate  DateTime?
+  receivedAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items     PurchaseOrderItem[]
+  receivings POReceiving[]
+
+  @@unique([poNumber, organizationId])
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@map("purchase_orders")
+}
+
+// ─── Purchase Order Item ──────────────────────────────────────────────────────
+
+model PurchaseOrderItem {
+  id              String @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  inventoryItemId String?
+  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
+
+  description   String
+  quantity      Int
+  quantityRecv  Int     @default(0)
+  unitCost      Decimal @db.Decimal(10, 2)
+  lineTotal     Decimal @db.Decimal(10, 2)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  receivingItems POReceivingItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([purchaseOrderId])
+  @@index([organizationId])
+  @@map("purchase_order_items")
+}
+
+// ─── Shipment ─────────────────────────────────────────────────────────────────
+
+model Shipment {
+  id             String          @id @default(cuid())
+  trackingNumber String?
+  carrier        ShipmentCarrier @default(UPS)
+  status         ShipmentStatus  @default(PENDING)
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  shippingStreet  String?
+  shippingCity    String?
+  shippingState   String?
+  shippingZip     String?
+  shippingCountry String? @default("US")
+
+  shippingCost      Decimal?  @db.Decimal(10, 2)
+  estimatedDelivery DateTime?
+  deliveredAt       DateTime?
+  notes             String?
+
+  statusHistory ShipmentStatusHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([trackingNumber])
+  @@map("shipments")
+}
+
+// ─── Order Status History ─────────────────────────────────────────────────────
+
+model OrderStatusHistory {
+  id      String      @id @default(cuid())
+  orderId String
+  order   Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  fromStatus OrderStatus?
+  toStatus   OrderStatus
+  changedBy  String
+  notes      String?
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId, createdAt(sort: Desc)])
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@map("order_status_history")
+}
+
+// ─── Required Material ────────────────────────────────────────────────────────
+
+model RequiredMaterial {
+  id          String    @id @default(cuid())
+  orderItemId String
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  inventoryItemId String?
+  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
+
+  description      String
+  quantityRequired Decimal @db.Decimal(10, 3)
+  quantityUnit     String  @default("units")
+  isFulfilled      Boolean @default(false)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderItemId])
+  @@index([organizationId])
+  @@map("required_materials")
+}
+
+// ─── Material Usage ───────────────────────────────────────────────────────────
+
+model MaterialUsage {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+
+  quantityUsed Decimal @db.Decimal(10, 3)
+  quantityUnit String  @default("units")
+  notes        String?
+  usedBy       String
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([inventoryItemId])
+  @@map("material_usage")
+}
+
+// ─── PO Receiving ─────────────────────────────────────────────────────────────
+
+model POReceiving {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  receivedBy String
+  notes      String?
+  receivedAt DateTime @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  items POReceivingItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([purchaseOrderId])
+  @@index([organizationId])
+  @@map("po_receivings")
+}
+
+// ─── PO Receiving Item ────────────────────────────────────────────────────────
+
+model POReceivingItem {
+  id            String      @id @default(cuid())
+  poReceivingId String
+  poReceiving   POReceiving @relation(fields: [poReceivingId], references: [id], onDelete: Cascade)
+
+  purchaseOrderItemId String
+  purchaseOrderItem   PurchaseOrderItem @relation(fields: [purchaseOrderItemId], references: [id], onDelete: Cascade)
+
+  inventoryItemId String?
+  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
+
+  quantityReceived Int
+  notes            String?
+  isAccepted       Boolean @default(true)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([poReceivingId])
+  @@index([organizationId])
+  @@map("po_receiving_items")
+}
+
+// ─── Shipment Status History ──────────────────────────────────────────────────
+
+model ShipmentStatusHistory {
+  id         String   @id @default(cuid())
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  fromStatus ShipmentStatus?
+  toStatus   ShipmentStatus
+  changedBy  String
+  notes      String?
+  location   String?
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([shipmentId, createdAt(sort: Desc)])
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@map("shipment_status_history")
+}
+
+// ─── Activity Log ─────────────────────────────────────────────────────────────
+
+model ActivityLog {
+  id           String         @id @default(cuid())
+  action       ActivityAction
+  entityType   String
+  entityId     String
+  entityLabel  String?
+  description  String
+  metadata     Json?
+
+  performedBy  String
+  ipAddress    String?
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@index([entityType, entityId])
+  @@map("activity_logs")
+}
+
+// ─── Sequence Counter ─────────────────────────────────────────────────────────
+
+model SequenceCounter {
+  id             String @id @default(cuid())
+  organizationId String
+  counterKey     String
+  lastValue      Int    @default(0)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, counterKey])
+  @@map("sequence_counters")
+}
