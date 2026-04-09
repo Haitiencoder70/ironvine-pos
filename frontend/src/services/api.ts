@@ -11,6 +11,11 @@ import {
   OrderWorkflow,
   StockMovement,
   DashboardStats,
+  SalesReport,
+  InventoryReport,
+  ProductionReport,
+  ReportPreset,
+  ReportGroupBy,
 } from '../types';
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
@@ -117,6 +122,17 @@ export const shipmentApi = {
     api.patch<ApiResponse<Shipment>>(`/shipments/${id}/status`, data).then((r) => r.data),
   updateTracking: (id: string, data: unknown) =>
     api.patch<ApiResponse<Shipment>>(`/shipments/${id}/tracking`, data).then((r) => r.data),
+};
+
+// ─── Reports ──────────────────────────────────────────────────────────────────
+
+export const reportApi = {
+  getSales: (params: { preset?: ReportPreset; startDate?: string; endDate?: string; groupBy?: ReportGroupBy }) =>
+    api.get<ApiResponse<SalesReport>>('/reports/sales', { params }).then((r) => r.data),
+  getInventory: () =>
+    api.get<ApiResponse<InventoryReport>>('/reports/inventory').then((r) => r.data),
+  getProduction: (params: { preset?: ReportPreset; startDate?: string; endDate?: string }) =>
+    api.get<ApiResponse<ProductionReport>>('/reports/production', { params }).then((r) => r.data),
 };
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────

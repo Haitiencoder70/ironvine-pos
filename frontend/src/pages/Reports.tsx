@@ -1,10 +1,15 @@
+import { Routes, Route } from 'react-router-dom';
 import type { JSX } from 'react';
+import { ReportsPage } from './reports/Reports';
+import { SalesReportPage } from './reports/SalesReport';
+import { InventoryReportPage } from './reports/InventoryReport';
 
-export function ReportsPage(): JSX.Element {
+export function ReportsPageRouter(): JSX.Element {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-      <p className="mt-2 text-gray-500">Reports page — coming soon.</p>
-    </div>
+    <Routes>
+      <Route index element={<ReportsPage />} />
+      <Route path="sales" element={<SalesReportPage />} />
+      <Route path="inventory" element={<InventoryReportPage />} />
+    </Routes>
   );
 }

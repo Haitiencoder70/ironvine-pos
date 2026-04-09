@@ -260,3 +260,131 @@ export interface DashboardStats {
   readyToShip: number;
   revenueToday: number;
 }
+
+// ─── Reports ──────────────────────────────────────────────────────────────────
+
+export type ReportPreset =
+  | 'today'
+  | 'yesterday'
+  | 'this_week'
+  | 'last_week'
+  | 'this_month'
+  | 'last_month'
+  | 'custom';
+
+export type ReportGroupBy = 'day' | 'week' | 'month';
+
+export interface RevenuePoint {
+  label: string;
+  revenue: number;
+}
+
+export interface OrderStatusCount {
+  status: string;
+  count: number;
+  revenue: number;
+}
+
+export interface TopCustomer {
+  id: string;
+  name: string;
+  orderCount: number;
+  totalSpent: number;
+}
+
+export interface TopProduct {
+  productType: string;
+  quantitySold: number;
+  revenue: number;
+}
+
+export interface SalesReportSummary {
+  totalRevenue: number;
+  totalOrders: number;
+  completedOrders: number;
+  avgOrderValue: number;
+  revenueChange: number | null;
+  ordersChange: number | null;
+}
+
+export interface SalesReportRow {
+  orderNumber: string;
+  createdAt: string;
+  customerName: string;
+  status: string;
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+  itemCount: number;
+}
+
+export interface SalesReport {
+  summary: SalesReportSummary;
+  revenueOverTime: RevenuePoint[];
+  ordersByStatus: OrderStatusCount[];
+  topCustomers: TopCustomer[];
+  topProducts: TopProduct[];
+  rows: SalesReportRow[];
+}
+
+export interface InventoryReportItem {
+  id: string;
+  sku: string;
+  name: string;
+  category: string;
+  quantityOnHand: number;
+  reorderPoint: number;
+  costPrice: number;
+}
+
+export interface ReorderRecommendation extends InventoryReportItem {
+  reorderQuantity: number;
+  estimatedCost: number;
+}
+
+export interface MostUsedItem {
+  id: string;
+  name: string;
+  sku: string;
+  totalUsed: number;
+}
+
+export interface CategoryBreakdown {
+  category: string;
+  count: number;
+  value: number;
+}
+
+export interface InventoryReportRow {
+  sku: string;
+  name: string;
+  category: string;
+  quantityOnHand: number;
+  quantityReserved: number;
+  reorderPoint: number;
+  costPrice: number;
+  totalValue: number;
+  status: 'OK' | 'LOW' | 'OUT';
+}
+
+export interface InventoryReport {
+  summary: {
+    totalItems: number;
+    lowStockCount: number;
+    outOfStockCount: number;
+    totalInventoryValue: number;
+  };
+  lowStock: InventoryReportItem[];
+  reorderRecommendations: ReorderRecommendation[];
+  mostUsed: MostUsedItem[];
+  byCategory: CategoryBreakdown[];
+  rows: InventoryReportRow[];
+}
+
+export interface ProductionReport {
+  avgProductionDays: number;
+  completedCount: number;
+  ordersByPrintMethod: { method: string; count: number }[];
+  ordersByPriority: { priority: string; count: number }[];
+}

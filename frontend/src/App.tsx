@@ -8,7 +8,7 @@ import { InventoryPage } from '@/pages/Inventory';
 import { PurchaseOrdersPage } from '@/pages/PurchaseOrders';
 import { VendorsPage } from '@/pages/Vendors';
 import { ShipmentsPage } from '@/pages/Shipments';
-import { ReportsPage } from '@/pages/Reports';
+import { ReportsPageRouter } from '@/pages/Reports';
 import { SettingsPage } from '@/pages/Settings';
 import { SignInPage } from '@/pages/SignIn';
 
@@ -30,7 +30,7 @@ export function App(): React.JSX.Element {
             <Route path="/purchase-orders/*" element={<PurchaseOrdersPage />} />
             <Route path="/vendors/*" element={<VendorsPage />} />
             <Route path="/shipments/*" element={<ShipmentsPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/reports/*" element={<ReportsPageRouter />} />
             <Route path="/settings/*" element={<SettingsPage />} />
             {/* Fallback for unknown authenticated routes */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
