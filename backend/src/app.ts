@@ -18,6 +18,7 @@ import { vendorsRouter } from './routes/vendors';
 import { purchaseOrdersRouter } from './routes/purchaseOrders';
 import { shipmentsRouter } from './routes/shipments';
 import { reportsRouter } from './routes/reports';
+import { settingsRouter } from './routes/settings';
 
 export const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api/vendors', vendorsRouter);
 app.use('/api/purchase-orders', purchaseOrdersRouter);
 app.use('/api/shipments', shipmentsRouter);
 app.use('/api/reports', reportsRouter);
+app.use('/api/settings', settingsRouter);
 
 // Global Error Handler
 app.use(errorHandler);

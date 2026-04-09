@@ -4,6 +4,11 @@ export interface Organization {
   slug: string;
   plan: 'FREE' | 'PRO' | 'ENTERPRISE';
   subscriptionStatus: string | null;
+  logoUrl?: string;
+  taxRate?: number;
+  orderNumberPrefix?: string;
+  currency?: string;
+  timezone?: string;
 }
 
 export interface User {
@@ -259,6 +264,50 @@ export interface DashboardStats {
   inProduction: number;
   readyToShip: number;
   revenueToday: number;
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+
+export interface OrgSettings {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string | null;
+  plan: 'FREE' | 'PRO' | 'ENTERPRISE';
+  subscriptionStatus: string | null;
+  taxRate: number;
+  orderNumberPrefix: string;
+  currency: string;
+  timezone: string;
+  // extended business info stored separately or via metadata
+  phone?: string;
+  email?: string;
+  addressStreet?: string;
+  addressCity?: string;
+  addressState?: string;
+  addressZip?: string;
+  addressCountry?: string;
+}
+
+export interface OrgUser {
+  id: string;
+  clerkUserId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+  role: 'OWNER' | 'MANAGER' | 'STAFF';
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface NotificationSettings {
+  newOrderEmail: boolean;
+  orderStatusEmail: boolean;
+  lowStockEmail: boolean;
+  poReceivedEmail: boolean;
+  shipmentDeliveredEmail: boolean;
+  recipients: string[];
 }
 
 // ─── Reports ──────────────────────────────────────────────────────────────────

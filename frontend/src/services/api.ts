@@ -16,6 +16,9 @@ import {
   ProductionReport,
   ReportPreset,
   ReportGroupBy,
+  OrgSettings,
+  OrgUser,
+  NotificationSettings,
 } from '../types';
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
@@ -122,6 +125,36 @@ export const shipmentApi = {
     api.patch<ApiResponse<Shipment>>(`/shipments/${id}/status`, data).then((r) => r.data),
   updateTracking: (id: string, data: unknown) =>
     api.patch<ApiResponse<Shipment>>(`/shipments/${id}/tracking`, data).then((r) => r.data),
+};
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+
+export const settingsApi = {
+  getOrg: () =>
+    api.get<ApiResponse<OrgSettings>>('/settings/org').then((r) => r.data),
+  updateOrg: (data: Partial<OrgSettings>) =>
+    api.patch<ApiResponse<OrgSettings>>('/settings/org', data).then((r) => r.data),
+  uploadLogo: (file: File) => {
+    const form = new FormData();
+    form.append('logo', file);
+    return api.post<ApiResponse<{ logoUrl: string }>>('/settings/org/logo', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then((r) => r.data);
+  },
+  getUsers: () =>
+    api.get<ApiResponse<OrgUser[]>>('/settings/users').then((r) => r.data),
+  inviteUser: (data: { email: string; firstName: string; lastName: string; role: string }) =>
+    api.post<ApiResponse<OrgUser>>('/settings/users/invite', data).then((r) => r.data),
+  updateUser: (id: string, data: { role?: string; isActive?: boolean; firstName?: string; lastName?: string }) =>
+    api.patch<ApiResponse<OrgUser>>(`/settings/users/${id}`, data).then((r) => r.data),
+  removeUser: (id: string) =>
+    api.delete<ApiResponse<null>>(`/settings/users/${id}`).then((r) => r.data),
+  getNotifications: () =>
+    api.get<ApiResponse<NotificationSettings>>('/settings/notifications').then((r) => r.data),
+  updateNotifications: (data: Partial<NotificationSettings>) =>
+    api.patch<ApiResponse<NotificationSettings>>('/settings/notifications', data).then((r) => r.data),
+  updateProfile: (data: { firstName?: string; lastName?: string; avatarUrl?: string }) =>
+    api.patch<ApiResponse<OrgUser>>('/settings/profile', data).then((r) => r.data),
 };
 
 // ─── Reports ──────────────────────────────────────────────────────────────────

@@ -9,7 +9,7 @@ import { PurchaseOrdersPage } from '@/pages/PurchaseOrders';
 import { VendorsPage } from '@/pages/Vendors';
 import { ShipmentsPage } from '@/pages/Shipments';
 import { ReportsPageRouter } from '@/pages/Reports';
-import { SettingsPage } from '@/pages/Settings';
+import { SettingsPageRouter } from '@/pages/Settings';
 import { SignInPage } from '@/pages/SignIn';
 
 export function App(): React.JSX.Element {
@@ -31,7 +31,7 @@ export function App(): React.JSX.Element {
             <Route path="/vendors/*" element={<VendorsPage />} />
             <Route path="/shipments/*" element={<ShipmentsPage />} />
             <Route path="/reports/*" element={<ReportsPageRouter />} />
-            <Route path="/settings/*" element={<SettingsPage />} />
+            <Route path="/settings/*" element={<SettingsPageRouter />} />
             {/* Fallback for unknown authenticated routes */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>

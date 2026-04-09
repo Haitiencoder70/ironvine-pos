@@ -1,10 +1,16 @@
+import { Routes, Route } from 'react-router-dom';
 import type { JSX } from 'react';
+import { SettingsPage } from './settings/Settings';
+import { AddEditUserPage } from './settings/AddEditUser';
+import { ProfilePage } from './settings/Profile';
 
-export function SettingsPage(): JSX.Element {
+export function SettingsPageRouter(): JSX.Element {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-      <p className="mt-2 text-gray-500">Settings page — coming soon.</p>
-    </div>
+    <Routes>
+      <Route index element={<SettingsPage />} />
+      <Route path="users/new" element={<AddEditUserPage />} />
+      <Route path="users/:id" element={<AddEditUserPage />} />
+      <Route path="profile" element={<ProfilePage />} />
+    </Routes>
   );
 }
