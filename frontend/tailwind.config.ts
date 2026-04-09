@@ -40,5 +40,35 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Safe area inset utilities for notched phones (used by BottomNav)
+    ({ addUtilities }: { addUtilities: (u: Record<string, Record<string, string>>) => void }) => {
+      addUtilities({
+        '.safe-area-bottom': {
+          'padding-bottom': 'env(safe-area-inset-bottom)',
+        },
+        '.safe-area-top': {
+          'padding-top': 'env(safe-area-inset-top)',
+        },
+        '.pb-safe': {
+          'padding-bottom': 'calc(4rem + env(safe-area-inset-bottom))',
+        },
+        '.touch-pan-y': {
+          'touch-action': 'pan-y',
+        },
+        '.touch-none': {
+          'touch-action': 'none',
+        },
+        '.overscroll-contain': {
+          'overscroll-behavior': 'contain',
+        },
+        '.will-change-transform': {
+          'will-change': 'transform',
+        },
+        '.tap-highlight-none': {
+          '-webkit-tap-highlight-color': 'transparent',
+        },
+      });
+    },
+  ],
 } satisfies Config;

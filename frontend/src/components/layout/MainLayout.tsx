@@ -4,7 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { SocketInit } from './SocketInit';
+import { BottomNav } from '../mobile/BottomNav';
 import { useUiStore } from '../../store/uiStore';
+import { useSwipeBack } from '../../hooks/useSwipeBack';
 
 export function MainLayout(): React.JSX.Element {
   const [collapsed, setCollapsed] = useState(false);
@@ -15,6 +17,9 @@ export function MainLayout(): React.JSX.Element {
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname, setSidebarOpen]);
+
+  // Swipe from left edge to go back on mobile
+  useSwipeBack();
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
@@ -29,7 +34,6 @@ export function MainLayout(): React.JSX.Element {
       <AnimatePresence>
         {isSidebarOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
@@ -40,7 +44,6 @@ export function MainLayout(): React.JSX.Element {
               onClick={() => setSidebarOpen(false)}
               aria-hidden="true"
             />
-            {/* Sidebar panel */}
             <motion.div
               key="sidebar"
               initial={{ x: '-100%' }}
@@ -57,11 +60,17 @@ export function MainLayout(): React.JSX.Element {
 
       {/* ── Main content area ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+        {/* TopBar: hide hamburger on desktop since sidebar is always visible */}
         <TopBar />
-        <main className="flex-1 overflow-y-auto">
+
+        {/* Scrollable page content — extra bottom padding on mobile for bottom nav */}
+        <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">
           <Outlet />
         </main>
       </div>
+
+      {/* ── Mobile bottom navigation ── */}
+      <BottomNav />
     </div>
   );
 }
