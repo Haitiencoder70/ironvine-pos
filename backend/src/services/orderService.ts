@@ -76,6 +76,8 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
     throw new AppError(400, 'Order must have at least one item', 'EMPTY_ORDER');
   }
 
+  // Note: sequence number is reserved before the transaction. Gaps can occur on rollback.
+  // This is intentional — gaps in order numbers are acceptable and expected.
   const orderNumber = await generateOrderNumber(organizationId, orderNumberPrefix);
 
   // Calculate totals
@@ -224,27 +226,32 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
     // When order is cancelled, unreserve all materials reserved for this order
     if (newStatus === 'CANCELLED') {
       const reservedItems = await tx.$queryRaw<
-        Array<{ inventoryItemId: string; totalReserved: number }>
+        Array<{ inventoryItemId: string; totalReserved: bigint; currentReserved: number }>
       >`
-        SELECT "inventoryItemId", SUM(quantity) as "totalReserved"
-        FROM "StockMovement"
-        WHERE "orderId" = ${orderId}
-          AND "organizationId" = ${organizationId}
-          AND type = 'RESERVED'::"StockMovementType"
-        GROUP BY "inventoryItemId"
+        SELECT sm."inventoryItemId",
+               SUM(sm.quantity) as "totalReserved",
+               ii."quantityReserved" as "currentReserved"
+        FROM "StockMovement" sm
+        JOIN "InventoryItem" ii ON ii.id = sm."inventoryItemId"
+        WHERE sm."orderId" = ${orderId}
+          AND sm."organizationId" = ${organizationId}
+          AND sm.type = 'RESERVED'::"StockMovementType"
+        GROUP BY sm."inventoryItemId", ii."quantityReserved"
+        FOR UPDATE OF ii
       `;
 
       for (const reserved of reservedItems) {
-        if (reserved.totalReserved > 0) {
+        const toUnreserve = Math.min(Number(reserved.totalReserved), reserved.currentReserved);
+        if (toUnreserve > 0) {
           await tx.inventoryItem.update({
             where: { id: reserved.inventoryItemId },
-            data: { quantityReserved: { decrement: reserved.totalReserved } },
+            data: { quantityReserved: { decrement: toUnreserve } },
           });
           await tx.stockMovement.create({
             data: {
               inventoryItemId: reserved.inventoryItemId,
               type: StockMovementType.UNRESERVED,
-              quantity: reserved.totalReserved,
+              quantity: toUnreserve,
               reason: `${performedBy}: Order cancelled`,
               orderId,
               organizationId,
@@ -404,10 +411,11 @@ export async function useMaterials(input: UseMaterialsInput): Promise<void> {
         throw new AppError(404, `Inventory item ${mat.inventoryItemId} not found`, 'INVENTORY_NOT_FOUND');
       }
 
-      if (item.quantityOnHand < mat.quantityUsed) {
+      const available = item.quantityOnHand - item.quantityReserved;
+      if (available < mat.quantityUsed) {
         throw new AppError(
           400,
-          `Insufficient stock for "${item.name}". On hand: ${item.quantityOnHand}, needed: ${mat.quantityUsed}`,
+          `Insufficient stock for "${item.name}". Available: ${available}, needed: ${mat.quantityUsed}`,
           'INSUFFICIENT_STOCK',
         );
       }
@@ -470,6 +478,36 @@ export function getOrderWorkflow(currentStatus: OrderStatus): {
   nextStatus: OrderStatus | null;
   canProgress: boolean;
 } {
+  // Side-states are not part of the linear workflow
+  if (currentStatus === 'ON_HOLD' || currentStatus === 'CANCELLED') {
+    const STATUS_LABELS_SIDE: Record<OrderStatus, string> = {
+      QUOTE: 'Quote',
+      PENDING_APPROVAL: 'Pending Approval',
+      APPROVED: 'Approved',
+      MATERIALS_ORDERED: 'Materials Ordered',
+      MATERIALS_RECEIVED: 'Materials Received',
+      IN_PRODUCTION: 'In Production',
+      QUALITY_CHECK: 'Quality Check',
+      READY_TO_SHIP: 'Ready to Ship',
+      SHIPPED: 'Shipped',
+      DELIVERED: 'Delivered',
+      COMPLETED: 'Completed',
+      CANCELLED: 'Cancelled',
+      ON_HOLD: 'On Hold',
+    };
+    return {
+      steps: ORDER_WORKFLOW.map((status) => ({
+        status,
+        label: STATUS_LABELS_SIDE[status],
+        isCompleted: false,
+        isCurrent: false,
+      })),
+      currentIndex: -1,
+      nextStatus: null,
+      canProgress: false,
+    };
+  }
+
   const STATUS_LABELS: Record<OrderStatus, string> = {
     QUOTE: 'Quote',
     PENDING_APPROVAL: 'Pending Approval',
