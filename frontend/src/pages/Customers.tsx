@@ -1,10 +1,16 @@
+import { Routes, Route } from 'react-router-dom';
 import type { JSX } from 'react';
+import { CustomerListPage } from './customers/CustomerList';
+import { CustomerDetailPage } from './customers/CustomerDetail';
+import { AddEditCustomerPage } from './customers/AddEditCustomer';
 
 export function CustomersPage(): JSX.Element {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
-      <p className="mt-2 text-gray-500">Customers page — coming soon.</p>
-    </div>
+    <Routes>
+      <Route index element={<CustomerListPage />} />
+      <Route path="new" element={<AddEditCustomerPage />} />
+      <Route path=":id" element={<CustomerDetailPage />} />
+      <Route path=":id/edit" element={<AddEditCustomerPage />} />
+    </Routes>
   );
 }

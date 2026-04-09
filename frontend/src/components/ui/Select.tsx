@@ -54,7 +54,7 @@ export function Select({
     if (multiSelect && Array.isArray(value)) {
       if (value.length === 0) return placeholder;
       const selectedLabels = options
-        .filter((opt) => value.includes(opt.value))
+        .filter((opt) => (value as (string | number)[]).includes(opt.value))
         .map((opt) => opt.label);
       return selectedLabels.join(', ');
     }
@@ -69,7 +69,7 @@ export function Select({
 
   const isSelected = (optionValue: string | number): boolean => {
     if (multiSelect && Array.isArray(value)) {
-      return value.includes(optionValue);
+      return (value as (string | number)[]).includes(optionValue);
     }
     return value === optionValue;
   };
@@ -80,11 +80,11 @@ export function Select({
       return;
     }
 
-    const current = Array.isArray(value) ? value : [];
+    const current: (string | number)[] = Array.isArray(value) ? (value as (string | number)[]) : [];
     if (current.includes(optionValue)) {
-      onChange?.(current.filter((v) => v !== optionValue));
+      onChange?.(current.filter((v) => v !== optionValue) as string[] | number[]);
     } else {
-      onChange?.([...current, optionValue]);
+      onChange?.([...current, optionValue] as string[] | number[]);
     }
   };
 

@@ -1,10 +1,13 @@
+import { Routes, Route } from 'react-router-dom';
 import type { JSX } from 'react';
+import { ShipmentListPage } from './shipments/ShipmentList';
+import { ShipmentDetailPage } from './shipments/ShipmentDetail';
 
 export function ShipmentsPage(): JSX.Element {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900">Shipments</h1>
-      <p className="mt-2 text-gray-500">Shipments page — coming soon.</p>
-    </div>
+    <Routes>
+      <Route index element={<ShipmentListPage />} />
+      <Route path=":id" element={<ShipmentDetailPage />} />
+    </Routes>
   );
 }
