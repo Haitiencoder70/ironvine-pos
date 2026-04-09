@@ -1,5 +1,5 @@
 import { Prisma, PurchaseOrder } from '@prisma/client';
-import type { Decimal } from '@prisma/client/runtime/library';
+import { Decimal } from '@prisma/client/runtime/library';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
@@ -41,9 +41,12 @@ export async function createPOForOrder(input: CreatePOInput): Promise<PurchaseOr
     }
   }
 
+  // Note: sequence number is reserved before the transaction. Gaps can occur on rollback — this is acceptable.
   const poNumber = await generatePONumber(organizationId);
 
-  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitCost, 0);
+  const subtotal = items
+    .reduce((sum, item) => sum.plus(new Decimal(item.unitCost).times(item.quantity)), new Decimal(0))
+    .toNumber();
   const total = subtotal;
 
   const po = await prisma.$transaction(async (tx) => {
@@ -65,7 +68,7 @@ export async function createPOForOrder(input: CreatePOInput): Promise<PurchaseOr
             quantity: item.quantity,
             quantityRecv: 0,
             unitCost: item.unitCost,
-            lineTotal: item.quantity * item.unitCost,
+            lineTotal: new Decimal(item.unitCost).times(item.quantity).toNumber(),
             organizationId,
           })),
         },
@@ -97,6 +100,8 @@ export async function createPOForOrder(input: CreatePOInput): Promise<PurchaseOr
         select: { status: true, orderNumber: true },
       });
 
+      // Note: only the first PO creation advances the order to MATERIALS_ORDERED.
+      // Multi-PO orders (multiple vendors) require manual status management after the first PO.
       if (linkedOrder?.status === 'APPROVED') {
         await tx.order.update({
           where: { id: linkedOrderId },
@@ -149,10 +154,10 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
     throw new AppError(400, 'All items already received for this purchase order', 'PO_ALREADY_RECEIVED');
   }
 
-  const updatedInventory: { inventoryItemId: string; quantityAdded: number }[] = [];
-  let orderStatusUpdated = false;
+  const { receiving, updatedInventory, orderStatusUpdated } = await prisma.$transaction(async (tx) => {
+    const localInventory: { inventoryItemId: string; quantityAdded: number }[] = [];
+    let localOrderUpdated = false;
 
-  const result = await prisma.$transaction(async (tx) => {
     // Create the receiving event
     const receiving = await tx.pOReceiving.create({
       data: {
@@ -176,11 +181,23 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
 
     // Update inventory and PO item quantities
     for (const item of items) {
+      // isAccepted=false: record in POReceivingItem but skip inventory and quantityRecv update.
+      // A fully-rejected PO will stay at its current status — staff must manually mark it CANCELLED.
       if (item.quantityReceived <= 0 || item.isAccepted === false) continue;
 
       const poItem = po.items.find((i) => i.id === item.purchaseOrderItemId);
       if (!poItem) {
         throw new AppError(404, `PO item ${item.purchaseOrderItemId} not found`, 'PO_ITEM_NOT_FOUND');
+      }
+
+      const alreadyReceived = Number(poItem.quantityRecv);
+      const remaining = poItem.quantity - alreadyReceived;
+      if (item.quantityReceived > remaining) {
+        throw new AppError(
+          400,
+          `Cannot receive ${item.quantityReceived} for "${poItem.description}". Only ${remaining} remaining.`,
+          'OVER_RECEIVE',
+        );
       }
 
       // Update the quantity received on the PO item
@@ -199,7 +216,7 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
           performedBy: receivedBy,
         });
 
-        updatedInventory.push({ inventoryItemId, quantityAdded: item.quantityReceived });
+        localInventory.push({ inventoryItemId, quantityAdded: item.quantityReceived });
       }
     }
 
@@ -233,6 +250,8 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
       },
     });
 
+    // Note: order advances to MATERIALS_RECEIVED only when THIS PO is fully received.
+    // For multi-PO orders, staff must manually advance if only one PO is received.
     // If linked to a customer order and all items received, advance order to MATERIALS_RECEIVED
     if (po.linkedOrderId && allReceived) {
       const linkedOrder = await tx.order.findUnique({
@@ -257,15 +276,15 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
           },
         });
 
-        orderStatusUpdated = true;
+        localOrderUpdated = true;
       }
     }
 
-    return receiving;
+    return { receiving, updatedInventory: localInventory, orderStatusUpdated: localOrderUpdated };
   });
 
-  logger.info('PO items received', { poId: purchaseOrderId, receivingId: result.id, itemCount: items.length });
-  return { receiving: result, updatedInventory, orderStatusUpdated };
+  logger.info('PO items received', { poId: purchaseOrderId, receivingId: receiving.id, itemCount: items.length });
+  return { receiving, updatedInventory, orderStatusUpdated };
 }
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
