@@ -3,11 +3,6 @@ import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
 import { generateOrderNumber } from '../utils/generators';
-import { unreserveMaterials } from './inventoryService';
-
-// Re-exported so callers can use it directly without importing inventoryService separately.
-// Cancellation logic in updateOrderStatus is intentionally inlined (raw SQL aggregation) to avoid N+1 calls.
-export { unreserveMaterials };
 import type {
   CreateOrderInput,
   UpdateOrderStatusInput,
