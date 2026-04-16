@@ -7,6 +7,9 @@ import {
   getOrdersByStatusHandler,
   getLowStockAlertsHandler,
   getPendingPOsHandler,
+  getProfitStatsHandler,
+  getProfitTrendHandler,
+  getTopProductsHandler,
 } from '../controllers/dashboardController';
 
 export const dashboardRouter = Router();
@@ -20,3 +23,6 @@ dashboardRouter.get('/recent-orders', getRecentOrdersHandler);
 dashboardRouter.get('/orders-by-status', getOrdersByStatusHandler);
 dashboardRouter.get('/low-stock', getLowStockAlertsHandler);
 dashboardRouter.get('/pending-pos', getPendingPOsHandler);
+dashboardRouter.get('/profit-stats', getProfitStatsHandler);
+dashboardRouter.get('/profit-trend', getProfitTrendHandler);
+dashboardRouter.get('/top-products', getTopProductsHandler);

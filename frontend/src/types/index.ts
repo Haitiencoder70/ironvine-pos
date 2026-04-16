@@ -1,3 +1,6 @@
+/**
+ * Represents a global tenant inside the multi-tenant architecture locally explicitly.
+ */
 export interface Organization {
   id: string;
   name: string;
@@ -11,6 +14,9 @@ export interface Organization {
   timezone?: string;
 }
 
+/**
+ * Explicit Clerk.io user bounds.
+ */
 export interface User {
   id: string;
   email: string;
@@ -67,6 +73,9 @@ export type ShipmentStatus =
 
 export type ShipmentCarrier = 'UPS' | 'FEDEX' | 'USPS' | 'DHL' | 'OTHER';
 
+/**
+ * Top level Client model interacting via quoting.
+ */
 export interface Customer {
   id: string;
   firstName: string;
@@ -111,6 +120,9 @@ export interface RequiredMaterial {
   quantityUnit: string;
 }
 
+/**
+ * A resolved customer purchase bound precisely reflecting cost matrices and statuses securely.
+ */
 export interface Order {
   id: string;
   orderNumber: string;
@@ -132,6 +144,9 @@ export interface Order {
   updatedAt: string;
 }
 
+/**
+ * A tracked discrete physical product resolving via SKU.
+ */
 export interface InventoryItem {
   id: string;
   sku: string;
@@ -211,6 +226,9 @@ export interface Shipment {
   updatedAt: string;
 }
 
+/**
+ * Generic standard wrapper guaranteeing strictly matched Server replies smoothly correctly seamlessly.
+ */
 export interface ApiResponse<T = unknown> {
   data: T;
   message?: string;
@@ -266,6 +284,27 @@ export interface DashboardStats {
   revenueToday: number;
 }
 
+export interface ProfitStats {
+  revenue: number;
+  costs: number;
+  profit: number;
+  margin: number;
+  revenueChange: number | null;
+  costsChange: number | null;
+  profitChange: number | null;
+  marginChange: number;
+}
+
+export interface TopProductProfit {
+  rank: number;
+  productType: string;
+  unitsSold: number;
+  revenue: number;
+  estimatedCost: number;
+  profit: number;
+  margin: number;
+}
+
 // ─── Settings ─────────────────────────────────────────────────────────────────
 
 export interface OrgSettings {
@@ -279,6 +318,7 @@ export interface OrgSettings {
   orderNumberPrefix: string;
   currency: string;
   timezone: string;
+  enabledModules: string[];
   // extended business info stored separately or via metadata
   phone?: string;
   email?: string;
@@ -436,4 +476,37 @@ export interface ProductionReport {
   completedCount: number;
   ordersByPrintMethod: { method: string; count: number }[];
   ordersByPriority: { priority: string; count: number }[];
+}
+
+// ─── POS Terminal ─────────────────────────────────────────────────────────────
+
+export interface POSProduct {
+  id: string;
+  name: string;
+  sku: string;
+  category: string;
+  costPrice: number;
+  quantityAvailable: number;
+  brand?: string;
+  size?: string;
+  color?: string;
+}
+
+export interface CartItem {
+  inventoryItemId: string;
+  name: string;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export type PaymentMethod = 'CASH' | 'CARD' | 'SPLIT';
+
+export interface Sale {
+  id: string;
+  orderNumber: string;
+  createdAt: string;
+  total: number;
+  paymentMethod: PaymentMethod;
+  orderItems: { name: string; quantity: number; unitPrice: number }[];
 }

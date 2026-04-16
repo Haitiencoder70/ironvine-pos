@@ -3,6 +3,7 @@ import type { JSX } from 'react';
 import { ReportsPage } from './reports/Reports';
 import { SalesReportPage } from './reports/SalesReport';
 import { InventoryReportPage } from './reports/InventoryReport';
+import { ProfitReportPage } from './reports/ProfitReport';
 
 export function ReportsPageRouter(): JSX.Element {
   return (
@@ -10,6 +11,7 @@ export function ReportsPageRouter(): JSX.Element {
       <Route index element={<ReportsPage />} />
       <Route path="sales" element={<SalesReportPage />} />
       <Route path="inventory" element={<InventoryReportPage />} />
+      <Route path="profit" element={<ProfitReportPage />} />
     </Routes>
   );
 }

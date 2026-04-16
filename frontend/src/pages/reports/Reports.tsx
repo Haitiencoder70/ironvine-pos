@@ -137,6 +137,12 @@ export function ReportsPage(): React.JSX.Element {
           >
             Inventory Report
           </Link>
+          <Link
+            to="/reports/profit"
+            className="min-h-[44px] px-4 rounded-xl bg-emerald-50 text-emerald-700 text-sm font-medium hover:bg-emerald-100 transition-colors flex items-center"
+          >
+            Profit Report
+          </Link>
         </div>
       </div>
 
