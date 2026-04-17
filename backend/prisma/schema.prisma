@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
@@ -7,7 +8,579 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── Enums ────────────────────────────────────────────────────────────────────
+model Organization {
+  id                      String                  @id @default(cuid())
+  clerkOrgId              String                  @unique
+  slug                    String                  @unique
+  name                    String
+  subdomain               String                  @unique
+  logoUrl                 String?
+  plan                    SubscriptionPlan        @default(FREE)
+  stripeCustomerId        String?                 @unique
+  stripeSubscriptionId    String?                 @unique
+  subscriptionStatus      String?
+  trialEndsAt             DateTime?
+  subscriptionEndsAt      DateTime?
+  maxUsers                Int                     @default(1)
+  maxOrders               Int                     @default(100)
+  maxInventoryItems       Int                     @default(500)
+  maxCustomers            Int                     @default(100)
+  storageLimit            Int                     @default(524288000)
+  customDomain            String?
+  primaryColor            String?
+  secondaryColor          String?
+  settings                Json                    @default("{}")
+  taxRate                 Decimal                 @default(0) @db.Decimal(6, 4)
+  orderNumberPrefix       String                  @default("ORD")
+  currency                String                  @default("USD")
+  timezone                String                  @default("America/New_York")
+  enabledModules          String[]                @default([])
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  activityLogs            ActivityLog[]
+  customers               Customer[]
+  inventoryItems          InventoryItem[]
+  materialUsages          MaterialUsage[]
+  notificationSettings    NotificationSetting?
+  orderItems              OrderItem[]
+  orderStatusHistories    OrderStatusHistory[]
+  orders                  Order[]
+  poReceivingItems        POReceivingItem[]
+  poReceivings            POReceiving[]
+  productAddOns           ProductAddOn[]
+  productCategories       ProductCategory[]
+  productMaterialTemplates ProductMaterialTemplate[]
+  products                Product[]
+  purchaseOrderItems      PurchaseOrderItem[]
+  purchaseOrders          PurchaseOrder[]
+  requiredMaterials       RequiredMaterial[]
+  sequenceCounters        SequenceCounter[]
+  shipmentStatusHistories ShipmentStatusHistory[]
+  shipments               Shipment[]
+  stockMovements          StockMovement[]
+  users                   User[]
+  vendors                 Vendor[]
+  images                  Image[]
+  organizationInvites     OrganizationInvite[]
+  usageMetrics            UsageMetrics[]
+  billingHistory          BillingHistory[]
+
+  @@map("organizations")
+}
+
+model User {
+  id             String       @id @default(cuid())
+  clerkUserId    String       @unique
+  email          String
+  firstName      String
+  lastName       String
+  avatarUrl      String?
+  role                UserRole @default(STAFF)
+  isActive            Boolean  @default(true)
+  isOrganizationOwner Boolean  @default(false)
+  inviteToken         String?  @unique
+  inviteAccepted      Boolean  @default(true)
+  invitedBy           String?
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([email, organizationId])
+  @@index([organizationId])
+  @@map("users")
+}
+
+model Customer {
+  id              String       @id @default(cuid())
+  firstName       String
+  lastName        String
+  email           String?
+  phone           String?
+  company         String?
+  notes           String?
+  billingStreet   String?
+  billingCity     String?
+  billingState    String?
+  billingZip      String?
+  billingCountry  String?      @default("US")
+  shippingStreet  String?
+  shippingCity    String?
+  shippingState   String?
+  shippingZip     String?
+  shippingCountry String?      @default("US")
+  organizationId  String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  orders          Order[]
+
+  @@unique([email, organizationId])
+  @@index([organizationId])
+  @@map("customers")
+}
+
+model Order {
+  id             String               @id @default(cuid())
+  orderNumber    String
+  status         OrderStatus          @default(QUOTE)
+  priority       OrderPriority        @default(NORMAL)
+  customerId     String
+  organizationId String
+  designNotes    String?
+  designFiles    String[]             @default([])
+  subtotal       Decimal              @default(0) @db.Decimal(10, 2)
+  taxAmount      Decimal              @default(0) @db.Decimal(10, 2)
+  discount       Decimal              @default(0) @db.Decimal(10, 2)
+  total          Decimal              @default(0) @db.Decimal(10, 2)
+  dueDate        DateTime?
+  notes          String?
+  internalNotes  String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  // Design approval tracking
+  designApproved    Boolean   @default(false)
+  designApprovedAt  DateTime?
+  designApprovedBy  String?
+
+  materialUsages MaterialUsage[]
+  items          OrderItem[]
+  statusHistory  OrderStatusHistory[]
+  customer       Customer             @relation(fields: [customerId], references: [id])
+  organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  purchaseOrders PurchaseOrder[]
+  shipments      Shipment[]
+  stockMovements StockMovement[]
+
+  @@unique([orderNumber, organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@map("orders")
+}
+
+model OrderItem {
+  id                String             @id @default(cuid())
+  orderId           String
+  productType       String
+  quantity          Int
+  unitPrice         Decimal            @db.Decimal(10, 2)
+  lineTotal         Decimal            @db.Decimal(10, 2)
+  printMethod       PrintMethod?
+  printLocations    PrintLocation[]
+  description       String?
+  organizationId    String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  attributes        Json               @default("{}")
+  mockupImageUrl    String?
+  designFileUrl     String?
+  productionPhotoUrl String?
+  order             Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  requiredMaterials RequiredMaterial[]
+
+  @@index([orderId])
+  @@index([organizationId])
+  @@map("order_items")
+}
+
+model InventoryItem {
+  id                 String              @id @default(cuid())
+  sku                String
+  name               String
+  category           InventoryCategory
+  brand              String?
+  size               String?
+  color              String?
+  quantityOnHand     Int                 @default(0)
+  quantityReserved   Int                 @default(0)
+  reorderPoint       Int                 @default(10)
+  reorderQuantity    Int                 @default(50)
+  costPrice          Decimal             @db.Decimal(10, 2)
+  attributes         Json                @default("{}")
+  notes              String?
+  isActive           Boolean             @default(true)
+  organizationId     String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  materialUsages     MaterialUsage[]
+  receivingItems     POReceivingItem[]
+  purchaseOrderItems PurchaseOrderItem[]
+  requiredMaterials  RequiredMaterial[]
+  stockMovements     StockMovement[]
+
+  @@unique([sku, organizationId])
+  @@index([organizationId])
+  @@map("inventory_items")
+}
+
+model StockMovement {
+  id              String            @id @default(cuid())
+  inventoryItemId String
+  type            StockMovementType
+  quantity        Int
+  reason          String?
+  orderId         String?
+  organizationId  String
+  createdAt       DateTime          @default(now())
+  inventoryItem   InventoryItem     @relation(fields: [inventoryItemId], references: [id])
+  order           Order?            @relation(fields: [orderId], references: [id])
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([inventoryItemId, createdAt(sort: Desc)])
+  @@map("stock_movements")
+}
+
+model Vendor {
+  id             String          @id @default(cuid())
+  name           String
+  contactName    String?
+  email          String?
+  phone          String?
+  website        String?
+  notes          String?
+  categories     String[]
+  paymentTerms   String?
+  leadTimeDays   Int?
+  isActive       Boolean         @default(true)
+  organizationId String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  purchaseOrders PurchaseOrder[]
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([name, organizationId])
+  @@index([organizationId])
+  @@map("vendors")
+}
+
+model PurchaseOrder {
+  id             String              @id @default(cuid())
+  poNumber       String
+  status         PurchaseOrderStatus @default(DRAFT)
+  vendorId       String
+  linkedOrderId  String?
+  organizationId String
+  subtotal       Decimal             @default(0) @db.Decimal(10, 2)
+  taxAmount      Decimal             @default(0) @db.Decimal(10, 2)
+  total          Decimal             @default(0) @db.Decimal(10, 2)
+  notes          String?
+  expectedDate   DateTime?
+  receivedAt     DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  receivings     POReceiving[]
+  items          PurchaseOrderItem[]
+  linkedOrder    Order?              @relation(fields: [linkedOrderId], references: [id])
+  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  vendor         Vendor              @relation(fields: [vendorId], references: [id])
+
+  @@unique([poNumber, organizationId])
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              String            @id @default(cuid())
+  purchaseOrderId String
+  inventoryItemId String?
+  description     String
+  quantity        Int
+  quantityRecv    Int               @default(0)
+  unitCost        Decimal           @db.Decimal(10, 2)
+  lineTotal       Decimal           @db.Decimal(10, 2)
+  organizationId  String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  receivingItems  POReceivingItem[]
+  inventoryItem   InventoryItem?    @relation(fields: [inventoryItemId], references: [id])
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  purchaseOrder   PurchaseOrder     @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  @@index([purchaseOrderId])
+  @@index([organizationId])
+  @@map("purchase_order_items")
+}
+
+model Shipment {
+  id                String                  @id @default(cuid())
+  trackingNumber    String?
+  carrier           ShipmentCarrier         @default(UPS)
+  status            ShipmentStatus          @default(PENDING)
+  orderId           String
+  organizationId    String
+  shippingStreet    String?
+  shippingCity      String?
+  shippingState     String?
+  shippingZip       String?
+  shippingCountry   String?                 @default("US")
+  shippingCost      Decimal?                @db.Decimal(10, 2)
+  estimatedDelivery DateTime?
+  deliveredAt       DateTime?
+  notes             String?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  statusHistory     ShipmentStatusHistory[]
+  order             Order                   @relation(fields: [orderId], references: [id])
+  organization      Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([trackingNumber])
+  @@map("shipments")
+}
+
+model OrderStatusHistory {
+  id             String       @id @default(cuid())
+  orderId        String
+  fromStatus     OrderStatus?
+  toStatus       OrderStatus
+  changedBy      String
+  notes          String?
+  organizationId String
+  createdAt      DateTime     @default(now())
+  order          Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt(sort: Desc)])
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@map("order_status_history")
+}
+
+model RequiredMaterial {
+  id               String         @id @default(cuid())
+  orderItemId      String
+  inventoryItemId  String?
+  description      String
+  quantityRequired Decimal        @db.Decimal(10, 3)
+  quantityUnit     String         @default("units")
+  isFulfilled      Boolean        @default(false)
+  organizationId   String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  attributes       Json           @default("{}")
+  inventoryItem    InventoryItem? @relation(fields: [inventoryItemId], references: [id])
+  orderItem        OrderItem      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  organization     Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([orderItemId])
+  @@index([organizationId])
+  @@map("required_materials")
+}
+
+model MaterialUsage {
+  id              String        @id @default(cuid())
+  orderId         String
+  inventoryItemId String
+  quantityUsed    Decimal       @db.Decimal(10, 3)
+  quantityUnit    String        @default("units")
+  notes           String?
+  usedBy          String
+  organizationId  String
+  createdAt       DateTime      @default(now())
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([inventoryItemId])
+  @@map("material_usage")
+}
+
+model POReceiving {
+  id              String            @id @default(cuid())
+  purchaseOrderId String
+  receivedBy      String
+  notes           String?
+  receivedAt      DateTime          @default(now())
+  organizationId  String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  items           POReceivingItem[]
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  purchaseOrder   PurchaseOrder     @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  @@index([purchaseOrderId])
+  @@index([organizationId])
+  @@map("po_receivings")
+}
+
+model POReceivingItem {
+  id                  String            @id @default(cuid())
+  poReceivingId       String
+  purchaseOrderItemId String
+  inventoryItemId     String?
+  quantityReceived    Int
+  notes               String?
+  isAccepted          Boolean           @default(true)
+  organizationId      String
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  inventoryItem       InventoryItem?    @relation(fields: [inventoryItemId], references: [id])
+  organization        Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  poReceiving         POReceiving       @relation(fields: [poReceivingId], references: [id], onDelete: Cascade)
+  purchaseOrderItem   PurchaseOrderItem @relation(fields: [purchaseOrderItemId], references: [id], onDelete: Cascade)
+
+  @@index([poReceivingId])
+  @@index([organizationId])
+  @@map("po_receiving_items")
+}
+
+model ShipmentStatusHistory {
+  id             String          @id @default(cuid())
+  shipmentId     String
+  fromStatus     ShipmentStatus?
+  toStatus       ShipmentStatus
+  changedBy      String
+  notes          String?
+  location       String?
+  organizationId String
+  createdAt      DateTime        @default(now())
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment       Shipment        @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentId, createdAt(sort: Desc)])
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@map("shipment_status_history")
+}
+
+model ActivityLog {
+  id             String         @id @default(cuid())
+  action         ActivityAction
+  entityType     String
+  entityId       String
+  entityLabel    String?
+  description    String
+  metadata       Json?
+  performedBy    String
+  ipAddress      String?
+  organizationId String
+  createdAt      DateTime       @default(now())
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@index([entityType, entityId])
+  @@map("activity_logs")
+}
+
+model SequenceCounter {
+  id             String       @id @default(cuid())
+  organizationId String
+  counterKey     String
+  lastValue      Int          @default(0)
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, counterKey])
+  @@map("sequence_counters")
+}
+
+model NotificationSetting {
+  id                     String       @id @default(cuid())
+  organizationId         String       @unique
+  newOrderEmail          Boolean      @default(true)
+  orderStatusEmail       Boolean      @default(true)
+  lowStockEmail          Boolean      @default(true)
+  poReceivedEmail        Boolean      @default(false)
+  shipmentDeliveredEmail Boolean      @default(true)
+  recipients             String[]     @default([])
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+  organization           Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("notification_settings")
+}
+
+model ProductCategory {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+  icon           String?
+  displayOrder   Int          @default(0)
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  products       Product[]
+
+  @@unique([organizationId, name])
+  @@map("product_categories")
+}
+
+model Product {
+  id                         String                    @id @default(cuid())
+  organizationId             String
+  categoryId                 String
+  name                       String
+  description                String?
+  sku                        String?
+  image                      String?
+  garmentType                GarmentType
+  printMethod                PrintMethod
+  includedPrintLocations     String[]
+  maxPrintLocations          Int                       @default(1)
+  basePrice                  Decimal                   @db.Decimal(10, 2)
+  sizeUpcharges              Json?
+  priceTiers                 Json?
+  availableBrands            String[]
+  availableSizes             String[]
+  availableColors            String[]
+  estimatedProductionMinutes Int?
+  difficultyLevel            String?
+  isActive                   Boolean                   @default(true)
+  isFeatured                 Boolean                   @default(false)
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @updatedAt
+  category                   ProductCategory           @relation(fields: [categoryId], references: [id])
+  organization               Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  addOns                     ProductAddOn[]
+  materialTemplates          ProductMaterialTemplate[]
+
+  @@index([organizationId, categoryId])
+  @@index([organizationId, isActive])
+  @@map("products")
+}
+
+model ProductAddOn {
+  id             String       @id @default(cuid())
+  organizationId String
+  productId      String?
+  name           String
+  description    String?
+  type           AddOnType
+  price          Decimal      @db.Decimal(10, 2)
+  printLocation  String?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  product        Product?     @relation(fields: [productId], references: [id])
+
+  @@index([organizationId])
+  @@map("product_add_ons")
+}
+
+model ProductMaterialTemplate {
+  id                   String       @id @default(cuid())
+  organizationId       String
+  productId            String
+  materialCategory     String
+  description          String
+  quantityPerUnit      Decimal      @db.Decimal(10, 4)
+  estimatedCostPerUnit Decimal      @db.Decimal(10, 2)
+  notes                String?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  product              Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([productId])
+  @@map("product_material_templates")
+}
 
 enum SubscriptionPlan {
   FREE
@@ -52,6 +625,32 @@ enum PrintMethod {
   EMBROIDERY
   SUBLIMATION
   DTG
+  NONE
+}
+
+enum GarmentType {
+  TSHIRT
+  LONG_SLEEVE
+  HOODIE
+  SWEATSHIRT
+  POLO
+  TANK_TOP
+  JACKET
+  HAT
+  BAG
+  OTHER
+}
+
+enum AddOnType {
+  EXTRA_PRINT_LOCATION
+  RUSH_ORDER
+  NAME_CUSTOMIZATION
+  OVERSIZED_PRINT
+  PREMIUM_GARMENT
+  SPECIAL_FINISH
+  PACKAGING
+  DESIGN_SERVICE
+  OTHER
 }
 
 enum PrintLocation {
@@ -122,579 +721,75 @@ enum ActivityAction {
   PAID
 }
 
-// ─── Organization (Tenant) ────────────────────────────────────────────────────
-
-model Organization {
-  id        String   @id @default(cuid())
-  clerkOrgId String  @unique
-  slug      String   @unique
-  name      String
-  subdomain String   @unique
-  logoUrl   String?
-
-  plan                 SubscriptionPlan @default(FREE)
-  stripeCustomerId     String?          @unique
-  stripeSubscriptionId String?          @unique
-  subscriptionStatus   String?
-  trialEndsAt          DateTime?
-  subscriptionEndsAt   DateTime?
-
-  maxUsers          Int @default(1)
-  maxOrders         Int @default(100)
-  maxInventoryItems Int @default(500)
-  maxCustomers      Int @default(100)
-  storageLimit      Int @default(524288000)
-
-  customDomain    String?
-  primaryColor    String?
-  secondaryColor  String?
-  settings        Json    @default("{}")
-
-  taxRate           Decimal @default(0) @db.Decimal(6, 4)
-  orderNumberPrefix String  @default("ORD")
-  currency          String  @default("USD")
-  timezone          String  @default("America/New_York")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  users              User[]
-  customers          Customer[]
-  orders             Order[]
-  inventoryItems     InventoryItem[]
-  purchaseOrders     PurchaseOrder[]
-  vendors            Vendor[]
-  shipments          Shipment[]
-  orderItems         OrderItem[]
-  purchaseOrderItems PurchaseOrderItem[]
-  stockMovements     StockMovement[]
-  orderStatusHistories    OrderStatusHistory[]
-  requiredMaterials       RequiredMaterial[]
-  materialUsages          MaterialUsage[]
-  poReceivings            POReceiving[]
-  poReceivingItems        POReceivingItem[]
-  shipmentStatusHistories ShipmentStatusHistory[]
-  activityLogs            ActivityLog[]
-  sequenceCounters        SequenceCounter[]
-  organizationInvites     OrganizationInvite[]
-  usageMetrics            UsageMetrics[]
-  billingHistory          BillingHistory[]
-
-  @@map("organizations")
+enum ImageType {
+  PRODUCT_PHOTO
+  PRODUCT_MOCKUP
+  DESIGN_FILE
+  DESIGN_MOCKUP
+  PRODUCTION_PHOTO
+  PROOF_PHOTO
+  LOGO
+  OTHER
 }
 
-// ─── User ─────────────────────────────────────────────────────────────────────
-
-model User {
-  id           String   @id @default(cuid())
-  clerkUserId  String   @unique
-  email        String
-  firstName    String
-  lastName     String
-  avatarUrl    String?
-  role         UserRole @default(STAFF)
-  isActive     Boolean  @default(true)
-
-  isOrganizationOwner Boolean @default(false)
-  inviteToken         String? @unique
-  inviteAccepted      Boolean @default(true)
-  invitedBy           String?
-
+model Image {
+  id             String       @id @default(cuid())
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // File info
+  url          String
+  thumbnailUrl String?
+  fileName     String
+  fileSize     Int
+  mimeType     String
+  width        Int?
+  height       Int?
 
-  @@unique([email, organizationId])
-  @@index([organizationId])
-  @@map("users")
+  // Classification
+  imageType  ImageType
+  entityType String
+  entityId   String
+
+  // Metadata
+  alt              String?
+  caption          String?
+  displayOrder     Int     @default(0)
+  isPrimary        Boolean @default(false)
+  designPlacement  String?
+
+  createdBy  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([organizationId, entityType, entityId])
+  @@index([organizationId, imageType])
+  @@map("images")
 }
 
-// ─── Customer ─────────────────────────────────────────────────────────────────
-
-model Customer {
+model GarmentImage {
   id          String  @id @default(cuid())
-  firstName   String
-  lastName    String
-  email       String?
-  phone       String?
-  company     String?
-  notes       String?
 
-  billingStreet  String?
-  billingCity    String?
-  billingState   String?
-  billingZip     String?
-  billingCountry String? @default("US")
+  brand       String
+  styleNumber String
+  color       String
 
-  shippingStreet  String?
-  shippingCity    String?
-  shippingState   String?
-  shippingZip     String?
-  shippingCountry String? @default("US")
+  frontUrl    String
+  backUrl     String?
+  sideUrl     String?
+  detailUrl   String?
 
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  mockupFrontUrl String?
+  mockupBackUrl  String?
 
-  orders    Order[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([email, organizationId])
-  @@index([organizationId])
-  @@map("customers")
-}
-
-// ─── Order ────────────────────────────────────────────────────────────────────
-
-model Order {
-  id          String        @id @default(cuid())
-  orderNumber String
-  status      OrderStatus   @default(QUOTE)
-  priority    OrderPriority @default(NORMAL)
-
-  customerId     String
-  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  designNotes String?
-  designFiles String[] @default([])
-
-  subtotal   Decimal @default(0) @db.Decimal(10, 2)
-  taxAmount  Decimal @default(0) @db.Decimal(10, 2)
-  discount   Decimal @default(0) @db.Decimal(10, 2)
-  total      Decimal @default(0) @db.Decimal(10, 2)
-
-  dueDate    DateTime?
-  notes      String?
-  internalNotes String?
+  source    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  items          OrderItem[]
-  purchaseOrders PurchaseOrder[]
-  shipments      Shipment[]
-  stockMovements StockMovement[]
-  statusHistory  OrderStatusHistory[]
-  materialUsages MaterialUsage[]
-
-  @@unique([orderNumber, organizationId])
-  @@index([organizationId, status])
-  @@index([organizationId, createdAt(sort: Desc)])
-  @@map("orders")
-}
-
-// ─── Order Item ───────────────────────────────────────────────────────────────
-
-model OrderItem {
-  id          String   @id @default(cuid())
-  orderId     String
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  productType  String
-  size         String?
-  color        String?
-  sleeveType   String?
-  quantity     Int
-  unitPrice    Decimal @db.Decimal(10, 2)
-  lineTotal    Decimal @db.Decimal(10, 2)
-
-  printMethod    PrintMethod?
-  printLocations PrintLocation[]
-
-  description String?
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  requiredMaterials RequiredMaterial[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([orderId])
-  @@index([organizationId])
-  @@map("order_items")
-}
-
-// ─── Inventory ────────────────────────────────────────────────────────────────
-
-model InventoryItem {
-  id       String            @id @default(cuid())
-  sku      String
-  name     String
-  category InventoryCategory
-  brand    String?
-  size     String?
-  color    String?
-
-  quantityOnHand   Int @default(0)
-  quantityReserved Int @default(0)
-  reorderPoint     Int @default(10)
-  reorderQuantity  Int @default(50)
-
-  costPrice   Decimal  @db.Decimal(10, 2)
-  notes       String?
-  isActive    Boolean  @default(true)
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  purchaseOrderItems PurchaseOrderItem[]
-  stockMovements     StockMovement[]
-  requiredMaterials  RequiredMaterial[]
-  materialUsages     MaterialUsage[]
-  receivingItems     POReceivingItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([sku, organizationId])
-  @@index([organizationId])
-  @@map("inventory_items")
-}
-
-// ─── Stock Movement ───────────────────────────────────────────────────────────
-
-model StockMovement {
-  id              String @id @default(cuid())
-  inventoryItemId String
-  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
-
-  type     StockMovementType
-  quantity Int
-  reason   String?
-  orderId  String?
-  order    Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@index([organizationId])
-  @@index([inventoryItemId, createdAt(sort: Desc)])
-  @@map("stock_movements")
-}
-
-// ─── Vendor ───────────────────────────────────────────────────────────────────
-
-model Vendor {
-  id          String   @id @default(cuid())
-  name        String
-  contactName String?
-  email       String?
-  phone       String?
-  website     String?
-  notes       String?
-
-  categories     String[]
-  paymentTerms   String?
-  leadTimeDays   Int?
-  isActive       Boolean  @default(true)
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  purchaseOrders PurchaseOrder[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([name, organizationId])
-  @@index([organizationId])
-  @@map("vendors")
-}
-
-// ─── Purchase Order ───────────────────────────────────────────────────────────
-
-model PurchaseOrder {
-  id       String              @id @default(cuid())
-  poNumber String
-  status   PurchaseOrderStatus @default(DRAFT)
-
-  vendorId String
-  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Restrict)
-
-  linkedOrderId String?
-  linkedOrder   Order?  @relation(fields: [linkedOrderId], references: [id], onDelete: SetNull)
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  subtotal   Decimal @default(0) @db.Decimal(10, 2)
-  taxAmount  Decimal @default(0) @db.Decimal(10, 2)
-  total      Decimal @default(0) @db.Decimal(10, 2)
-
-  notes         String?
-  expectedDate  DateTime?
-  receivedAt    DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  items     PurchaseOrderItem[]
-  receivings POReceiving[]
-
-  @@unique([poNumber, organizationId])
-  @@index([organizationId])
-  @@index([organizationId, status])
-  @@map("purchase_orders")
-}
-
-// ─── Purchase Order Item ──────────────────────────────────────────────────────
-
-model PurchaseOrderItem {
-  id              String @id @default(cuid())
-  purchaseOrderId String
-  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
-
-  inventoryItemId String?
-  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
-
-  description   String
-  quantity      Int
-  quantityRecv  Int     @default(0)
-  unitCost      Decimal @db.Decimal(10, 2)
-  lineTotal     Decimal @db.Decimal(10, 2)
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  receivingItems POReceivingItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([purchaseOrderId])
-  @@index([organizationId])
-  @@map("purchase_order_items")
-}
-
-// ─── Shipment ─────────────────────────────────────────────────────────────────
-
-model Shipment {
-  id             String          @id @default(cuid())
-  trackingNumber String?
-  carrier        ShipmentCarrier @default(UPS)
-  status         ShipmentStatus  @default(PENDING)
-
-  orderId String
-  order   Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  shippingStreet  String?
-  shippingCity    String?
-  shippingState   String?
-  shippingZip     String?
-  shippingCountry String? @default("US")
-
-  shippingCost      Decimal?  @db.Decimal(10, 2)
-  estimatedDelivery DateTime?
-  deliveredAt       DateTime?
-  notes             String?
-
-  statusHistory ShipmentStatusHistory[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId])
-  @@index([trackingNumber])
-  @@map("shipments")
-}
-
-// ─── Order Status History ─────────────────────────────────────────────────────
-
-model OrderStatusHistory {
-  id      String      @id @default(cuid())
-  orderId String
-  order   Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  fromStatus OrderStatus?
-  toStatus   OrderStatus
-  changedBy  String
-  notes      String?
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@index([orderId, createdAt(sort: Desc)])
-  @@index([organizationId, createdAt(sort: Desc)])
-  @@map("order_status_history")
-}
-
-// ─── Required Material ────────────────────────────────────────────────────────
-
-model RequiredMaterial {
-  id          String    @id @default(cuid())
-  orderItemId String
-  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-
-  inventoryItemId String?
-  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
-
-  description      String
-  quantityRequired Decimal @db.Decimal(10, 3)
-  quantityUnit     String  @default("units")
-  isFulfilled      Boolean @default(false)
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([orderItemId])
-  @@index([organizationId])
-  @@map("required_materials")
-}
-
-// ─── Material Usage ───────────────────────────────────────────────────────────
-
-model MaterialUsage {
-  id      String @id @default(cuid())
-  orderId String
-  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  inventoryItemId String
-  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
-
-  quantityUsed Decimal @db.Decimal(10, 3)
-  quantityUnit String  @default("units")
-  notes        String?
-  usedBy       String
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@index([orderId])
-  @@index([inventoryItemId])
-  @@map("material_usage")
-}
-
-// ─── PO Receiving ─────────────────────────────────────────────────────────────
-
-model POReceiving {
-  id              String        @id @default(cuid())
-  purchaseOrderId String
-  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
-
-  receivedBy String
-  notes      String?
-  receivedAt DateTime @default(now())
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  items POReceivingItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([purchaseOrderId])
-  @@index([organizationId])
-  @@map("po_receivings")
-}
-
-// ─── PO Receiving Item ────────────────────────────────────────────────────────
-
-model POReceivingItem {
-  id            String      @id @default(cuid())
-  poReceivingId String
-  poReceiving   POReceiving @relation(fields: [poReceivingId], references: [id], onDelete: Cascade)
-
-  purchaseOrderItemId String
-  purchaseOrderItem   PurchaseOrderItem @relation(fields: [purchaseOrderItemId], references: [id], onDelete: Cascade)
-
-  inventoryItemId String?
-  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
-
-  quantityReceived Int
-  notes            String?
-  isAccepted       Boolean @default(true)
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([poReceivingId])
-  @@index([organizationId])
-  @@map("po_receiving_items")
-}
-
-// ─── Shipment Status History ──────────────────────────────────────────────────
-
-model ShipmentStatusHistory {
-  id         String   @id @default(cuid())
-  shipmentId String
-  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
-
-  fromStatus ShipmentStatus?
-  toStatus   ShipmentStatus
-  changedBy  String
-  notes      String?
-  location   String?
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@index([shipmentId, createdAt(sort: Desc)])
-  @@index([organizationId, createdAt(sort: Desc)])
-  @@map("shipment_status_history")
-}
-
-// ─── Activity Log ─────────────────────────────────────────────────────────────
-
-model ActivityLog {
-  id           String         @id @default(cuid())
-  action       ActivityAction
-  entityType   String
-  entityId     String
-  entityLabel  String?
-  description  String
-  metadata     Json?
-
-  performedBy  String
-  ipAddress    String?
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@index([organizationId, createdAt(sort: Desc)])
-  @@index([entityType, entityId])
-  @@map("activity_logs")
-}
-
-// ─── Sequence Counter ─────────────────────────────────────────────────────────
-
-model SequenceCounter {
-  id             String @id @default(cuid())
-  organizationId String
-  counterKey     String
-  lastValue      Int    @default(0)
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  updatedAt DateTime @updatedAt
-
-  @@unique([organizationId, counterKey])
-  @@map("sequence_counters")
+  @@unique([brand, styleNumber, color])
+  @@index([brand, styleNumber])
+  @@map("garment_images")
 }
 
 // ─── Organization Invite ──────────────────────────────────────────────────────
