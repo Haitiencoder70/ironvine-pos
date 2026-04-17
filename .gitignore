@@ -40,3 +40,6 @@ Thumbs.db
 # PWA
 frontend/public/sw.js
 frontend/public/workbox-*.js
+
+# Git worktrees
+.worktrees/
