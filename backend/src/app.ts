@@ -19,6 +19,7 @@ import { purchaseOrdersRouter } from './routes/purchaseOrders';
 import { shipmentsRouter } from './routes/shipments';
 import { reportsRouter } from './routes/reports';
 import { settingsRouter } from './routes/settings';
+import { billingRouter } from './routes/billing';
 
 export const app = express();
 
@@ -43,6 +44,9 @@ app.use(
 // ─── Health Check ─────────────────────────────────────────────────────────────
 // Must be before clerkAuth so load balancers can probe without auth
 app.use('/health', healthRouter);
+
+// ─── Billing (must be before clerkAuth — webhook has no auth token) ───────────
+app.use('/api/billing', billingRouter);
 
 // ─── Auth Middleware ──────────────────────────────────────────────────────────
 // Requires valid Clerk token for all routes below
