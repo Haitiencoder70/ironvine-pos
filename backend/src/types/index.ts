@@ -20,7 +20,8 @@ export interface ApiError {
 }
 
 export const SUBSCRIPTION_LIMITS = {
-  FREE:       { maxUsers: 1,  maxOrders: 100,  maxInventoryItems: 500  },
-  PRO:        { maxUsers: 10, maxOrders: 5000, maxInventoryItems: 5000 },
-  ENTERPRISE: { maxUsers: -1, maxOrders: -1,   maxInventoryItems: -1   },
+  FREE:       { maxUsers: 1,  maxOrders: 100,  maxInventoryItems: 500,  maxCustomers: 100  },
+  STARTER:    { maxUsers: 3,  maxOrders: 1000, maxInventoryItems: 2000, maxCustomers: 500  },
+  PRO:        { maxUsers: 10, maxOrders: 5000, maxInventoryItems: 5000, maxCustomers: 2000 },
+  ENTERPRISE: { maxUsers: -1, maxOrders: -1,   maxInventoryItems: -1,   maxCustomers: -1   },
 } as const;

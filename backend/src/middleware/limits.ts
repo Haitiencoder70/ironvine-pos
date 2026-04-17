@@ -4,18 +4,20 @@ import { SUBSCRIPTION_LIMITS } from '../types';
 import { AppError } from './errorHandler';
 import { logger } from '../lib/logger';
 
-type LimitableResource = 'orders' | 'inventoryItems' | 'users';
+type LimitableResource = 'orders' | 'inventoryItems' | 'users' | 'customers';
 
-const RESOURCE_LIMIT_KEY: Record<LimitableResource, 'maxOrders' | 'maxInventoryItems' | 'maxUsers'> = {
+const RESOURCE_LIMIT_KEY: Record<LimitableResource, 'maxOrders' | 'maxInventoryItems' | 'maxUsers' | 'maxCustomers'> = {
   orders: 'maxOrders',
   inventoryItems: 'maxInventoryItems',
   users: 'maxUsers',
+  customers: 'maxCustomers',
 };
 
 const RESOURCE_COUNT_QUERY = {
   orders: (orgDbId: string) => prisma.order.count({ where: { organizationId: orgDbId } }),
   inventoryItems: (orgDbId: string) => prisma.inventoryItem.count({ where: { organizationId: orgDbId } }),
   users: (orgDbId: string) => prisma.user.count({ where: { organizationId: orgDbId } }),
+  customers: (orgDbId: string) => prisma.customer.count({ where: { organizationId: orgDbId } }),
 } as const;
 
 export function checkLimit(resource: LimitableResource) {
