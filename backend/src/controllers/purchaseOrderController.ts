@@ -24,7 +24,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction): P
       limit: Number(query['limit'] ?? 25),
     });
 
-    res.json(result);
+    res.json({ data: result });
   } catch (err) {
     next(err);
   }

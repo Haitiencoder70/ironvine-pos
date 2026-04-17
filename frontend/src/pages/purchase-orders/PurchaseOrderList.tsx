@@ -14,7 +14,9 @@ import { useVendors } from '../../hooks/useVendors';
 import { useDebounce } from '../../hooks/useDebounce';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
+import { SkeletonLoader, EmptyState } from '../../components/ui';
 import type { JSX } from 'react';
+
 import type { PurchaseOrderStatus } from '../../types';
 
 // ─── Formatting ───────────────────────────────────────────────────────────────
@@ -164,21 +166,20 @@ export function PurchaseOrderListPage(): JSX.Element {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                     <td className="px-6 py-4"><div className="h-4 w-20 bg-gray-100 rounded" /></td>
-                     <td className="px-6 py-4"><div className="h-4 w-32 bg-gray-100 rounded" /></td>
-                     <td className="px-6 py-4"><div className="h-6 w-16 bg-gray-100 rounded-full" /></td>
-                     <td className="px-6 py-4"><div className="h-4 w-20 bg-gray-100 rounded" /></td>
-                     <td className="px-6 py-4"><div className="h-4 w-16 bg-gray-100 rounded ml-auto" /></td>
-                     <td className="px-6 py-4"><div className="h-4 w-24 bg-gray-100 rounded" /></td>
-                     <td className="px-6 py-4"><div className="h-8 w-16 bg-gray-100 rounded ml-auto" /></td>
-                  </tr>
-                ))
+                <SkeletonLoader variant="table" rows={5} />
               ) : isError || purchaseOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                    No purchase orders found.
+                  <td colSpan={7} className="p-0">
+                    <div className="flex justify-center p-8">
+                      <EmptyState
+                        icon={<BuildingStorefrontIcon className="h-10 w-10" />}
+                        title="No purchase orders found"
+                        description="Try adjusting your filters or create a new PO."
+                        action={{ label: 'Create PO', href: '/purchase-orders/new', icon: <PlusIcon className="h-5 w-5" /> }}
+                        minHeight="min-h-[300px]"
+                        className="w-full max-w-lg border-0 shadow-none bg-transparent"
+                      />
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -236,13 +237,14 @@ export function PurchaseOrderListPage(): JSX.Element {
       {/* Mobile Card View */}
       <div className="lg:hidden space-y-4">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-             <div key={i} className="animate-pulse bg-white p-5 rounded-2xl border border-gray-100 h-[140px]" />
-          ))
+          <SkeletonLoader variant="card" rows={4} />
         ) : isError || purchaseOrders.length === 0 ? (
-          <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 text-gray-500">
-            No purchase orders found.
-          </div>
+          <EmptyState
+            icon={<BuildingStorefrontIcon className="h-8 w-8" />}
+            title="No purchase orders found"
+            description="Try adjusting your search filters."
+            minHeight="min-h-[200px]"
+          />
         ) : (
           purchaseOrders.map((po) => {
             const badge = STATUS_CONFIG[po.status];

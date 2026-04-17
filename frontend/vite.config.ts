@@ -40,6 +40,24 @@ export default defineConfig({
   resolve: {
     alias: { '@': resolve(__dirname, './src') },
   },
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['@headlessui/react', '@heroicons/react', 'framer-motion', 'clsx', 'tailwind-merge'],
+          'chart-vendor': ['recharts'],
+          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'query-vendor': ['@tanstack/react-query'],
+        },
+      },
+    },
+  },
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+  },
   server: {
     port: 5173,
     proxy: {

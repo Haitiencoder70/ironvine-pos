@@ -16,6 +16,13 @@ import { clsx } from 'clsx';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchInput } from '../../components/ui/TouchInput';
 import { TouchCard } from '../../components/ui/TouchCard';
+import {
+  getBrands,
+  getStylesByBrand,
+  getColorsByBrandAndStyle,
+  getSizesByBrandAndStyle,
+  generateGarmentDescription,
+} from '../../constants/productCatalog';
 import { useOrder } from '../../hooks/useOrders';
 import { useVendors } from '../../hooks/useVendors';
 import { useCreatePurchaseOrder } from '../../hooks/usePurchaseOrders';
@@ -28,6 +35,12 @@ const poItemSchema = z.object({
   description: z.string().min(1, 'Description required').max(500),
   quantity: z.number({ invalid_type_error: 'Required' }).int().positive('Must be > 0'),
   unitCost: z.number({ invalid_type_error: 'Required' }).nonnegative('Must be >= 0'),
+  // Catalog helpers
+  category: z.string().optional(),
+  brand: z.string().optional(),
+  styleNumber: z.string().optional(),
+  color: z.string().optional(),
+  size: z.string().optional(),
 });
 
 const createPOFormSchema = z.object({

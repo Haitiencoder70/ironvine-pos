@@ -17,7 +17,9 @@ import { useInventory, useLowStock } from '../../hooks/useInventory';
 import { useDebounce } from '../../hooks/useDebounce';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
+import { SkeletonLoader, EmptyState } from '../../components/ui';
 import type { JSX } from 'react';
+
 import type { InventoryCategory } from '../../types';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
@@ -120,53 +122,11 @@ export function InventoryListPage(): JSX.Element {
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
-      {/* ── Banner ── */}
-      <AnimatePresence>
-        {!dismissBanner && lowStockItems.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-            className="bg-red-50 border border-red-200 rounded-2xl p-4 flex gap-3 shadow-sm items-start"
-          >
-            <ExclamationTriangleIcon className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="text-sm font-semibold text-red-800">
-                Low Stock Alert
-              </h3>
-              <p className="text-sm text-red-700 mt-0.5">
-                {lowStockItems.length} items have fallen below their reorder points.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setSortBy('lowStock');
-                  setCategory('');
-                  setSearch('');
-                  setDismissBanner(true);
-                }}
-                className="text-sm font-medium text-red-700 hover:text-red-800 underline min-h-[44px] px-2"
-              >
-                View Items
-              </button>
-              <button
-                onClick={() => setDismissBanner(true)}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-red-400 hover:bg-red-100 transition-colors"
-                aria-label="Dismiss banner"
-              >
-                <XMarkIcon className="h-5 w-5" />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Inventory Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Track and manage raw materials and product stock.</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Inventory Management</h1>
+          <p className="text-sm text-gray-400 mt-1 font-medium">Track and manage raw materials and product stock.</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <TouchButton
@@ -188,12 +148,54 @@ export function InventoryListPage(): JSX.Element {
         </div>
       </div>
 
+      {/* ── Banner ── */}
+      <AnimatePresence>
+        {!dismissBanner && lowStockItems.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+            className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex gap-3 shadow-lg backdrop-blur-md items-start"
+          >
+            <ExclamationTriangleIcon className="h-5 w-5 text-rose-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold text-rose-300">
+                Low Stock Alert
+              </h3>
+              <p className="text-sm text-rose-200/70 mt-0.5">
+                {lowStockItems.length} items have fallen below their reorder points.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setSortBy('lowStock');
+                  setCategory('');
+                  setSearch('');
+                  setDismissBanner(true);
+                }}
+                className="text-sm font-medium text-rose-300 hover:text-white underline min-h-[44px] px-2 transition-colors"
+              >
+                View Items
+              </button>
+              <button
+                onClick={() => setDismissBanner(true)}
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-rose-400 hover:bg-white/10 transition-colors"
+                aria-label="Dismiss banner"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Filters ── */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-4">
+      <div className="glass-panel rounded-2xl p-4 space-y-4 border-white/10">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
             <input
               type="text"
               placeholder="Search by SKU or item name..."
@@ -202,24 +204,24 @@ export function InventoryListPage(): JSX.Element {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="w-full pl-10 pr-4 min-h-[48px] rounded-xl border border-gray-300 bg-white text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-gray-500 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
             />
           </div>
-          
+
           {/* Category */}
           <div className="relative min-w-[200px]">
-             <FunnelIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+             <FunnelIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 pointer-events-none" />
              <select
                value={category}
                onChange={(e) => {
                  setCategory(e.target.value);
                  setPage(1);
                }}
-               className="w-full pl-10 pr-10 min-h-[48px] rounded-xl border border-gray-300 bg-white text-base shadow-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+               className="w-full pl-10 pr-10 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-white text-base shadow-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
              >
-               <option value="">All Categories</option>
+               <option value="" className="bg-charcoal">All Categories</option>
                {CATEGORIES.map((c) => (
-                 <option key={c.value} value={c.value}>{c.label}</option>
+                 <option key={c.value} value={c.value} className="bg-charcoal">{c.label}</option>
                ))}
              </select>
           </div>
@@ -238,10 +240,10 @@ export function InventoryListPage(): JSX.Element {
       </div>
 
       {/* ── Desktop Table ── */}
-      <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="hidden lg:block glass-panel rounded-2xl overflow-hidden border-white/10">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-gray-50 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-xs font-semibold">
+            <thead className="bg-white/5 border-b border-white/10 text-gray-400 uppercase tracking-wider text-xs font-semibold">
               <tr>
                 <th className="px-6 py-4">Item Details</th>
                 <th className="px-6 py-4">Category</th>
@@ -252,33 +254,30 @@ export function InventoryListPage(): JSX.Element {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-white/5">
               {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    <td className="px-6 py-4"><div className="h-4 w-48 bg-gray-100 rounded" /></td>
-                    <td className="px-6 py-4"><div className="h-4 w-24 bg-gray-100 rounded" /></td>
-                    <td className="px-6 py-4 text-right"><div className="h-4 w-16 bg-gray-100 rounded ml-auto" /></td>
-                    <td className="px-6 py-4 text-right"><div className="h-4 w-12 bg-gray-100 rounded ml-auto" /></td>
-                    <td className="px-6 py-4 text-right"><div className="h-4 w-12 bg-gray-100 rounded ml-auto" /></td>
-                    <td className="px-6 py-4"><div className="h-4 w-20 bg-gray-100 rounded" /></td>
-                    <td className="px-6 py-4"><div className="h-8 w-16 bg-gray-100 rounded ml-auto" /></td>
-                  </tr>
-                ))
+                <SkeletonLoader variant="table" rows={5} />
               ) : isError || inventoryItems.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                    {isError ? 'Failed to load inventory.' : 'No items found matching your filters.'}
+                  <td colSpan={7} className="p-0">
+                    <div className="flex justify-center p-8">
+                      <EmptyState
+                        title={isError ? 'Failed to load inventory' : 'No items found'}
+                        description={isError ? 'Please check your connection.' : 'No inventory matches your criteria.'}
+                        minHeight="min-h-[300px]"
+                        className="w-full max-w-lg border-0 shadow-none bg-transparent"
+                      />
+                    </div>
                   </td>
                 </tr>
               ) : (
                 inventoryItems.map((item) => {
                   const isLowStock = item.quantityAvailable <= item.reorderPoint;
                   return (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={item.id} className="hover:bg-white/5 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="font-semibold text-gray-900">{item.name}</span>
+                          <span className="font-semibold text-white">{item.name}</span>
                           <span className="text-xs text-gray-500 font-mono mt-0.5">{item.sku}</span>
                           {(item.brand || item.size || item.color) && (
                             <span className="text-xs text-gray-400 mt-0.5">
@@ -288,30 +287,30 @@ export function InventoryListPage(): JSX.Element {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">
+                        <span className="inline-flex px-2 py-1 bg-white/5 text-gray-400 rounded-lg text-xs font-medium border border-white/10">
                           {CATEGORY_LABELS[item.category] ?? item.category}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right font-medium">
-                        <span className={clsx("text-base", isLowStock ? "text-red-600" : "text-gray-900")}>
+                        <span className={clsx("text-base", isLowStock ? "text-rose-400" : "text-white")}>
                           {item.quantityAvailable}
                         </span>
-                        <span className="text-gray-400 text-xs ml-1">/ {item.quantityOnHand}</span>
+                        <span className="text-gray-500 text-xs ml-1">/ {item.quantityOnHand}</span>
                       </td>
-                      <td className="px-6 py-4 text-right text-gray-500">
+                      <td className="px-6 py-4 text-right text-gray-400">
                         {item.quantityReserved}
                       </td>
-                      <td className="px-6 py-4 text-right text-gray-600 font-mono">
+                      <td className="px-6 py-4 text-right text-gray-400 font-mono">
                         {fmt(item.costPrice)}
                       </td>
                       <td className="px-6 py-4">
                         {isLowStock ? (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-700 bg-red-50 px-2 py-1 rounded-lg">
-                            <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Low Stock
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-400 bg-rose-500/10 px-2 py-1 rounded-lg border border-rose-500/20">
+                            <span className="h-1.5 w-1.5 rounded-full bg-rose-500" /> Low Stock
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-50 px-2 py-1 rounded-lg">
-                            <span className="h-1.5 w-1.5 rounded-full bg-green-500" /> In Stock
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> In Stock
                           </span>
                         )}
                       </td>
@@ -336,13 +335,13 @@ export function InventoryListPage(): JSX.Element {
       {/* ── Mobile Cards ── */}
       <div className="lg:hidden space-y-4">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="animate-pulse bg-white p-5 rounded-2xl border border-gray-100 h-[140px]" />
-          ))
+          <SkeletonLoader variant="card" rows={4} />
         ) : isError || inventoryItems.length === 0 ? (
-          <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 text-gray-500">
-            {isError ? 'Failed to load inventory.' : 'No items found matching your filters.'}
-          </div>
+          <EmptyState
+            title={isError ? 'Failed to load inventory' : 'No items found'}
+            description={isError ? 'Please check your connection.' : 'No inventory matches your criteria.'}
+            minHeight="min-h-[200px]"
+          />
         ) : (
           inventoryItems.map((item) => {
             const isLowStock = item.quantityAvailable <= item.reorderPoint;
@@ -351,25 +350,25 @@ export function InventoryListPage(): JSX.Element {
                 key={item.id}
                 onClick={() => navigate(`/inventory/${item.id}`)}
                 padding="md"
-                className="border border-gray-100 active:bg-gray-50 transition-colors"
+                className="glass-panel border-white/10 active:bg-white/10 transition-colors"
               >
                 <div className="flex justify-between items-start gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 truncate pr-4 text-base">{item.name}</p>
+                    <p className="font-semibold text-white truncate pr-4 text-base">{item.name}</p>
                     <p className="text-xs text-gray-500 font-mono mt-0.5">{item.sku}</p>
                     <p className="text-xs text-gray-400 mt-1">
                       {CATEGORY_LABELS[item.category] ?? item.category}
                     </p>
                   </div>
                   <div className="flex-shrink-0 text-right">
-                    <p className={clsx("text-xl font-bold", isLowStock ? "text-red-600" : "text-gray-900")}>
+                    <p className={clsx("text-xl font-bold", isLowStock ? "text-rose-400" : "text-white")}>
                       {item.quantityAvailable}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5">Available</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Available</p>
                   </div>
                 </div>
                 {isLowStock && (
-                  <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-red-700 bg-red-50 pl-2 pr-3 py-1 rounded-lg">
+                  <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-rose-400 bg-rose-500/10 pl-2 pr-3 py-1 rounded-lg border border-rose-500/20">
                     <ExclamationTriangleIcon className="h-3.5 w-3.5" /> Reorder Needed
                   </div>
                 )}
@@ -381,10 +380,10 @@ export function InventoryListPage(): JSX.Element {
 
       {/* ── Pagination ── */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-gray-200 pt-6 mt-6">
+        <div className="flex items-center justify-between border-t border-white/10 pt-6 mt-6">
           <p className="text-sm text-gray-500 hidden sm:block">
-            Showing <span className="font-medium text-gray-900">{inventoryItems.length}</span> of{' '}
-            <span className="font-medium text-gray-900">{total}</span> items
+            Showing <span className="font-medium text-gray-300">{inventoryItems.length}</span> of{' '}
+            <span className="font-medium text-gray-300">{total}</span> items
           </p>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
             <TouchButton
@@ -396,7 +395,7 @@ export function InventoryListPage(): JSX.Element {
             >
               Previous
             </TouchButton>
-            <span className="text-sm font-medium text-gray-700 mx-2 block sm:hidden">
+            <span className="text-sm font-medium text-gray-400 mx-2 block sm:hidden">
               Page {page} of {totalPages}
             </span>
             <TouchButton

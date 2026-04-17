@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireAuth } from '../middleware/auth';
 import { injectTenant } from '../middleware/tenant';
 import {
   getOrgHandler,
@@ -14,7 +15,7 @@ import {
 
 export const settingsRouter = Router();
 
-settingsRouter.use(injectTenant);
+settingsRouter.use(requireAuth, injectTenant);
 
 // Org
 settingsRouter.get('/org', getOrgHandler);

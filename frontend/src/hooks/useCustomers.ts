@@ -7,6 +7,8 @@ import {
 } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { customerApi } from '../services/api';
+import { useOfflineStore } from '../store/offlineStore';
+import { useIsReady } from './useIsReady';
 import type { Customer, ApiResponse, PaginatedResult } from '../types';
 
 // ─── Query Key Factories ──────────────────────────────────────────────────────
@@ -26,6 +28,16 @@ export interface CustomerListParams {
   page?: number;
   limit?: number;
   search?: string;
+  sortKey?: string;
+  sortDir?: 'asc' | 'desc';
+}
+
+export interface AddressPayload {
+  street?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
 }
 
 export interface CreateCustomerPayload {
@@ -35,6 +47,8 @@ export interface CreateCustomerPayload {
   phone?: string;
   company?: string;
   notes?: string;
+  billing?: AddressPayload;
+  shipping?: AddressPayload;
 }
 
 // ─── useCustomers — paginated search list ─────────────────────────────────────
@@ -42,11 +56,12 @@ export interface CreateCustomerPayload {
 export function useCustomers(
   params: CustomerListParams
 ): UseQueryResult<ApiResponse<PaginatedResult<Customer>>> {
+  const isReady = useIsReady();
   return useQuery({
     queryKey: customerKeys.list(params),
     queryFn: () => customerApi.getAll(params),
     staleTime: 60_000,
-    enabled: true,
+    enabled: isReady,
     placeholderData: (prev) => prev,
   });
 }
@@ -78,7 +93,9 @@ export function useCreateCustomer(): UseMutationResult<
       toast.success(`Customer ${res.data.firstName} ${res.data.lastName} created`);
     },
     onError: () => {
-      toast.error('Failed to create customer. Please try again.');
+      if (useOfflineStore.getState().isOnline) {
+        toast.error('Failed to create customer. Please try again.');
+      }
     },
   });
 }
@@ -115,3 +132,23 @@ export function useCustomerOrders(id: string) {
   });
 }
 
+// ─── useDeleteCustomer ────────────────────────────────────────────────────────
+
+export function useDeleteCustomer(): UseMutationResult<
+  ApiResponse<null>,
+  Error,
+  string
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => customerApi.delete(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
+      toast.success('Customer deleted successfully');
+    },
+    onError: () => {
+      toast.error('Failed to delete customer');
+    },
+  });
+}

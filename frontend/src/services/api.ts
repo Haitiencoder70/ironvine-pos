@@ -35,6 +35,7 @@ import {
   Sale,
   PaymentMethod,
   CartItem,
+  GlobalSearchResult,
 } from '../types';
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
@@ -202,7 +203,7 @@ export const settingsApi = {
 // ─── Search ───────────────────────────────────────────────────────────────────
 
 export const searchApi = {
-  globalSearch: (q: string) => api.get<ApiResponse<any>>(`/search?q=${encodeURIComponent(q)}`).then((r) => r.data),
+  globalSearch: (q: string) => api.get<ApiResponse<GlobalSearchResult>>(`/search?q=${encodeURIComponent(q)}`).then((r) => r.data),
 };
 
 // ─── Reports ──────────────────────────────────────────────────────────────────

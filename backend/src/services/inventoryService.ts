@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { emitToOrg } from '../lib/socket';
 import { AppError } from '../middleware/errorHandler';
+import { sendLowStockAlertEmail } from './notificationService';
 import type {
   ReserveMaterialsInput,
   AdjustStockInput,
@@ -13,13 +14,17 @@ import type {
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
+export type InventoryItemWithAvailability = InventoryItem & {
+  quantityAvailable: number;
+};
+
 export async function getInventoryItems(
   organizationId: string,
   options: PaginationInput & {
     category?: InventoryCategory;
     search?: string;
   } = {},
-): Promise<PaginatedResult<InventoryItem>> {
+): Promise<PaginatedResult<InventoryItemWithAvailability>> {
   const { page = 1, category, search } = options;
   const limit = Math.min(options.limit ?? 50, 200);
   const skip = (page - 1) * limit;
@@ -49,14 +54,19 @@ export async function getInventoryItems(
     prisma.inventoryItem.count({ where }),
   ]);
 
-  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+  const dataWithAvailability: InventoryItemWithAvailability[] = data.map((item) => ({
+    ...item,
+    quantityAvailable: Math.max(0, item.quantityOnHand - item.quantityReserved),
+  }));
+
+  return { data: dataWithAvailability, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function getLowStockItems(input: GetLowStockInput): Promise<InventoryItem[]> {
   const { organizationId, category } = input;
 
   return prisma.$queryRaw<InventoryItem[]>`
-    SELECT * FROM "InventoryItem"
+    SELECT * FROM inventory_items
     WHERE "organizationId" = ${organizationId}
       AND "isActive" = true
       AND "quantityOnHand" <= "reorderPoint"
@@ -129,6 +139,7 @@ export async function adjustStock(input: AdjustStockInput): Promise<InventoryIte
     // Emit a low-stock event if the stock falls below the reorder point
     if (updated.quantityOnHand <= updated.reorderPoint) {
       emitToOrg(organizationId, 'inventory:low-stock', updated);
+      void sendLowStockAlertEmail(organizationId, updated.name, updated.quantityOnHand, updated.reorderPoint);
     }
 
     logger.info('Stock adjusted', {
@@ -158,7 +169,7 @@ export async function reserveMaterials(input: ReserveMaterialsInput): Promise<In
       Array<{ id: string; organizationId: string; quantityOnHand: number; quantityReserved: number; name: string }>
     >`
       SELECT id, "organizationId", "quantityOnHand", "quantityReserved", name
-      FROM "InventoryItem"
+      FROM inventory_items
       WHERE id = ${inventoryItemId}
       FOR UPDATE
     `;
@@ -316,12 +327,17 @@ export async function receiveStock(
 export async function getInventoryItemById(
   organizationId: string,
   itemId: string,
-): Promise<InventoryItem> {
+): Promise<InventoryItemWithAvailability> {
   const item = await prisma.inventoryItem.findUnique({ where: { id: itemId } });
 
   if (!item || item.organizationId !== organizationId) {
     throw new AppError(404, 'Inventory item not found', 'INVENTORY_NOT_FOUND');
   }
+
+  return {
+    ...item,
+    quantityAvailable: Math.max(0, item.quantityOnHand - item.quantityReserved),
+  };
 
   return item;
 }

@@ -1,47 +1,99 @@
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   ShoppingCartIcon,
   WrenchScrewdriverIcon,
   TruckIcon,
   CurrencyDollarIcon,
 } from '@heroicons/react/24/outline';
-import { clsx } from 'clsx';
 import type { DashboardStats } from '../../types';
 
 interface StatCardProps {
   label: string;
   value: string;
   icon: React.ReactNode;
-  iconBg: string;
+  accentColor: string;
+  glowColor: string;
+  borderAccent: string;
   onClick: () => void;
+  delay?: number;
 }
 
-function StatCard({ label, value, icon, iconBg, onClick }: StatCardProps): React.JSX.Element {
+function StatCard({
+  label, value, icon, accentColor, glowColor, borderAccent, onClick, delay = 0,
+}: StatCardProps): React.JSX.Element {
   return (
-    <button
+    <motion.button
       onClick={onClick}
-      className="bg-white rounded-2xl shadow-sm p-5 flex items-center gap-4 w-full text-left hover:shadow-md active:scale-[0.98] transition-all duration-150 min-h-[88px]"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+      whileTap={{ scale: 0.97 }}
+      className="group w-full text-left rounded-2xl p-5 flex items-center gap-4 min-h-[92px] relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(160deg, rgba(14,14,26,0.85) 0%, rgba(8,8,18,0.92) 100%)',
+        border: `1px solid ${borderAccent}`,
+        borderTopColor: 'rgba(255,255,255,0.10)',
+        backdropFilter: 'blur(28px) saturate(1.9)',
+        WebkitBackdropFilter: 'blur(28px) saturate(1.9)',
+        boxShadow: `inset 0 1px 0 rgba(255,255,255,0.07), 0 8px 32px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(255,255,255,0.04), ${glowColor}`,
+      }}
     >
-      <div className={clsx('flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center', iconBg)}>
+      {/* Ambient corner glow */}
+      <div
+        className="absolute -top-8 -right-8 w-24 h-24 rounded-full pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-300"
+        style={{ background: `radial-gradient(circle, ${accentColor} 0%, transparent 70%)` }}
+      />
+
+      {/* Icon */}
+      <div
+        className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110 relative z-10"
+        style={{
+          background: `rgba(${accentColor.replace(/[^\d,]/g, '').split(',').slice(0, 3).join(',')}, 0.12)`,
+          border: `1px solid ${borderAccent}`,
+          boxShadow: `0 0 16px ${accentColor.replace(')', ', 0.2)').replace('rgb', 'rgba')}`,
+        }}
+      >
         {icon}
       </div>
-      <div className="min-w-0">
-        <p className="text-2xl font-bold text-gray-900 leading-none">{value}</p>
-        <p className="text-sm text-gray-500 mt-1 truncate">{label}</p>
+
+      {/* Content */}
+      <div className="min-w-0 relative z-10">
+        <p
+          className="stat-number"
+          style={{
+            background: 'linear-gradient(145deg, #ffffff 0%, #c4ccd8 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          {value}
+        </p>
+        <p className="text-[12px] text-gray-500 mt-1 truncate font-medium tracking-wide">{label}</p>
       </div>
-    </button>
+    </motion.button>
   );
 }
 
-function StatCardSkeleton(): React.JSX.Element {
+function StatCardSkeleton({ delay = 0 }: { delay?: number }): React.JSX.Element {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5 flex items-center gap-4 min-h-[88px] animate-pulse">
-      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gray-100" />
-      <div className="flex-1 space-y-2">
-        <div className="h-7 bg-gray-100 rounded w-16" />
-        <div className="h-4 bg-gray-100 rounded w-28" />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay }}
+      className="rounded-2xl p-5 flex items-center gap-4 min-h-[92px] animate-pulse"
+      style={{
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-white/[0.06]" />
+      <div className="flex-1 space-y-2.5">
+        <div className="h-7 rounded-lg w-16" style={{ background: 'rgba(255,255,255,0.07)' }} />
+        <div className="h-3 rounded-lg w-28" style={{ background: 'rgba(255,255,255,0.05)' }} />
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -59,46 +111,54 @@ export function StatsGrid({ stats, loading }: StatsGridProps): React.JSX.Element
   if (loading) {
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)}
+        {[0, 0.05, 0.1, 0.15].map((d, i) => <StatCardSkeleton key={i} delay={d} />)}
       </div>
     );
   }
 
-  const cards = [
+  const cards: StatCardProps[] = [
     {
       label: 'Orders Today',
       value: String(stats?.ordersToday ?? 0),
-      icon: <ShoppingCartIcon className="h-6 w-6 text-blue-600" />,
-      iconBg: 'bg-blue-50',
+      icon: <ShoppingCartIcon className="h-5 w-5 text-blue-400" />,
+      accentColor: 'rgba(59,130,246,1)',
+      glowColor: '0 0 24px rgba(59,130,246,0.12)',
+      borderAccent: 'rgba(59,130,246,0.18)',
       onClick: () => void navigate('/orders'),
     },
     {
       label: 'In Production',
       value: String(stats?.inProduction ?? 0),
-      icon: <WrenchScrewdriverIcon className="h-6 w-6 text-orange-600" />,
-      iconBg: 'bg-orange-50',
+      icon: <WrenchScrewdriverIcon className="h-5 w-5 text-orange-400" />,
+      accentColor: 'rgba(249,115,22,1)',
+      glowColor: '0 0 24px rgba(249,115,22,0.10)',
+      borderAccent: 'rgba(249,115,22,0.18)',
       onClick: () => void navigate('/orders?status=IN_PRODUCTION'),
     },
     {
       label: 'Ready to Ship',
       value: String(stats?.readyToShip ?? 0),
-      icon: <TruckIcon className="h-6 w-6 text-green-600" />,
-      iconBg: 'bg-green-50',
+      icon: <TruckIcon className="h-5 w-5 text-emerald-400" />,
+      accentColor: 'rgba(16,185,129,1)',
+      glowColor: '0 0 24px rgba(16,185,129,0.10)',
+      borderAccent: 'rgba(16,185,129,0.18)',
       onClick: () => void navigate('/orders?status=READY_TO_SHIP'),
     },
     {
       label: 'Revenue Today',
       value: formatCurrency(stats?.revenueToday ?? 0),
-      icon: <CurrencyDollarIcon className="h-6 w-6 text-purple-600" />,
-      iconBg: 'bg-purple-50',
+      icon: <CurrencyDollarIcon className="h-5 w-5 text-violet-400" />,
+      accentColor: 'rgba(139,92,246,1)',
+      glowColor: '0 0 24px rgba(139,92,246,0.10)',
+      borderAccent: 'rgba(139,92,246,0.18)',
       onClick: () => void navigate('/orders'),
     },
   ];
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {cards.map((card) => (
-        <StatCard key={card.label} {...card} />
+      {cards.map((card, i) => (
+        <StatCard key={card.label} {...card} delay={i * 0.06} />
       ))}
     </div>
   );

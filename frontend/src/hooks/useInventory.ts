@@ -7,7 +7,8 @@ import {
 } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { inventoryApi } from '../services/api';
-import type { InventoryItem, ApiResponse, PaginatedResult, StockMovement } from '../types';
+import { useIsReady } from './useIsReady';
+import type { InventoryItem, InventoryCategory, ApiResponse, PaginatedResult, StockMovement } from '../types';
 
 // ─── Query Key Factories ──────────────────────────────────────────────────────
 
@@ -43,15 +44,39 @@ export interface AdjustStockPayload {
 export function useInventory(
   params: InventoryListParams
 ): UseQueryResult<ApiResponse<PaginatedResult<InventoryItem>>> {
+  const isReady = useIsReady();
   return useQuery({
     queryKey: inventoryKeys.list(params),
     queryFn: () => inventoryApi.getAll(params),
     staleTime: 30_000,
+    enabled: isReady,
     placeholderData: (prev) => prev,
   });
 }
 
+export function useInventoryCategories(): UseQueryResult<ApiResponse<InventoryCategory[]>> {
+  return useQuery({
+    queryKey: [...inventoryKeys.all, 'categories'],
+    queryFn: async () => {
+      // Since we don't have a dedicated categories endpoint, we can use the known enum values
+      // or fetch all items and extract unique categories. For now, we'll use the type definition.
+      const categories: InventoryCategory[] = [
+        'BLANK_SHIRTS',
+        'DTF_TRANSFERS',
+        'VINYL',
+        'INK',
+        'PACKAGING',
+        'EMBROIDERY_THREAD',
+        'OTHER',
+      ];
+      return { data: categories };
+    },
+    staleTime: 3600_000, // Categories rarely change
+  });
+}
+
 export function useInventoryItem(id: string): UseQueryResult<ApiResponse<InventoryItem>> {
+
   return useQuery({
     queryKey: inventoryKeys.detail(id),
     queryFn: () => inventoryApi.getById(id),
@@ -61,10 +86,12 @@ export function useInventoryItem(id: string): UseQueryResult<ApiResponse<Invento
 }
 
 export function useLowStock(): UseQueryResult<ApiResponse<InventoryItem[]>> {
+  const isReady = useIsReady();
   return useQuery({
     queryKey: inventoryKeys.lowStock(),
     queryFn: () => inventoryApi.getLowStock(),
     staleTime: 60_000,
+    enabled: isReady,
   });
 }
 
@@ -137,6 +164,26 @@ export function useAdjustStock(): UseMutationResult<
     },
     onError: () => {
       toast.error('Failed to adjust stock');
+    },
+  });
+}
+
+export function useDeleteInventoryItem(): UseMutationResult<
+  ApiResponse<null>,
+  Error,
+  string
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => inventoryApi.delete(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: inventoryKeys.lowStock() });
+      toast.success('Inventory item deleted');
+    },
+    onError: () => {
+      toast.error('Failed to delete item');
     },
   });
 }

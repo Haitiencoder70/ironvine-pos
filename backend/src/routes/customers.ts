@@ -7,6 +7,8 @@ import {
   getById,
   create,
   update,
+  deleteCustomer,
+  getCustomerOrders,
 } from '../controllers/customerController';
 import {
   createCustomerSchema,
@@ -30,3 +32,9 @@ customersRouter.post('/', validate(createCustomerSchema), create);
 
 // ─── Update Customer ──────────────────────────────────────────────────────────
 customersRouter.patch('/:id', validate(updateCustomerSchema), update);
+
+// ─── Delete Customer ──────────────────────────────────────────────────────────
+customersRouter.delete('/:id', deleteCustomer);
+
+// ─── Get Customer Orders ──────────────────────────────────────────────────────
+customersRouter.get('/:id/orders', getCustomerOrders);

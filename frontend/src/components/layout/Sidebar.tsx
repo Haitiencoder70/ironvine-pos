@@ -14,6 +14,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ArrowRightStartOnRectangleIcon,
+  CreditCardIcon,
+  TagIcon,
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { useClerk } from '@clerk/clerk-react';
@@ -26,16 +28,41 @@ interface NavItem {
   icon: React.ReactNode;
 }
 
-const navItems: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: <HomeIcon className="h-5 w-5" /> },
-  { label: 'Orders', path: '/orders', icon: <ClipboardDocumentListIcon className="h-5 w-5" /> },
-  { label: 'Inventory', path: '/inventory', icon: <ArchiveBoxIcon className="h-5 w-5" /> },
-  { label: 'Customers', path: '/customers', icon: <UsersIcon className="h-5 w-5" /> },
-  { label: 'Purchase Orders', path: '/purchase-orders', icon: <ShoppingCartIcon className="h-5 w-5" /> },
-  { label: 'Vendors', path: '/vendors', icon: <BuildingStorefrontIcon className="h-5 w-5" /> },
-  { label: 'Shipments', path: '/shipments', icon: <TruckIcon className="h-5 w-5" /> },
-  { label: 'Reports', path: '/reports', icon: <ChartBarIcon className="h-5 w-5" /> },
-  { label: 'Settings', path: '/settings', icon: <Cog6ToothIcon className="h-5 w-5" /> },
+interface NavGroup {
+  label?: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    items: [
+      { label: 'Dashboard',    path: '/dashboard', icon: <HomeIcon className="h-[18px] w-[18px]" /> },
+    ],
+  },
+  {
+    label: 'Operations',
+    items: [
+      { label: 'Products',         path: '/products',         icon: <TagIcon className="h-[18px] w-[18px]" /> },
+      { label: 'Orders',          path: '/orders',          icon: <ClipboardDocumentListIcon className="h-[18px] w-[18px]" /> },
+      { label: 'POS Terminal',    path: '/pos',             icon: <CreditCardIcon className="h-[18px] w-[18px]" /> },
+      { label: 'Inventory',       path: '/inventory',       icon: <ArchiveBoxIcon className="h-[18px] w-[18px]" /> },
+      { label: 'Purchase Orders', path: '/purchase-orders', icon: <ShoppingCartIcon className="h-[18px] w-[18px]" /> },
+      { label: 'Shipments',       path: '/shipments',       icon: <TruckIcon className="h-[18px] w-[18px]" /> },
+    ],
+  },
+  {
+    label: 'Management',
+    items: [
+      { label: 'Customers', path: '/customers', icon: <UsersIcon className="h-[18px] w-[18px]" /> },
+      { label: 'Vendors',   path: '/vendors',   icon: <BuildingStorefrontIcon className="h-[18px] w-[18px]" /> },
+      { label: 'Reports',   path: '/reports',   icon: <ChartBarIcon className="h-[18px] w-[18px]" /> },
+    ],
+  },
+  {
+    items: [
+      { label: 'Settings', path: '/settings', icon: <Cog6ToothIcon className="h-[18px] w-[18px]" /> },
+    ],
+  },
 ];
 
 interface SidebarProps {
@@ -49,115 +76,199 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
   const { signOut } = useClerk();
   const location = useLocation();
 
-  const handleNavClick = (): void => {
-    setSidebarOpen(false);
-  };
-
-  const handleSignOut = (): void => {
-    void signOut();
-  };
+  const handleNavClick = (): void => setSidebarOpen(false);
+  const handleSignOut = (): void => { void signOut(); };
 
   const displayName = user
     ? `${user.firstName} ${user.lastName}`.trim() || user.email
     : '';
   const roleLabel =
-    user?.role === 'OWNER' ? 'Owner'
+    user?.role === 'OWNER'   ? 'Owner'
     : user?.role === 'MANAGER' ? 'Manager'
     : 'Staff';
+  const initials = user
+    ? (user.firstName?.[0] ?? user.email[0]).toUpperCase()
+    : '?';
 
   return (
     <aside
       className={clsx(
-        'flex flex-col h-full bg-gray-900 text-white transition-all duration-300 ease-in-out relative',
-        collapsed ? 'w-20' : 'w-[280px]'
+        'flex flex-col h-full relative transition-all duration-300 ease-in-out',
+        'border-r border-white/[0.05]',
+        collapsed ? 'w-[72px]' : 'w-[280px]'
       )}
+      style={{
+        background: 'linear-gradient(180deg, rgba(6,6,16,0.96) 0%, rgba(4,4,12,0.98) 100%)',
+        backdropFilter: 'blur(32px) saturate(1.8)',
+        WebkitBackdropFilter: 'blur(32px) saturate(1.8)',
+        boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.04), 4px 0 32px rgba(0,0,0,0.5)',
+      }}
     >
-      {/* Logo / Brand */}
-      <div className="flex items-center h-16 px-4 border-b border-gray-700/50 flex-shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">IV</span>
-          </div>
-          <AnimatePresence initial={false}>
-            {!collapsed && (
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden"
-              >
-                <span className="font-bold text-white whitespace-nowrap text-base">
-                  IronVine POS
-                </span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+      {/* Vertical accent gradient on right edge */}
+      <div
+        className="absolute inset-y-0 right-0 w-px pointer-events-none"
+        style={{
+          background: 'linear-gradient(180deg, transparent 0%, rgba(59,130,246,0.25) 35%, rgba(99,102,241,0.15) 70%, transparent 100%)',
+        }}
+      />
+
+      {/* ── Brand ──────────────────────────────────────────────────────── */}
+      <div className={clsx(
+        'flex items-center h-[60px] border-b border-white/[0.05] flex-shrink-0',
+        collapsed ? 'px-0 justify-center' : 'px-4'
+      )}>
+        {/* Logo mark */}
+        <div
+          className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-[11px] tracking-widest"
+          style={{
+            background: 'linear-gradient(145deg, #2563eb 0%, #1d4ed8 50%, #3730a3 100%)',
+            boxShadow: '0 0 20px rgba(59,130,246,0.45), 0 0 40px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.25)',
+          }}
+        >
+          IV
         </div>
-        {/* Mobile close button */}
+
+        <AnimatePresence initial={false}>
+          {!collapsed && (
+            <motion.div
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: 'auto' }}
+              exit={{ opacity: 0, width: 0 }}
+              transition={{ duration: 0.22 }}
+              className="overflow-hidden ml-3 flex-1"
+            >
+              <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                <span className="font-bold text-white text-[15px] tracking-tight">IronVine</span>
+                <span
+                  className="font-light text-[13px] tracking-tight"
+                  style={{
+                    background: 'linear-gradient(90deg, #60a5fa, #818cf8)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  POS
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile close */}
         <button
           onClick={() => setSidebarOpen(false)}
-          className="ml-auto lg:hidden p-1 rounded-md hover:bg-gray-700 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
+          className="ml-auto lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-200 hover:bg-white/5 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
           aria-label="Close sidebar"
         >
-          <XMarkIcon className="h-5 w-5 text-gray-400" />
+          <XMarkIcon className="h-5 w-5" />
         </button>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
-        {navItems.map((item) => {
-          const isActive = location.pathname.startsWith(item.path);
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              onClick={handleNavClick}
-              title={collapsed ? item.label : undefined}
-              className={clsx(
-                'flex items-center gap-3 px-3 py-3 rounded-xl min-h-[44px] transition-all duration-150 group relative',
-                isActive
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/30'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+      {/* ── Navigation ─────────────────────────────────────────────────── */}
+      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0">
+        {navGroups.map((group, gi) => (
+          <div key={gi} className={clsx(gi > 0 && 'mt-2')}>
+            {/* Section label */}
+            <AnimatePresence initial={false}>
+              {!collapsed && group.label && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className="px-3 pt-3 pb-1.5"
+                >
+                  <span className="section-label">{group.label}</span>
+                </motion.div>
               )}
-            >
-              <span className="flex-shrink-0">{item.icon}</span>
-              <AnimatePresence initial={false}>
-                {!collapsed && (
-                  <motion.span
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: 'auto' }}
-                    exit={{ opacity: 0, width: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden whitespace-nowrap font-medium text-sm"
+            </AnimatePresence>
+
+            {/* Items */}
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const isActive = location.pathname.startsWith(item.path);
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={handleNavClick}
+                    title={collapsed ? item.label : undefined}
+                    className={clsx('nav-item group', isActive && 'nav-item-active')}
                   >
-                    {item.label}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-              {/* Tooltip when collapsed */}
-              {collapsed && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                  {item.label}
-                </div>
-              )}
-            </NavLink>
-          );
-        })}
+                    {/* Icon */}
+                    <span
+                      className={clsx(
+                        'flex-shrink-0 transition-all duration-150',
+                        isActive
+                          ? 'text-blue-400 drop-shadow-[0_0_6px_rgba(59,130,246,0.6)]'
+                          : 'text-gray-600 group-hover:text-gray-400'
+                      )}
+                    >
+                      {item.icon}
+                    </span>
+
+                    {/* Label */}
+                    <AnimatePresence initial={false}>
+                      {!collapsed && (
+                        <motion.span
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: 'auto' }}
+                          exit={{ opacity: 0, width: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden whitespace-nowrap text-[13.5px]"
+                        >
+                          {item.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Tooltip when collapsed */}
+                    {collapsed && (
+                      <div
+                        className="absolute left-full ml-3 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-200 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50"
+                        style={{
+                          background: 'rgba(10,10,22,0.95)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          backdropFilter: 'blur(12px)',
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                        }}
+                      >
+                        {item.label}
+                      </div>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
+
+            {/* Group divider — except last group */}
+            {gi < navGroups.length - 2 && (
+              <div className="mx-3 mt-3 border-t border-white/[0.05]" />
+            )}
+          </div>
+        ))}
       </nav>
 
-      {/* User profile */}
-      <div className="flex-shrink-0 border-t border-gray-700/50">
-        <div
-          className={clsx(
-            'flex items-center gap-3 px-3 py-3',
-            collapsed && 'justify-center'
-          )}
-        >
-          {/* Avatar initials */}
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
-            {user ? (user.firstName?.[0] ?? user.email[0]).toUpperCase() : '?'}
+      {/* ── User profile ───────────────────────────────────────────────── */}
+      <div
+        className="flex-shrink-0 border-t border-white/[0.05]"
+        style={{ background: 'rgba(255,255,255,0.015)' }}
+      >
+        <div className={clsx(
+          'flex items-center gap-3 px-3 py-3',
+          collapsed && 'justify-center'
+        )}>
+          {/* Avatar */}
+          <div
+            className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold"
+            style={{
+              background: 'linear-gradient(145deg, #2563eb, #7c3aed)',
+              boxShadow: '0 0 14px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
+            }}
+          >
+            {initials}
           </div>
+
           <AnimatePresence initial={false}>
             {!collapsed && (
               <motion.div
@@ -167,13 +278,12 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden min-w-0 flex-1"
               >
-                <p className="text-sm font-medium text-white truncate whitespace-nowrap">
-                  {displayName}
-                </p>
-                <p className="text-xs text-gray-400 whitespace-nowrap">{roleLabel}</p>
+                <p className="text-[13px] font-semibold text-gray-200 truncate whitespace-nowrap leading-tight">{displayName}</p>
+                <p className="text-[11px] text-gray-600 whitespace-nowrap leading-tight">{roleLabel}</p>
               </motion.div>
             )}
           </AnimatePresence>
+
           <AnimatePresence initial={false}>
             {!collapsed && (
               <motion.button
@@ -181,7 +291,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={handleSignOut}
-                className="flex-shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                className="flex-shrink-0 p-1.5 rounded-lg text-gray-700 hover:text-gray-300 hover:bg-white/5 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                 aria-label="Sign out"
                 title="Sign out"
               >
@@ -191,11 +301,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
           </AnimatePresence>
         </div>
 
-        {/* Collapsed sign-out */}
         {collapsed && (
           <button
             onClick={handleSignOut}
-            className="flex items-center justify-center w-full min-h-[44px] text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+            className="flex items-center justify-center w-full min-h-[44px] text-gray-700 hover:text-gray-300 hover:bg-white/5 transition-colors"
             aria-label="Sign out"
             title="Sign out"
           >
@@ -204,18 +313,18 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
         )}
       </div>
 
-      {/* Collapse toggle — desktop only */}
-      <div className="hidden lg:flex flex-shrink-0 p-2 border-t border-gray-700/50">
+      {/* ── Collapse toggle — desktop only ─────────────────────────────── */}
+      <div className="hidden lg:flex flex-shrink-0 p-2 border-t border-white/[0.05]">
         <button
           onClick={onToggleCollapse}
-          className="flex items-center justify-center w-full min-h-[44px] rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+          className="flex items-center justify-center w-full min-h-[44px] rounded-xl text-gray-700 hover:text-gray-400 hover:bg-white/5 transition-all duration-150 text-xs"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? (
-            <ChevronRightIcon className="h-5 w-5" />
+            <ChevronRightIcon className="h-4 w-4" />
           ) : (
-            <div className="flex items-center gap-2 text-sm">
-              <ChevronLeftIcon className="h-5 w-5" />
+            <div className="flex items-center gap-2">
+              <ChevronLeftIcon className="h-4 w-4" />
               <span>Collapse</span>
             </div>
           )}

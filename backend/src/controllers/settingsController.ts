@@ -73,7 +73,7 @@ export const removeUserHandler = async (req: Request, res: Response, next: NextF
 export const getNotificationsHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { organizationDbId } = req as AuthenticatedRequest;
-    const data = getNotificationSettings(organizationDbId!);
+    const data = await getNotificationSettings(organizationDbId!);
     res.json({ data });
   } catch (err) { next(err); }
 };
@@ -81,7 +81,7 @@ export const getNotificationsHandler = async (req: Request, res: Response, next:
 export const updateNotificationsHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { organizationDbId } = req as AuthenticatedRequest;
-    const data = updateNotificationSettings(organizationDbId!, req.body as Parameters<typeof updateNotificationSettings>[1]);
+    const data = await updateNotificationSettings(organizationDbId!, req.body as Parameters<typeof updateNotificationSettings>[1]);
     res.json({ data });
   } catch (err) { next(err); }
 };

@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { SocketInit } from './SocketInit';
 import { BottomNav } from '../mobile/BottomNav';
+import { Omnibar } from '../ui/Omnibar';
 import { useUiStore } from '../../store/uiStore';
 import { useSwipeBack } from '../../hooks/useSwipeBack';
 
@@ -22,8 +23,9 @@ export function MainLayout(): React.JSX.Element {
   useSwipeBack();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-transparent">
       <SocketInit />
+      <Omnibar />
 
       {/* ── Desktop sidebar (always in DOM, width animated) ── */}
       <div className="hidden lg:flex flex-shrink-0">

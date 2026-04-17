@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { OrderStatus, OrderPriority } from '@prisma/client';
 import { AuthenticatedRequest } from '../types';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
@@ -20,17 +21,19 @@ export const getAll = async (req: Request, res: Response, next: NextFunction): P
 
     const result = await getOrders({
       organizationId: orgDbId,
-      status: query['status'] as never,
+      status: query['status'] as OrderStatus | undefined,
       customerId: query['customerId'] as string | undefined,
-      priority: query['priority'] as never,
+      priority: query['priority'] as OrderPriority | undefined,
       search: query['search'] as string | undefined,
       dateFrom: query['dateFrom'] as Date | undefined,
       dateTo: query['dateTo'] as Date | undefined,
+      sortKey: query['sortKey'] as string | undefined,
+      sortDir: query['sortDir'] as 'asc' | 'desc' | undefined,
       page: Number(query['page'] ?? 1),
       limit: Number(query['limit'] ?? 25),
     });
 
-    res.json(result);
+    res.json({ data: result });
   } catch (err) {
     next(err);
   }

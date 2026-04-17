@@ -15,6 +15,7 @@ import { clsx } from 'clsx';
 import { useShipment } from '../../hooks/useShipments';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
+import { SkeletonLoader } from '../../components/ui';
 import { UpdateShipmentStatusModal } from '../../components/shipments/UpdateShipmentStatusModal';
 import { UpdateTrackingModal } from '../../components/shipments/UpdateTrackingModal';
 import type { ShipmentStatus } from '../../types';
@@ -53,18 +54,8 @@ export function ShipmentDetailPage(): JSX.Element {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-pulse space-y-6">
-        <div className="h-8 w-48 bg-gray-100 rounded" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-           <div className="lg:col-span-2 space-y-4">
-             <div className="h-32 bg-gray-100 rounded-2xl" />
-             <div className="h-64 bg-gray-100 rounded-2xl" />
-           </div>
-           <div className="lg:col-span-1 space-y-4">
-             <div className="h-48 bg-gray-100 rounded-2xl" />
-             <div className="h-48 bg-gray-100 rounded-2xl" />
-           </div>
-        </div>
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+        <SkeletonLoader variant="detail" />
       </div>
     );
   }

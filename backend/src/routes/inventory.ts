@@ -10,6 +10,8 @@ import {
   update,
   adjustStockHandler,
   getMovements,
+  getLowStock,
+  deleteItem,
 } from '../controllers/inventoryController';
 import {
   createInventoryItemSchema,
@@ -29,6 +31,10 @@ inventoryRouter.get('/', validate(listInventoryQuerySchema, 'query'), getAll);
 // ─── Create Inventory Item ────────────────────────────────────────────────────
 inventoryRouter.post('/', checkLimit('inventoryItems'), validate(createInventoryItemSchema), create);
 
+// ─── Low Stock Alert Items ────────────────────────────────────────────────────
+// IMPORTANT: Must be registered BEFORE /:id to avoid Express treating "low-stock" as an ID
+inventoryRouter.get('/low-stock', getLowStock);
+
 // ─── Get Individual Item ──────────────────────────────────────────────────────
 inventoryRouter.get('/:id', getById);
 
@@ -41,3 +47,6 @@ inventoryRouter.patch('/:id/adjust', validate(adjustStockSchema), adjustStockHan
 
 // ─── Stock Movements ──────────────────────────────────────────────────────────
 inventoryRouter.get('/:id/movements', getMovements);
+
+// ─── Delete (Soft) ────────────────────────────────────────────────────────────
+inventoryRouter.delete('/:id', deleteItem);

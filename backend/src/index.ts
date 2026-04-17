@@ -7,6 +7,7 @@ import { verifyToken } from '@clerk/express';
 import { logger } from './lib/logger';
 import { app } from './app';
 import { initIO } from './lib/socket';
+import { prisma } from './lib/prisma';
 
 const httpServer = createServer(app);
 
@@ -52,6 +53,37 @@ io.on('connection', (socket) => {
 
 const PORT = env.PORT;
 
-httpServer.listen(PORT, () => {
+const server = httpServer.listen(PORT, () => {
   logger.info(`Server running on port ${PORT} (${env.NODE_ENV})`);
 });
+
+// Graceful Shutdown
+function gracefulShutdown(signal: string) {
+  logger.info(`${signal} received. Shutting down gracefully...`);
+  
+  server.close(() => {
+    logger.info('HTTP server closed.');
+    
+    io.close(() => {
+      logger.info('Socket.io connections closed.');
+      
+      prisma.$disconnect().then(() => {
+        logger.info('Database connections closed.');
+        process.exit(0);
+      }).catch((err) => {
+        logger.error('Error during database disconnection:', err);
+        process.exit(1);
+      });
+    });
+  });
+
+  // Force close after 10 seconds
+  setTimeout(() => {
+    logger.error('Could not close connections in time, forcefully shutting down');
+    process.exit(1);
+  }, 10000);
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+

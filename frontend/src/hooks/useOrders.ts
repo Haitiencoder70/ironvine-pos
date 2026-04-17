@@ -9,6 +9,7 @@ import {
 import { toast } from 'react-hot-toast';
 import { orderApi } from '../services/api';
 import { subscribeToOrders } from '../services/socket';
+import { useIsReady } from './useIsReady';
 import type {
   Order,
   OrderStatus,
@@ -49,6 +50,7 @@ export function useOrders(
 ): UseQueryResult<ApiResponse<PaginatedResult<Order>>> {
   const queryClient = useQueryClient();
   const enableRealtime = options?.realtime ?? true;
+  const isReady = useIsReady();
 
   // Real-time socket subscription
   useEffect(() => {
@@ -84,10 +86,17 @@ export function useOrders(
     return unsub;
   }, [queryClient, enableRealtime]);
 
+  // Map frontend sort keys to backend-accepted values
+  const apiParams = {
+    ...params,
+    sortKey: params.sortKey === 'customer.lastName' ? 'customerName' : params.sortKey,
+  };
+
   return useQuery({
     queryKey: orderKeys.list(params),
-    queryFn: () => orderApi.getAll(params),
+    queryFn: () => orderApi.getAll(apiParams),
     staleTime: 30_000,
+    enabled: isReady,
     placeholderData: (prev) => prev,
   });
 }

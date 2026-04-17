@@ -21,6 +21,7 @@ import {
   ExclamationCircleIcon,
   ArrowPathIcon,
   ClipboardDocumentListIcon,
+  QrCodeIcon,
 } from '@heroicons/react/24/outline';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,10 +32,14 @@ import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
 import { Modal } from '../../components/ui/Modal';
 import { OrderWorkflow } from '../../components/orders/OrderWorkflow';
+import { OrderLabelPrint } from '../../components/orders/OrderLabelPrint';
 import { UseMaterialsModal } from '../../components/orders/UseMaterialsModal';
 import { CreateShipmentModal } from '../../components/shipments/CreateShipmentModal';
 import { useOrder, useUpdateOrderStatus, orderKeys } from '../../hooks/useOrders';
+import { useConfirm } from '../../hooks/useConfirm';
+import { SkeletonLoader } from '../../components/ui';
 import { subscribeToOrders } from '../../services/socket';
+import confetti from 'canvas-confetti';
 import type { JSX } from 'react';
 import type { OrderStatus, OrderPriority } from '../../types';
 
@@ -102,23 +107,8 @@ function SectionHeader({ icon, title, action }: SectionHeaderProps) {
 
 function OrderDetailSkeleton() {
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-pulse space-y-6">
-      <div className="flex items-center gap-4">
-        <div className="h-5 w-24 bg-gray-100 rounded" />
-        <div className="h-8 w-48 bg-gray-100 rounded" />
-        <div className="h-6 w-24 bg-gray-100 rounded-full" />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          {[120, 200, 160, 140].map((h, i) => (
-            <div key={i} className="bg-white rounded-2xl shadow-sm" style={{ height: h }} />
-          ))}
-        </div>
-        <div className="space-y-4">
-          <div className="bg-white rounded-2xl shadow-sm h-64" />
-          <div className="bg-white rounded-2xl shadow-sm h-48" />
-        </div>
-      </div>
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+      <SkeletonLoader variant="detail" />
     </div>
   );
 }
@@ -219,6 +209,8 @@ export function OrderDetailPage(): JSX.Element {
     });
   }, []);
 
+  const { confirm } = useConfirm();
+
   const handleAdvanceStatus = useCallback(
     async (nextStatus: OrderStatus, requiresModal?: string) => {
       if (requiresModal === 'materials') {
@@ -234,14 +226,35 @@ export function OrderDetailPage(): JSX.Element {
         return;
       }
       if (!id) return;
+      
+      // If moving to COMPLETED, confirm first and then fire confetti
+      if (nextStatus === 'COMPLETED') {
+        const ok = await confirm({
+          title: 'Complete Order',
+          description: 'Are you sure you want to mark this order as completed? This signifies all items are delivered and paid for.',
+          confirmText: 'Complete',
+          variant: 'primary',
+        });
+        if (!ok) return;
+      }
+
       try {
         await updateStatus.mutateAsync({ id, newStatus: nextStatus });
         toast.success(`Order moved to ${nextStatus.replace(/_/g, ' ')}`);
+        
+        if (nextStatus === 'COMPLETED') {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#3B82F6', '#10B981', '#F59E0B']
+          });
+        }
       } catch {
         // error toast handled by hook
       }
     },
-    [id, updateStatus, navigate]
+    [id, updateStatus, navigate, confirm]
   );
 
   const handleCancel = useCallback(
@@ -370,6 +383,20 @@ export function OrderDetailPage(): JSX.Element {
                     >
                       <PrinterIcon className="h-4 w-4 text-gray-400" />
                       Print Order
+                    </button>
+                  )}
+                </MenuItem>
+                <MenuItem>
+                  {({ focus }) => (
+                    <button
+                      onClick={handlePrint}
+                      className={clsx(
+                        'flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 min-h-[44px]',
+                        focus && 'bg-gray-50'
+                      )}
+                    >
+                      <QrCodeIcon className="h-4 w-4 text-gray-400" />
+                      Print Label
                     </button>
                   )}
                 </MenuItem>
@@ -769,6 +796,13 @@ export function OrderDetailPage(): JSX.Element {
         open={showShipmentModal}
         onClose={() => setShowShipmentModal(false)}
         order={order}
+      />
+
+      <OrderLabelPrint 
+        orderNumber={order.orderNumber}
+        customerName={order.customer?.company || (order.customer ? `${order.customer.firstName} ${order.customer.lastName}` : 'No Customer')}
+        createdAt={order.createdAt}
+        itemsSummary={order.items.map(i => `${i.quantity}x ${i.productType}`).join('\n')}
       />
     </>
   );

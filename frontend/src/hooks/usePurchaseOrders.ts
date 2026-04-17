@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import { purchaseOrderApi } from '../services/api';
 import { orderKeys } from './useOrders';
 import { inventoryKeys } from './useInventory';
+import { useIsReady } from './useIsReady';
 import type { PurchaseOrderStatus } from '../types';
 
 export const poKeys = {
@@ -26,11 +27,13 @@ export interface POListParams {
 }
 
 export function usePurchaseOrders(params: POListParams) {
+  const isReady = useIsReady();
   return useQuery({
     queryKey: poKeys.list(params),
     queryFn: () => purchaseOrderApi.getAll(params),
     placeholderData: (prev) => prev,
     staleTime: 30_000,
+    enabled: isReady,
   });
 }
 

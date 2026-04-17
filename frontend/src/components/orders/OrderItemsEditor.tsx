@@ -1,392 +1,297 @@
-import { useCallback } from 'react';
-import { useFieldArray, useFormContext, Controller } from 'react-hook-form';
+import { useState } from 'react';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 import {
   PlusIcon,
   TrashIcon,
   ChevronDownIcon,
+  ChevronUpIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
-import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TouchButton } from '../ui/TouchButton';
-import { TouchInput } from '../ui/TouchInput';
+import { Modal } from '../ui/Modal';
+import { ProductPickerModal } from './ProductPickerModal';
+import { ProductOrderConfigurator, CustomItemForm } from './ProductOrderConfigurator';
+import type { ConfiguredOrderItem } from './ProductOrderConfigurator';
 import type { NewOrderFormValues, OrderItemFormValues } from '../../pages/orders/NewOrder';
+import type { Product } from '../../hooks/useProducts';
+import { formatCurrency } from '../../hooks/useProducts';
 
-// ─── Constants ─────────────────────────────────────────────────────────────────
+// ─── Item display row ─────────────────────────────────────────────────────────
 
-const PRODUCT_TYPES = [
-  { value: 'TSHIRT', label: 'T-Shirt' },
-  { value: 'HOODIE', label: 'Hoodie' },
-  { value: 'POLO', label: 'Polo' },
-  { value: 'TANK_TOP', label: 'Tank Top' },
-  { value: 'LONG_SLEEVE', label: 'Long Sleeve' },
-  { value: 'SWEATSHIRT', label: 'Sweatshirt' },
-  { value: 'HAT', label: 'Hat' },
-  { value: 'BAG', label: 'Bag' },
-  { value: 'OTHER', label: 'Other' },
-] as const;
-
-const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'] as const;
-
-const PRINT_METHODS = [
-  { value: 'DTF', label: 'DTF (Direct to Film)' },
-  { value: 'HTV', label: 'HTV (Heat Transfer Vinyl)' },
-  { value: 'SCREEN_PRINT', label: 'Screen Print' },
-  { value: 'EMBROIDERY', label: 'Embroidery' },
-  { value: 'SUBLIMATION', label: 'Sublimation' },
-  { value: 'DTG', label: 'DTG (Direct to Garment)' },
-] as const;
-
-const PRINT_LOCATIONS = [
-  { value: 'FRONT', label: 'Front' },
-  { value: 'BACK', label: 'Back' },
-  { value: 'LEFT_SLEEVE', label: 'Left Sleeve' },
-  { value: 'RIGHT_SLEEVE', label: 'Right Sleeve' },
-  { value: 'FULL_PRINT', label: 'Full Print' },
-] as const;
-
-const SLEEVE_TYPES = [
-  { value: 'SHORT', label: 'Short Sleeve' },
-  { value: 'LONG', label: 'Long Sleeve' },
-  { value: 'SLEEVELESS', label: 'Sleeveless' },
-] as const;
-
-// ─── Auto-calculate materials ─────────────────────────────────────────────────
-
-function deriveRequiredMaterials(item: Partial<OrderItemFormValues>): string[] {
-  const materials: string[] = [];
-  if (!item.productType || !item.quantity) return materials;
-
-  const qty = item.quantity;
-  const label = PRODUCT_TYPES.find((p) => p.value === item.productType)?.label ?? item.productType;
-  const sizeLabel = item.size ? ` (${item.size})` : '';
-  const colorLabel = item.color ? ` - ${item.color}` : '';
-
-  materials.push(`${qty}× Blank ${label}${sizeLabel}${colorLabel}`);
-
-  if (item.printMethod === 'DTF') {
-    materials.push(`${qty}× DTF Transfer (sized for ${label})`);
-  } else if (item.printMethod === 'HTV') {
-    const locs = item.printLocations?.length ?? 1;
-    materials.push(`${qty * locs}× HTV Vinyl sheet`);
-  } else if (item.printMethod === 'SCREEN_PRINT') {
-    materials.push(`Ink (${item.printLocations?.length ?? 1} color screen setup)`);
-  } else if (item.printMethod === 'EMBROIDERY') {
-    materials.push(`Embroidery thread + backing (${item.printLocations?.length ?? 1} location)`);
-  }
-
-  return materials;
-}
-
-// ─── Currency formatter ───────────────────────────────────────────────────────
-
-function fmt(n: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
-}
-
-// ─── Single Item Row ─────────────────────────────────────────────────────────
-
-interface OrderItemRowProps {
+function OrderItemRow({
+  index,
+  onRemove,
+}: {
   index: number;
-  canRemove: boolean;
   onRemove: () => void;
-}
+}): React.JSX.Element {
+  const { watch } = useFormContext<NewOrderFormValues>();
+  const [expanded, setExpanded] = useState(false);
 
-function OrderItemRow({ index, canRemove, onRemove }: OrderItemRowProps) {
-  const {
-    register,
-    control,
-    watch,
-    formState: { errors },
-  } = useFormContext<NewOrderFormValues>();
-
-  const itemErrors = errors.items?.[index];
-  const watchedItem = watch(`items.${index}`);
-  const lineTotal = (watchedItem?.quantity ?? 0) * (watchedItem?.unitPrice ?? 0);
-  const materials = deriveRequiredMaterials(watchedItem ?? {});
+  const item = watch(`items.${index}`) as OrderItemFormValues;
+  const config: ConfiguredOrderItem | undefined = item._configured;
+  const lineTotal = config?.lineTotal ?? (item.quantity * item.unitPrice);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-      transition={{ duration: 0.2 }}
-      className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4"
+      transition={{ duration: 0.18 }}
+      className="bg-white border border-gray-200 rounded-2xl overflow-hidden"
     >
-      {/* Item header */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-          Item #{index + 1}
-        </span>
-        <div className="flex items-center gap-3">
-          {lineTotal > 0 && (
-            <span className="text-base font-bold text-blue-600">{fmt(lineTotal)}</span>
-          )}
-          {canRemove && (
-            <button
-              type="button"
-              onClick={onRemove}
-              aria-label="Remove item"
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-red-500 hover:bg-red-50 transition-colors"
-            >
-              <TrashIcon className="h-5 w-5" />
-            </button>
-          )}
+      {/* Summary row */}
+      <div className="flex items-start gap-3 p-4">
+        <div className="flex-shrink-0 mt-0.5 text-2xl" role="img" aria-hidden="true">
+          {config?.isCustomItem ? '📋' : '👕'}
         </div>
-      </div>
-
-      {/* Row 1: Product type + Sleeve type */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            Product Type <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <select
-              id={`items-${index}-productType`}
-              {...register(`items.${index}.productType`)}
-              className={clsx(
-                'w-full min-h-[44px] rounded-xl border bg-white px-4 py-2 pr-8 text-base shadow-sm',
-                'appearance-none cursor-pointer transition-colors',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                itemErrors?.productType
-                  ? 'border-red-400 text-red-900'
-                  : 'border-gray-300 hover:border-gray-400'
-              )}
-            >
-              <option value="">Select type…</option>
-              {PRODUCT_TYPES.map((p) => (
-                <option key={p.value} value={p.value}>{p.label}</option>
-              ))}
-            </select>
-            <ChevronDownIcon className="absolute right-3 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
-          </div>
-          {itemErrors?.productType && (
-            <p className="text-xs text-red-500">{itemErrors.productType.message}</p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Sleeve Type</label>
-          <div className="relative">
-            <select
-              id={`items-${index}-sleeveType`}
-              {...register(`items.${index}.sleeveType`)}
-              className="w-full min-h-[44px] rounded-xl border border-gray-300 bg-white px-4 py-2 pr-8 text-base shadow-sm appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400"
-            >
-              <option value="">Any</option>
-              {SLEEVE_TYPES.map((s) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
-              ))}
-            </select>
-            <ChevronDownIcon className="absolute right-3 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
-      </div>
-
-      {/* Row 2: Size + Color + Qty + Unit Price */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Size</label>
-          <div className="relative">
-            <select
-              id={`items-${index}-size`}
-              {...register(`items.${index}.size`)}
-              className="w-full min-h-[44px] rounded-xl border border-gray-300 bg-white px-4 py-2 pr-8 text-base shadow-sm appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400"
-            >
-              <option value="">Any</option>
-              {SIZES.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-            <ChevronDownIcon className="absolute right-3 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
-
-        <TouchInput
-          label="Color"
-          placeholder="Black"
-          {...register(`items.${index}.color`)}
-        />
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            Qty <span className="text-red-500">*</span>
-          </label>
-          <input
-            id={`items-${index}-quantity`}
-            type="number"
-            min={1}
-            max={10000}
-            {...register(`items.${index}.quantity`, { valueAsNumber: true })}
-            className={clsx(
-              'w-full min-h-[44px] rounded-xl border bg-white px-4 py-2 text-base shadow-sm transition-colors',
-              'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-              itemErrors?.quantity
-                ? 'border-red-400 text-red-900'
-                : 'border-gray-300 hover:border-gray-400'
-            )}
-          />
-          {itemErrors?.quantity && (
-            <p className="text-xs text-red-500">{itemErrors.quantity.message}</p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            Unit Price <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-base">$</span>
-            <input
-              id={`items-${index}-unitPrice`}
-              type="number"
-              min={0}
-              step="0.01"
-              {...register(`items.${index}.unitPrice`, { valueAsNumber: true })}
-              className={clsx(
-                'w-full min-h-[44px] rounded-xl border bg-white pl-7 pr-4 py-2 text-base shadow-sm transition-colors',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                itemErrors?.unitPrice
-                  ? 'border-red-400 text-red-900'
-                  : 'border-gray-300 hover:border-gray-400'
-              )}
-            />
-          </div>
-          {itemErrors?.unitPrice && (
-            <p className="text-xs text-red-500">{itemErrors.unitPrice.message}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Row 3: Print Method */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">Print Method</label>
-        <div className="relative">
-          <select
-            id={`items-${index}-printMethod`}
-            {...register(`items.${index}.printMethod`)}
-            className="w-full min-h-[44px] rounded-xl border border-gray-300 bg-white px-4 py-2 pr-8 text-base shadow-sm appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400"
-          >
-            <option value="">Select method…</option>
-            {PRINT_METHODS.map((m) => (
-              <option key={m.value} value={m.value}>{m.label}</option>
-            ))}
-          </select>
-          <ChevronDownIcon className="absolute right-3 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
-        </div>
-      </div>
-
-      {/* Row 4: Print Locations (checkboxes) */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-700">Print Locations</label>
-        <Controller
-          name={`items.${index}.printLocations`}
-          control={control}
-          render={({ field }) => (
-            <div className="flex flex-wrap gap-2">
-              {PRINT_LOCATIONS.map((loc) => {
-                const isChecked = (field.value ?? []).includes(loc.value);
-                return (
-                  <label
-                    key={loc.value}
-                    className={clsx(
-                      'flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer',
-                      'min-h-[44px] text-sm font-medium transition-all duration-150 select-none',
-                      isChecked
-                        ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
-                        : 'bg-white border-gray-300 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
-                    )}
-                  >
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      checked={isChecked}
-                      onChange={() => {
-                        const current = field.value ?? [];
-                        if (isChecked) {
-                          field.onChange(current.filter((v) => v !== loc.value));
-                        } else {
-                          field.onChange([...current, loc.value]);
-                        }
-                      }}
-                    />
-                    {loc.label}
-                  </label>
-                );
-              })}
-            </div>
-          )}
-        />
-      </div>
-
-      {/* Row 5: Item description / notes */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">Item Notes</label>
-        <textarea
-          id={`items-${index}-description`}
-          rows={2}
-          placeholder="Special instructions for this item…"
-          {...register(`items.${index}.description`)}
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-base shadow-sm transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 resize-none"
-        />
-      </div>
-
-      {/* Required materials preview */}
-      {materials.length > 0 && (
-        <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
-          <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-1.5">
-            Estimated Materials
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-gray-900 leading-snug">
+            {item.quantity}×{' '}
+            {config?.productName ?? item.description ?? `Item #${index + 1}`}
           </p>
-          <ul className="space-y-0.5">
-            {materials.map((m, i) => (
-              <li key={i} className="text-sm text-amber-800 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-500 flex-shrink-0" />
-                {m}
-              </li>
+
+          {config && !config.isCustomItem && (
+            <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+              {[config.brand, config.color].filter(Boolean).join(' · ')}
+              {config.sizeBreakdown.length > 0 && (
+                ' · ' + config.sizeBreakdown.map(s => `${s.qty}×${s.size}`).join(', ')
+              )}
+            </p>
+          )}
+
+          <div className="flex flex-wrap gap-1.5 mt-1.5">
+            {config?.printMethod && (
+              <span className="text-[10px] font-bold bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded-full">
+                {config.printMethod}
+              </span>
+            )}
+            {config?.selectedAddOns.map(ao => (
+              <span key={ao.id} className="text-[10px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">
+                +{ao.name}
+              </span>
             ))}
-          </ul>
+            {config?.isPriceOverridden && (
+              <span className="text-[10px] bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded-full font-bold flex items-center gap-0.5">
+                <ExclamationTriangleIcon className="h-2.5 w-2.5" />
+                Price overridden
+              </span>
+            )}
+            {config?.isCustomItem && (
+              <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full font-medium">
+                Custom
+              </span>
+            )}
+          </div>
         </div>
-      )}
+
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-sm font-bold text-gray-900">{formatCurrency(lineTotal)}</span>
+          <button
+            type="button"
+            onClick={() => setExpanded(v => !v)}
+            aria-label={expanded ? 'Collapse' : 'Expand'}
+            className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
+          >
+            {expanded ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
+          </button>
+          <button
+            type="button"
+            onClick={onRemove}
+            aria-label="Remove item"
+            className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-red-300 hover:bg-red-50 hover:text-red-500 transition-colors"
+          >
+            <TrashIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Expanded detail */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="border-t border-gray-100"
+          >
+            <div className="p-4 bg-gray-50 space-y-3 text-sm">
+              {config ? (
+                <>
+                  {/* Configured product detail */}
+                  {config.printLocations.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Print Locations</p>
+                      <div className="flex flex-wrap gap-1">
+                        {config.printLocations.map(loc => (
+                          <span key={loc} className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md font-medium">{loc}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {config.designDescription && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Design</p>
+                      <p className="text-gray-700 text-xs italic">{config.designDescription}</p>
+                    </div>
+                  )}
+
+                  {/* Price breakdown */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Price Breakdown</p>
+                    <div className="space-y-1 text-xs">
+                      {config.sizeBreakdown.length > 0 ? (
+                        config.sizeBreakdown.map((s, i) => (
+                          <div key={i} className="flex justify-between text-gray-600">
+                            <span>{s.qty}× {s.size}</span>
+                            <span className="font-medium">{formatCurrency(s.qty * config.unitPrice)}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="flex justify-between text-gray-600">
+                          <span>{config.totalQuantity}× @ {formatCurrency(config.unitPrice)}</span>
+                          <span className="font-medium">{formatCurrency(config.totalQuantity * config.unitPrice)}</span>
+                        </div>
+                      )}
+                      {config.sizeUpchargesTotal > 0 && (
+                        <div className="flex justify-between text-amber-600">
+                          <span>Size upcharges</span>
+                          <span className="font-medium">+{formatCurrency(config.sizeUpchargesTotal)}</span>
+                        </div>
+                      )}
+                      {config.selectedAddOns.map(ao => (
+                        <div key={ao.id} className="flex justify-between text-blue-600">
+                          <span>{ao.name}</span>
+                          <span className="font-medium">+{formatCurrency(ao.pricePerItem * config.totalQuantity)}</span>
+                        </div>
+                      ))}
+                      {config.isPriceOverridden && (
+                        <div className="flex items-center gap-1 text-amber-600 pt-1">
+                          <ExclamationTriangleIcon className="h-3 w-3" />
+                          <span>Override from {formatCurrency(config.originalTierPrice)}: {config.priceOverrideReason || 'no reason given'}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between font-bold text-gray-900 border-t border-gray-200 pt-1.5 mt-1.5">
+                        <span>Item total</span>
+                        <span>{formatCurrency(config.lineTotal)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Required materials */}
+                  {config.requiredMaterials.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Required Materials</p>
+                      <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 space-y-1">
+                        {config.requiredMaterials.map((mat, i) => (
+                          <div key={i} className="flex items-start gap-1.5 text-xs text-amber-800">
+                            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+                            <span>{mat.quantity}× {mat.description}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {config.itemNotes && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Notes</p>
+                      <p className="text-gray-600 text-xs italic">{config.itemNotes}</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                /* Legacy / plain item fallback */
+                <div className="text-gray-600 text-xs space-y-1">
+                  <p>Qty: {item.quantity} × {formatCurrency(item.unitPrice)}</p>
+                  {item.description && <p className="italic">{item.description}</p>}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
 
-// ─── OrderItemsEditor — exported component ────────────────────────────────────
+// ─── Modal flow state ─────────────────────────────────────────────────────────
 
-export function OrderItemsEditor() {
+type ModalView = 'picker' | 'configurator' | 'custom';
+
+// ─── OrderItemsEditor — exported ──────────────────────────────────────────────
+
+export function OrderItemsEditor(): React.JSX.Element {
   const { control } = useFormContext<NewOrderFormValues>();
+  const [showModal, setShowModal] = useState(false);
+  const [modalView, setModalView] = useState<ModalView>('picker');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'items',
-  });
+  const { fields, append, remove } = useFieldArray({ control, name: 'items' });
 
-  const addItem = useCallback(() => {
-    append({
-      productType: '',
-      size: '',
-      color: '',
-      sleeveType: '',
-      quantity: 1,
-      unitPrice: 0,
-      printMethod: '',
-      printLocations: [],
-      description: '',
-    });
-  }, [append]);
+  const openModal = () => {
+    setModalView('picker');
+    setSelectedProduct(null);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedProduct(null);
+    setModalView('picker');
+  };
+
+  const handleProductSelected = (product: Product) => {
+    setSelectedProduct(product);
+    setModalView('configurator');
+  };
+
+  const handleCustomItem = () => {
+    setModalView('custom');
+  };
+
+  const handleAddConfigured = (configured: ConfiguredOrderItem) => {
+    const item: OrderItemFormValues = {
+      productType: configured.productType,
+      attributes: configured.attributes,
+      quantity: configured.totalQuantity,
+      unitPrice: configured.unitPrice,
+      printMethod: configured.printMethod,
+      printLocations: configured.printLocations,
+      description: configured.description,
+      requiredMaterials: configured.requiredMaterials,
+      _configured: configured,
+    };
+    append(item);
+    closeModal();
+  };
+
+  const modalTitle =
+    modalView === 'picker' ? 'Select a Product'
+    : modalView === 'custom' ? 'Custom Item'
+    : selectedProduct?.name ?? 'Configure Product';
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <AnimatePresence initial={false}>
         {fields.map((field, index) => (
           <OrderItemRow
             key={field.id}
             index={index}
-            canRemove={fields.length > 1}
             onRemove={() => remove(index)}
           />
         ))}
       </AnimatePresence>
+
+      {fields.length === 0 && (
+        <div className="py-10 text-center border-2 border-dashed border-gray-200 rounded-2xl">
+          <p className="text-gray-400 text-sm mb-1">No items added yet</p>
+          <p className="text-gray-400 text-xs">Click "Add Item" to choose from your product catalog</p>
+        </div>
+      )}
 
       <TouchButton
         id="add-order-item"
@@ -395,10 +300,39 @@ export function OrderItemsEditor() {
         size="md"
         fullWidth
         icon={<PlusIcon className="h-5 w-5" />}
-        onClick={addItem}
+        onClick={openModal}
       >
-        Add Another Item
+        Add Item
       </TouchButton>
+
+      <Modal
+        open={showModal}
+        onClose={closeModal}
+        title={modalTitle}
+        size={modalView === 'configurator' ? 'xl' : 'lg'}
+        closeOnOverlayClick={false}
+      >
+        {modalView === 'picker' && (
+          <ProductPickerModal
+            onSelectProduct={handleProductSelected}
+            onCustomItem={handleCustomItem}
+            onCancel={closeModal}
+          />
+        )}
+        {modalView === 'configurator' && selectedProduct && (
+          <ProductOrderConfigurator
+            product={selectedProduct}
+            onBack={() => setModalView('picker')}
+            onAdd={handleAddConfigured}
+          />
+        )}
+        {modalView === 'custom' && (
+          <CustomItemForm
+            onBack={() => setModalView('picker')}
+            onAdd={handleAddConfigured}
+          />
+        )}
+      </Modal>
     </div>
   );
 }

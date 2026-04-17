@@ -5,6 +5,7 @@ import { InventoryCategory } from '@prisma/client';
 import { generateSKU } from '../utils/generators';
 import {
   getInventoryItems,
+  getLowStockItems,
   adjustStock,
   getInventoryItemById,
   updateInventoryItem,
@@ -24,7 +25,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction): P
       limit: Number(query['limit'] ?? 50),
     });
 
-    res.json(result);
+    res.json({ data: result });
   } catch (err) {
     next(err);
   }
@@ -122,7 +123,37 @@ export const getMovements = async (req: Request, res: Response, next: NextFuncti
       limit: Number(query['limit'] ?? 50),
     });
 
-    res.json(result);
+    res.json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getLowStock = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const orgDbId = authReq.organizationDbId!;
+    const items = await getLowStockItems({ organizationId: orgDbId });
+    res.json({ data: items });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteItem = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const orgDbId = authReq.organizationDbId!;
+    const id = authReq.params['id'] as string;
+
+    const item = await prisma.inventoryItem.findUnique({ where: { id }, select: { id: true, organizationId: true } });
+    if (!item || item.organizationId !== orgDbId) {
+      res.status(404).json({ error: 'Not found' });
+      return;
+    }
+    // Soft delete — mark as inactive
+    await prisma.inventoryItem.update({ where: { id }, data: { isActive: false } });
+    res.status(204).send();
   } catch (err) {
     next(err);
   }

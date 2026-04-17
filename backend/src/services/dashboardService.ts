@@ -116,7 +116,7 @@ export async function getProfitStats(
       }),
       prisma.$queryRaw<Array<{ totalCost: string }>>`
         SELECT COALESCE(SUM(mu."quantityUsed" * ii."costPrice"), 0)::text AS "totalCost"
-        FROM material_usages mu
+        FROM material_usage mu
         JOIN inventory_items ii ON ii.id = mu."inventoryItemId"
         JOIN orders o ON o.id = mu."orderId"
         WHERE mu."organizationId" = ${organizationId}
@@ -174,7 +174,7 @@ export async function getProfitTrend(organizationId: string, months = 6) {
       }),
       prisma.$queryRaw<Array<{ totalCost: string }>>`
         SELECT COALESCE(SUM(mu."quantityUsed" * ii."costPrice"), 0)::text AS "totalCost"
-        FROM material_usages mu
+        FROM material_usage mu
         JOIN inventory_items ii ON ii.id = mu."inventoryItemId"
         JOIN orders o ON o.id = mu."orderId"
         WHERE mu."organizationId" = ${organizationId}
@@ -237,7 +237,7 @@ export async function getTopProducts(
     }),
     prisma.$queryRaw<Array<{ totalCost: string }>>`
       SELECT COALESCE(SUM(mu."quantityUsed" * ii."costPrice"), 0)::text AS "totalCost"
-      FROM material_usages mu
+      FROM material_usage mu
       JOIN inventory_items ii ON ii.id = mu."inventoryItemId"
       JOIN orders o ON o.id = mu."orderId"
       WHERE mu."organizationId" = ${organizationId}

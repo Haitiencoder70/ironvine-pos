@@ -127,8 +127,9 @@ export function AddEditCustomerPage(): JSX.Element {
         const res = await createCustomer.mutateAsync(payload);
         navigate(`/customers/${res.data.id}`);
       }
-    } catch {
-       // Component handles
+    } catch (err) {
+      console.error('Customer submission failed:', err);
+      // The hook's onError handles the toast, but we catch here to prevent navigation
     }
   };
 
@@ -147,12 +148,12 @@ export function AddEditCustomerPage(): JSX.Element {
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl text-gray-500 hover:text-gray-200 hover:bg-white/5 transition-colors"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-white tracking-tight">
             {isEditing ? 'Edit Customer' : 'Add Customer'}
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -164,9 +165,9 @@ export function AddEditCustomerPage(): JSX.Element {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         
         {/* Basic Info */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-          <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2 mb-4">
-            <UserIcon className="h-5 w-5 text-gray-500" />
+        <div className="card-cinema rounded-2xl p-5 space-y-4">
+          <h2 className="text-base font-semibold text-gray-200 flex items-center gap-2 mb-4">
+            <UserIcon className="h-5 w-5 text-blue-400" />
             Contact Information
           </h2>
           
@@ -212,9 +213,9 @@ export function AddEditCustomerPage(): JSX.Element {
         </div>
 
         {/* Billing Address */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-          <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2 mb-4 mt-2">
-            <MapPinIcon className="h-5 w-5 text-gray-500" />
+        <div className="card-cinema rounded-2xl p-5 space-y-4">
+          <h2 className="text-base font-semibold text-gray-200 flex items-center gap-2 mb-4 mt-2">
+            <MapPinIcon className="h-5 w-5 text-blue-400" />
             Billing Address
           </h2>
           
@@ -234,13 +235,13 @@ export function AddEditCustomerPage(): JSX.Element {
                />
             </div>
             <div className="md:col-span-4 flex flex-col gap-1.5">
-               <label className="text-sm font-medium text-gray-700">State</label>
+               <label className="text-sm font-medium text-gray-400">State</label>
                <select
                  {...register('billing.state')}
-                 className="w-full min-h-[44px] rounded-xl border border-gray-300 bg-white px-4 py-2 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-no-repeat cursor-pointer"
+                 className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-base text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                >
-                 <option value="">Select...</option>
-                 {STATES.map(st => <option key={st} value={st}>{st}</option>)}
+                 <option value="" className="bg-gray-900">Select...</option>
+                 {STATES.map(st => <option key={st} value={st} className="bg-gray-900">{st}</option>)}
                </select>
             </div>
             <div className="md:col-span-3">
@@ -254,25 +255,25 @@ export function AddEditCustomerPage(): JSX.Element {
         </div>
 
         {/* Shipping Address */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+        <div className="card-cinema rounded-2xl p-5 space-y-4">
            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2 mb-2 mt-2">
-                <MapPinIcon className="h-5 w-5 text-gray-500" />
+              <h2 className="text-base font-semibold text-gray-200 flex items-center gap-2 mb-2 mt-2">
+                <MapPinIcon className="h-5 w-5 text-blue-400" />
                 Shipping Address
               </h2>
            </div>
 
-           <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-gray-50 cursor-pointer">
+           <label className="flex items-center gap-3 p-3 rounded-lg border border-white/10 bg-white/5 cursor-pointer">
               <input
                 type="checkbox"
                 {...register('shippingSameAsBilling')}
-                className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-5 w-5 rounded border-white/20 text-blue-600 focus:ring-blue-500 bg-white/10"
               />
-              <span className="font-medium text-gray-700 select-none">Same as Billing Address</span>
+              <span className="font-medium text-gray-300 select-none">Same as Billing Address</span>
            </label>
 
           {!sameAsBilling && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pt-4 border-t border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pt-4 border-t border-white/10">
               <div className="md:col-span-12">
                  <TouchInput
                    label="Street Address"
@@ -288,13 +289,13 @@ export function AddEditCustomerPage(): JSX.Element {
                  />
               </div>
               <div className="md:col-span-4 flex flex-col gap-1.5">
-                 <label className="text-sm font-medium text-gray-700">State</label>
+                 <label className="text-sm font-medium text-gray-400">State</label>
                  <select
                    {...register('shipping.state')}
-                   className="w-full min-h-[44px] rounded-xl border border-gray-300 bg-white px-4 py-2 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-no-repeat cursor-pointer"
+                   className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-base text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                  >
-                   <option value="">Select...</option>
-                   {STATES.map(st => <option key={st} value={st}>{st}</option>)}
+                   <option value="" className="bg-gray-900">Select...</option>
+                   {STATES.map(st => <option key={st} value={st} className="bg-gray-900">{st}</option>)}
                  </select>
               </div>
               <div className="md:col-span-3">
@@ -309,9 +310,9 @@ export function AddEditCustomerPage(): JSX.Element {
         </div>
 
         {/* Notes */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-          <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2 mb-2">
-            <TagIcon className="h-5 w-5 text-gray-500" />
+        <div className="card-cinema rounded-2xl p-5 space-y-4">
+          <h2 className="text-base font-semibold text-gray-200 flex items-center gap-2 mb-2">
+            <TagIcon className="h-5 w-5 text-blue-400" />
             Tags & Notes
           </h2>
           <div className="flex flex-col gap-1.5">
@@ -320,8 +321,8 @@ export function AddEditCustomerPage(): JSX.Element {
               placeholder="Tag preferences (#VIP), specific delivery instructions..."
               {...register('notes')}
               className={clsx(
-                'w-full rounded-xl border bg-white px-4 py-3 text-base shadow-sm resize-none',
-                errors.notes ? 'border-red-400 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 hover:border-gray-400 focus:ring-blue-500 focus:outline-none focus:ring-2'
+                'w-full rounded-xl border bg-white/5 px-4 py-3 text-base text-gray-200 placeholder:text-gray-600 resize-none focus:outline-none focus:ring-2',
+                errors.notes ? 'border-red-500/50 focus:ring-red-500' : 'border-white/10 hover:border-white/20 focus:ring-blue-500'
               )}
             />
             {errors.notes && <p className="text-xs text-red-500">{errors.notes.message}</p>}
@@ -329,7 +330,7 @@ export function AddEditCustomerPage(): JSX.Element {
         </div>
 
         {/* Actions Bar */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20">
+        <div className="fixed bottom-0 left-0 right-0 p-4 z-20 border-t border-white/[0.07]" style={{ background: 'rgba(4,4,12,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 -4px 24px rgba(0,0,0,0.5)' }}>
           <div className="max-w-4xl mx-auto flex gap-4">
             <TouchButton
               type="button"

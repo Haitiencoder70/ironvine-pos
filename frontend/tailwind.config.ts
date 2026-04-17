@@ -6,7 +6,9 @@ export default {
   theme: {
     extend: {
       colors: {
+        obsidian: '#0a0a0b',
         primary: {
+          50: '#eff6ff',
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
@@ -32,7 +34,8 @@ export default {
         touch: '44px',
       },
       fontFamily: {
-        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+        sans: ['Plus Jakarta Sans', ...defaultTheme.fontFamily.sans],
+        display: ['Plus Jakarta Sans', ...defaultTheme.fontFamily.sans],
       },
       borderRadius: {
         'xl': '12px',

@@ -13,9 +13,11 @@ import { clsx } from 'clsx';
 import type { JSX } from 'react';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
+import { SkeletonLoader } from '../../components/ui';
 import { StockAdjustmentModal } from '../../components/inventory/StockAdjustmentModal';
 import { StockMovementHistory } from '../../components/inventory/StockMovementHistory';
-import { useInventoryItem } from '../../hooks/useInventory';
+import { useInventoryItem, useDeleteInventoryItem } from '../../hooks/useInventory';
+import { useConfirm } from '../../hooks/useConfirm';
 import type { InventoryCategory } from '../../types';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
@@ -50,17 +52,8 @@ export function InventoryDetailPage(): JSX.Element {
   // ── Skeleton ──
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-pulse space-y-6">
-        <div className="h-8 w-48 bg-gray-100 rounded" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-4">
-            <div className="h-64 bg-gray-100 rounded-2xl" />
-            <div className="h-48 bg-gray-100 rounded-2xl" />
-          </div>
-          <div className="lg:col-span-2">
-            <div className="h-96 bg-gray-100 rounded-2xl" />
-          </div>
-        </div>
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+        <SkeletonLoader variant="detail" />
       </div>
     );
   }
@@ -87,6 +80,22 @@ export function InventoryDetailPage(): JSX.Element {
   }
 
   const isLowStock = item.quantityAvailable <= item.reorderPoint;
+  const { confirm } = useConfirm();
+  const deleteItem = useDeleteInventoryItem();
+
+  const handleDelete = async () => {
+    if (!id) return;
+    const ok = await confirm({
+      title: 'Delete Inventory Item',
+      description: `Are you sure you want to delete ${item.name}? This action cannot be undone.`,
+      confirmText: 'Delete Item',
+      variant: 'danger',
+    });
+    if (ok) {
+      await deleteItem.mutateAsync(id);
+      navigate('/inventory', { replace: true });
+    }
+  };
 
   return (
     <>
@@ -96,18 +105,26 @@ export function InventoryDetailPage(): JSX.Element {
           <div className="flex items-start gap-3">
             <button
               onClick={() => navigate('/inventory')}
-              className="mt-1 flex-shrink-0 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 min-h-[44px] -ml-2 px-2 rounded-xl transition-colors hover:bg-gray-100"
+              className="mt-1 flex-shrink-0 flex items-center gap-1 text-sm text-gray-400 hover:text-gray-200 min-h-[44px] -ml-2 px-2 rounded-xl transition-colors hover:bg-white/5"
             >
               <ChevronLeftIcon className="h-4 w-4" />
               Back
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{item.name}</h1>
+              <h1 className="text-3xl font-bold text-white tracking-tight">{item.name}</h1>
               <p className="text-sm text-gray-500 font-mono mt-0.5">{item.sku}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <TouchButton
+              variant="danger"
+              size="md"
+              onClick={handleDelete}
+              disabled={deleteItem.isPending}
+            >
+              Delete
+            </TouchButton>
             <TouchButton
               variant="secondary"
               size="md"

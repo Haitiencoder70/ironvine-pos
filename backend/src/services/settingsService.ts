@@ -18,6 +18,7 @@ export async function getOrgSettings(organizationId: string) {
     orderNumberPrefix: org.orderNumberPrefix,
     currency: org.currency,
     timezone: org.timezone,
+    enabledModules: org.enabledModules,
   };
 }
 
@@ -30,6 +31,7 @@ export async function updateOrgSettings(
     currency?: string;
     timezone?: string;
     logoUrl?: string;
+    enabledModules?: string[];
   },
 ) {
   const updated = await prisma.organization.update({
@@ -41,6 +43,7 @@ export async function updateOrgSettings(
       ...(data.currency !== undefined && { currency: data.currency }),
       ...(data.timezone !== undefined && { timezone: data.timezone }),
       ...(data.logoUrl !== undefined && { logoUrl: data.logoUrl }),
+      ...(data.enabledModules !== undefined && { enabledModules: data.enabledModules }),
     },
   });
   return {
@@ -54,6 +57,7 @@ export async function updateOrgSettings(
     orderNumberPrefix: updated.orderNumberPrefix,
     currency: updated.currency,
     timezone: updated.timezone,
+    enabledModules: updated.enabledModules,
   };
 }
 
@@ -159,13 +163,7 @@ export async function inviteUser(
 }
 
 // ─── Notification Settings ────────────────────────────────────────────────────
-// Stored as a JSON blob in a simple key/value table or in org metadata.
-// For now we use a dedicated model-less approach: store in org's activityLogs or
-// use a lightweight in-memory default with DB persistence via a settings JSON field.
-// Since schema doesn't have a notificationSettings field, we embed in a pseudo-table
-// approach using a dedicated settings JSON stored per org in a well-known activityLog entry.
-// Simpler: return/save as a plain object with defaults. Frontend handles local persistence
-// for now; backend stores nothing (this is a UI-only feature until a settings table is added).
+// Now persisted in the NotificationSetting table.
 
 const notificationDefaults = {
   newOrderEmail: true,
@@ -176,21 +174,53 @@ const notificationDefaults = {
   recipients: [] as string[],
 };
 
-// In-memory per-org map (resets on restart — acceptable until proper settings table added)
-const notificationStore = new Map<string, typeof notificationDefaults>();
+export async function getNotificationSettings(organizationId: string) {
+  const settings = await prisma.notificationSetting.findUnique({
+    where: { organizationId },
+  });
 
-export function getNotificationSettings(organizationId: string) {
-  return notificationStore.get(organizationId) ?? { ...notificationDefaults };
+  if (!settings) {
+    return { ...notificationDefaults };
+  }
+
+  return {
+    newOrderEmail: settings.newOrderEmail,
+    orderStatusEmail: settings.orderStatusEmail,
+    lowStockEmail: settings.lowStockEmail,
+    poReceivedEmail: settings.poReceivedEmail,
+    shipmentDeliveredEmail: settings.shipmentDeliveredEmail,
+    recipients: settings.recipients,
+  };
 }
 
-export function updateNotificationSettings(
+export async function updateNotificationSettings(
   organizationId: string,
   data: Partial<typeof notificationDefaults>,
 ) {
-  const current = getNotificationSettings(organizationId);
-  const updated = { ...current, ...data };
-  notificationStore.set(organizationId, updated);
-  return updated;
+  const settings = await prisma.notificationSetting.upsert({
+    where: { organizationId },
+    update: data,
+    create: {
+      organizationId,
+      ...data,
+      // Ensure defaults are filled for any missing fields in the 'create' case
+      newOrderEmail: data.newOrderEmail ?? notificationDefaults.newOrderEmail,
+      orderStatusEmail: data.orderStatusEmail ?? notificationDefaults.orderStatusEmail,
+      lowStockEmail: data.lowStockEmail ?? notificationDefaults.lowStockEmail,
+      poReceivedEmail: data.poReceivedEmail ?? notificationDefaults.poReceivedEmail,
+      shipmentDeliveredEmail: data.shipmentDeliveredEmail ?? notificationDefaults.shipmentDeliveredEmail,
+      recipients: data.recipients ?? notificationDefaults.recipients,
+    },
+  });
+
+  return {
+    newOrderEmail: settings.newOrderEmail,
+    orderStatusEmail: settings.orderStatusEmail,
+    lowStockEmail: settings.lowStockEmail,
+    poReceivedEmail: settings.poReceivedEmail,
+    shipmentDeliveredEmail: settings.shipmentDeliveredEmail,
+    recipients: settings.recipients,
+  };
 }
 
 // ─── Profile ──────────────────────────────────────────────────────────────────

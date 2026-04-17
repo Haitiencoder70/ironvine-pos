@@ -18,9 +18,9 @@ import type { Order, OrderPriority } from '../../types';
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
 const PRIORITY_STYLES: Record<OrderPriority, string> = {
-  NORMAL: 'bg-gray-100 text-gray-700',
-  HIGH: 'bg-amber-100 text-amber-800',
-  RUSH: 'bg-red-100 text-red-800',
+  NORMAL: 'bg-white/5 text-gray-400 border border-white/10',
+  HIGH: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+  RUSH: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
 };
 
 const PRIORITY_LABELS: Record<OrderPriority, string> = {
@@ -77,12 +77,12 @@ export function OrderTableRow({ order }: OrderRowProps) {
   return (
     <tr
       onClick={handleView}
-      className="group cursor-pointer hover:bg-blue-50/40 active:bg-blue-100/40 transition-colors"
+      className="group cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors"
       role="row"
     >
       {/* Order Number */}
       <td className="px-4 py-3 whitespace-nowrap">
-        <span className="font-semibold text-blue-600 group-hover:text-blue-700 text-sm">
+        <span className="font-semibold text-blue-400 group-hover:text-blue-300 text-sm">
           {order.orderNumber}
         </span>
       </td>
@@ -90,15 +90,15 @@ export function OrderTableRow({ order }: OrderRowProps) {
       {/* Customer */}
       <td className="px-4 py-3 whitespace-nowrap">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-            <UserIcon className="h-4 w-4 text-gray-500" />
+          <div className="h-7 w-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+            <UserIcon className="h-4 w-4 text-gray-400" />
           </div>
-          <span className="text-sm text-gray-900 truncate max-w-[180px]">
+          <span className="text-sm text-gray-200 truncate max-w-[180px]">
             {order.customer
               ? `${order.customer.firstName} ${order.customer.lastName}`
               : '—'}
             {order.customer?.company && (
-              <span className="block text-xs text-gray-400 truncate">
+              <span className="block text-xs text-gray-500 truncate">
                 {order.customer.company}
               </span>
             )}
@@ -125,15 +125,15 @@ export function OrderTableRow({ order }: OrderRowProps) {
 
       {/* Items count */}
       <td className="px-4 py-3 whitespace-nowrap text-center">
-        <span className="inline-flex items-center gap-1 text-sm text-gray-600">
-          <CubeIcon className="h-4 w-4 text-gray-400" />
-          {order.items.length}
+        <span className="inline-flex items-center gap-1 text-sm text-gray-400">
+          <CubeIcon className="h-4 w-4 text-gray-500" />
+          {order.items?.length ?? 0}
         </span>
       </td>
 
       {/* Total */}
       <td className="px-4 py-3 whitespace-nowrap text-right">
-        <span className="font-semibold text-gray-900 text-sm">
+        <span className="font-semibold text-white text-sm">
           {formatCurrency(order.total)}
         </span>
       </td>
@@ -142,11 +142,11 @@ export function OrderTableRow({ order }: OrderRowProps) {
       <td className="px-4 py-3 whitespace-nowrap">
         <span
           className={clsx(
-            'inline-flex items-center gap-1 text-sm',
-            dueDate.overdue && 'text-red-600 font-semibold',
-            dueDate.urgent && !dueDate.overdue && 'text-amber-600 font-medium',
-            !dueDate.overdue && !dueDate.urgent && 'text-gray-600'
-          )}
+          'inline-flex items-center gap-1 text-sm',
+          dueDate.overdue && 'text-rose-400 font-semibold',
+          dueDate.urgent && !dueDate.overdue && 'text-amber-400 font-medium',
+          !dueDate.overdue && !dueDate.urgent && 'text-gray-400'
+        )}
         >
           {(dueDate.overdue || dueDate.urgent) && (
             <ExclamationTriangleIcon className="h-3.5 w-3.5 flex-shrink-0" />
@@ -156,7 +156,7 @@ export function OrderTableRow({ order }: OrderRowProps) {
       </td>
 
       {/* Created Date */}
-      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-400">
+      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
         {format(new Date(order.createdAt), 'MMM d')}
       </td>
 
@@ -171,7 +171,7 @@ export function OrderTableRow({ order }: OrderRowProps) {
           size="sm"
           icon={<EyeIcon className="h-4 w-4" />}
           onClick={handleView}
-          className="text-blue-600 hover:bg-blue-50"
+          className="text-blue-400 hover:bg-white/10"
         >
           View
         </TouchButton>
@@ -192,23 +192,23 @@ export function OrderMobileCard({ order }: OrderRowProps) {
       interactive
       padding="sm"
       onClick={() => navigate(`/orders/${order.id}`)}
-      className="border border-gray-100"
+      className="glass-panel border-white/10"
     >
       {/* Top row: order number + total */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
-          <p className="font-bold text-blue-600 text-base">{order.orderNumber}</p>
-          <p className="text-sm text-gray-600 mt-0.5">
+          <p className="font-bold text-blue-400 text-base">{order.orderNumber}</p>
+          <p className="text-sm text-gray-300 mt-0.5">
             {order.customer
               ? `${order.customer.firstName} ${order.customer.lastName}`
               : 'Unknown Customer'}
           </p>
           {order.customer?.company && (
-            <p className="text-xs text-gray-400">{order.customer.company}</p>
+            <p className="text-xs text-gray-500">{order.customer.company}</p>
           )}
         </div>
         <div className="text-right flex-shrink-0">
-          <p className="font-bold text-gray-900">{formatCurrency(order.total)}</p>
+          <p className="font-bold text-white">{formatCurrency(order.total)}</p>
           <span
             className={clsx(
               'inline-flex items-center mt-0.5 px-2 py-0.5 rounded-full text-xs font-semibold',
@@ -226,18 +226,18 @@ export function OrderMobileCard({ order }: OrderRowProps) {
       </div>
 
       {/* Meta row */}
-      <div className="flex items-center justify-between text-xs text-gray-400 border-t border-gray-100 pt-3">
+      <div className="flex items-center justify-between text-xs text-gray-500 border-t border-white/10 pt-3">
         <span className="flex items-center gap-1">
           <CubeIcon className="h-3.5 w-3.5" />
-          {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+          {(order.items?.length ?? 0)} item{(order.items?.length ?? 0) !== 1 ? 's' : ''}
         </span>
 
         {order.dueDate && (
           <span
             className={clsx(
               'flex items-center gap-1',
-              dueDate.overdue && 'text-red-500 font-medium',
-              dueDate.urgent && !dueDate.overdue && 'text-amber-500 font-medium'
+              dueDate.overdue && 'text-rose-400 font-medium',
+              dueDate.urgent && !dueDate.overdue && 'text-amber-400 font-medium'
             )}
           >
             <CalendarDaysIcon className="h-3.5 w-3.5" />

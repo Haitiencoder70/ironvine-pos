@@ -23,7 +23,7 @@ import type { OrgSettings, OrgUser, NotificationSettings } from '../../types';
 
 // ─── Tab definition ───────────────────────────────────────────────────────────
 
-type Tab = 'general' | 'users' | 'tax' | 'notifications' | 'integrations' | 'billing';
+type Tab = 'general' | 'users' | 'tax' | 'notifications' | 'integrations' | 'billing' | 'modules';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'general', label: 'General', icon: <BuildingOfficeIcon className="h-5 w-5" /> },
@@ -32,6 +32,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'notifications', label: 'Notifications', icon: <BellIcon className="h-5 w-5" /> },
   { id: 'integrations', label: 'Integrations', icon: <PuzzlePieceIcon className="h-5 w-5" /> },
   { id: 'billing', label: 'Billing', icon: <CreditCardIcon className="h-5 w-5" /> },
+  { id: 'modules', label: 'Advanced Modules', icon: <PuzzlePieceIcon className="h-5 w-5" /> },
 ];
 
 const TIMEZONES = [
@@ -612,6 +613,62 @@ function IntegrationsTab() {
   );
 }
 
+// ─── Modules Tab ──────────────────────────────────────────────────────────────
+
+function ModulesTab({ settings, onSave }: { settings: OrgSettings; onSave: (data: Partial<OrgSettings>) => void }) {
+  const modules = [
+    { id: 'BARCODE', name: 'Barcode & QR Integration', description: 'Enable USB scanning and QR code labels.' },
+    { id: 'EMAIL', name: 'Email Automation', description: 'Trigger automatic status emails via Resend.' },
+    { id: 'SMS', name: 'SMS Notifications', description: 'Send text alerts to customers for pickup and shipping.' },
+    { id: 'ADVANCED_SEARCH', name: 'Advanced Global Search', description: 'Deep search across all entities fields.' },
+    { id: 'BULK_OPS', name: 'Bulk Operations', description: 'Update and export orders and inventory in bulk.' },
+    { id: 'CALENDAR', name: 'Calendar Scheduling', description: 'Visual production schedule and drag-and-drop calendar.' },
+    { id: 'CUSTOMER_PORTAL', name: 'Customer Portal', description: 'Allow customers to log in and track their orders.' },
+    { id: 'VENDOR_PORTAL', name: 'Vendor Portal', description: 'Allow vendors to drop off PO fulfillment automatically.' },
+    { id: 'ACCOUNTING', name: 'Accounting Sync', description: 'QuickBooks boundary export enabled.' },
+    { id: 'MULTI_LOCATION', name: 'Multi-Location Support', description: 'Stock transferring across separate warehouses.' },
+  ];
+
+  const enabled = new Set(settings.enabledModules || []);
+
+  function toggleModule(id: string) {
+    const next = new Set(enabled);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    onSave({ enabledModules: Array.from(next) });
+  }
+
+  return (
+    <div className="space-y-4 max-w-2xl">
+      <p className="text-sm text-gray-500 mb-4">Toggle advanced enterprise capabilities on or off for your organization.</p>
+      <div className="grid gap-3">
+        {modules.map((mod) => {
+          const isOn = enabled.has(mod.id);
+          return (
+            <div key={mod.id} className="bg-white border border-gray-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{mod.name}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{mod.description}</p>
+              </div>
+              <button
+                onClick={() => toggleModule(mod.id)}
+                className={clsx(
+                  'relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+                  isOn ? 'bg-blue-600' : 'bg-gray-200',
+                )}
+                role="switch"
+                aria-checked={isOn}
+              >
+                <span className={clsx('inline-block h-4 w-4 rounded-full bg-white shadow transition-transform', isOn ? 'translate-x-6' : 'translate-x-1')} />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Settings Page ───────────────────────────────────────────────────────
 
 export function SettingsPage(): React.JSX.Element {
@@ -670,7 +727,7 @@ export function SettingsPage(): React.JSX.Element {
 
       {/* Tab Content */}
       <div>
-        {isLoading && activeTab !== 'users' && activeTab !== 'notifications' && activeTab !== 'integrations' && activeTab !== 'billing' ? (
+        {isLoading && activeTab !== 'users' && activeTab !== 'notifications' && activeTab !== 'integrations' && activeTab !== 'billing' && activeTab !== 'modules' ? (
           <div className="space-y-4 max-w-xl">
             {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-12 animate-pulse bg-gray-50 rounded-xl" />)}
           </div>
@@ -686,6 +743,9 @@ export function SettingsPage(): React.JSX.Element {
             {activeTab === 'notifications' && <NotificationsTab />}
             {activeTab === 'integrations' && <IntegrationsTab />}
             {activeTab === 'billing' && <BillingTab />}
+            {activeTab === 'modules' && settings && (
+              <ModulesTab settings={settings} onSave={(data) => updateMutation.mutate(data)} />
+            )}
           </>
         )}
       </div>

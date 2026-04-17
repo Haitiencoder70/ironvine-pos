@@ -6,6 +6,7 @@ import {
 import { toast } from 'react-hot-toast';
 import { shipmentApi } from '../services/api';
 import { orderKeys } from './useOrders';
+import { useIsReady } from './useIsReady';
 import type { ShipmentStatus, ShipmentCarrier } from '../types';
 
 export const shipmentKeys = {
@@ -27,11 +28,13 @@ export interface ShipmentListParams {
 }
 
 export function useShipments(params: ShipmentListParams) {
+  const isReady = useIsReady();
   return useQuery({
     queryKey: shipmentKeys.list(params),
     queryFn: () => shipmentApi.getAll(params),
     placeholderData: (prev) => prev,
     staleTime: 30_000,
+    enabled: isReady,
   });
 }
 

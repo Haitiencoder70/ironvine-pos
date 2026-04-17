@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types';
 import { createCustomer, updateCustomer, getCustomers, getCustomerById } from '../services/customerService';
+import { prisma } from '../lib/prisma';
+import { AppError } from '../middleware/errorHandler';
 
 export const getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -12,9 +14,11 @@ export const getAll = async (req: Request, res: Response, next: NextFunction): P
       search: query['search'] as string | undefined,
       page: Number(query['page'] ?? 1),
       limit: Number(query['limit'] ?? 25),
+      sortKey: query['sortKey'] as string | undefined,
+      sortDir: query['sortDir'] as 'asc' | 'desc' | undefined,
     });
 
-    res.json(result);
+    res.json({ data: result });
   } catch (err) {
     next(err);
   }
@@ -35,31 +39,31 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
   try {
     const authReq = req as AuthenticatedRequest;
     const orgDbId = authReq.organizationDbId!;
-    const { billing, shipping, ...rest } = authReq.body as {
-      firstName: string;
-      lastName: string;
-      email?: string;
-      phone?: string;
-      company?: string;
-      notes?: string;
-      billing?: Record<string, string>;
-      shipping?: Record<string, string>;
-    };
+
+    // 1. Validate using the schema defined in validators/customer.ts
+    const { createCustomerSchema } = await import('../validators/customer');
+    const parsed = createCustomerSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return next(new AppError(400, parsed.error.message, 'VALIDATION_ERROR'));
+    }
+
+    const { billing, shipping, ...rest } = parsed.data;
 
     const customer = await createCustomer({
       organizationId: orgDbId,
       performedBy: authReq.auth.userId,
       ...rest,
-      billingStreet: billing?.['street'],
-      billingCity: billing?.['city'],
-      billingState: billing?.['state'],
-      billingZip: billing?.['zip'],
-      billingCountry: billing?.['country'],
-      shippingStreet: shipping?.['street'],
-      shippingCity: shipping?.['city'],
-      shippingState: shipping?.['state'],
-      shippingZip: shipping?.['zip'],
-      shippingCountry: shipping?.['country'],
+      billingStreet: billing?.street,
+      billingCity: billing?.city,
+      billingState: billing?.state,
+      billingZip: billing?.zip,
+      billingCountry: billing?.country,
+      shippingStreet: shipping?.street,
+      shippingCity: shipping?.city,
+      shippingState: shipping?.state,
+      shippingZip: shipping?.zip,
+      shippingCountry: shipping?.country,
     });
 
     res.status(201).json({ data: customer });
@@ -72,35 +76,68 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
   try {
     const authReq = req as AuthenticatedRequest;
     const orgDbId = authReq.organizationDbId!;
-    const { billing, shipping, ...rest } = authReq.body as {
-      firstName?: string;
-      lastName?: string;
-      email?: string;
-      phone?: string;
-      company?: string;
-      notes?: string;
-      billing?: Record<string, string>;
-      shipping?: Record<string, string>;
-    };
+
+    // 1. Validate using the schema
+    const { updateCustomerSchema } = await import('../validators/customer');
+    const parsed = updateCustomerSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return next(new AppError(400, parsed.error.message, 'VALIDATION_ERROR'));
+    }
+
+    const { billing, shipping, ...rest } = parsed.data;
 
     const customer = await updateCustomer({
       organizationId: orgDbId,
       customerId: authReq.params['id'] as string,
       performedBy: authReq.auth.userId,
       ...rest,
-      billingStreet: billing?.['street'],
-      billingCity: billing?.['city'],
-      billingState: billing?.['state'],
-      billingZip: billing?.['zip'],
-      billingCountry: billing?.['country'],
-      shippingStreet: shipping?.['street'],
-      shippingCity: shipping?.['city'],
-      shippingState: shipping?.['state'],
-      shippingZip: shipping?.['zip'],
-      shippingCountry: shipping?.['country'],
+      billingStreet: billing?.street,
+      billingCity: billing?.city,
+      billingState: billing?.state,
+      billingZip: billing?.zip,
+      billingCountry: billing?.country,
+      shippingStreet: shipping?.street,
+      shippingCity: shipping?.city,
+      shippingState: shipping?.state,
+      shippingZip: shipping?.zip,
+      shippingCountry: shipping?.country,
     });
 
     res.json({ data: customer });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteCustomer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const orgDbId = authReq.organizationDbId!;
+    const id = authReq.params['id'] as string;
+
+    const customer = await prisma.customer.findUnique({ where: { id }, select: { id: true, organizationId: true } });
+    if (!customer || customer.organizationId !== orgDbId) throw new AppError(404, 'Customer not found', 'CUSTOMER_NOT_FOUND');
+
+    await prisma.customer.delete({ where: { id } });
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getCustomerOrders = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const orgDbId = authReq.organizationDbId!;
+    const id = authReq.params['id'] as string;
+
+    const orders = await prisma.order.findMany({
+      where: { organizationId: orgDbId, customerId: id },
+      orderBy: { createdAt: 'desc' },
+      include: { _count: { select: { items: true } } },
+    });
+    res.json({ data: orders });
   } catch (err) {
     next(err);
   }

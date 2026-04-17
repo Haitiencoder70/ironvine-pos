@@ -19,17 +19,24 @@ export async function injectTenant(
   const authReq = req as AuthenticatedRequest;
 
   try {
-    const org = await prisma.organization.findUnique({
-      where: { clerkOrgId: authReq.auth.orgId },
+    // upsert: create the org row on first API call if it doesn't exist yet.
+    // Clerk is the source of truth; we just need a local DB record to
+    // attach all tenant-scoped data to.
+    const org = await prisma.organization.upsert({
+      where:  { clerkOrgId: authReq.auth.orgId },
+      update: {},
+      create: {
+        clerkOrgId: authReq.auth.orgId,
+        name:       authReq.auth.orgId,   // placeholder; overwritten via Settings page
+        slug:       authReq.auth.orgId,
+        subdomain:  authReq.auth.orgId,
+        plan:       'FREE',
+      },
       select: { id: true },
     });
 
-    if (!org) {
-      return next(new AppError(404, 'Organization not found', 'ORG_NOT_FOUND'));
-    }
-
-    req.organizationId = authReq.auth.orgId;
-    req.organizationDbId = org.id;
+    req.organizationId    = authReq.auth.orgId;
+    req.organizationDbId  = org.id;
     next();
   } catch (error) {
     logger.error('Failed to inject tenant', { error });

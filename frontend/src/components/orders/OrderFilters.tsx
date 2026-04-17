@@ -101,7 +101,7 @@ export function OrderFilters({
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+    <div className="bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
       {/* ── Top bar: search + expand toggle ── */}
       <div className="flex items-center gap-3 p-4">
         <div className="flex-1 min-w-0">
@@ -123,8 +123,8 @@ export function OrderFilters({
             'relative inline-flex items-center gap-2 min-h-[44px] px-4',
             'rounded-xl border font-medium text-sm transition-all duration-200',
             isExpanded || activeCount > 0
-              ? 'bg-blue-50 border-blue-300 text-blue-700'
-              : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+              ? 'bg-blue-500/20 border-blue-500/50 text-blue-300'
+              : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
           )}
         >
           <FunnelIcon className="h-4 w-4 flex-shrink-0" />
@@ -150,7 +150,7 @@ export function OrderFilters({
             size="sm"
             icon={<XMarkIcon className="h-4 w-4" />}
             onClick={onClearAll}
-            className="text-red-600 hover:bg-red-50 flex-shrink-0"
+            className="text-rose-400 hover:bg-rose-500/10 flex-shrink-0"
           >
             <span className="hidden sm:inline">Clear</span>
           </TouchButton>
@@ -168,7 +168,7 @@ export function OrderFilters({
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             style={{ overflow: 'hidden' }}
           >
-            <div className="border-t border-gray-100 px-4 pb-4 pt-4">
+            <div className="border-t border-white/10 px-4 pb-4 pt-4">
               {/* Mobile: scrollable row; Desktop: 4-col grid */}
               <div
                 className={clsx(
@@ -202,7 +202,7 @@ export function OrderFilters({
 
                 {/* Date From */}
                 <div className="min-w-[160px] sm:min-w-0 flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-gray-400">
                     From Date
                   </label>
                   <input
@@ -212,17 +212,17 @@ export function OrderFilters({
                     onChange={handleDateFromChange}
                     max={filters.dateTo ?? undefined}
                     className={clsx(
-                      'flex w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-base shadow-sm',
+                      'flex w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-base text-gray-200',
                       'min-h-[44px] transition-colors',
                       'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                      'hover:border-gray-400'
+                      'hover:border-white/20'
                     )}
                   />
                 </div>
 
                 {/* Date To */}
                 <div className="min-w-[160px] sm:min-w-0 flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-gray-400">
                     To Date
                   </label>
                   <input
@@ -232,10 +232,10 @@ export function OrderFilters({
                     onChange={handleDateToChange}
                     min={filters.dateFrom ?? undefined}
                     className={clsx(
-                      'flex w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-base shadow-sm',
+                      'flex w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-base text-gray-200',
                       'min-h-[44px] transition-colors',
                       'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                      'hover:border-gray-400'
+                      'hover:border-white/20'
                     )}
                   />
                 </div>
@@ -293,11 +293,11 @@ interface FilterChipProps {
 
 function FilterChip({ label, onRemove }: FilterChipProps) {
   return (
-    <span className="inline-flex items-center gap-1.5 pl-3 pr-2 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
+    <span className="inline-flex items-center gap-1.5 pl-3 pr-2 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium border border-blue-500/30">
       {label}
       <button
         onClick={onRemove}
-        className="flex items-center justify-center h-4 w-4 rounded-full hover:bg-blue-200 transition-colors"
+        className="flex items-center justify-center h-4 w-4 rounded-full hover:bg-blue-500/40 transition-colors"
         aria-label={`Remove filter: ${label}`}
       >
         <XMarkIcon className="h-3 w-3" />

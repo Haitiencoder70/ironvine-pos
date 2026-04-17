@@ -15,10 +15,9 @@ import { OrderFilters } from '../../components/orders/OrderFilters';
 import {
   OrderTableRow,
   OrderMobileCard,
-  OrderTableRowSkeleton,
-  OrderMobileCardSkeleton,
 } from '../../components/orders/OrderRow';
 import { useOrders, type OrderListParams } from '../../hooks/useOrders';
+import { SkeletonLoader, EmptyState } from '../../components/ui';
 import type { JSX } from 'react';
 import type { OrderStatus } from '../../types';
 
@@ -355,18 +354,14 @@ export function OrderListPage(): JSX.Element {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <OrderTableRowSkeleton key={i} />
-                  ))}
+                  <SkeletonLoader variant="table" rows={8} />
                 </tbody>
               </table>
             </div>
 
             {/* Mobile skeleton */}
             <div className="sm:hidden space-y-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <OrderMobileCardSkeleton key={i} />
-              ))}
+              <SkeletonLoader variant="card" rows={5} />
             </div>
           </motion.div>
         ) : !isError && orders.length === 0 ? (
@@ -375,31 +370,21 @@ export function OrderListPage(): JSX.Element {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100"
           >
-            <InboxIcon className="h-14 w-14 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-800 mb-1">
-              No orders found
-            </h3>
-            <p className="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
-              {filters.search || filters.status || filters.priority || filters.dateFrom || filters.dateTo
-                ? 'Try adjusting your filters or clearing the search.'
-                : 'Create your first order to get started.'}
-            </p>
-            {filters.search || filters.status || filters.priority ? (
-              <TouchButton variant="secondary" size="md" onClick={handleClearAll}>
-                Clear Filters
-              </TouchButton>
-            ) : (
-              <TouchButton
-                variant="primary"
-                size="md"
-                icon={<PlusIcon className="h-5 w-5" />}
-                onClick={() => navigate('/orders/new')}
-              >
-                New Order
-              </TouchButton>
-            )}
+            <EmptyState
+              icon={<InboxIcon className="h-10 w-10" />}
+              title="No orders found"
+              description={
+                filters.search || filters.status || filters.priority || filters.dateFrom || filters.dateTo
+                  ? 'Try adjusting your filters or clearing the search.'
+                  : 'Create your first order to get started.'
+              }
+              action={
+                filters.search || filters.status || filters.priority 
+                ? { label: 'Clear Filters', onClick: handleClearAll }
+                : { label: 'New Order', href: '/orders/new', icon: <PlusIcon className="h-5 w-5" /> }
+              }
+            />
           </motion.div>
         ) : (
           <motion.div

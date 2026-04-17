@@ -1,12 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useBlocker } from 'react-router-dom';
-import {
-  useForm,
-  FormProvider,
-  Controller,
-  useFormContext,
-  type SubmitHandler,
-} from 'react-hook-form';
+import { useForm, FormProvider, useFormContext, Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
@@ -22,6 +16,7 @@ import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 import { format } from 'date-fns';
+import confetti from 'canvas-confetti';
 import { CustomerSearch } from '../../components/customers/CustomerSearch';
 import { OrderItemsEditor } from '../../components/orders/OrderItemsEditor';
 import { TouchButton } from '../../components/ui/TouchButton';
@@ -31,18 +26,25 @@ import { useOfflineStore } from '../../store/offlineStore';
 import type { JSX } from 'react';
 import type { Customer, OrderPriority, PrintLocation, PrintMethod } from '../../types';
 
-// ─── Types (exported for OrderItemsEditor) ───────────────────────────────────
+// ─── Types ──────────────────────────────────────────────────────────────────
 
 export interface OrderItemFormValues {
   productType: string;
-  size: string;
-  color: string;
-  sleeveType: string;
+  attributes: Record<string, unknown>;
   quantity: number;
   unitPrice: number;
   printMethod: string;
   printLocations: string[];
   description: string;
+  // Material tracking
+  requiredMaterials: {
+    category: string;
+    description: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
+  // Rich product-linked configuration (optional — set when using catalog)
+  _configured?: import('../../components/orders/ProductOrderConfigurator').ConfiguredOrderItem;
 }
 
 export interface NewOrderFormValues {
@@ -57,15 +59,14 @@ export interface NewOrderFormValues {
 // ─── Validation Schema ────────────────────────────────────────────────────────
 
 const orderItemSchema = z.object({
-  productType: z.string().min(1, 'Product type is required'),
-  size: z.string().optional(),
-  color: z.string().optional(),
-  sleeveType: z.string().optional(),
+  productType: z.string().min(1, 'Please select a category'),
+  attributes: z.record(z.string(), z.any()).optional().default({}),
   quantity: z.number({ invalid_type_error: 'Enter a valid quantity' }).int().positive('Must be at least 1').max(10_000),
   unitPrice: z.number({ invalid_type_error: 'Enter a valid price' }).nonnegative('Price cannot be negative'),
   printMethod: z.string().optional(),
-  printLocations: z.array(z.string()).optional(),
-  description: z.string().max(500).optional(),
+  printLocations: z.array(z.string()).optional().default([]),
+  description: z.string().max(500).optional().default(''),
+  requiredMaterials: z.array(z.any()).optional().default([]),
 });
 
 const newOrderSchema = z.object({
@@ -76,8 +77,6 @@ const newOrderSchema = z.object({
   designNotes: z.string().max(2000).optional(),
   items: z.array(orderItemSchema).min(1, 'Add at least one item'),
 });
-
-type ValidatedFormValues = z.infer<typeof newOrderSchema>;
 
 // ─── Steps config ─────────────────────────────────────────────────────────────
 
@@ -94,14 +93,6 @@ const PRIORITY_OPTIONS: { value: OrderPriority; label: string; color: string }[]
   { value: 'HIGH', label: 'High', color: 'border-amber-300 bg-amber-50 text-amber-800' },
   { value: 'RUSH', label: '🔥 Rush', color: 'border-red-300 bg-red-50 text-red-800' },
 ];
-
-const PRINT_LOCATION_LABELS: Record<string, string> = {
-  FRONT: 'Front',
-  BACK: 'Back',
-  LEFT_SLEEVE: 'Left Sleeve',
-  RIGHT_SLEEVE: 'Right Sleeve',
-  FULL_PRINT: 'Full Print',
-};
 
 const PRODUCT_TYPE_LABELS: Record<string, string> = {
   TSHIRT: 'T-Shirt',
@@ -139,7 +130,6 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
 
         return (
           <div key={step.id} className="flex items-center">
-            {/* Step circle */}
             <div className="flex flex-col items-center">
               <div
                 className={clsx(
@@ -166,8 +156,6 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
                 {step.label}
               </span>
             </div>
-
-            {/* Connector line */}
             {idx < STEPS.length - 1 && (
               <div
                 className={clsx(
@@ -317,13 +305,14 @@ function Step2Items() {
       </div>
 
       {/* Items */}
-      <div>
+      <div className="space-y-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-gray-900">Order Items</h3>
           {errors.items?.root && (
             <p className="text-sm text-red-500">{errors.items.root.message}</p>
           )}
         </div>
+        
         <OrderItemsEditor />
       </div>
     </div>
@@ -339,7 +328,7 @@ interface Step3ReviewProps {
 
 function Step3Review({ selectedCustomer, formValues }: Step3ReviewProps) {
   const subtotal = formValues.items.reduce(
-    (sum, item) => sum + (item.quantity ?? 0) * (item.unitPrice ?? 0),
+    (sum, item) => sum + (item._configured?.lineTotal ?? (item.quantity ?? 0) * (item.unitPrice ?? 0)),
     0
   );
   const tax = subtotal * TAX_RATE;
@@ -400,36 +389,49 @@ function Step3Review({ selectedCustomer, formValues }: Step3ReviewProps) {
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
           Items ({formValues.items.length})
         </p>
-        {formValues.items.map((item, idx) => (
-          <div key={idx} className="bg-white rounded-2xl border border-gray-200 p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <p className="font-semibold text-gray-900">
-                  {PRODUCT_TYPE_LABELS[item.productType] ?? item.productType}
-                  {item.size ? ` · ${item.size}` : ''}
-                  {item.color ? ` · ${item.color}` : ''}
-                </p>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  Qty: {item.quantity} × {fmt(item.unitPrice)}
-                  {item.printMethod ? ` · ${item.printMethod.replace(/_/g, ' ')}` : ''}
-                </p>
-                {item.printLocations && item.printLocations.length > 0 && (
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {item.printLocations
-                      .map((l) => PRINT_LOCATION_LABELS[l] ?? l)
-                      .join(', ')}
+        {formValues.items.map((item, idx) => {
+          const cfg = item._configured;
+          const lineTotal = cfg?.lineTotal ?? (item.quantity * item.unitPrice);
+          return (
+            <div key={idx} className="bg-white rounded-2xl border border-gray-200 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">
+                    {cfg ? cfg.productName : (PRODUCT_TYPE_LABELS[item.productType] ?? item.productType)}
+                    {cfg?.isCustomItem && <span className="ml-2 text-xs text-gray-400 font-normal">(custom)</span>}
                   </p>
-                )}
-                {item.description && (
-                  <p className="text-xs text-gray-400 italic mt-0.5">{item.description}</p>
-                )}
+                  {cfg && !cfg.isCustomItem && (
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      {[cfg.brand, cfg.color].filter(Boolean).join(' · ')}
+                      {cfg.sizeBreakdown.length > 0 && (
+                        ' · ' + cfg.sizeBreakdown.map((s) => `${s.qty}×${s.size}`).join(', ')
+                      )}
+                    </p>
+                  )}
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    {cfg ? `${cfg.totalQuantity} units` : `Qty: ${item.quantity}`}
+                    {' × '}{fmt(item.unitPrice)}
+                    {cfg?.printMethod ? ` · ${cfg.printMethod}` : item.printMethod ? ` · ${item.printMethod.replace(/_/g, ' ')}` : ''}
+                  </p>
+                  {cfg?.selectedAddOns && cfg.selectedAddOns.length > 0 && (
+                    <p className="text-xs text-blue-600 mt-0.5">
+                      + {cfg.selectedAddOns.map((a) => a.name).join(', ')}
+                    </p>
+                  )}
+                  {cfg?.isPriceOverridden && (
+                    <p className="text-xs text-amber-600 mt-0.5">
+                      ⚠ Price overridden from {fmt(cfg.originalTierPrice)}
+                    </p>
+                  )}
+                  {item.description && (
+                    <p className="text-xs text-gray-400 italic mt-0.5">{item.description}</p>
+                  )}
+                </div>
+                <p className="font-bold text-gray-900 flex-shrink-0">{fmt(lineTotal)}</p>
               </div>
-              <p className="font-bold text-gray-900 flex-shrink-0">
-                {fmt(item.quantity * item.unitPrice)}
-              </p>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Totals */}
@@ -474,7 +476,7 @@ export function NewOrderPage(): JSX.Element {
             dueDate: '',
             notes: '',
             designNotes: '',
-            items: [{ productType: '', size: '', color: '', sleeveType: '', quantity: 1, unitPrice: 0, printMethod: '', printLocations: [], description: '' }],
+            items: [],
             ...parsed,
           };
         }
@@ -487,7 +489,7 @@ export function NewOrderPage(): JSX.Element {
         dueDate: '',
         notes: '',
         designNotes: '',
-        items: [{ productType: '', size: '', color: '', sleeveType: '', quantity: 1, unitPrice: 0, printMethod: '', printLocations: [], description: '' }],
+        items: [],
       };
     })(),
     mode: 'onChange',
@@ -566,7 +568,7 @@ export function NewOrderPage(): JSX.Element {
   }, [currentStep]);
 
   // Submit
-  const onSubmit: SubmitHandler<NewOrderFormValues> = async (data: ValidatedFormValues) => {
+  const onSubmit: SubmitHandler<NewOrderFormValues> = async (data) => {
     try {
       const payload = {
         customerId: data.customerId,
@@ -576,9 +578,7 @@ export function NewOrderPage(): JSX.Element {
         designNotes: data.designNotes || undefined,
         items: data.items.map((item) => ({
           productType: item.productType,
-          size: item.size || undefined,
-          color: item.color || undefined,
-          sleeveType: item.sleeveType || undefined,
+          attributes: item.attributes || {},
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           printMethod: (item.printMethod as PrintMethod) || undefined,
@@ -589,6 +589,14 @@ export function NewOrderPage(): JSX.Element {
 
       const result = await createOrder.mutateAsync(payload);
       localStorage.removeItem(LS_KEY);
+
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#3B82F6', '#10B981', '#F59E0B']
+      });
+
       toast.success(`Order ${result.data.orderNumber} created!`);
       void navigate(`/orders/${result.data.id}`, { replace: true });
     } catch {

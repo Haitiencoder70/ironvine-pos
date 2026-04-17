@@ -1,4 +1,4 @@
-import { forwardRef, useId } from 'react';
+import { forwardRef, memo, useId } from 'react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -10,7 +10,7 @@ export interface TouchInputProps extends React.InputHTMLAttributes<HTMLInputElem
   iconPosition?: 'left' | 'right';
 }
 
-export const TouchInput = forwardRef<HTMLInputElement, TouchInputProps>(
+export const TouchInput = memo(forwardRef<HTMLInputElement, TouchInputProps>(
   (
     {
       className,
@@ -25,6 +25,7 @@ export const TouchInput = forwardRef<HTMLInputElement, TouchInputProps>(
     ref
   ) => {
     const inputId = id || useId();
+    const errorId = `${inputId}-error`;
     const hasError = Boolean(error);
 
     return (
@@ -46,6 +47,8 @@ export const TouchInput = forwardRef<HTMLInputElement, TouchInputProps>(
           <input
             id={inputId}
             ref={ref}
+            aria-invalid={hasError ? 'true' : 'false'}
+            aria-describedby={(error || helperText) ? errorId : undefined}
             className={twMerge(
               clsx(
                 'flex w-full rounded-xl border bg-white px-4 py-2 text-base shadow-sm transition-colors',
@@ -71,6 +74,7 @@ export const TouchInput = forwardRef<HTMLInputElement, TouchInputProps>(
         </div>
         {(error || helperText) && (
           <p
+            id={errorId}
             className={clsx(
               'text-sm',
               hasError ? 'text-red-500' : 'text-gray-500'
@@ -82,6 +86,6 @@ export const TouchInput = forwardRef<HTMLInputElement, TouchInputProps>(
       </div>
     );
   }
-);
+));
 
 TouchInput.displayName = 'TouchInput';

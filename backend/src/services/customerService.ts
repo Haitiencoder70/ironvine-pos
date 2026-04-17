@@ -179,9 +179,9 @@ export async function updateCustomer(input: UpdateCustomerInput): Promise<Custom
 
 export async function getCustomers(
   organizationId: string,
-  options: PaginationInput & { search?: string } = {},
+  options: PaginationInput & { search?: string; sortKey?: string; sortDir?: 'asc' | 'desc' } = {},
 ): Promise<PaginatedResult<Customer>> {
-  const { page = 1, search } = options;
+  const { page = 1, search, sortKey = 'createdAt', sortDir = 'desc' } = options;
   const limit = Math.min(options.limit ?? 25, 100);
   const skip = (page - 1) * limit;
 
@@ -200,12 +200,22 @@ export async function getCustomers(
       : {}),
   };
 
+  const allowedSortKeys: Record<string, Prisma.CustomerOrderByWithRelationInput> = {
+    createdAt: { createdAt: sortDir },
+    firstName: { firstName: sortDir },
+    lastName: { lastName: sortDir },
+    email: { email: sortDir },
+    company: { company: sortDir },
+  };
+
+  const orderBy = allowedSortKeys[sortKey] ?? { createdAt: 'desc' as const };
+
   const [data, total] = await prisma.$transaction([
     prisma.customer.findMany({
       where,
       skip,
       take: limit,
-      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
+      orderBy,
     }),
     prisma.customer.count({ where }),
   ]);

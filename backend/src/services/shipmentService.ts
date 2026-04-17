@@ -2,6 +2,7 @@ import { Prisma, Shipment, ShipmentStatus, ShipmentCarrier } from '@prisma/clien
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
+import { sendShipmentTrackingSMS } from './notificationService';
 import type { PaginatedResult, PaginationInput } from '../types/services';
 
 // ─── Valid Status Transitions ─────────────────────────────────────────────────
@@ -136,7 +137,7 @@ export async function updateShipmentStatus(input: UpdateShipmentStatusInput): Pr
 
   const shipment = await prisma.shipment.findUnique({
     where: { id: shipmentId },
-    select: { id: true, organizationId: true, status: true, orderId: true, trackingNumber: true },
+    select: { id: true, organizationId: true, status: true, orderId: true, trackingNumber: true, order: { select: { customer: { select: { phone: true } }, orderNumber: true } } },
   });
 
   if (!shipment || shipment.organizationId !== organizationId) {
@@ -242,6 +243,12 @@ export async function updateShipmentStatus(input: UpdateShipmentStatusInput): Pr
 
     return result;
   });
+
+  // Send Notifications outside transaction
+  if ((newStatus === 'IN_TRANSIT' || newStatus === 'LABEL_CREATED') && shipment.trackingNumber && shipment.order?.customer?.phone) {
+    const url = `https://www.google.com/search?q=${shipment.trackingNumber}`; // Mock tracking URL provider
+    void sendShipmentTrackingSMS(organizationId, shipment.order.customer.phone, shipment.order.orderNumber, url);
+  }
 
   logger.info('Shipment status updated', { shipmentId, from: shipment.status, to: newStatus });
   return updated;

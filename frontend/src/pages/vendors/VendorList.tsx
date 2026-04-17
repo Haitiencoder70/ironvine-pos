@@ -10,12 +10,15 @@ import {
   PhoneIcon,
   EnvelopeIcon,
 } from '@heroicons/react/24/outline';
+import { BuildingOfficeIcon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { useVendors } from '../../hooks/useVendors';
 import { useDebounce } from '../../hooks/useDebounce';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
+import { SkeletonLoader, EmptyState } from '../../components/ui';
 import type { JSX } from 'react';
+
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -163,20 +166,20 @@ export function VendorListPage(): JSX.Element {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                     <td className="px-6 py-4"><div className="h-4 w-12 bg-gray-100 rounded" /></td>
-                     <td className="px-6 py-4"><div className="h-4 w-32 bg-gray-100 rounded" /></td>
-                     <td className="px-6 py-4"><div className="h-6 w-32 bg-gray-100 rounded" /></td>
-                     <td className="px-6 py-4 flex gap-2"><div className="h-6 w-16 bg-gray-100 rounded-full" /><div className="h-6 w-16 bg-gray-100 rounded-full" /></td>
-                     <td className="px-6 py-4 text-center"><div className="h-4 w-12 mx-auto bg-gray-100 rounded" /></td>
-                     <td className="px-6 py-4"><div className="h-8 w-16 bg-gray-100 rounded ml-auto" /></td>
-                  </tr>
-                ))
+                <SkeletonLoader variant="table" rows={5} />
               ) : isError || displayedVendors.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                    No vendors found matching criteria.
+                  <td colSpan={6} className="p-0">
+                    <div className="flex justify-center p-8">
+                      <EmptyState
+                        icon={<BuildingOfficeIcon className="h-10 w-10" />}
+                        title="No vendors found"
+                        description="Try adjusting your filters or add a new vendor."
+                        action={{ label: 'Add Vendor', href: '/vendors/new', icon: <PlusIcon className="h-5 w-5" /> }}
+                        minHeight="min-h-[300px]"
+                        className="w-full max-w-lg border-0 shadow-none bg-transparent"
+                      />
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -260,13 +263,14 @@ export function VendorListPage(): JSX.Element {
       {/* Mobile Card View */}
       <div className="lg:hidden space-y-4">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-             <div key={i} className="animate-pulse bg-white p-5 rounded-2xl border border-gray-100 h-[140px]" />
-          ))
+          <SkeletonLoader variant="card" rows={4} />
         ) : isError || displayedVendors.length === 0 ? (
-          <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 text-gray-500">
-            No vendors found.
-          </div>
+          <EmptyState
+            icon={<BuildingOfficeIcon className="h-8 w-8" />}
+            title="No vendors found"
+            description="Try adjusting your search criteria."
+            minHeight="min-h-[200px]"
+          />
         ) : (
           displayedVendors.map((v) => {
             const { vendorCode } = parseVendorMeta(v.notes);

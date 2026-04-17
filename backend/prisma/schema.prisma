@@ -29,6 +29,10 @@ model Organization {
   customDomain            String?
   primaryColor            String?
   secondaryColor          String?
+  faviconUrl              String?
+  customCSS               String?
+  emailFromName           String?
+  emailFromAddress        String?
   settings                Json                    @default("{}")
   taxRate                 Decimal                 @default(0) @db.Decimal(6, 4)
   orderNumberPrefix       String                  @default("ORD")
@@ -64,6 +68,7 @@ model Organization {
   organizationInvites     OrganizationInvite[]
   usageMetrics            UsageMetrics[]
   billingHistory          BillingHistory[]
+  usageEvents             UsageEvent[]
 
   @@map("organizations")
 }
@@ -830,6 +835,24 @@ model UsageMetrics {
   @@unique([organizationId, periodStart])
   @@index([organizationId])
   @@map("usage_metrics")
+}
+
+// ─── Billing History ──────────────────────────────────────────────────────────
+
+// ─── Usage Events ─────────────────────────────────────────────────────────────
+
+model UsageEvent {
+  id             String       @id @default(cuid())
+  organizationId String
+  metricType     String       // 'order_created', 'inventory_added', 'user_invited', 'customer_added'
+  count          Int          @default(1)
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, metricType, createdAt])
+  @@index([organizationId, createdAt])
+  @@map("usage_events")
 }
 
 // ─── Billing History ──────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { vendorApi, purchaseOrderApi } from '../services/api';
+import { useIsReady } from './useIsReady';
 
 export const vendorKeys = {
   all: ['vendors'] as const,
@@ -19,10 +20,12 @@ export interface VendorListParams {
 }
 
 export function useVendors(params: VendorListParams = {}) {
+  const isReady = useIsReady();
   return useQuery({
     queryKey: vendorKeys.list(params),
     queryFn: () => vendorApi.getAll(params),
-    staleTime: 60_000, // Vendors don't change often
+    staleTime: 60_000,
+    enabled: isReady,
   });
 }
 
@@ -74,5 +77,20 @@ export function useVendorPurchaseOrders(vendorId: string) {
     queryKey: vendorKeys.purchaseOrders(vendorId),
     queryFn: () => purchaseOrderApi.getAll({ vendorId, limit: 100 }),
     enabled: Boolean(vendorId),
+  });
+}
+
+export function useDeleteVendor() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => vendorApi.delete(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: vendorKeys.lists() });
+      toast.success('Vendor deleted');
+    },
+    onError: () => {
+      toast.error('Failed to delete vendor');
+    },
   });
 }

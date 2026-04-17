@@ -510,3 +510,76 @@ export interface Sale {
   paymentMethod: PaymentMethod;
   orderItems: { name: string; quantity: number; unitPrice: number }[];
 }
+
+// ─── Images ───────────────────────────────────────────────────────────────────
+
+export type ImageType =
+  | 'PRODUCT'
+  | 'DESIGN'
+  | 'MOCKUP'
+  | 'ORDER'
+  | 'ORDER_ITEM'
+  | 'REFERENCE'
+  | 'PROOF';
+
+export interface Image {
+  id: string;
+  organizationId: string;
+  entityType: string;
+  entityId: string;
+  imageType: ImageType;
+  url: string;
+  thumbnailUrl?: string;
+  filename: string;
+  mimeType: string;
+  sizeBytes: number;
+  width?: number;
+  height?: number;
+  isPrimary: boolean;
+  sortOrder: number;
+  uploadedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── Global Search ────────────────────────────────────────────────────────────
+
+export interface SearchOrder {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  customer?: { firstName: string; lastName: string; company?: string };
+}
+
+export interface SearchInventoryItem {
+  id: string;
+  name: string;
+  sku: string;
+  quantityOnHand: number;
+}
+
+export interface SearchCustomer {
+  id: string;
+  firstName: string;
+  lastName: string;
+  company?: string;
+}
+
+export interface GlobalSearchResult {
+  orders: SearchOrder[];
+  inventory: SearchInventoryItem[];
+  customers: SearchCustomer[];
+}
+
+export interface MockupPosition {
+  x: number;      // percentage 0-100
+  y: number;      // percentage 0-100
+  width: number;  // percentage of print area
+  rotation: number;
+}
+
+export interface DesignMockupData {
+  designImageUrl: string;
+  position: MockupPosition;
+  side: 'FRONT' | 'BACK';
+}

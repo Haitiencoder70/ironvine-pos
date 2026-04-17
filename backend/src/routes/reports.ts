@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireAuth } from '../middleware/auth';
 import { injectTenant } from '../middleware/tenant';
 import {
   getSalesReportHandler,
@@ -8,7 +9,7 @@ import {
 
 export const reportsRouter = Router();
 
-reportsRouter.use(injectTenant);
+reportsRouter.use(requireAuth, injectTenant);
 
 reportsRouter.get('/sales', getSalesReportHandler);
 reportsRouter.get('/inventory', getInventoryReportHandler);

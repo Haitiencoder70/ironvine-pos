@@ -12,8 +12,15 @@ export function validate(schema: ZodSchema, part: RequestPart = 'body') {
       return next(err);
     }
 
-    // Replace with validated + coerced data
-    (req as unknown as Record<string, unknown>)[part] = result.data;
+    // Replace with validated + coerced data.
+    // req.query is a getter-only property in Express, so we must use
+    // Object.defineProperty to overwrite it; direct assignment throws in strict mode.
+    Object.defineProperty(req, part, {
+      value: result.data,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
     next();
   };
 }

@@ -74,6 +74,8 @@ export interface GetOrdersInput extends PaginationInput {
   search?: string;
   dateFrom?: Date;
   dateTo?: Date;
+  sortKey?: string;
+  sortDir?: 'asc' | 'desc';
 }
 
 export interface UseMaterialsInput {

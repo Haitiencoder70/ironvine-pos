@@ -14,8 +14,10 @@ import {
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { usePurchaseOrder, useSendPurchaseOrder } from '../../hooks/usePurchaseOrders';
+import { useConfirm } from '../../hooks/useConfirm';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
+import { SkeletonLoader } from '../../components/ui';
 import { ReceivePOModal } from '../../components/purchase-orders/ReceivePOModal';
 import type { PurchaseOrderStatus } from '../../types';
 import type { JSX } from 'react';
@@ -49,17 +51,8 @@ export function PurchaseOrderDetailPage(): JSX.Element {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-pulse space-y-6">
-        <div className="h-8 w-48 bg-gray-100 rounded" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
-            <div className="h-48 bg-gray-100 rounded-2xl" />
-            <div className="h-96 bg-gray-100 rounded-2xl" />
-          </div>
-          <div className="lg:col-span-1 space-y-4">
-             <div className="h-64 bg-gray-100 rounded-2xl" />
-          </div>
-        </div>
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+        <SkeletonLoader variant="detail" />
       </div>
     );
   }
@@ -87,6 +80,7 @@ export function PurchaseOrderDetailPage(): JSX.Element {
   const totalOrdered = po.items.reduce((acc, curr) => acc + curr.quantity, 0);
   const totalReceived = po.items.reduce((acc, curr) => acc + curr.quantityRecv, 0);
   const receiveProgress = totalOrdered > 0 ? (totalReceived / totalOrdered) * 100 : 0;
+  const { confirm } = useConfirm();
 
   return (
     <>
@@ -117,7 +111,13 @@ export function PurchaseOrderDetailPage(): JSX.Element {
                 icon={<PaperAirplaneIcon className="h-5 w-5" />}
                 loading={sendPO.isPending}
                 onClick={async () => {
-                  if (confirm('Send this PO to the vendor?')) {
+                  const ok = await confirm({
+                    title: 'Send Purchase Order',
+                    description: 'Are you sure you want to send this PO to the vendor? This will mark it as SENT.',
+                    confirmText: 'Send PO',
+                    variant: 'primary',
+                  });
+                  if (ok) {
                     await sendPO.mutateAsync(po.id);
                   }
                 }}

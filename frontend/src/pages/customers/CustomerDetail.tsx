@@ -16,9 +16,11 @@ import {
   CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
-import { useCustomer, useCustomerOrders, useUpdateCustomer } from '../../hooks/useCustomers';
+import { useCustomer, useCustomerOrders, useUpdateCustomer, useDeleteCustomer } from '../../hooks/useCustomers';
+import { useConfirm } from '../../hooks/useConfirm';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
+import { SkeletonLoader } from '../../components/ui';
 import type { OrderStatus } from '../../types';
 import type { JSX } from 'react';
 
@@ -57,6 +59,8 @@ export function CustomerDetailPage(): JSX.Element {
   const { data: customerData, isLoading: isLoadingCust, isError: isErrorCust, refetch } = useCustomer(id ?? '');
   const { data: ordersData, isLoading: isLoadingOrders } = useCustomerOrders(id ?? '');
   const updateCustomer = useUpdateCustomer();
+  const { confirm } = useConfirm();
+  const deleteCustomer = useDeleteCustomer();
 
   const customer = customerData?.data;
   const orders = ordersData?.data ?? [];
@@ -73,18 +77,8 @@ export function CustomerDetailPage(): JSX.Element {
 
   if (isLoadingCust) {
     return (
-      <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-pulse space-y-6">
-        <div className="h-8 w-48 bg-gray-100 rounded" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-4">
-            <div className="h-64 bg-gray-100 rounded-2xl" />
-            <div className="h-32 bg-gray-100 rounded-2xl" />
-          </div>
-          <div className="lg:col-span-2 space-y-4">
-             <div className="grid grid-cols-4 gap-4"><div className="h-24 bg-gray-100 rounded-xl col-span-1" /><div className="col-span-3"/></div>
-             <div className="h-96 bg-gray-100 rounded-2xl" />
-          </div>
-        </div>
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+        <SkeletonLoader variant="detail" />
       </div>
     );
   }
@@ -124,6 +118,20 @@ export function CustomerDetailPage(): JSX.Element {
     setIsEditingNotes(true);
   };
 
+  const handleDelete = async () => {
+    if (!id) return;
+    const ok = await confirm({
+      title: 'Delete Customer',
+      description: `Are you sure you want to delete ${customer.firstName} ${customer.lastName}? This action cannot be undone.`,
+      confirmText: 'Delete Customer',
+      variant: 'danger',
+    });
+    if (ok) {
+      await deleteCustomer.mutateAsync(id);
+      navigate('/customers', { replace: true });
+    }
+  };
+
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
       
@@ -147,6 +155,14 @@ export function CustomerDetailPage(): JSX.Element {
         </div>
 
         <div className="flex items-center gap-3">
+          <TouchButton
+            variant="danger"
+            size="md"
+            onClick={handleDelete}
+            disabled={deleteCustomer.isPending}
+          >
+            Delete
+          </TouchButton>
           <TouchButton
             variant="secondary"
             size="md"

@@ -3,6 +3,11 @@ import { Order, InventoryItem, PurchaseOrder, Shipment } from '../types';
 
 let socket: Socket | null = null;
 
+/**
+ * Initializes and establishes the socket.io connection securely.
+ * @param getToken - Function resolving to a valid Clerk session token.
+ * @returns A promise resolving to the established Socket instance.
+ */
 export const initSocket = async (getToken: () => Promise<string | null>): Promise<Socket> => {
   if (socket?.connected) {
     return socket;
@@ -35,10 +40,19 @@ export const initSocket = async (getToken: () => Promise<string | null>): Promis
   return socket;
 };
 
+/**
+ * Returns the active socket instance.
+ * @returns The active Socket or null if undefined.
+ */
 export const getSocket = (): Socket | null => {
   return socket;
 };
 
+/**
+ * Attaches real-time listeners for Order occurrences.
+ * @param callbacks - Event callbacks capturing live pushes.
+ * @returns A cleanup function returning a void trace to unhook correctly.
+ */
 export const subscribeToOrders = (callbacks: {
   onCreated?: (order: Order) => void;
   onUpdated?: (order: Order) => void;
@@ -63,6 +77,11 @@ export const subscribeToOrders = (callbacks: {
   };
 };
 
+/**
+ * Tracks background changes inside the global inventory matrix securely.
+ * @param callbacks - Action handlers responding to low stock bounds dynamically.
+ * @returns An unsubscription handler explicitly matching the provided functions natively.
+ */
 export const subscribeToInventory = (callbacks: {
   onLowStock?: (item: InventoryItem) => void;
   onAdjusted?: (item: InventoryItem) => void;
@@ -111,6 +130,9 @@ export const subscribeToShipments = (callbacks: {
   };
 };
 
+/**
+ * Safely removes the socket connection implicitly freeing underlying Node connections elegantly.
+ */
 export const disconnectSocket = (): void => {
   if (socket) {
     socket.disconnect();

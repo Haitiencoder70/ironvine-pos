@@ -16,10 +16,12 @@ import {
   ClockIcon,
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
-import { useVendor, useVendorPurchaseOrders } from '../../hooks/useVendors';
+import { useVendor, useVendorPurchaseOrders, useDeleteVendor } from '../../hooks/useVendors';
+import { useConfirm } from '../../hooks/useConfirm';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { SkeletonLoader } from '../../components/ui';
 import type { JSX } from 'react';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -71,20 +73,13 @@ export function VendorDetailPage(): JSX.Element {
   // Fake mock logic for fulfillment duration - logically derived via standard DB metrics subtracting createdAt from received at, we use simplistic assumptions if valid:
   const deliveredPOs = purchaseOrders.filter(p => p.status === 'RECEIVED');
   
+  const { confirm } = useConfirm();
+  const deleteVendor = useDeleteVendor();
+
   if (isLoadingVendor) {
     return (
-      <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-pulse space-y-6">
-        <div className="h-8 w-48 bg-gray-100 rounded" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-4">
-            <div className="h-64 bg-gray-100 rounded-2xl" />
-            <div className="h-48 bg-gray-100 rounded-2xl" />
-          </div>
-          <div className="lg:col-span-2 space-y-4">
-             <div className="grid grid-cols-3 gap-4"><div className="h-24 bg-gray-100 rounded-xl" /><div className="h-24 bg-gray-100 rounded-xl" /><div className="h-24 bg-gray-100 rounded-xl" /></div>
-             <div className="h-96 bg-gray-100 rounded-2xl" />
-          </div>
-        </div>
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+        <SkeletonLoader variant="detail" />
       </div>
     );
   }
@@ -105,6 +100,20 @@ export function VendorDetailPage(): JSX.Element {
       </div>
     );
   }
+
+  const handleDelete = async () => {
+    if (!id) return;
+    const ok = await confirm({
+      title: 'Delete Vendor',
+      description: `Are you sure you want to delete ${vendor.name}? This cannot be undone.`,
+      confirmText: 'Delete Vendor',
+      variant: 'danger',
+    });
+    if (ok) {
+      await deleteVendor.mutateAsync(id);
+      navigate('/vendors', { replace: true });
+    }
+  };
 
   const { vendorCode, address, rawNotes } = parseVendorMeta(vendor.notes);
 
@@ -138,6 +147,14 @@ export function VendorDetailPage(): JSX.Element {
         </div>
 
         <div className="flex items-center gap-3">
+          <TouchButton
+            variant="danger"
+            size="md"
+            onClick={handleDelete}
+            disabled={deleteVendor.isPending}
+          >
+            Delete
+          </TouchButton>
           <TouchButton
             variant="secondary"
             size="md"

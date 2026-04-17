@@ -4,6 +4,7 @@ import { logger } from '../lib/logger';
 import { emitToOrg } from '../lib/socket';
 import { AppError } from '../middleware/errorHandler';
 import { generateOrderNumber } from '../utils/generators';
+import { sendOrderStatusEmail, sendOrderReadySMS } from './notificationService';
 import type {
   CreateOrderInput,
   UpdateOrderStatusInput,
@@ -112,9 +113,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
         items: {
           create: items.map((item) => ({
             productType: item.productType,
-            size: item.size,
-            color: item.color,
-            sleeveType: item.sleeveType,
+            attributes: item.attributes ?? {},
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             lineTotal: item.quantity * item.unitPrice,
@@ -179,7 +178,7 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
 
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    select: { id: true, organizationId: true, status: true, orderNumber: true },
+    select: { id: true, organizationId: true, status: true, orderNumber: true, customer: { select: { email: true, phone: true } } },
   });
 
   if (!order || order.organizationId !== organizationId) {
@@ -233,8 +232,8 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
         SELECT sm."inventoryItemId",
                SUM(sm.quantity) as "totalReserved",
                ii."quantityReserved" as "currentReserved"
-        FROM "StockMovement" sm
-        JOIN "InventoryItem" ii ON ii.id = sm."inventoryItemId"
+        FROM stock_movements sm
+        JOIN inventory_items ii ON ii.id = sm."inventoryItemId"
         WHERE sm."orderId" = ${orderId}
           AND sm."organizationId" = ${organizationId}
           AND sm.type = 'RESERVED'::"StockMovementType"
@@ -268,6 +267,15 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
 
   logger.info('Order status updated', { orderId, from: order.status, to: newStatus });
   emitToOrg(organizationId, 'order:status-changed', updated);
+
+  // Send notifications sequentially after commit to ensure integrity
+  if (order.customer?.email) {
+    void sendOrderStatusEmail(organizationId, order.customer.email, order.orderNumber, newStatus);
+  }
+  if (newStatus === 'READY_TO_SHIP' && order.customer?.phone) {
+    void sendOrderReadySMS(organizationId, order.customer.phone, order.orderNumber);
+  }
+
   return updated;
 }
 
@@ -285,6 +293,8 @@ export async function getOrders(input: GetOrdersInput): Promise<PaginatedResult<
     search,
     dateFrom,
     dateTo,
+    sortKey = 'createdAt',
+    sortDir = 'desc',
     page = 1,
     limit = 25,
   } = input;
@@ -318,12 +328,22 @@ export async function getOrders(input: GetOrdersInput): Promise<PaginatedResult<
       : {}),
   };
 
+  const allowedSortKeys: Record<string, Prisma.OrderOrderByWithRelationInput> = {
+    createdAt: { createdAt: sortDir },
+    orderNumber: { orderNumber: sortDir },
+    total: { total: sortDir },
+    dueDate: { dueDate: sortDir },
+    customerName: { customer: { lastName: sortDir } },
+  };
+
+  const orderBy = allowedSortKeys[sortKey] ?? { createdAt: 'desc' as const };
+
   const [data, total] = await prisma.$transaction([
     prisma.order.findMany({
       where,
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy,
       include: {
         customer: { select: { id: true, firstName: true, lastName: true, company: true } },
         _count: { select: { items: true } },
