@@ -696,3 +696,60 @@ model SequenceCounter {
   @@unique([organizationId, counterKey])
   @@map("sequence_counters")
 }
+
+// ─── Organization Invite ──────────────────────────────────────────────────────
+
+model OrganizationInvite {
+  id             String       @id @default(cuid())
+  organizationId String
+  email          String
+  role           UserRole     @default(STAFF)
+  token          String       @unique
+  invitedBy      String
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([email])
+  @@map("organization_invites")
+}
+
+// ─── Usage Metrics ────────────────────────────────────────────────────────────
+
+model UsageMetrics {
+  id             String       @id @default(cuid())
+  organizationId String
+  periodStart    DateTime
+  periodEnd      DateTime
+  orderCount     Int          @default(0)
+  customerCount  Int          @default(0)
+  inventoryCount Int          @default(0)
+  userCount      Int          @default(0)
+  storageUsed    Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, periodStart])
+  @@index([organizationId])
+  @@map("usage_metrics")
+}
+
+// ─── Billing History ──────────────────────────────────────────────────────────
+
+model BillingHistory {
+  id             String            @id @default(cuid())
+  organizationId String
+  event          String
+  fromPlan       SubscriptionPlan?
+  toPlan         SubscriptionPlan?
+  stripeEventId  String            @unique
+  metadata       Json?
+  createdAt      DateTime          @default(now())
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@map("billing_history")
+}
