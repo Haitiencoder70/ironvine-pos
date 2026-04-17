@@ -11,12 +11,14 @@ datasource db {
 
 enum SubscriptionPlan {
   FREE
+  STARTER
   PRO
   ENTERPRISE
 }
 
 enum UserRole {
   OWNER
+  ADMIN
   MANAGER
   STAFF
 }
@@ -134,10 +136,19 @@ model Organization {
   stripeCustomerId     String?          @unique
   stripeSubscriptionId String?          @unique
   subscriptionStatus   String?
+  trialEndsAt          DateTime?
+  subscriptionEndsAt   DateTime?
 
   maxUsers          Int @default(1)
   maxOrders         Int @default(100)
   maxInventoryItems Int @default(500)
+  maxCustomers      Int @default(100)
+  storageLimit      Int @default(524288000)
+
+  customDomain    String?
+  primaryColor    String?
+  secondaryColor  String?
+  settings        Json    @default("{}")
 
   taxRate           Decimal @default(0) @db.Decimal(6, 4)
   orderNumberPrefix String  @default("ORD")
@@ -165,6 +176,9 @@ model Organization {
   shipmentStatusHistories ShipmentStatusHistory[]
   activityLogs            ActivityLog[]
   sequenceCounters        SequenceCounter[]
+  organizationInvites     OrganizationInvite[]
+  usageMetrics            UsageMetrics[]
+  billingHistory          BillingHistory[]
 
   @@map("organizations")
 }
@@ -180,6 +194,11 @@ model User {
   avatarUrl    String?
   role         UserRole @default(STAFF)
   isActive     Boolean  @default(true)
+
+  isOrganizationOwner Boolean @default(false)
+  inviteToken         String? @unique
+  inviteAccepted      Boolean @default(true)
+  invitedBy           String?
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
