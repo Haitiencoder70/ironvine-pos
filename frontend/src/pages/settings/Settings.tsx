@@ -8,6 +8,7 @@ import {
   CalculatorIcon,
   BellIcon,
   PuzzlePieceIcon,
+  CreditCardIcon,
   PencilIcon,
   TrashIcon,
   UserPlusIcon,
@@ -16,12 +17,13 @@ import {
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { settingsApi } from '../../services/api';
+import { BillingTab } from './Billing';
 import { useAuthStore } from '../../store/authStore';
 import type { OrgSettings, OrgUser, NotificationSettings } from '../../types';
 
 // ─── Tab definition ───────────────────────────────────────────────────────────
 
-type Tab = 'general' | 'users' | 'tax' | 'notifications' | 'integrations';
+type Tab = 'general' | 'users' | 'tax' | 'notifications' | 'integrations' | 'billing';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'general', label: 'General', icon: <BuildingOfficeIcon className="h-5 w-5" /> },
@@ -29,6 +31,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'tax', label: 'Tax & Pricing', icon: <CalculatorIcon className="h-5 w-5" /> },
   { id: 'notifications', label: 'Notifications', icon: <BellIcon className="h-5 w-5" /> },
   { id: 'integrations', label: 'Integrations', icon: <PuzzlePieceIcon className="h-5 w-5" /> },
+  { id: 'billing', label: 'Billing', icon: <CreditCardIcon className="h-5 w-5" /> },
 ];
 
 const TIMEZONES = [
@@ -667,7 +670,7 @@ export function SettingsPage(): React.JSX.Element {
 
       {/* Tab Content */}
       <div>
-        {isLoading && activeTab !== 'users' && activeTab !== 'notifications' && activeTab !== 'integrations' ? (
+        {isLoading && activeTab !== 'users' && activeTab !== 'notifications' && activeTab !== 'integrations' && activeTab !== 'billing' ? (
           <div className="space-y-4 max-w-xl">
             {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-12 animate-pulse bg-gray-50 rounded-xl" />)}
           </div>
@@ -682,6 +685,7 @@ export function SettingsPage(): React.JSX.Element {
             )}
             {activeTab === 'notifications' && <NotificationsTab />}
             {activeTab === 'integrations' && <IntegrationsTab />}
+            {activeTab === 'billing' && <BillingTab />}
           </>
         )}
       </div>
