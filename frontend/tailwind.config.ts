@@ -7,8 +7,11 @@ export default {
     extend: {
       colors: {
         obsidian: '#0a0a0b',
+        secondary: {
+          DEFAULT: 'var(--color-secondary)',
+        },
         primary: {
-          50: '#eff6ff',
+          DEFAULT: 'var(--color-primary)',
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
