@@ -14,16 +14,18 @@ import {
   UserPlusIcon,
   CheckCircleIcon,
   XCircleIcon,
+  PaintBrushIcon,
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { settingsApi } from '../../services/api';
 import { BillingTab } from './Billing';
+import { BrandingSettings } from './BrandingSettings';
 import { useAuthStore } from '../../store/authStore';
 import type { OrgSettings, OrgUser, NotificationSettings } from '../../types';
 
 // ─── Tab definition ───────────────────────────────────────────────────────────
 
-type Tab = 'general' | 'users' | 'tax' | 'notifications' | 'integrations' | 'billing' | 'modules';
+type Tab = 'general' | 'users' | 'tax' | 'notifications' | 'integrations' | 'branding' | 'billing' | 'modules';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'general', label: 'General', icon: <BuildingOfficeIcon className="h-5 w-5" /> },
@@ -31,6 +33,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'tax', label: 'Tax & Pricing', icon: <CalculatorIcon className="h-5 w-5" /> },
   { id: 'notifications', label: 'Notifications', icon: <BellIcon className="h-5 w-5" /> },
   { id: 'integrations', label: 'Integrations', icon: <PuzzlePieceIcon className="h-5 w-5" /> },
+  { id: 'branding', label: 'Branding', icon: <PaintBrushIcon className="h-5 w-5" /> },
   { id: 'billing', label: 'Billing', icon: <CreditCardIcon className="h-5 w-5" /> },
   { id: 'modules', label: 'Advanced Modules', icon: <PuzzlePieceIcon className="h-5 w-5" /> },
 ];
@@ -727,7 +730,7 @@ export function SettingsPage(): React.JSX.Element {
 
       {/* Tab Content */}
       <div>
-        {isLoading && activeTab !== 'users' && activeTab !== 'notifications' && activeTab !== 'integrations' && activeTab !== 'billing' && activeTab !== 'modules' ? (
+        {isLoading && activeTab !== 'users' && activeTab !== 'notifications' && activeTab !== 'integrations' && activeTab !== 'billing' && activeTab !== 'branding' && activeTab !== 'modules' ? (
           <div className="space-y-4 max-w-xl">
             {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-12 animate-pulse bg-gray-50 rounded-xl" />)}
           </div>
@@ -742,6 +745,7 @@ export function SettingsPage(): React.JSX.Element {
             )}
             {activeTab === 'notifications' && <NotificationsTab />}
             {activeTab === 'integrations' && <IntegrationsTab />}
+            {activeTab === 'branding' && <BrandingSettings />}
             {activeTab === 'billing' && <BillingTab />}
             {activeTab === 'modules' && settings && (
               <ModulesTab settings={settings} onSave={(data) => updateMutation.mutate(data)} />
