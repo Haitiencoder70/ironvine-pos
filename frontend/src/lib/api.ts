@@ -133,6 +133,36 @@ api.interceptors.response.use(
   },
 );
 
+// ── Settings / Audit Log API ──────────────────────────────────────────────────
+
+export interface AuditLogEntry {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  entityLabel: string | null;
+  description: string;
+  metadata: Record<string, unknown> | null;
+  performedBy: string;
+  ipAddress: string | null;
+  organizationId: string;
+  createdAt: string;
+}
+
+export interface AuditLogResponse {
+  data: AuditLogEntry[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export const settingsApi = {
+  getAuditLog: async (page = 1, limit = 20): Promise<AuditLogResponse> => {
+    const res = await api.get<AuditLogResponse>('/audit-log', { params: { page, limit } });
+    return res.data;
+  },
+};
+
 // Helper exposed for catch blocks inside components/hooks if needed
 export function getApiError(e: unknown): string {
   if (axios.isAxiosError(e) && e.response?.data?.error) {

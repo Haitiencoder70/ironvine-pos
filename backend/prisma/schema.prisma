@@ -726,6 +726,7 @@ enum ActivityAction {
   SHIPPED
   INVOICED
   PAID
+  PERMISSION_DENIED
 }
 
 enum ImageType {

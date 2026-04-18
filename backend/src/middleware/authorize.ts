@@ -41,6 +41,23 @@ export const authorize = (...permissions: Permission[]) => {
       );
 
       if (!allowed) {
+        await prisma.activityLog.create({
+          data: {
+            action: 'PERMISSION_DENIED',
+            entityType: 'permission',
+            entityId: permissions.join(','),
+            description: `Access denied to ${permissions.join(', ')} for role ${user.role}`,
+            performedBy: user.id,
+            ipAddress: req.ip ?? req.socket.remoteAddress,
+            metadata: {
+              permissions,
+              role: user.role,
+              path: req.path,
+              method: req.method,
+            },
+            organizationId: organizationDbId,
+          },
+        });
         res.status(403).json({ error: 'Forbidden', code: 'INSUFFICIENT_PERMISSIONS' });
         return;
       }

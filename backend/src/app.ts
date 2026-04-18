@@ -33,6 +33,7 @@ import { trackingRouter } from './routes/tracking';
 import { organizationRouter } from './routes/organizationRoutes';
 import { analyticsRouter } from './routes/analytics';
 import { brandingRouter } from './routes/branding';
+import { auditLogRouter } from './routes/auditLog';
 
 export const app = express();
 
@@ -116,6 +117,7 @@ app.use('/api/images',            imagesRouter);
 app.use('/api/organization',      organizationRouter);
 app.use('/api/analytics',         analyticsRouter);
 app.use('/api/branding',          brandingRouter);
+app.use('/api/audit-log',         auditLogRouter);
 
 // ─── Global Error Handler ─────────────────────────────────────────────────
 app.use(errorHandler);
