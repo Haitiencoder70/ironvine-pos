@@ -23,6 +23,7 @@ import { TouchButton } from '../../components/ui/TouchButton';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useCreateOrder } from '../../hooks/useOrders';
 import { useOfflineStore } from '../../store/offlineStore';
+import { usePermissions } from '../../hooks/usePermissions';
 import type { JSX } from 'react';
 import type { Customer, OrderPriority, PrintLocation, PrintMethod } from '../../types';
 
@@ -462,6 +463,7 @@ export function NewOrderPage(): JSX.Element {
   const [customerError, setCustomerError] = useState('');
   const createOrder = useCreateOrder();
   const isOnline = useOfflineStore((s) => s.isOnline);
+  const { can } = usePermissions();
 
   const methods = useForm<NewOrderFormValues>({
     resolver: zodResolver(newOrderSchema),
@@ -690,6 +692,7 @@ export function NewOrderPage(): JSX.Element {
                 variant="success"
                 size="lg"
                 loading={createOrder.isPending}
+                disabled={createOrder.isPending || !can('orders:create')}
                 icon={<CheckCircleIcon className="h-5 w-5" />}
               >
                 {createOrder.isPending ? 'Creating Order…' : 'Create Order'}

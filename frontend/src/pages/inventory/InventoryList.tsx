@@ -18,6 +18,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
 import { SkeletonLoader, EmptyState } from '../../components/ui';
+import { usePermissions } from '../../hooks/usePermissions';
 import type { JSX } from 'react';
 
 import type { InventoryCategory } from '../../types';
@@ -49,6 +50,7 @@ function fmt(n: number): string {
 
 export function InventoryListPage(): JSX.Element {
   const navigate = useNavigate();
+  const { can } = usePermissions();
 
   // Low stock alerts
   const { data: lowStockData } = useLowStock();
@@ -137,14 +139,16 @@ export function InventoryListPage(): JSX.Element {
           >
             Import
           </TouchButton>
-          <TouchButton
-            variant="primary"
-            size="md"
-            icon={<PlusIcon className="h-5 w-5" />}
-            onClick={() => navigate('/inventory/new')}
-          >
-            Add Item
-          </TouchButton>
+          {can('inventory:create') && (
+            <TouchButton
+              variant="primary"
+              size="md"
+              icon={<PlusIcon className="h-5 w-5" />}
+              onClick={() => navigate('/inventory/new')}
+            >
+              Add Item
+            </TouchButton>
+          )}
         </div>
       </div>
 

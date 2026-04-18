@@ -21,6 +21,7 @@ import { clsx } from 'clsx';
 import { useClerk } from '@clerk/clerk-react';
 import { useUiStore } from '../../store/uiStore';
 import { useAuthStore } from '../../store/authStore';
+import { usePermissions } from '../../hooks/usePermissions';
 
 interface NavItem {
   label: string;
@@ -74,6 +75,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
   const { setSidebarOpen } = useUiStore();
   const { user } = useAuthStore();
   const { signOut } = useClerk();
+  const { canAny } = usePermissions();
   const location = useLocation();
 
   const handleNavClick = (): void => setSidebarOpen(false);
@@ -185,7 +187,12 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
 
             {/* Items */}
             <div className="space-y-0.5">
-              {group.items.map((item) => {
+              {group.items.filter((item) => {
+                if (item.path === '/reports') return canAny('reports:view');
+                if (item.path === '/purchase-orders') return canAny('pos:view');
+                if (item.path === '/settings') return canAny('settings:view', 'users:view', 'billing:view');
+                return true;
+              }).map((item) => {
                 const isActive = location.pathname.startsWith(item.path);
                 return (
                   <NavLink
