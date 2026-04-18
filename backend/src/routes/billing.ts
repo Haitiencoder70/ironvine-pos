@@ -2,6 +2,7 @@ import { Router } from 'express';
 import express from 'express';
 import { requireAuth } from '../middleware/auth';
 import { injectTenant } from '../middleware/tenant';
+import { authorize } from '../middleware/authorize';
 import {
   checkoutHandler,
   portalHandler,
@@ -16,6 +17,6 @@ billingRouter.post('/webhook', express.raw({ type: 'application/json' }), webhoo
 
 // Authenticated billing routes
 billingRouter.use(requireAuth, injectTenant);
-billingRouter.get('/usage', usageHandler);
-billingRouter.post('/checkout', checkoutHandler);
-billingRouter.post('/portal', portalHandler);
+billingRouter.get('/usage', authorize('billing:view'), usageHandler);
+billingRouter.post('/checkout', authorize('billing:edit'), checkoutHandler);
+billingRouter.post('/portal', authorize('billing:view'), portalHandler);

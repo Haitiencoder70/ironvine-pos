@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth';
 import { injectTenant } from '../middleware/tenant';
+import { authorize } from '../middleware/authorize';
 import {
   getOrgHandler,
   updateOrgHandler,
@@ -18,18 +19,18 @@ export const settingsRouter = Router();
 settingsRouter.use(requireAuth, injectTenant);
 
 // Org
-settingsRouter.get('/org', getOrgHandler);
-settingsRouter.patch('/org', updateOrgHandler);
+settingsRouter.get('/org', authorize('settings:view'), getOrgHandler);
+settingsRouter.patch('/org', authorize('settings:edit'), updateOrgHandler);
 
 // Users
-settingsRouter.get('/users', getUsersHandler);
-settingsRouter.post('/users/invite', inviteUserHandler);
-settingsRouter.patch('/users/:id', updateUserHandler);
-settingsRouter.delete('/users/:id', removeUserHandler);
+settingsRouter.get('/users', authorize('users:view'), getUsersHandler);
+settingsRouter.post('/users/invite', authorize('users:invite'), inviteUserHandler);
+settingsRouter.patch('/users/:id', authorize('users:edit'), updateUserHandler);
+settingsRouter.delete('/users/:id', authorize('users:remove'), removeUserHandler);
 
 // Notifications
-settingsRouter.get('/notifications', getNotificationsHandler);
-settingsRouter.patch('/notifications', updateNotificationsHandler);
+settingsRouter.get('/notifications', authorize('settings:view'), getNotificationsHandler);
+settingsRouter.patch('/notifications', authorize('settings:edit'), updateNotificationsHandler);
 
-// Profile
+// Profile (any authenticated user can update their own profile)
 settingsRouter.patch('/profile', updateProfileHandler);

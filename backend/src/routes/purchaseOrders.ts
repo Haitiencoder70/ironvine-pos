@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth';
 import { injectTenant } from '../middleware/tenant';
 import { validate } from '../middleware/validate';
+import { authorize } from '../middleware/authorize';
 import {
   getAll,
   create,
@@ -21,23 +22,23 @@ export const purchaseOrdersRouter = Router();
 purchaseOrdersRouter.use(requireAuth, injectTenant);
 
 // ─── List Purchase Orders ─────────────────────────────────────────────────────
-purchaseOrdersRouter.get('/', validate(listPOQuerySchema, 'query'), getAll);
+purchaseOrdersRouter.get('/', authorize('pos:view'), validate(listPOQuerySchema, 'query'), getAll);
 
 // ─── Get POs By Order ─────────────────────────────────────────────────────────
-purchaseOrdersRouter.get('/by-order/:orderId', getByOrder);
+purchaseOrdersRouter.get('/by-order/:orderId', authorize('pos:view'), getByOrder);
 
 // ─── Get PO By ID ─────────────────────────────────────────────────────────────
-purchaseOrdersRouter.get('/:id', getById);
+purchaseOrdersRouter.get('/:id', authorize('pos:view'), getById);
 
 // ─── Create Purchase Order ────────────────────────────────────────────────────
-purchaseOrdersRouter.post('/', validate(createPOSchema), create);
+purchaseOrdersRouter.post('/', authorize('pos:create'), validate(createPOSchema), create);
 
 // ─── Receive Purchase Order Items ─────────────────────────────────────────────
-purchaseOrdersRouter.patch('/:id/receive', validate(receivePOSchema), receiveItems);
+purchaseOrdersRouter.patch('/:id/receive', authorize('pos:create'), validate(receivePOSchema), receiveItems);
 
 // ─── Send to Vendor ───────────────────────────────────────────────────────────
-purchaseOrdersRouter.post('/:id/send', sendToVendorHandler);
+purchaseOrdersRouter.post('/:id/send', authorize('pos:approve'), sendToVendorHandler);
 
 // ─── Update Status ────────────────────────────────────────────────────────────
 const updatePOStatusSchema = z.object({ newStatus: z.nativeEnum(PurchaseOrderStatus), notes: z.string().optional() });
-purchaseOrdersRouter.patch('/:id/status', validate(updatePOStatusSchema), updateStatus);
+purchaseOrdersRouter.patch('/:id/status', authorize('pos:approve'), validate(updatePOStatusSchema), updateStatus);

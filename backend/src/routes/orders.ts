@@ -3,6 +3,7 @@ import { requireAuth } from '../middleware/auth';
 import { injectTenant } from '../middleware/tenant';
 import { checkLimit } from '../middleware/limits';
 import { validate } from '../middleware/validate';
+import { authorize } from '../middleware/authorize';
 import {
   getAll,
   create,
@@ -26,26 +27,26 @@ export const ordersRouter = Router();
 ordersRouter.use(requireAuth, injectTenant);
 
 // ─── List Orders ──────────────────────────────────────────────────────────────
-ordersRouter.get('/', validate(listOrdersQuerySchema, 'query'), getAll);
+ordersRouter.get('/', authorize('orders:view'), validate(listOrdersQuerySchema, 'query'), getAll);
 
 // ─── Create Order ─────────────────────────────────────────────────────────────
-ordersRouter.post('/', checkLimit('orders'), validate(createOrderSchema), create);
+ordersRouter.post('/', authorize('orders:create'), checkLimit('orders'), validate(createOrderSchema), create);
 
 // ─── Get Order ────────────────────────────────────────────────────────────────
-ordersRouter.get('/:id', getById);
+ordersRouter.get('/:id', authorize('orders:view'), getById);
 
 // ─── Update Order ─────────────────────────────────────────────────────────────
 // Basic update schema reusing fields from create without materials/items
 const updateOrderSchema = createOrderSchema.omit({ items: true, customerId: true }).partial().extend({
   discount: z.number().nonnegative().optional(),
 });
-ordersRouter.patch('/:id', validate(updateOrderSchema), update);
+ordersRouter.patch('/:id', authorize('orders:edit'), validate(updateOrderSchema), update);
 
 // ─── Update Status ────────────────────────────────────────────────────────────
-ordersRouter.patch('/:id/status', validate(updateOrderStatusSchema), updateStatus);
+ordersRouter.patch('/:id/status', authorize('orders:approve'), validate(updateOrderStatusSchema), updateStatus);
 
 // ─── Use Materials ────────────────────────────────────────────────────────────
-ordersRouter.post('/:id/use-materials', validate(useMaterialsSchema), useMaterialsHandler);
+ordersRouter.post('/:id/use-materials', authorize('orders:edit'), validate(useMaterialsSchema), useMaterialsHandler);
 
 // ─── Workflow Status ──────────────────────────────────────────────────────────
-ordersRouter.get('/:id/workflow', getWorkflowStatus);
+ordersRouter.get('/:id/workflow', authorize('orders:view'), getWorkflowStatus);
