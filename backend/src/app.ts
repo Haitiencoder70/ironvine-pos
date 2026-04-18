@@ -156,5 +156,6 @@ app.use('/api/branding',          brandingRouter);
 app.use('/api/audit-log',         auditLogRouter);
 
 // ─── Global Error Handler ─────────────────────────────────────────────────
-app.use(Sentry.expressErrorHandler());
+// Sentry must capture errors before our custom handler transforms them.
+Sentry.setupExpressErrorHandler(app);
 app.use(errorHandler);
