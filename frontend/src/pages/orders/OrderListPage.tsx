@@ -18,6 +18,7 @@ import {
 } from '../../components/orders/OrderRow';
 import { useOrders, type OrderListParams } from '../../hooks/useOrders';
 import { SkeletonLoader, EmptyState } from '../../components/ui';
+import { usePermissions } from '../../hooks/usePermissions';
 import type { JSX } from 'react';
 import type { OrderStatus } from '../../types';
 
@@ -218,6 +219,7 @@ function Th({
 
 export function OrderListPage(): JSX.Element {
   const navigate = useNavigate();
+  const { can } = usePermissions();
   const [filters, dispatch] = useReducer(filtersReducer, { ...DEFAULT_FILTERS });
 
   const { data, isLoading, isError, refetch, isFetching } = useOrders(filters, {
@@ -272,15 +274,17 @@ export function OrderListPage(): JSX.Element {
           {isFetching && !isLoading && (
             <ArrowPathIcon className="h-4 w-4 text-gray-400 animate-spin" />
           )}
-          <TouchButton
-            id="orders-new-order"
-            variant="primary"
-            size="md"
-            icon={<PlusIcon className="h-5 w-5" />}
-            onClick={() => navigate('/orders/new')}
-          >
-            New Order
-          </TouchButton>
+          {can('orders:create') && (
+            <TouchButton
+              id="orders-new-order"
+              variant="primary"
+              size="md"
+              icon={<PlusIcon className="h-5 w-5" />}
+              onClick={() => navigate('/orders/new')}
+            >
+              New Order
+            </TouchButton>
+          )}
         </div>
       </div>
 

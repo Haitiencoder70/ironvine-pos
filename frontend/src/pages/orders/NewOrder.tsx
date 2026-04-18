@@ -24,6 +24,7 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useCreateOrder } from '../../hooks/useOrders';
 import { useOfflineStore } from '../../store/offlineStore';
 import { usePlanLimits } from '../../hooks/usePlanLimits';
+import { usePermissions } from '../../hooks/usePermissions';
 import type { JSX } from 'react';
 import type { Customer, OrderPriority, PrintLocation, PrintMethod } from '../../types';
 
@@ -464,6 +465,7 @@ export function NewOrderPage(): JSX.Element {
   const createOrder = useCreateOrder();
   const isOnline = useOfflineStore((s) => s.isOnline);
   const { canCreateOrder, billing } = usePlanLimits();
+  const { can } = usePermissions();
 
   // Gate: show block screen if order limit is reached
   const limitCheck = canCreateOrder(false);
@@ -718,6 +720,7 @@ export function NewOrderPage(): JSX.Element {
                 variant="success"
                 size="lg"
                 loading={createOrder.isPending}
+                disabled={createOrder.isPending || !can('orders:create')}
                 icon={<CheckCircleIcon className="h-5 w-5" />}
               >
                 {createOrder.isPending ? 'Creating Order…' : 'Create Order'}

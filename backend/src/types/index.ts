@@ -6,6 +6,11 @@ export interface AuthenticatedRequest extends Request {
     orgId: string;
     orgRole: string;
   };
+  dbUser?: {
+    id: string;
+    role: import('@prisma/client').UserRole;
+    customPermissions: Record<string, boolean> | null;
+  };
 }
 
 export interface ApiResponse<T = unknown> {

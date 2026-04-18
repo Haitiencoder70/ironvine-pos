@@ -15,21 +15,24 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   PaintBrushIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { settingsApi } from '../../services/api';
 import { BillingTab } from './Billing';
 import { BrandingSettings } from './BrandingSettings';
+import { RolesPermissionsTab } from './RolesPermissions';
 import { useAuthStore } from '../../store/authStore';
 import type { OrgSettings, OrgUser, NotificationSettings } from '../../types';
 
 // ─── Tab definition ───────────────────────────────────────────────────────────
 
-type Tab = 'general' | 'users' | 'tax' | 'notifications' | 'integrations' | 'branding' | 'billing' | 'modules';
+type Tab = 'general' | 'users' | 'roles' | 'tax' | 'notifications' | 'integrations' | 'branding' | 'billing' | 'modules';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'general', label: 'General', icon: <BuildingOfficeIcon className="h-5 w-5" /> },
   { id: 'users', label: 'Users', icon: <UsersIcon className="h-5 w-5" /> },
+  { id: 'roles', label: 'Roles & Permissions', icon: <ShieldCheckIcon className="h-5 w-5" /> },
   { id: 'tax', label: 'Tax & Pricing', icon: <CalculatorIcon className="h-5 w-5" /> },
   { id: 'notifications', label: 'Notifications', icon: <BellIcon className="h-5 w-5" /> },
   { id: 'integrations', label: 'Integrations', icon: <PuzzlePieceIcon className="h-5 w-5" /> },
@@ -730,7 +733,7 @@ export function SettingsPage(): React.JSX.Element {
 
       {/* Tab Content */}
       <div>
-        {isLoading && activeTab !== 'users' && activeTab !== 'notifications' && activeTab !== 'integrations' && activeTab !== 'billing' && activeTab !== 'branding' && activeTab !== 'modules' ? (
+        {isLoading && activeTab !== 'users' && activeTab !== 'roles' && activeTab !== 'notifications' && activeTab !== 'integrations' && activeTab !== 'billing' && activeTab !== 'branding' && activeTab !== 'modules' ? (
           <div className="space-y-4 max-w-xl">
             {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-12 animate-pulse bg-gray-50 rounded-xl" />)}
           </div>
@@ -740,6 +743,7 @@ export function SettingsPage(): React.JSX.Element {
               <GeneralTab settings={settings} onSave={(data) => updateMutation.mutate(data)} />
             )}
             {activeTab === 'users' && <UsersTab />}
+            {activeTab === 'roles' && <RolesPermissionsTab />}
             {activeTab === 'tax' && settings && (
               <TaxTab settings={settings} onSave={(data) => updateMutation.mutate(data)} />
             )}

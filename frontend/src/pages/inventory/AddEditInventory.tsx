@@ -17,6 +17,7 @@ import { Modal } from '../../components/ui/Modal';
 import { MaterialSelector } from '../../components/materials/MaterialSelector';
 import { useInventoryItem, useCreateInventoryItem, useUpdateInventoryItem } from '../../hooks/useInventory';
 import { usePlanLimits } from '../../hooks/usePlanLimits';
+import { usePermissions } from '../../hooks/usePermissions';
 import type { MaterialItem } from '../../components/materials/MaterialSelector';
 import type { JSX } from 'react';
 
@@ -79,6 +80,8 @@ export function AddEditInventoryPage(): JSX.Element {
   const createItem = useCreateInventoryItem();
   const updateItem = useUpdateInventoryItem();
   const isSubmitting = createItem.isPending || updateItem.isPending;
+  const { can } = usePermissions();
+  const canSubmit = isEditing ? can('inventory:edit') : can('inventory:create');
 
   const [showMaterialModal, setShowMaterialModal] = useState(false);
 
@@ -451,6 +454,7 @@ export function AddEditInventoryPage(): JSX.Element {
             size="lg"
             fullWidth
             loading={isSubmitting}
+            disabled={isSubmitting || !canSubmit}
             icon={<CheckCircleIcon className="h-5 w-5" />}
           >
             {isEditing ? 'Save Changes' : 'Create Item'}

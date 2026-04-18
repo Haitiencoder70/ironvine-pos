@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth';
 import { injectTenant } from '../middleware/tenant';
 import { validate } from '../middleware/validate';
+import { authorize } from '../middleware/authorize';
 import {
   getAll,
   getById,
@@ -22,19 +23,19 @@ export const customersRouter = Router();
 customersRouter.use(requireAuth, injectTenant);
 
 // ─── List Customers ───────────────────────────────────────────────────────────
-customersRouter.get('/', validate(listCustomersQuerySchema, 'query'), getAll);
+customersRouter.get('/', authorize('customers:view'), validate(listCustomersQuerySchema, 'query'), getAll);
 
 // ─── Get Customer ─────────────────────────────────────────────────────────────
-customersRouter.get('/:id', getById);
+customersRouter.get('/:id', authorize('customers:view'), getById);
 
 // ─── Create Customer ──────────────────────────────────────────────────────────
-customersRouter.post('/', validate(createCustomerSchema), create);
+customersRouter.post('/', authorize('customers:create'), validate(createCustomerSchema), create);
 
 // ─── Update Customer ──────────────────────────────────────────────────────────
-customersRouter.patch('/:id', validate(updateCustomerSchema), update);
+customersRouter.patch('/:id', authorize('customers:edit'), validate(updateCustomerSchema), update);
 
 // ─── Delete Customer ──────────────────────────────────────────────────────────
-customersRouter.delete('/:id', deleteCustomer);
+customersRouter.delete('/:id', authorize('customers:delete'), deleteCustomer);
 
 // ─── Get Customer Orders ──────────────────────────────────────────────────────
-customersRouter.get('/:id/orders', getCustomerOrders);
+customersRouter.get('/:id/orders', authorize('customers:view'), getCustomerOrders);

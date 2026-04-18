@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth';
 import { injectTenant } from '../middleware/tenant';
 import { validate } from '../middleware/validate';
+import { authorize } from '../middleware/authorize';
 import {
   getAll,
   create,
@@ -23,16 +24,16 @@ export const shipmentsRouter = Router();
 shipmentsRouter.use(requireAuth, injectTenant);
 
 // ─── List Shipments ───────────────────────────────────────────────────────────
-shipmentsRouter.get('/', validate(listShipmentsQuerySchema, 'query'), getAll);
+shipmentsRouter.get('/', authorize('orders:view'), validate(listShipmentsQuerySchema, 'query'), getAll);
 
 // ─── Get Shipment ─────────────────────────────────────────────────────────────
-shipmentsRouter.get('/:id', getById);
+shipmentsRouter.get('/:id', authorize('orders:view'), getById);
 
 // ─── Create Shipment ──────────────────────────────────────────────────────────
-shipmentsRouter.post('/', validate(createShipmentSchema), create);
+shipmentsRouter.post('/', authorize('orders:edit'), validate(createShipmentSchema), create);
 
 // ─── Update Shipment Status ───────────────────────────────────────────────────
-shipmentsRouter.patch('/:id/status', validate(updateShipmentStatusSchema), updateStatus);
+shipmentsRouter.patch('/:id/status', authorize('orders:edit'), validate(updateShipmentStatusSchema), updateStatus);
 
 // ─── Update Tracking ──────────────────────────────────────────────────────────
 const updateTrackingSchema = z.object({
@@ -40,4 +41,4 @@ const updateTrackingSchema = z.object({
   trackingNumber: z.string().optional(),
   estimatedDelivery: z.coerce.date().optional(),
 });
-shipmentsRouter.patch('/:id/tracking', validate(updateTrackingSchema), updateTrackingHandler);
+shipmentsRouter.patch('/:id/tracking', authorize('orders:edit'), validate(updateTrackingSchema), updateTrackingHandler);

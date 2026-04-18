@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth';
 import { injectTenant } from '../middleware/tenant';
 import { validate } from '../middleware/validate';
+import { authorize } from '../middleware/authorize';
 import {
   getAll,
   getById,
@@ -16,13 +17,13 @@ export const vendorsRouter = Router();
 vendorsRouter.use(requireAuth, injectTenant);
 
 // ─── List Vendors ─────────────────────────────────────────────────────────────
-vendorsRouter.get('/', validate(listVendorsQuerySchema, 'query'), getAll);
+vendorsRouter.get('/', authorize('inventory:view'), validate(listVendorsQuerySchema, 'query'), getAll);
 
 // ─── Get Vendor ───────────────────────────────────────────────────────────────
-vendorsRouter.get('/:id', getById);
+vendorsRouter.get('/:id', authorize('inventory:view'), getById);
 
 // ─── Create Vendor ────────────────────────────────────────────────────────────
-vendorsRouter.post('/', validate(createVendorSchema), create);
+vendorsRouter.post('/', authorize('inventory:create'), validate(createVendorSchema), create);
 
 // ─── Update Vendor ────────────────────────────────────────────────────────────
-vendorsRouter.patch('/:id', validate(updateVendorSchema), update);
+vendorsRouter.patch('/:id', authorize('inventory:edit'), validate(updateVendorSchema), update);

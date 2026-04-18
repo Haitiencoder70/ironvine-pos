@@ -18,6 +18,7 @@ import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchInput } from '../../components/ui/TouchInput';
 import { useCustomer, useCreateCustomer, useUpdateCustomer } from '../../hooks/useCustomers';
 import { usePlanLimits } from '../../hooks/usePlanLimits';
+import { usePermissions } from '../../hooks/usePermissions';
 import type { JSX } from 'react';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -92,6 +93,8 @@ export function AddEditCustomerPage(): JSX.Element {
     );
   }
   const isSubmitting = createCustomer.isPending || updateCustomer.isPending;
+  const { can } = usePermissions();
+  const canSubmit = isEditing ? can('customers:edit') : can('customers:create');
 
   const {
     register,
@@ -377,6 +380,7 @@ export function AddEditCustomerPage(): JSX.Element {
               size="lg"
               fullWidth
               loading={isSubmitting}
+              disabled={isSubmitting || !canSubmit}
               icon={<CheckCircleIcon className="h-5 w-5" />}
             >
               {isEditing ? 'Save Changes' : 'Create Customer'}
