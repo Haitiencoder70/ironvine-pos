@@ -1,3 +1,12 @@
+import * as Sentry from '@sentry/node';
+// init immediately so it wraps all subsequent requires
+Sentry.init({
+  dsn: process.env['SENTRY_DSN'],
+  environment: process.env['NODE_ENV'] ?? 'development',
+  tracesSampleRate: process.env['NODE_ENV'] === 'production' ? 0.2 : 1.0,
+  enabled: !!process.env['SENTRY_DSN'],
+});
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -36,7 +45,23 @@ import { auditLogRouter } from './routes/auditLog';
 export const app = express();
 
 // ─── Security and utility middleware ──────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "https://js.stripe.com", "https://browser.sentry-cdn.com"],
+      frameSrc: ["https://js.stripe.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://sentry.io", "https://*.sentry.io"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
+}));
 app.use(compression());
 app.use(
   cors({
@@ -131,4 +156,5 @@ app.use('/api/branding',          brandingRouter);
 app.use('/api/audit-log',         auditLogRouter);
 
 // ─── Global Error Handler ─────────────────────────────────────────────────
+app.use(Sentry.expressErrorHandler());
 app.use(errorHandler);
