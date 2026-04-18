@@ -1,0 +1,145 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - complementary [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: IV
+        - generic [ref=e9]:
+          - generic [ref=e10]: IronVine
+          - generic [ref=e11]: POS
+      - navigation [ref=e12]:
+        - link "Dashboard" [ref=e15] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e17]
+          - generic [ref=e19]: Dashboard
+        - generic [ref=e21]:
+          - generic [ref=e22]: Operations
+          - generic [ref=e23]:
+            - link "Orders" [ref=e24] [cursor=pointer]:
+              - /url: /orders
+              - img [ref=e26]
+              - generic [ref=e28]: Orders
+            - link "POS Terminal" [ref=e29] [cursor=pointer]:
+              - /url: /pos
+              - img [ref=e31]
+              - generic [ref=e33]: POS Terminal
+            - link "Inventory" [ref=e34] [cursor=pointer]:
+              - /url: /inventory
+              - img [ref=e36]
+              - generic [ref=e38]: Inventory
+            - link "Purchase Orders" [ref=e39] [cursor=pointer]:
+              - /url: /purchase-orders
+              - img [ref=e41]
+              - generic [ref=e43]: Purchase Orders
+            - link "Shipments" [ref=e44] [cursor=pointer]:
+              - /url: /shipments
+              - img [ref=e46]
+              - generic [ref=e48]: Shipments
+        - generic [ref=e50]:
+          - generic [ref=e51]: Management
+          - generic [ref=e52]:
+            - link "Customers" [ref=e53] [cursor=pointer]:
+              - /url: /customers
+              - img [ref=e55]
+              - generic [ref=e57]: Customers
+            - link "Vendors" [ref=e58] [cursor=pointer]:
+              - /url: /vendors
+              - img [ref=e60]
+              - generic [ref=e62]: Vendors
+            - link "Reports" [ref=e63] [cursor=pointer]:
+              - /url: /reports
+              - img [ref=e65]
+              - generic [ref=e67]: Reports
+        - link "Settings" [ref=e70] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e72]
+          - generic [ref=e75]: Settings
+      - generic [ref=e77]:
+        - generic [ref=e78]: A
+        - generic [ref=e79]:
+          - paragraph [ref=e80]: AD Designs
+          - paragraph [ref=e81]: Owner
+        - button "Sign out" [ref=e82] [cursor=pointer]:
+          - img [ref=e83]
+      - button "Collapse sidebar" [ref=e86] [cursor=pointer]:
+        - generic [ref=e87]:
+          - img [ref=e88]
+          - generic [ref=e90]: Collapse
+    - generic [ref=e91]:
+      - banner [ref=e92]:
+        - generic [ref=e93]:
+          - heading "PO Detail" [level=1] [ref=e94]
+          - paragraph [ref=e95]: My Organization
+        - button "Create new order" [ref=e96] [cursor=pointer]:
+          - img [ref=e97]
+          - generic [ref=e99]: New Order
+        - button "Open organization switcher" [ref=e101] [cursor=pointer]:
+          - generic [ref=e102]:
+            - img "My Organization's logo" [ref=e105]
+            - generic "My Organization" [ref=e108]
+          - img [ref=e109]
+        - button "Open user menu" [ref=e112] [cursor=pointer]:
+          - img "AD Designs's logo" [ref=e115]
+      - main [ref=e117]:
+        - generic [ref=e118]:
+          - generic [ref=e119]:
+            - button [ref=e120] [cursor=pointer]:
+              - img [ref=e121]
+            - generic [ref=e123]:
+              - heading "Create Purchase Order" [level=1] [ref=e124]
+              - paragraph [ref=e125]: Drafting a new supplier order
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - heading "Vendor & Fulfillment" [level=2] [ref=e128]:
+                - img [ref=e129]
+                - text: Vendor & Fulfillment
+              - generic [ref=e131]:
+                - generic [ref=e132]:
+                  - generic [ref=e133]: Select Vendor *
+                  - combobox [ref=e135] [cursor=pointer]:
+                    - option "Select a vendor..." [disabled] [selected]
+                    - option "Alldayshirts"
+                    - option "PerfectPressHTV"
+                - generic [ref=e136]:
+                  - generic [ref=e137]: Expected Delivery
+                  - textbox [ref=e138]
+                - generic [ref=e139]:
+                  - generic [ref=e140]: Vendor Notes (Optional)
+                  - textbox "Please pack by sizes..." [ref=e141]
+            - generic [ref=e142]:
+              - heading "Line Items" [level=2] [ref=e144]:
+                - img [ref=e145]
+                - text: Line Items
+              - generic [ref=e147]:
+                - generic [ref=e266]:
+                  - button [ref=e267] [cursor=pointer]:
+                    - img [ref=e268]
+                  - generic [ref=e270]:
+                    - generic [ref=e272]:
+                      - generic [ref=e273]: Item Description
+                      - textbox "Item Description" [active] [ref=e275]:
+                        - /placeholder: Cotton Thread Spool RED
+                    - generic [ref=e277]:
+                      - generic [ref=e278]: Quantity
+                      - spinbutton "Quantity" [ref=e280]: "1"
+                    - generic [ref=e282]:
+                      - generic [ref=e283]: Unit Cost ($)
+                      - spinbutton "Unit Cost ($)" [ref=e285]: "0"
+                - button "Add Custom Item" [ref=e150] [cursor=pointer]:
+                  - img [ref=e151]
+                  - text: Add Custom Item
+            - generic [ref=e154]:
+              - generic [ref=e155]:
+                - generic [ref=e156]: Subtotal
+                - generic [ref=e157]: $0.00
+              - generic [ref=e158]:
+                - generic [ref=e159]: Estimated Total
+                - generic [ref=e160]: $0.00
+            - generic [ref=e162]:
+              - button "Cancel" [ref=e163] [cursor=pointer]
+              - button "Save Draft PO" [ref=e164] [cursor=pointer]:
+                - img [ref=e165]
+                - text: Save Draft PO
+  - generic [ref=e167]:
+    - img [ref=e169]
+    - button "Open Tanstack query devtools" [ref=e217] [cursor=pointer]:
+      - img [ref=e218]

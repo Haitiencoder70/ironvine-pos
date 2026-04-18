@@ -6,18 +6,44 @@ import { TopBar } from './TopBar';
 import { SocketInit } from './SocketInit';
 import { BottomNav } from '../mobile/BottomNav';
 import { Omnibar } from '../ui/Omnibar';
+import { PlanLimitBanner } from '../PlanLimitBanner';
+import { UpgradeModal } from '../UpgradeModal';
 import { useUiStore } from '../../store/uiStore';
 import { useSwipeBack } from '../../hooks/useSwipeBack';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function MainLayout(): React.JSX.Element {
   const [collapsed, setCollapsed] = useState(false);
   const { isSidebarOpen, setSidebarOpen } = useUiStore();
   const location = useLocation();
+  const qc = useQueryClient();
+
+  const [upgradeMessage, setUpgradeMessage] = useState<string | undefined>();
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   // Auto-close mobile sidebar on navigation
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname, setSidebarOpen]);
+
+  // Listen for limit events fired by usePlanLimits
+  useEffect(() => {
+    function onPlanLimit(e: Event) {
+      const msg = (e as CustomEvent<{ message: string }>).detail?.message;
+      setUpgradeMessage(msg);
+      setShowUpgrade(true);
+    }
+    window.addEventListener('plan:limit', onPlanLimit);
+    return () => window.removeEventListener('plan:limit', onPlanLimit);
+  }, []);
+
+  // Refresh billing usage every 5 minutes while the app is open
+  useEffect(() => {
+    const id = setInterval(() => {
+      void qc.invalidateQueries({ queryKey: ['billing', 'usage'] });
+    }, 5 * 60 * 1000);
+    return () => clearInterval(id);
+  }, [qc]);
 
   // Swipe from left edge to go back on mobile
   useSwipeBack();
@@ -62,8 +88,8 @@ export function MainLayout(): React.JSX.Element {
 
       {/* ── Main content area ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        {/* TopBar: hide hamburger on desktop since sidebar is always visible */}
         <TopBar />
+        <PlanLimitBanner />
 
         {/* Scrollable page content — extra bottom padding on mobile for bottom nav */}
         <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">
@@ -73,6 +99,13 @@ export function MainLayout(): React.JSX.Element {
 
       {/* ── Mobile bottom navigation ── */}
       <BottomNav />
+
+      {showUpgrade && (
+        <UpgradeModal
+          message={upgradeMessage}
+          onClose={() => { setShowUpgrade(false); setUpgradeMessage(undefined); }}
+        />
+      )}
     </div>
   );
 }

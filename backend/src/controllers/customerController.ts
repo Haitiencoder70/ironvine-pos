@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types';
 import { createCustomer, updateCustomer, getCustomers, getCustomerById } from '../services/customerService';
+import { trackEvent } from '../services/analyticsService';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
 
@@ -66,6 +67,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
       shippingCountry: shipping?.country,
     });
 
+    void trackEvent(orgDbId, 'customer_added', { customerId: customer.id });
     res.status(201).json({ data: customer });
   } catch (err) {
     next(err);

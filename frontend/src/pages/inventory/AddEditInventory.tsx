@@ -16,6 +16,7 @@ import { TouchInput } from '../../components/ui/TouchInput';
 import { Modal } from '../../components/ui/Modal';
 import { MaterialSelector } from '../../components/materials/MaterialSelector';
 import { useInventoryItem, useCreateInventoryItem, useUpdateInventoryItem } from '../../hooks/useInventory';
+import { usePlanLimits } from '../../hooks/usePlanLimits';
 import type { MaterialItem } from '../../components/materials/MaterialSelector';
 import type { JSX } from 'react';
 
@@ -43,6 +44,34 @@ export function AddEditInventoryPage(): JSX.Element {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditing = Boolean(id);
+
+  const { canAddInventory, billing } = usePlanLimits();
+
+  // Gate only applies when creating (not editing)
+  const limitCheck = canAddInventory(false);
+  if (!isEditing && billing && !limitCheck.allowed) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center gap-4">
+        <div className="text-5xl">🚫</div>
+        <h2 className="text-xl font-bold text-gray-900">Inventory Limit Reached</h2>
+        <p className="text-gray-500 max-w-sm">{limitCheck.message}</p>
+        <div className="flex gap-3 mt-2">
+          <button
+            onClick={() => canAddInventory(true)}
+            className="min-h-[44px] px-6 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+          >
+            Upgrade Plan
+          </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="min-h-[44px] px-6 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const { data, isLoading: isFetchingItem } = useInventoryItem(id ?? '');
   const itemData = data?.data;

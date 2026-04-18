@@ -8,6 +8,7 @@ import { logger } from './lib/logger';
 import { app } from './app';
 import { initIO } from './lib/socket';
 import { prisma } from './lib/prisma';
+import { startScheduledJobs } from './jobs/scheduledJobs';
 
 const httpServer = createServer(app);
 
@@ -55,6 +56,9 @@ const PORT = env.PORT;
 
 const server = httpServer.listen(PORT, () => {
   logger.info(`Server running on port ${PORT} (${env.NODE_ENV})`);
+  if (env.NODE_ENV !== 'test') {
+    startScheduledJobs();
+  }
 });
 
 // Graceful Shutdown

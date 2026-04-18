@@ -1,18 +1,20 @@
 import Stripe from 'stripe';
 import { prisma } from '../lib/prisma';
-import { env } from '../config/env';
 import { AppError } from '../middleware/errorHandler';
 import { logger } from '../lib/logger';
 import { SubscriptionPlan } from '@prisma/client';
-
-const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? '', {
-  apiVersion: '2025-02-24.acacia',
-});
+import { stripe, PRICE_IDS } from '../config/stripe';
+import {
+  notifySubscriptionConfirmed,
+  notifyPaymentSuccess,
+  notifyPaymentFailed as notifyPaymentFailedEmail,
+  notifySubscriptionCanceled,
+} from './notificationService';
 
 const PLAN_TO_PRICE_ID: Record<string, string | undefined> = {
-  STARTER:    env.STRIPE_PRICE_STARTER,
-  PRO:        env.STRIPE_PRICE_PRO,
-  ENTERPRISE: env.STRIPE_PRICE_ENTERPRISE,
+  STARTER:    PRICE_IDS.STARTER,
+  PRO:        PRICE_IDS.PRO,
+  ENTERPRISE: PRICE_IDS.ENTERPRISE,
 };
 
 function priceIdToPlan(priceId: string | null | undefined): SubscriptionPlan {
@@ -141,6 +143,26 @@ export async function syncSubscription(stripeEvent: Stripe.Event): Promise<void>
   ]);
 
   logger.info('Subscription synced', { orgId: org.id, prevPlan, newPlan, status: subscription.status });
+
+  // Send appropriate email notifications based on the event type
+  if (stripeEvent.type === 'checkout.session.completed') {
+    const planLabels: Record<string, string> = { STARTER: 'Starter', PRO: 'Professional', ENTERPRISE: 'Enterprise' };
+    const planFeatures: Record<string, string[]> = {
+      STARTER:    ['3 users', '500 orders/month', 'Custom branding', 'Priority email support'],
+      PRO:        ['10 users', 'Unlimited orders', 'API access', 'Phone support'],
+      ENTERPRISE: ['Unlimited users', 'White-label', 'Custom domain', '24/7 support'],
+    };
+    await notifySubscriptionConfirmed(org.id, {
+      planName: planLabels[newPlan] ?? newPlan,
+      planFeatures: planFeatures[newPlan] ?? [],
+      amountCents: (subscription.items.data[0]?.price.unit_amount ?? 0),
+      nextBillingDate: new Date((subscription.current_period_end ?? 0) * 1000),
+    });
+  }
+
+  if (stripeEvent.type === 'customer.subscription.deleted' && subscription.cancel_at) {
+    await notifySubscriptionCanceled(org.id, new Date(subscription.cancel_at * 1000));
+  }
 }
 
 export async function handlePaymentFailed(stripeEvent: Stripe.Event): Promise<void> {
@@ -151,10 +173,20 @@ export async function handlePaymentFailed(stripeEvent: Stripe.Event): Promise<vo
 
   if (!customerId) return;
 
+  const org = await prisma.organization.findFirst({
+    where: { stripeCustomerId: customerId },
+    select: { id: true },
+  });
+
   await prisma.organization.updateMany({
     where: { stripeCustomerId: customerId },
     data: { subscriptionStatus: 'past_due' },
   });
 
   logger.warn('Payment failed — org marked past_due', { customerId });
+
+  if (org) {
+    const amountCents = typeof invoice.amount_due === 'number' ? invoice.amount_due : 0;
+    await notifyPaymentFailedEmail(org.id, { amountCents });
+  }
 }

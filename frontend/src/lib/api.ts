@@ -2,6 +2,13 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import toast from 'react-hot-toast';
 import { useOfflineStore } from '../store/offlineStore';
 import { offlineSync } from '../services/offlineSync';
+import { getCurrentSubdomain } from '../utils/tenant';
+
+// Callback set by UpgradeModal wiring in App.tsx to avoid circular imports
+let onPlanLimitExceeded: ((message?: string) => void) | null = null;
+export function setUpgradeModalHandler(fn: (message?: string) => void): void {
+  onPlanLimitExceeded = fn;
+}
 
 const BASE_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? 'http://localhost:3001';
 
@@ -27,6 +34,10 @@ export function getApiToken(): string | null {
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (clerkToken) {
     config.headers['Authorization'] = `Bearer ${clerkToken}`;
+  }
+  const subdomain = getCurrentSubdomain();
+  if (subdomain) {
+    config.headers['X-Organization-Slug'] = subdomain;
   }
   return config;
 });
@@ -109,7 +120,15 @@ api.interceptors.response.use(
       if (error.response) {
         const data = error.response.data as { error?: string, code?: string, details?: unknown };
 
-        if (error.response.status === 400 && data.code === 'VALIDATION_ERROR') {
+        if (error.response.status === 402) {
+          const limitMsg = data.error ?? "You've reached a limit on your current plan.";
+          if (onPlanLimitExceeded) {
+            onPlanLimitExceeded(limitMsg);
+          } else {
+            toast.error(limitMsg, { id: 'api-plan-limit' });
+          }
+          return Promise.reject(error);
+        } else if (error.response.status === 400 && data.code === 'VALIDATION_ERROR') {
           toast.error('Please check your inputs for errors.', { id: 'api-validation' });
         } else if (error.response.status === 401 || error.response.status === 403) {
           toast.error('You do not have permission to perform this action.', { id: 'api-auth' });

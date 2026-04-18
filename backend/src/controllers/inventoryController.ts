@@ -11,6 +11,7 @@ import {
   updateInventoryItem,
   getStockMovements,
 } from '../services/inventoryService';
+import { trackEvent } from '../services/analyticsService';
 
 export const getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -60,6 +61,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
       },
     });
 
+    void trackEvent(orgDbId, 'inventory_added', { itemId: item.id });
     res.status(201).json({ data: item });
   } catch (err) {
     next(err);

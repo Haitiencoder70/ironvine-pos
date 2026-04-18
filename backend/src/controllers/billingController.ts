@@ -11,10 +11,7 @@ import { checkoutSchema, portalSchema } from '../validators/billing';
 import { AppError } from '../middleware/errorHandler';
 import { env } from '../config/env';
 import { logger } from '../lib/logger';
-
-const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? '', {
-  apiVersion: '2025-02-24.acacia',
-});
+import { stripe } from '../config/stripe';
 
 export async function checkoutHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -116,6 +113,25 @@ export async function webhookHandler(req: Request, res: Response, next: NextFunc
       case 'customer.subscription.deleted':
         await syncSubscription(event);
         break;
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice;
+        const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+        if (customerId) {
+          const org = await prisma.organization.findFirst({
+            where: { stripeCustomerId: customerId },
+            select: { id: true },
+          });
+          if (org) {
+            const { notifyPaymentSuccess } = await import('../services/notificationService');
+            await notifyPaymentSuccess(org.id, {
+              amountCents: invoice.amount_paid ?? 0,
+              invoiceUrl: invoice.hosted_invoice_url ?? undefined,
+              billingDate: new Date((invoice.created ?? 0) * 1000),
+            });
+          }
+        }
+        break;
+      }
       case 'invoice.payment_failed':
         await handlePaymentFailed(event);
         break;

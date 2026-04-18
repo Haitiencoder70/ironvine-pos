@@ -17,6 +17,7 @@ import { clsx } from 'clsx';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchInput } from '../../components/ui/TouchInput';
 import { useCustomer, useCreateCustomer, useUpdateCustomer } from '../../hooks/useCustomers';
+import { usePlanLimits } from '../../hooks/usePlanLimits';
 import type { JSX } from 'react';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -57,11 +58,39 @@ export function AddEditCustomerPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const isEditing = Boolean(id);
 
+  const { canAddCustomer, billing } = usePlanLimits();
+
   const { data, isLoading: isFetchingCust } = useCustomer(id ?? '');
   const customer = data?.data;
 
   const createCustomer = useCreateCustomer();
   const updateCustomer = useUpdateCustomer();
+
+  // Gate only applies when creating (not editing)
+  const limitCheck = canAddCustomer(false);
+  if (!isEditing && billing && !limitCheck.allowed) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center gap-4">
+        <div className="text-5xl">🚫</div>
+        <h2 className="text-xl font-bold text-gray-900">Customer Limit Reached</h2>
+        <p className="text-gray-500 max-w-sm">{limitCheck.message}</p>
+        <div className="flex gap-3 mt-2">
+          <button
+            onClick={() => canAddCustomer(true)}
+            className="min-h-[44px] px-6 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+          >
+            Upgrade Plan
+          </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="min-h-[44px] px-6 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
   const isSubmitting = createCustomer.isPending || updateCustomer.isPending;
 
   const {

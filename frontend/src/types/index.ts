@@ -24,7 +24,8 @@ export interface User {
   lastName: string;
   imageUrl?: string;
   organizationId: string;
-  role: 'OWNER' | 'MANAGER' | 'STAFF';
+  role: 'OWNER' | 'ADMIN' | 'MANAGER' | 'STAFF' | 'VIEWER';
+  customPermissions?: Record<string, boolean> | null;
   isActive: boolean;
 }
 

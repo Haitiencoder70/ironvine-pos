@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "Bash(npx prisma:*)",
+      "Bash(curl -s http://localhost:3001/api/health)",
+      "Bash(npx kill-port:*)",
+      "Bash(timeout 8 npx tsx src/index.ts)",
+      "Bash(curl -v http://localhost:3001/health)",
+      "Bash(npm uninstall *)",
+      "Bash(PRISMA_CLIENT_ENGINE_TYPE=binary npm run dev)",
+      "Bash(rm *)",
+      "Bash(npx tsx *)",
+      "WebFetch(domain:youtu.be)",
+      "WebFetch(domain:www.youtube.com)",
+      "WebSearch",
+      "Bash(systeminfo *)"
+    ]
+  }
+}

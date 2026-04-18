@@ -12,6 +12,7 @@ import {
   updateNotificationSettings,
   updateProfile,
 } from '../services/settingsService';
+import { trackEvent } from '../services/analyticsService';
 
 // ─── Org ──────────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,7 @@ export const inviteUserHandler = async (req: Request, res: Response, next: NextF
     const authReq = req as AuthenticatedRequest;
     const org = await prisma.organization.findUniqueOrThrow({ where: { id: authReq.organizationDbId! } });
     const data = await inviteUser(authReq.organizationDbId!, org.clerkOrgId, req.body as { email: string; firstName: string; lastName: string; role: string });
+    void trackEvent(authReq.organizationDbId!, 'user_invited');
     res.status(201).json({ data });
   } catch (err) { next(err); }
 };

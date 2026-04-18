@@ -12,6 +12,7 @@ import {
   updateOrder,
   getOrderWorkflow,
 } from '../services/orderService';
+import { trackEvent } from '../services/analyticsService';
 
 export const getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -57,6 +58,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
       ...authReq.body,
     });
 
+    void trackEvent(orgDbId, 'order_created', { orderId: order.id });
     res.status(201).json({ data: order });
   } catch (err) {
     next(err);
