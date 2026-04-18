@@ -1,3 +1,15 @@
+import * as Sentry from '@sentry/react';
+
+Sentry.init({
+  dsn: import.meta.env['VITE_SENTRY_DSN'] as string | undefined,
+  environment: import.meta.env.MODE,
+  tracesSampleRate: import.meta.env.PROD ? 0.2 : 1.0,
+  enabled: !!import.meta.env['VITE_SENTRY_DSN'],
+  integrations: [
+    Sentry.browserTracingIntegration(),
+  ],
+});
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ClerkProvider, useAuth, useOrganization } from '@clerk/clerk-react';
