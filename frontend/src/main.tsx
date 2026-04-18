@@ -20,6 +20,7 @@ import { App } from './App';
 import { queryClient } from './lib/queryClient';
 import { setApiToken } from './lib/api';
 import { AuthSync } from './components/auth/AuthSync';
+import { IntercomWidget } from './components/support/IntercomWidget';
 import { heartbeatService } from './services/heartbeatService';
 import { useAuthStore } from './store/authStore';
 import './index.css';
@@ -69,6 +70,7 @@ ReactDOM.createRoot(rootElement).render(
       <QueryClientProvider client={queryClient}>
         <TokenSync />
         <AuthSync />
+        <IntercomWidget />
         <App />
         <Toaster
           position="top-right"
