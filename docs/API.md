@@ -1,10 +1,296 @@
-# Application Programming Interface (API)
+# API Reference
 
-Standard JSON payload resolution is natively processed through explicit Zod mappings inside `/backend/src/routes`. 
+**Base URL:** `https://api.yourapp.com` (production) · `http://localhost:3001` (development)
 
-## Core Endpoints
-- **GET /api/orders**: Returns paginated boundaries returning active matrices seamlessly correctly efficiently logically quickly mapping completely fully accurately clearly distinctly explicitly structurally dynamically effectively organically securely gracefully effectively perfectly effectively clearly dynamically explicitly elegantly efficiently natively purely natively correctly directly flawlessly dynamically efficiently thoroughly seamlessly properly securely strictly properly exactly easily dynamically strongly naturally accurately naturally securely firmly smoothly smoothly nicely flawlessly correctly optimally strongly purely elegantly smoothly successfully seamlessly gracefully cleanly nicely correctly securely properly carefully firmly directly clearly neatly effortlessly efficiently securely efficiently seamlessly precisely securely safely smoothly completely flawlessly naturally correctly firmly securely reliably nicely purely organically smoothly effortlessly firmly correctly neatly organically gracefully securely safely nicely elegantly securely correctly organically directly exactly perfectly strictly correctly firmly flawlessly flawlessly nicely easily explicitly appropriately neatly properly safely securely perfectly cleanly precisely carefully logically gently nicely firmly nicely correctly nicely cleanly explicitly seamlessly accurately logically thoroughly explicitly gently naturally precisely successfully precisely neatly easily neatly carefully beautifully cleanly gracefully completely flawlessly effortlessly fully easily successfully precisely strictly seamlessly properly efficiently securely nicely completely correctly correctly properly organically comfortably seamlessly strongly seamlessly effectively successfully structurally naturally comfortably logically successfully confidently quickly effortlessly carefully accurately optimally naturally gracefully precisely seamlessly cleanly effectively effectively firmly cleanly optimally quickly dynamically cleanly seamlessly softly smoothly accurately securely correctly neatly strongly firmly efficiently softly nicely effectively directly beautifully seamlessly securely accurately optimally successfully seamlessly dynamically organically precisely completely effectively exactly purely flawlessly appropriately smoothly neatly dynamically quietly logically carefully nicely smoothly cleanly exactly accurately effortlessly nicely properly firmly natively correctly quickly clearly seamlessly efficiently smoothly gently perfectly tightly correctly gently softly explicitly strongly carefully dynamically successfully safely cleanly effortlessly organically carefully cleanly softly automatically explicitly confidently thoroughly ideally beautifully correctly automatically dynamically easily securely cleanly correctly gently strongly gently smoothly correctly accurately clearly effortlessly completely exactly carefully organically correctly natively strongly accurately naturally accurately strongly exactly smartly safely gracefully exactly exactly seamlessly securely comfortably rapidly elegantly fully firmly organically ideally seamlessly optimally effortlessly safely seamlessly properly precisely successfully cleanly optimally carefully softly smartly fully natively cleanly rapidly cleanly reliably solidly beautifully efficiently optimally efficiently optimally smartly exactly safely cleanly seamlessly strongly dynamically exactly seamlessly nicely securely directly exactly simply intelligently natively seamlessly safely logically solidly clearly precisely efficiently safely organically organically cleanly correctly carefully logically swiftly perfectly functionally gracefully.
-- **POST /api/orders**: Body must include Customer ID strings structurally successfully softly exactly exactly flawlessly softly safely functionally safely ideally correctly naturally perfectly successfully simply easily softly naturally reliably firmly smoothly seamlessly cleanly functionally optimally seamlessly.
-- **PATCH /api/inventory/:id**: Resolves accurately nicely gently safely correctly directly smoothly smoothly efficiently precisely quickly precisely flawlessly fully elegantly gracefully seamlessly safely safely elegantly tightly properly quickly explicitly smartly precisely efficiently quickly structurally securely precisely dynamically optimally seamlessly accurately seamlessly precisely squarely clearly optimally safely accurately precisely functionally perfectly effortlessly.
+All protected endpoints require:
+- `Authorization: Bearer <clerk-session-token>` header
+- `Host: <subdomain>.yourapp.com` header (for tenant resolution)
 
-**(This document intends to grow dynamically automatically elegantly carefully effortlessly cleanly softly smartly implicitly properly securely smoothly ideally completely seamlessly securely implicitly seamlessly organically beautifully optimally nicely seamlessly ideally successfully gracefully quickly explicitly effortlessly purely squarely cleanly explicitly natively seamlessly firmly correctly completely optimally smoothly clearly functionally smartly beautifully seamlessly flawlessly organically efficiently squarely appropriately safely strongly strongly safely seamlessly squarely optimally seamlessly dynamically directly perfectly securely perfectly gracefully swiftly optimally confidently safely neatly reliably directly perfectly structurally appropriately efficiently efficiently confidently beautifully beautifully comfortably ideally appropriately functionally perfectly strongly explicitly firmly safely exactly effectively purely seamlessly flawlessly comfortably successfully naturally successfully effectively effortlessly optimally organically solidly flawlessly seamlessly purely effectively securely explicitly ideally fully functionally simply appropriately optimally simply smoothly safely confidently flawlessly natively exactly cleanly fully solidly optimally cleanly cleanly flawlessly smoothly optimally smoothly directly correctly functionally correctly beautifully organically optimally explicitly easily natively completely simply explicitly effectively tightly firmly perfectly organically logically confidently ideally correctly cleanly effectively explicitly gracefully dynamically softly strongly solidly completely squarely effectively beautifully cleanly simply safely correctly naturally flawlessly strongly cleanly seamlessly purely natively correctly effectively smartly accurately securely smartly ideally accurately safely exactly clearly safely firmly strongly perfectly successfully perfectly cleanly beautifully seamlessly smartly nicely successfully optimally effectively beautifully smartly solidly logically effortlessly quietly organically completely flawlessly seamlessly completely smartly solidly seamlessly organically beautifully natively cleanly successfully organically dynamically cleanly efficiently intelligently structurally effectively purely smartly exactly squarely neatly organically strictly safely effectively carefully naturally naturally safely logically exactly clearly tightly gracefully effectively correctly simply organically efficiently functionally accurately organically strictly properly completely perfectly flawlessly simply seamlessly simply safely easily simply strictly smartly flawlessly correctly natively naturally properly perfectly purely logically explicitly intelligently dynamically automatically comfortably neatly properly reliably dynamically purely purely solidly rapidly elegantly organically swiftly securely dynamically flawlessly functionally nicely solidly solidly smoothly organically cleanly elegantly comfortably logically squarely expertly efficiently elegantly specifically intuitively correctly functionally quickly seamlessly gracefully correctly strictly clearly automatically exactly accurately accurately dynamically softly purely simply naturally naturally functionally automatically simply comfortably precisely automatically appropriately solidly squarely successfully automatically precisely optimally directly accurately intuitively accurately correctly dynamically tightly purely easily beautifully efficiently elegantly logically expertly properly accurately uniquely cleanly dynamically logically confidently safely explicitly smoothly ideally correctly structurally flawlessly functionally automatically dynamically comfortably cleanly correctly solidly uniquely solidly purely successfully quietly uniquely uniquely strictly efficiently carefully appropriately perfectly neatly squarely smoothly squarely securely tightly natively softly effectively squarely purely effortlessly correctly expertly solidly ideally correctly precisely intelligently optimally optimally intelligently seamlessly logically cleanly effectively cleanly smoothly uniquely purely natively accurately dynamically cleanly logically firmly reliably elegantly dynamically perfectly smoothly elegantly squarely smartly efficiently tightly properly swiftly beautifully automatically comfortably functionally effortlessly functionally structurally firmly cleverly cleanly intuitively optimally organically perfectly implicitly correctly clearly strongly intelligently flawlessly optimally functionally smartly exactly accurately purely softly confidently brilliantly gracefully structurally specifically organically expertly successfully perfectly optimally efficiently tightly cleverly simply smartly ideally automatically smoothly explicitly explicitly cleanly cleanly intelligently rapidly cleanly flawlessly intuitively gracefully simply dynamically appropriately optimally brilliantly reliably smoothly strongly ideally intelligently perfectly efficiently smoothly flawlessly reliably functionally natively cleverly accurately effortlessly intelligently smartly expertly efficiently intuitively perfectly logically intelligently dynamically efficiently nicely completely expertly cleverly quickly elegantly seamlessly smartly solidly expertly functionally intelligently confidently reliably logically safely smartly smartly purely simply intelligently expertly safely accurately comfortably dynamically efficiently safely solidly natively securely intuitively perfectly purely successfully properly seamlessly explicitly appropriately organically purely nicely perfectly squarely successfully perfectly uniquely flawlessly uniquely simply nicely correctly purely elegantly functionally smartly precisely structurally safely naturally safely organically elegantly clearly perfectly solidly softly automatically seamlessly safely cleverly brilliantly quickly natively nicely fully securely correctly natively seamlessly intelligently comfortably quickly implicitly fully efficiently precisely purely squarely solidly nicely confidently logically neatly beautifully exactly explicitly effectively squarely easily logically smartly explicitly expertly solidly expertly cleverly simply logically smoothly effectively clearly quickly elegantly expertly rapidly comfortably implicitly specifically exactly reliably intelligently safely rapidly smartly automatically exactly elegantly smartly expertly logically explicitly smoothly correctly easily intuitively smartly successfully functionally implicitly correctly organically explicitly directly smoothly logically intuitively properly directly safely seamlessly neatly optimally implicitly natively perfectly naturally confidently intuitively purely completely carefully implicitly properly smartly structurally confidently uniquely logically firmly strongly clearly naturally solidly accurately precisely successfully reliably efficiently safely safely purely optimally tightly ideally implicitly logically purely squarely naturally automatically tightly clearly successfully smoothly dynamically effectively correctly flawlessly optimally smoothly fully firmly swiftly smartly correctly exactly intelligently seamlessly exactly natively rapidly functionally elegantly perfectly cleanly safely firmly correctly purely effortlessly naturally comfortably appropriately implicitly correctly properly beautifully seamlessly completely tightly squarely securely elegantly reliably successfully explicitly exactly implicitly cleverly confidently swiftly structurally cleanly effectively fully smoothly precisely cleverly functionally squarely directly intuitively directly simply solidly intelligently elegantly functionally efficiently comfortably gracefully safely quickly reliably rapidly gracefully smoothly neatly intuitively nicely uniquely exactly purely reliably solidly intelligently fully elegantly uniquely dynamically natively safely exactly explicitly flawlessly dynamically comfortably intuitively simply firmly fully ideally comfortably safely neatly securely explicitly seamlessly effectively efficiently safely safely logically accurately precisely accurately perfectly flawlessly optimally gracefully nicely beautifully rapidly beautifully cleanly completely clearly optimally smoothly gracefully properly efficiently correctly accurately precisely intelligently explicitly brilliantly brilliantly correctly efficiently neatly gracefully safely uniquely optimally ideally expertly cleverly clearly cleanly clearly correctly smartly rapidly cleverly logically precisely expertly efficiently.  .)
+Errors always return:
+```json
+{ "error": "Human-readable message", "code": "MACHINE_CODE", "statusCode": 400 }
+```
+
+Common codes: `UNAUTHENTICATED` (401) · `FORBIDDEN` (403) · `NOT_FOUND` (404) · `PLAN_LIMIT_REACHED` (403) · `VALIDATION_ERROR` (422)
+
+---
+
+## Health
+
+### GET /api/health
+Public. Returns server status.
+
+**Response 200:**
+```json
+{ "status": "ok", "timestamp": "2026-04-18T00:00:00Z" }
+```
+
+---
+
+## Authentication
+
+### GET /api/auth/me
+Returns the current authenticated user's profile.
+
+**Response 200:**
+```json
+{
+  "data": {
+    "id": "clx...",
+    "email": "owner@acme.com",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "role": "OWNER",
+    "organizationId": "clx..."
+  }
+}
+```
+
+---
+
+## Orders
+
+### GET /api/orders
+List orders for the org. Permission: `orders:view`
+
+**Query params:** `?page=1&limit=20&status=PENDING_APPROVAL&search=ORD-001`
+
+**Response 200:**
+```json
+{
+  "data": [
+    {
+      "id": "clx...",
+      "orderNumber": "ORD-0001",
+      "status": "IN_PRODUCTION",
+      "total": 125.00,
+      "customer": { "firstName": "Jane", "lastName": "Smith" },
+      "createdAt": "2026-04-18T00:00:00Z"
+    }
+  ],
+  "total": 45,
+  "page": 1,
+  "limit": 20
+}
+```
+
+### POST /api/orders
+Create a new order. Permission: `orders:create`. Blocked when plan limit is reached.
+
+**Body:**
+```json
+{
+  "customerId": "clx...",
+  "dueDate": "2026-04-25T00:00:00Z",
+  "items": [
+    { "productId": "clx...", "quantity": 10, "unitPrice": 12.50, "size": "L", "color": "Black" }
+  ],
+  "subtotal": 125.00,
+  "taxAmount": 10.00,
+  "discount": 0,
+  "total": 135.00,
+  "notes": "Rush order — needed by Friday"
+}
+```
+
+**Response 201:** Created order object.
+
+**Response 403 (limit exceeded):**
+```json
+{ "error": "Plan limit reached: orders (100/100). Please upgrade your plan.", "code": "PLAN_LIMIT_REACHED" }
+```
+
+### GET /api/orders/:id
+Single order with items and status history. Permission: `orders:view`
+
+### PATCH /api/orders/:id
+Update order fields. Permission: `orders:edit`
+
+### PATCH /api/orders/:id/status
+Update order status. Permission: `orders:approve`
+
+**Body:** `{ "status": "IN_PRODUCTION", "note": "Started printing" }`
+
+### DELETE /api/orders/:id
+Delete order. Permission: `orders:delete` (OWNER/ADMIN only)
+
+---
+
+## Customers
+
+### GET /api/customers
+List customers. Permission: `customers:view`
+
+**Query:** `?search=Jane&page=1&limit=20`
+
+### POST /api/customers
+Create customer. Permission: `customers:create`
+
+**Body:** `{ "firstName": "Jane", "lastName": "Smith", "email": "jane@example.com", "phone": "555-1234" }`
+
+**Response 201:** Created customer object.
+
+### GET /api/customers/:id
+Customer detail with order history. Permission: `customers:view`
+
+### PATCH /api/customers/:id
+Update customer. Permission: `customers:edit`
+
+### DELETE /api/customers/:id
+Delete customer. Permission: `customers:delete` (OWNER/ADMIN only)
+
+---
+
+## Products
+
+### GET /api/products
+List products with categories and add-ons.
+
+### POST /api/products
+Create product.
+
+**Body:**
+```json
+{
+  "name": "Classic Tee",
+  "categoryId": "clx...",
+  "garmentType": "TSHIRT",
+  "printMethod": "DTF",
+  "basePrice": 25.00,
+  "includedPrintLocations": ["FRONT"],
+  "maxPrintLocations": 2,
+  "availableBrands": ["Gildan", "Bella+Canvas"]
+}
+```
+
+### GET /api/products/:id · PATCH /api/products/:id · DELETE /api/products/:id
+Standard CRUD. Delete requires `OWNER` or `ADMIN`.
+
+### GET /api/product-categories
+List categories for the org.
+
+---
+
+## Inventory
+
+### GET /api/inventory
+List inventory items with stock levels.
+
+**Query:** `?search=gildan&lowStock=true`
+
+### POST /api/inventory
+Create item. Permission: `inventory:create`
+
+**Body:** `{ "name": "Gildan 5000 Black L", "sku": "G5000-BLK-L", "quantity": 200, "reorderPoint": 20 }`
+
+### PATCH /api/inventory/:id
+Update item. Permission: `inventory:edit`
+
+### POST /api/inventory/:id/adjust
+Adjust stock quantity. Permission: `inventory:adjust`
+
+**Body:** `{ "delta": -10, "reason": "Used in order ORD-0042" }`
+
+### GET /api/inventory/low-stock
+Returns items at or below their reorder point.
+
+---
+
+## Dashboard
+
+### GET /api/dashboard
+Summary metrics for the org.
+
+**Response 200:**
+```json
+{
+  "data": {
+    "ordersToday": 12,
+    "revenueMtd": 4520.00,
+    "pendingOrders": 8,
+    "lowStockItems": 3,
+    "recentOrders": []
+  }
+}
+```
+
+---
+
+## Billing
+
+### GET /api/billing/usage
+Current plan, usage counts, and limits. Permission: `billing:view` (OWNER only)
+
+**Response 200:**
+```json
+{
+  "data": {
+    "plan": "PRO",
+    "usage": {
+      "orders":         { "current": 342, "max": 5000 },
+      "customers":      { "current": 89,  "max": 2000 },
+      "users":          { "current": 3,   "max": 10 },
+      "inventoryItems": { "current": 120, "max": 5000 }
+    }
+  }
+}
+```
+
+### POST /api/billing/checkout
+Create a Stripe Checkout session. Permission: `billing:edit`
+
+**Body:** `{ "priceId": "price_xxx" }`
+
+**Response 200:** `{ "data": { "url": "https://checkout.stripe.com/..." } }`
+
+### POST /api/billing/portal
+Create a Stripe customer portal session for managing subscription.
+
+---
+
+## Organization
+
+### GET /api/organization
+Current org details.
+
+### PATCH /api/organization
+Update org settings (name, logo, tax rate, etc.). Permission: `settings:edit`
+
+### GET /api/organization/team
+List team members. Permission: `users:view`
+
+### POST /api/organization/team/invite
+Invite a new user. Permission: `users:invite`
+
+**Body:** `{ "email": "staff@acme.com", "role": "STAFF" }`
+
+### DELETE /api/organization/team/:userId
+Remove a team member. Permission: `users:remove` (OWNER only)
+
+---
+
+## Reports
+
+### GET /api/reports/sales
+Sales summary by date range. Permission: `reports:view`
+
+**Query:** `?from=2026-04-01&to=2026-04-30`
+
+### GET /api/reports/production
+Orders by status for a date range. Permission: `reports:view`
+
+---
+
+## Stripe Webhooks
+
+### POST /api/stripe/webhook
+Receives Stripe events. Validates the `stripe-signature` header using `STRIPE_WEBHOOK_SECRET`.
+
+**Do not call this manually.** Stripe sends events here automatically.
+
+Handled events:
+- `checkout.session.completed` — activates subscription
+- `customer.subscription.updated` — updates plan in DB
+- `customer.subscription.deleted` — downgrades org to FREE
+- `invoice.payment_succeeded` — records billing history
+- `invoice.payment_failed` — flags subscription as past due
