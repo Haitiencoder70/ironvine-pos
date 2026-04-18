@@ -9,88 +9,88 @@ datasource db {
 }
 
 model Organization {
-  id                      String                  @id @default(cuid())
-  clerkOrgId              String                  @unique
-  slug                    String                  @unique
-  name                    String
-  subdomain               String                  @unique
-  logoUrl                 String?
-  plan                    SubscriptionPlan        @default(FREE)
-  stripeCustomerId        String?                 @unique
-  stripeSubscriptionId    String?                 @unique
-  subscriptionStatus      String?
-  trialEndsAt             DateTime?
-  subscriptionEndsAt      DateTime?
-  maxUsers                Int                     @default(1)
-  maxOrders               Int                     @default(100)
-  maxInventoryItems       Int                     @default(500)
-  maxCustomers            Int                     @default(100)
-  storageLimit            Int                     @default(524288000)
-  customDomain            String?
-  primaryColor            String?
-  secondaryColor          String?
-  faviconUrl              String?
-  customCSS               String?
-  emailFromName           String?
-  emailFromAddress        String?
-  settings                Json                    @default("{}")
-  taxRate                 Decimal                 @default(0) @db.Decimal(6, 4)
-  orderNumberPrefix       String                  @default("ORD")
-  currency                String                  @default("USD")
-  timezone                String                  @default("America/New_York")
-  enabledModules          String[]                @default([])
-  createdAt               DateTime                @default(now())
-  updatedAt               DateTime                @updatedAt
-  activityLogs            ActivityLog[]
-  customers               Customer[]
-  inventoryItems          InventoryItem[]
-  materialUsages          MaterialUsage[]
-  notificationSettings    NotificationSetting?
-  orderItems              OrderItem[]
-  orderStatusHistories    OrderStatusHistory[]
-  orders                  Order[]
-  poReceivingItems        POReceivingItem[]
-  poReceivings            POReceiving[]
-  productAddOns           ProductAddOn[]
-  productCategories       ProductCategory[]
+  id                       String                    @id @default(cuid())
+  clerkOrgId               String                    @unique
+  slug                     String                    @unique
+  name                     String
+  subdomain                String                    @unique
+  logoUrl                  String?
+  plan                     SubscriptionPlan          @default(FREE)
+  stripeCustomerId         String?                   @unique
+  stripeSubscriptionId     String?                   @unique
+  subscriptionStatus       String?
+  trialEndsAt              DateTime?
+  subscriptionEndsAt       DateTime?
+  maxUsers                 Int                       @default(1)
+  maxOrders                Int                       @default(100)
+  maxInventoryItems        Int                       @default(500)
+  maxCustomers             Int                       @default(100)
+  storageLimit             Int                       @default(524288000)
+  customDomain             String?
+  primaryColor             String?
+  secondaryColor           String?
+  faviconUrl               String?
+  customCSS                String?
+  emailFromName            String?
+  emailFromAddress         String?
+  settings                 Json                      @default("{}")
+  taxRate                  Decimal                   @default(0) @db.Decimal(6, 4)
+  orderNumberPrefix        String                    @default("ORD")
+  currency                 String                    @default("USD")
+  timezone                 String                    @default("America/New_York")
+  enabledModules           String[]                  @default([])
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+  activityLogs             ActivityLog[]
+  customers                Customer[]
+  inventoryItems           InventoryItem[]
+  materialUsages           MaterialUsage[]
+  notificationSettings     NotificationSetting?
+  orderItems               OrderItem[]
+  orderStatusHistories     OrderStatusHistory[]
+  orders                   Order[]
+  poReceivingItems         POReceivingItem[]
+  poReceivings             POReceiving[]
+  productAddOns            ProductAddOn[]
+  productCategories        ProductCategory[]
   productMaterialTemplates ProductMaterialTemplate[]
-  products                Product[]
-  purchaseOrderItems      PurchaseOrderItem[]
-  purchaseOrders          PurchaseOrder[]
-  requiredMaterials       RequiredMaterial[]
-  sequenceCounters        SequenceCounter[]
-  shipmentStatusHistories ShipmentStatusHistory[]
-  shipments               Shipment[]
-  stockMovements          StockMovement[]
-  users                   User[]
-  vendors                 Vendor[]
-  images                  Image[]
-  organizationInvites     OrganizationInvite[]
-  usageMetrics            UsageMetrics[]
-  billingHistory          BillingHistory[]
-  usageEvents             UsageEvent[]
+  products                 Product[]
+  purchaseOrderItems       PurchaseOrderItem[]
+  purchaseOrders           PurchaseOrder[]
+  requiredMaterials        RequiredMaterial[]
+  sequenceCounters         SequenceCounter[]
+  shipmentStatusHistories  ShipmentStatusHistory[]
+  shipments                Shipment[]
+  stockMovements           StockMovement[]
+  users                    User[]
+  vendors                  Vendor[]
+  images                   Image[]
+  organizationInvites      OrganizationInvite[]
+  usageMetrics             UsageMetrics[]
+  billingHistory           BillingHistory[]
+  usageEvents              UsageEvent[]
 
   @@map("organizations")
 }
 
 model User {
-  id             String       @id @default(cuid())
-  clerkUserId    String       @unique
-  email          String
-  firstName      String
-  lastName       String
-  avatarUrl      String?
-  role                UserRole @default(STAFF)
+  id                  String       @id @default(cuid())
+  clerkUserId         String       @unique
+  email               String
+  firstName           String
+  lastName            String
+  avatarUrl           String?
+  role                UserRole     @default(STAFF)
   customPermissions   Json?
-  isActive            Boolean  @default(true)
-  isOrganizationOwner Boolean  @default(false)
-  inviteToken         String?  @unique
-  inviteAccepted      Boolean  @default(true)
+  isActive            Boolean      @default(true)
+  isOrganizationOwner Boolean      @default(false)
+  inviteToken         String?      @unique
+  inviteAccepted      Boolean      @default(true)
   invitedBy           String?
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId      String
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([email, organizationId])
   @@index([organizationId])
@@ -123,31 +123,32 @@ model Customer {
 
   @@unique([email, organizationId])
   @@index([organizationId])
+  @@index([organizationId, phone])
   @@map("customers")
 }
 
 model Order {
-  id             String               @id @default(cuid())
-  orderNumber    String
-  status         OrderStatus          @default(QUOTE)
-  priority       OrderPriority        @default(NORMAL)
-  customerId     String
-  organizationId String
-  designNotes    String?
-  designFiles    String[]             @default([])
-  subtotal       Decimal              @default(0) @db.Decimal(10, 2)
-  taxAmount      Decimal              @default(0) @db.Decimal(10, 2)
-  discount       Decimal              @default(0) @db.Decimal(10, 2)
-  total          Decimal              @default(0) @db.Decimal(10, 2)
-  dueDate        DateTime?
-  notes          String?
-  internalNotes  String?
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
+  id               String        @id @default(cuid())
+  orderNumber      String
+  status           OrderStatus   @default(QUOTE)
+  priority         OrderPriority @default(NORMAL)
+  customerId       String
+  organizationId   String
+  designNotes      String?
+  designFiles      String[]      @default([])
+  subtotal         Decimal       @default(0) @db.Decimal(10, 2)
+  taxAmount        Decimal       @default(0) @db.Decimal(10, 2)
+  discount         Decimal       @default(0) @db.Decimal(10, 2)
+  total            Decimal       @default(0) @db.Decimal(10, 2)
+  dueDate          DateTime?
+  notes            String?
+  internalNotes    String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
   // Design approval tracking
-  designApproved    Boolean   @default(false)
-  designApprovedAt  DateTime?
-  designApprovedBy  String?
+  designApproved   Boolean       @default(false)
+  designApprovedAt DateTime?
+  designApprovedBy String?
 
   materialUsages MaterialUsage[]
   items          OrderItem[]
@@ -161,29 +162,31 @@ model Order {
   @@unique([orderNumber, organizationId])
   @@index([organizationId, status])
   @@index([organizationId, createdAt(sort: Desc)])
+  @@index([organizationId, customerId])
+  @@index([orderNumber])
   @@map("orders")
 }
 
 model OrderItem {
-  id                String             @id @default(cuid())
-  orderId           String
-  productType       String
-  quantity          Int
-  unitPrice         Decimal            @db.Decimal(10, 2)
-  lineTotal         Decimal            @db.Decimal(10, 2)
-  printMethod       PrintMethod?
-  printLocations    PrintLocation[]
-  description       String?
-  organizationId    String
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  attributes        Json               @default("{}")
-  mockupImageUrl    String?
-  designFileUrl     String?
+  id                 String             @id @default(cuid())
+  orderId            String
+  productType        String
+  quantity           Int
+  unitPrice          Decimal            @db.Decimal(10, 2)
+  lineTotal          Decimal            @db.Decimal(10, 2)
+  printMethod        PrintMethod?
+  printLocations     PrintLocation[]
+  description        String?
+  organizationId     String
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  attributes         Json               @default("{}")
+  mockupImageUrl     String?
+  designFileUrl      String?
   productionPhotoUrl String?
-  order             Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  requiredMaterials RequiredMaterial[]
+  order              Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  requiredMaterials  RequiredMaterial[]
 
   @@index([orderId])
   @@index([organizationId])
@@ -218,6 +221,8 @@ model InventoryItem {
 
   @@unique([sku, organizationId])
   @@index([organizationId])
+  @@index([organizationId, category])
+  @@index([organizationId, quantityOnHand])
   @@map("inventory_items")
 }
 
@@ -760,15 +765,15 @@ model Image {
   entityId   String
 
   // Metadata
-  alt              String?
-  caption          String?
-  displayOrder     Int     @default(0)
-  isPrimary        Boolean @default(false)
-  designPlacement  String?
+  alt             String?
+  caption         String?
+  displayOrder    Int     @default(0)
+  isPrimary       Boolean @default(false)
+  designPlacement String?
 
-  createdBy  String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([organizationId, entityType, entityId])
   @@index([organizationId, imageType])
@@ -776,21 +781,21 @@ model Image {
 }
 
 model GarmentImage {
-  id          String  @id @default(cuid())
+  id String @id @default(cuid())
 
   brand       String
   styleNumber String
   color       String
 
-  frontUrl    String
-  backUrl     String?
-  sideUrl     String?
-  detailUrl   String?
+  frontUrl  String
+  backUrl   String?
+  sideUrl   String?
+  detailUrl String?
 
   mockupFrontUrl String?
   mockupBackUrl  String?
 
-  source    String?
+  source String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -847,7 +852,7 @@ model UsageMetrics {
 model UsageEvent {
   id             String       @id @default(cuid())
   organizationId String
-  metricType     String       // 'order_created', 'inventory_added', 'user_invited', 'customer_added'
+  metricType     String // 'order_created', 'inventory_added', 'user_invited', 'customer_added'
   count          Int          @default(1)
   metadata       Json?
   createdAt      DateTime     @default(now())

@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { getCurrentOrganization } from '../utils/tenantContext';
 import { logger } from '../lib/logger';
 
@@ -9,139 +8,131 @@ import { logger } from '../lib/logger';
 const EXCLUDED_MODELS = new Set(['Organization']);
 
 /**
- * Prisma middleware that enforces tenant isolation on every query.
+ * Applies tenant isolation to a single Prisma operation's args.
  *
  * Behaviour per operation:
  *  - findMany / findFirst / findFirstOrThrow / count / aggregate / groupBy
  *      → injects `where.organizationId` so only the current tenant's rows are returned
- *  - findUnique / findUniqueOrThrow
- *      → no-op (caller is responsible for including the id; an org-mismatch check
- *        would require a read-then-check which defeats the purpose of findUnique)
  *  - create / createMany
  *      → injects `organizationId` into `data` (or each item of `data`)
- *  - update / updateMany / upsert
- *      → injects `where.organizationId` to prevent cross-tenant mutation;
- *        for upsert also injects into `create.organizationId`
- *  - delete / deleteMany
- *      → injects `where.organizationId`
- *
- * The middleware is a no-op for excluded models and when no tenant context
- * is present (e.g. background jobs, seeding, tests).
+ *  - update / updateMany / upsert / delete / deleteMany
+ *      → injects `where.organizationId` to prevent cross-tenant mutation
+ *  - findUnique / findUniqueOrThrow
+ *      → no-op (caller provides PK)
  */
-export const tenantIsolationMiddleware: Prisma.Middleware = async (params, next) => {
-  const model = params.model as string | undefined;
+function applyTenantIsolation(
+  _model: string,
+  operation: string,
+  args: Record<string, unknown>,
+  organizationDbId: string,
+): Record<string, unknown> {
+  const a = { ...args };
 
-  // Skip excluded models or unknown models
-  if (!model || EXCLUDED_MODELS.has(model)) {
-    return next(params);
-  }
-
-  const ctx = getCurrentOrganization();
-
-  // No tenant context → pass through (background jobs / seed scripts / tests)
-  if (!ctx) {
-    return next(params);
-  }
-
-  const { organizationDbId } = ctx;
-
-  try {
-    switch (params.action) {
-      // ── Read operations ────────────────────────────────────────────────────
-      case 'findMany':
-      case 'findFirst':
-      case 'findFirstOrThrow':
-      case 'count':
-      case 'aggregate':
-      case 'groupBy': {
-        params.args ??= {};
-        params.args.where ??= {};
-        // Only inject if the model actually has organizationId
-        if (!('organizationId' in (params.args.where as Record<string, unknown>))) {
-          (params.args.where as Record<string, unknown>)['organizationId'] = organizationDbId;
-        }
-        break;
+  switch (operation) {
+    case 'findMany':
+    case 'findFirst':
+    case 'findFirstOrThrow':
+    case 'count':
+    case 'aggregate':
+    case 'groupBy': {
+      a['where'] ??= {};
+      const where = a['where'] as Record<string, unknown>;
+      if (!('organizationId' in where)) {
+        where['organizationId'] = organizationDbId;
       }
-
-      // ── Create operations ──────────────────────────────────────────────────
-      case 'create': {
-        params.args ??= {};
-        params.args.data ??= {};
-        if (!('organizationId' in (params.args.data as Record<string, unknown>))) {
-          (params.args.data as Record<string, unknown>)['organizationId'] = organizationDbId;
-        }
-        break;
-      }
-
-      case 'createMany': {
-        params.args ??= {};
-        if (Array.isArray(params.args.data)) {
-          params.args.data = (params.args.data as Record<string, unknown>[]).map((item) => ({
-            organizationId: organizationDbId,
-            ...item,
-          }));
-        } else if (params.args.data && typeof params.args.data === 'object') {
-          const d = params.args.data as Record<string, unknown>;
-          if (!('organizationId' in d)) {
-            d['organizationId'] = organizationDbId;
-          }
-        }
-        break;
-      }
-
-      // ── Update operations ──────────────────────────────────────────────────
-      case 'update': {
-        params.args ??= {};
-        params.args.where ??= {};
-        (params.args.where as Record<string, unknown>)['organizationId'] = organizationDbId;
-        break;
-      }
-
-      case 'updateMany': {
-        params.args ??= {};
-        params.args.where ??= {};
-        (params.args.where as Record<string, unknown>)['organizationId'] = organizationDbId;
-        break;
-      }
-
-      // ── Upsert ────────────────────────────────────────────────────────────
-      case 'upsert': {
-        params.args ??= {};
-        params.args.where ??= {};
-        (params.args.where as Record<string, unknown>)['organizationId'] = organizationDbId;
-
-        // Inject into the create branch so the row is tenant-tagged on insert
-        params.args.create ??= {};
-        if (!('organizationId' in (params.args.create as Record<string, unknown>))) {
-          (params.args.create as Record<string, unknown>)['organizationId'] = organizationDbId;
-        }
-        break;
-      }
-
-      // ── Delete operations ──────────────────────────────────────────────────
-      case 'delete': {
-        params.args ??= {};
-        params.args.where ??= {};
-        (params.args.where as Record<string, unknown>)['organizationId'] = organizationDbId;
-        break;
-      }
-
-      case 'deleteMany': {
-        params.args ??= {};
-        params.args.where ??= {};
-        (params.args.where as Record<string, unknown>)['organizationId'] = organizationDbId;
-        break;
-      }
-
-      // findUnique / findUniqueOrThrow — skip; caller provides PK
-      default:
-        break;
+      break;
     }
-  } catch (err) {
-    logger.error('tenantIsolation middleware error', { model, action: params.action, err });
-    // Do not swallow — re-throw so the query fails visibly rather than leaking data
-    throw err;
+
+    case 'create': {
+      a['data'] ??= {};
+      const data = a['data'] as Record<string, unknown>;
+      if (!('organizationId' in data)) {
+        data['organizationId'] = organizationDbId;
+      }
+      break;
+    }
+
+    case 'createMany': {
+      if (Array.isArray(a['data'])) {
+        a['data'] = (a['data'] as Record<string, unknown>[]).map((item) => ({
+          organizationId: organizationDbId,
+          ...item,
+        }));
+      } else if (a['data'] && typeof a['data'] === 'object') {
+        const d = a['data'] as Record<string, unknown>;
+        if (!('organizationId' in d)) {
+          d['organizationId'] = organizationDbId;
+        }
+      }
+      break;
+    }
+
+    case 'update':
+    case 'updateMany':
+    case 'delete':
+    case 'deleteMany': {
+      a['where'] ??= {};
+      (a['where'] as Record<string, unknown>)['organizationId'] = organizationDbId;
+      break;
+    }
+
+    case 'upsert': {
+      a['where'] ??= {};
+      (a['where'] as Record<string, unknown>)['organizationId'] = organizationDbId;
+      a['create'] ??= {};
+      const create = a['create'] as Record<string, unknown>;
+      if (!('organizationId' in create)) {
+        create['organizationId'] = organizationDbId;
+      }
+      break;
+    }
+
+    // findUnique / findUniqueOrThrow — skip; caller provides PK
+    default:
+      break;
   }
 
-  return next(params);
+  return a;
+}
+
+/**
+ * Prisma `$extends` query extension that enforces multi-tenant isolation on
+ * every operation. Replaces the removed `$use` / `Prisma.Middleware` API.
+ *
+ * Returns the extension object to be spread into `$extends({ query: ... })`.
+ */
+export const tenantIsolationExtension = {
+  $allModels: {
+    async $allOperations({
+      model,
+      operation,
+      args,
+      query,
+    }: {
+      model: string;
+      operation: string;
+      args: Record<string, unknown>;
+      query: (args: Record<string, unknown>) => Promise<unknown>;
+    }): Promise<unknown> {
+      if (EXCLUDED_MODELS.has(model)) {
+        return query(args);
+      }
+
+      const ctx = getCurrentOrganization();
+      if (!ctx) {
+        // No tenant context → background job / seed / test — pass through
+        return query(args);
+      }
+
+      const { organizationDbId } = ctx;
+
+      try {
+        const isolatedArgs = applyTenantIsolation(model, operation, args, organizationDbId);
+        return query(isolatedArgs);
+      } catch (err) {
+        logger.error('tenantIsolation extension error', { model, operation, err });
+        throw err;
+      }
+    },
+  },
 };

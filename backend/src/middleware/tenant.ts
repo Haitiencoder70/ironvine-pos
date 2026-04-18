@@ -4,6 +4,9 @@ import { AuthenticatedRequest } from '../types';
 import { AppError } from './errorHandler';
 import { logger } from '../lib/logger';
 import { setTenantContext } from '../utils/tenantContext';
+import { cacheService } from '../services/cacheService';
+
+const ORG_CACHE_TTL = 300; // 5 minutes
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -64,11 +67,19 @@ export async function injectTenant(
     const subdomain = extractSubdomain(req.hostname);
 
     if (subdomain) {
-      // ── Path 1: subdomain-based lookup ──────────────────────────────────────
-      const org = await prisma.organization.findUnique({
-        where: { subdomain },
-        select: { id: true, clerkOrgId: true },
-      });
+      // ── Path 1: subdomain-based lookup (cache-first) ────────────────────────
+      const cacheKey = `org:subdomain:${subdomain}`;
+      let org = await cacheService.get<{ id: string; clerkOrgId: string }>(cacheKey);
+
+      if (!org) {
+        org = await prisma.organization.findUnique({
+          where: { subdomain },
+          select: { id: true, clerkOrgId: true },
+        });
+        if (org) {
+          await cacheService.set(cacheKey, org, ORG_CACHE_TTL);
+        }
+      }
 
       if (!org) {
         logger.warn('Tenant not found for subdomain', { subdomain, hostname: req.hostname });

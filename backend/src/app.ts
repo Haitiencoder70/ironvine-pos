@@ -3,14 +3,12 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import { rateLimit } from 'express-rate-limit';
+import { requestTimer } from './services/performanceMonitor';
 
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { clerkAuth, requireAuth } from './middleware/auth';
 import { injectTenant } from './middleware/tenant';
-import { prisma } from './lib/prisma';
-import { tenantIsolationMiddleware } from './middleware/tenantIsolation';
-import { runWithTenantContext } from './utils/tenantContext';
 
 // Routers
 import { healthRouter } from './routes/health';
@@ -37,11 +35,6 @@ import { auditLogRouter } from './routes/auditLog';
 
 export const app = express();
 
-// ─── Register Prisma tenant-isolation middleware ───────────────────────────
-// This automatically scopes all Prisma queries to the current tenant via
-// AsyncLocalStorage. Must be registered once at startup.
-prisma.$use(tenantIsolationMiddleware);
-
 // ─── Security and utility middleware ──────────────────────────────────────
 app.use(helmet());
 app.use(compression());
@@ -52,14 +45,30 @@ app.use(
   }),
 );
 app.use(express.json({ limit: '10mb' }));
+// Global rate limiter — coarse guard before auth resolves
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 500,
+    max: 1000,
     standardHeaders: true,
     legacyHeaders: false,
   }),
 );
+
+// Per-org rate limiter — applied after tenant/auth middleware below
+const orgRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: async (req) => {
+    const org = req as unknown as { organization?: { plan?: string } };
+    return org.organization?.plan === 'ENTERPRISE' ? 10000 : 1000;
+  },
+  keyGenerator: (req) => {
+    const r = req as unknown as { organizationDbId?: string };
+    return r.organizationDbId ?? req.ip ?? 'unknown';
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // ─── Health Check ─────────────────────────────────────────────────────────
 // Before clerkAuth so load-balancers and uptime monitors can probe freely.
@@ -96,6 +105,8 @@ app.use('/api', clerkAuth);
 // the entire downstream handler chain runs inside the correct ALS store.
 app.use('/api', injectTenant);
 app.use('/api', requireAuth);
+app.use('/api', orgRateLimiter);
+app.use('/api', requestTimer);
 
 // ─── API Routes ───────────────────────────────────────────────────────────
 app.use('/api/auth',              authRouter);
