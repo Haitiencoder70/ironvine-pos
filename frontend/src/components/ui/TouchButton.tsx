@@ -7,7 +7,7 @@ import { ArrowPathIcon } from '@heroicons/react/24/outline';
 export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
-export interface TouchButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'size'> {
+export interface TouchButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'size' | 'onDrag' | 'onDragEnd' | 'onDragStart' | 'onDragOver' | 'onDragEnter' | 'onDragLeave' | 'onAnimationStart'> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   fullWidth?: boolean;
@@ -66,7 +66,7 @@ const variantStyles: Record<ButtonVariant, { className: string; style: React.CSS
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'min-h-[36px] px-4 text-[13px] rounded-xl',
+  sm: 'min-h-[44px] px-4 text-[13px] rounded-xl',
   md: 'min-h-[44px] px-6 text-[14px] rounded-xl',
   lg: 'min-h-[52px] px-8 text-base rounded-xl',
   xl: 'min-h-[60px] px-10 text-lg rounded-xl',

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { Organization } from '../types';
 import { useAuthStore } from '../store/authStore';
@@ -32,13 +32,18 @@ export function TenantProvider({ children }: TenantProviderProps): React.JSX.Ele
   const { organization, isOrgLoading, orgError, isTokenReady } = useAuthStore();
   const { setOrganization, setOrgLoading, setOrgError } = useAuthStore();
   const subdomain = getCurrentSubdomain();
+  // Track whether a fetch is already in-flight so re-renders don't double-fire.
+  const fetchingRef = useRef(false);
 
   useEffect(() => {
     // Only fetch org when: Clerk is loaded, user is signed in, token is ready, on a subdomain
     if (!isLoaded || !isSignedIn || !isTokenReady || !subdomain) return;
-    if (organization) return; // already loaded
+    // Use the store value directly via getState() so the effect doesn't re-run
+    // when organization changes — that would cancel an in-flight request.
+    if (useAuthStore.getState().organization) return;
+    if (fetchingRef.current) return; // already in-flight
 
-    let cancelled = false;
+    fetchingRef.current = true;
 
     async function loadOrg() {
       setOrgLoading(true);
@@ -48,35 +53,29 @@ export function TenantProvider({ children }: TenantProviderProps): React.JSX.Ele
 
         // Verify the loaded org matches the subdomain the user navigated to
         if (data.slug !== subdomain) {
-          if (!cancelled) {
-            setOrgError(
-              `This organization (${subdomain}) doesn't match your account. ` +
-              `Redirecting to your organization…`,
-            );
-            // Give the error a moment to render, then redirect
-            setTimeout(() => {
-              window.location.href = `${window.location.protocol}//${data.slug}.${window.location.hostname.split('.').slice(-2).join('.')}`;
-            }, 2500);
-          }
+          setOrgError(
+            `This organization (${subdomain}) doesn't match your account. ` +
+            `Redirecting to your organization…`,
+          );
+          // Give the error a moment to render, then redirect
+          setTimeout(() => {
+            window.location.href = `${window.location.protocol}//${data.slug}.${window.location.hostname.split('.').slice(-2).join('.')}`;
+          }, 2500);
           return;
         }
 
-        if (!cancelled) {
-          setOrganization(data as unknown as import('../types').Organization);
-        }
+        setOrganization(data as unknown as import('../types').Organization);
       } catch (err: unknown) {
-        if (!cancelled) {
-          const msg = err instanceof Error ? err.message : 'Failed to load organization';
-          setOrgError(msg);
-        }
+        const msg = err instanceof Error ? err.message : 'Failed to load organization';
+        setOrgError(msg);
       } finally {
-        if (!cancelled) setOrgLoading(false);
+        setOrgLoading(false);
+        fetchingRef.current = false;
       }
     }
 
-    loadOrg();
-    return () => { cancelled = true; };
-  }, [isLoaded, isSignedIn, isTokenReady, subdomain, organization, setOrganization, setOrgLoading, setOrgError]);
+    void loadOrg();
+  }, [isLoaded, isSignedIn, isTokenReady, subdomain, setOrganization, setOrgLoading, setOrgError]);
 
   // On a subdomain: show loading / error states before rendering the app
   if (subdomain && isSignedIn && isLoaded) {

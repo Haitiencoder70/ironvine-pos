@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
+import { authorize } from '../middleware/authorize';
 import {
   upload,
   uploadImageHandler,
@@ -18,8 +17,6 @@ export const imagesRouter = Router();
 
 imagesRouter.get(
   '/garment',
-  requireAuth,
-  injectTenant,
   getGarmentImageHandler,
 );
 
@@ -27,8 +24,6 @@ imagesRouter.get(
 // Returns SVG directly — auth required to prevent abuse
 imagesRouter.get(
   '/placeholder',
-  requireAuth,
-  injectTenant,
   getPlaceholderHandler,
 );
 
@@ -37,16 +32,13 @@ imagesRouter.get(
 // GET /api/images/:entityType/:entityId  — e.g. /api/images/order/clxxx
 imagesRouter.get(
   '/:entityType/:entityId',
-  requireAuth,
-  injectTenant,
   getByEntityHandler,
 );
 
 // POST /api/images/upload  — multipart/form-data
 imagesRouter.post(
   '/upload',
-  requireAuth,
-  injectTenant,
+  authorize('images:upload'),
   upload.single('file'),
   uploadImageHandler,
 );
@@ -54,23 +46,20 @@ imagesRouter.post(
 // DELETE /api/images/:id
 imagesRouter.delete(
   '/:id',
-  requireAuth,
-  injectTenant,
+  authorize('images:delete'),
   deleteImageHandler,
 );
 
 // PATCH /api/images/:id/primary
 imagesRouter.patch(
   '/:id/primary',
-  requireAuth,
-  injectTenant,
+  authorize('images:upload'),
   setPrimaryHandler,
 );
 
 // PATCH /api/images/reorder
 imagesRouter.patch(
   '/reorder',
-  requireAuth,
-  injectTenant,
+  authorize('images:upload'),
   reorderHandler,
 );

@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 
 // Mock Clerk — tests don't have a real Clerk instance
 vi.mock('@clerk/clerk-react', () => ({
-  useAuth:         () => ({ isSignedIn: true, getToken: async () => 'test-token' }),
+  useAuth:         () => ({ isLoaded: true, isSignedIn: true, getToken: async () => 'test-token' }),
   useUser:         () => ({ user: { id: 'user_test', primaryEmailAddress: { emailAddress: 'test@test.com' } } }),
   useOrganization: () => ({ organization: { id: 'org_test', name: 'Test Org', slug: 'testorg', publicMetadata: { plan: 'PRO' } } }),
   ClerkProvider:   ({ children }: { children: React.ReactNode }) => children,

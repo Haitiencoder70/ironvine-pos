@@ -153,11 +153,11 @@ export async function checkStorageLimit(
 
     // Sum the size of all stored images for this org
     const result = await prisma.image.aggregate({
-      _sum: { size: true },
+      _sum: { fileSize: true },
       where: { organizationId: orgDbId },
     });
 
-    const usedBytes  = result._sum.size ?? 0;
+    const usedBytes  = result._sum?.fileSize ?? 0;
     const incomingBytes: number = (req.body as Record<string, unknown>)?.['fileSizeBytes'] as number ?? 0;
 
     if (usedBytes + incomingBytes > limitBytes) {

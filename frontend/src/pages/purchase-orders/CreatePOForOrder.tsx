@@ -16,13 +16,6 @@ import { clsx } from 'clsx';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchInput } from '../../components/ui/TouchInput';
 import { TouchCard } from '../../components/ui/TouchCard';
-import {
-  getBrands,
-  getStylesByBrand,
-  getColorsByBrandAndStyle,
-  getSizesByBrandAndStyle,
-  generateGarmentDescription,
-} from '../../constants/productCatalog';
 import { useOrder } from '../../hooks/useOrders';
 import { useVendors } from '../../hooks/useVendors';
 import { useCreatePurchaseOrder } from '../../hooks/usePurchaseOrders';

@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
+
 import { validate } from '../middleware/validate';
 import { authorize } from '../middleware/authorize';
 import {
@@ -21,7 +20,7 @@ import { z } from 'zod';
 export const shipmentsRouter = Router();
 
 // All shipment routes require auth + tenant
-shipmentsRouter.use(requireAuth, injectTenant);
+// removed redundant middleware
 
 // ─── List Shipments ───────────────────────────────────────────────────────────
 shipmentsRouter.get('/', authorize('orders:view'), validate(listShipmentsQuerySchema, 'query'), getAll);

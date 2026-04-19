@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import { getCurrentSubdomain } from '../utils/tenant';
 
 const DEFAULT_PRIMARY   = '#2563eb';
 const DEFAULT_SECONDARY = '#64748b';
@@ -46,13 +47,16 @@ function applyCustomCSS(css: string | null): void {
 }
 
 export function useBranding() {
+  const isSubdomain = !!getCurrentSubdomain();
+
   const query = useQuery<OrgBranding>({
     queryKey: ['branding'],
     queryFn: async () => {
-      const res = await api.get<{ data: OrgBranding }>('/api/branding');
+      const res = await api.get<{ data: OrgBranding }>('/branding');
       return res.data.data;
     },
     staleTime: 5 * 60 * 1000,
+    enabled: isSubdomain,
   });
 
   const branding = query.data;

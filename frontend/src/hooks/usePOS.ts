@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { posApi, type CompleteSalePayload } from '../services/api';
+import { useIsReady } from './useIsReady';
 import type { POSProduct, CartItem, ApiResponse, PaginatedResult, Sale } from '../types';
 
 // ─── Query Key Factories ──────────────────────────────────────────────────────
@@ -25,11 +26,13 @@ export function useProducts(
   search?: string,
   category?: string,
 ): UseQueryResult<ApiResponse<POSProduct[]>> {
+  const isReady = useIsReady();
   return useQuery({
     queryKey: posKeys.products(search, category),
     queryFn: () => posApi.getProducts({ search, category }),
     staleTime: 30_000,
     placeholderData: (prev) => prev,
+    enabled: isReady,
   });
 }
 

@@ -14,7 +14,7 @@ export const useOfflineStore = create<OfflineState>((set) => ({
   isBackendReachable: navigator.onLine,
   queuedMutations: 0,
   setOnline: (online) => set({ isOnline: online }),
-  setBackendReachable: (reachable) => set({ isBackendReachable: reachable }),
+  setBackendReachable: (reachable) => set({ isBackendReachable: reachable, isOnline: reachable }),
   setQueuedMutations: (count) => set({ queuedMutations: count }),
 }));
 

@@ -150,7 +150,7 @@ export function BrandingSettings() {
   const { data: branding, isLoading } = useQuery<OrgBranding>({
     queryKey: ['branding'],
     queryFn: async () => {
-      const res = await api.get<{ data: OrgBranding }>('/api/branding');
+      const res = await api.get<{ data: OrgBranding }>('/branding');
       return res.data.data;
     },
   });
@@ -177,7 +177,7 @@ export function BrandingSettings() {
 
   const saveMutation = useMutation({
     mutationFn: async (data: BrandingFormState) => {
-      await api.put('/api/branding', data);
+      await api.put('/branding', data);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['branding'] });
@@ -230,7 +230,7 @@ export function BrandingSettings() {
           label="Logo"
           currentUrl={logoUrl}
           accept="image/png,image/jpeg,image/svg+xml"
-          uploadEndpoint="/api/branding/upload-logo"
+          uploadEndpoint="/branding/upload-logo"
           onUploaded={(url) => {
             setLogoUrl(url || null);
             void queryClient.invalidateQueries({ queryKey: ['branding'] });
@@ -247,7 +247,7 @@ export function BrandingSettings() {
           label="Favicon"
           currentUrl={faviconUrl}
           accept="image/png,image/x-icon"
-          uploadEndpoint="/api/branding/upload-favicon"
+          uploadEndpoint="/branding/upload-favicon"
           onUploaded={(url) => {
             setFaviconUrl(url || null);
             void queryClient.invalidateQueries({ queryKey: ['branding'] });

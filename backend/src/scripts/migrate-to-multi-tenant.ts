@@ -54,7 +54,7 @@ interface MigrationResult {
 }
 
 async function migrateTable(
-  orgId: string,
+  _orgId: string,
   table: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   findMany: () => Promise<any[]>,

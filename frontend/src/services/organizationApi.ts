@@ -4,9 +4,9 @@ export interface OrgCreatePayload {
   name: string;
   slug: string;
   industry: string;
-  ownerFirstName: string;
-  ownerLastName: string;
-  ownerEmail: string;
+  ownerFirstName?: string;
+  ownerLastName?: string;
+  ownerEmail?: string;
   plan: 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';
 }
 
@@ -36,10 +36,10 @@ export const organizationApi = {
     api.post<{ organizationId: string; checkoutUrl?: string }>('/organizations', data).then((r) => r.data),
 
   getOrganization: () =>
-    api.get<{ id: string; name: string; slug: string; plan: string }>('/organizations/me').then((r) => r.data),
+    api.get<{ data: { id: string; name: string; slug: string; plan: string } }>('/organization/me').then((r) => r.data.data),
 
   updateOrganization: (data: Partial<Pick<OrgCreatePayload, 'name' | 'slug' | 'industry'>>) =>
-    api.patch('/organizations/me', data).then((r) => r.data),
+    api.patch('/organization/me', data).then((r) => r.data),
 
   getUsage: () =>
     api.get<OrgUsage>('/billing/usage').then((r) => r.data),

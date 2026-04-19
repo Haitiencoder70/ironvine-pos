@@ -1,8 +1,6 @@
 import axios from 'axios';
-import toast from 'react-hot-toast';
 import { useOfflineStore } from '../store/offlineStore';
 import { offlineSync } from '../services/offlineSync';
-import { api } from '../lib/api';
 
 const HEARTBEAT_TIMEOUT = 3000;
 

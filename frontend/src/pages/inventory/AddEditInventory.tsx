@@ -48,41 +48,10 @@ export function AddEditInventoryPage(): JSX.Element {
 
   const { canAddInventory, billing } = usePlanLimits();
 
-  // Gate only applies when creating (not editing)
-  const limitCheck = canAddInventory(false);
-  if (!isEditing && billing && !limitCheck.allowed) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center gap-4">
-        <div className="text-5xl">🚫</div>
-        <h2 className="text-xl font-bold text-gray-900">Inventory Limit Reached</h2>
-        <p className="text-gray-500 max-w-sm">{limitCheck.message}</p>
-        <div className="flex gap-3 mt-2">
-          <button
-            onClick={() => canAddInventory(true)}
-            className="min-h-[44px] px-6 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
-          >
-            Upgrade Plan
-          </button>
-          <button
-            onClick={() => navigate(-1)}
-            className="min-h-[44px] px-6 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const { data, isLoading: isFetchingItem } = useInventoryItem(id ?? '');
-  const itemData = data?.data;
-
   const createItem = useCreateInventoryItem();
   const updateItem = useUpdateInventoryItem();
-  const isSubmitting = createItem.isPending || updateItem.isPending;
   const { can } = usePermissions();
-  const canSubmit = isEditing ? can('inventory:edit') : can('inventory:create');
-
   const [showMaterialModal, setShowMaterialModal] = useState(false);
 
   const {
@@ -110,6 +79,18 @@ export function AddEditInventoryPage(): JSX.Element {
     },
   });
 
+  const { confirm } = useConfirm();
+
+  const isSubmitting = createItem.isPending || updateItem.isPending;
+  const canSubmit = isEditing ? can('inventory:edit') : can('inventory:create');
+  const selectedCategory = watch('category');
+  const itemData = data?.data;
+
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isDirty && !isSubmitting && currentLocation.pathname !== nextLocation.pathname
+  );
+
   useEffect(() => {
     if (isEditing && itemData) {
       reset({
@@ -128,14 +109,6 @@ export function AddEditInventoryPage(): JSX.Element {
     }
   }, [isEditing, itemData, reset]);
 
-  const selectedCategory = watch('category');
-
-  const { confirm } = useConfirm();
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && !isSubmitting && currentLocation.pathname !== nextLocation.pathname
-  );
-
   useEffect(() => {
     if (blocker.state === 'blocked') {
       confirm({
@@ -149,6 +122,32 @@ export function AddEditInventoryPage(): JSX.Element {
       });
     }
   }, [blocker, confirm]);
+
+  // Gate only applies when creating (not editing)
+  const limitCheck = canAddInventory(false);
+  if (!isEditing && billing && !limitCheck.allowed) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center gap-4">
+        <div className="text-5xl">🚫</div>
+        <h2 className="text-xl font-bold text-gray-900">Inventory Limit Reached</h2>
+        <p className="text-gray-500 max-w-sm">{limitCheck.message}</p>
+        <div className="flex gap-3 mt-2">
+          <button
+            onClick={() => canAddInventory(true)}
+            className="min-h-[44px] px-6 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+          >
+            Upgrade Plan
+          </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="min-h-[44px] px-6 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Map MaterialSelector category values → Prisma InventoryCategory enum values
   const MATERIAL_TO_INVENTORY_CATEGORY: Record<string, string> = {
@@ -392,6 +391,7 @@ export function AddEditInventoryPage(): JSX.Element {
             <TouchInput
               label="Initial Qty"
               type="number"
+              inputMode="numeric"
               min="0"
               error={errors.quantityOnHand?.message}
               disabled={isEditing}
@@ -400,6 +400,7 @@ export function AddEditInventoryPage(): JSX.Element {
             <TouchInput
               label="Unit Cost ($)"
               type="number"
+              inputMode="decimal"
               step="0.01"
               min="0"
               error={errors.costPrice?.message}
@@ -408,6 +409,7 @@ export function AddEditInventoryPage(): JSX.Element {
             <TouchInput
               label="Reorder At"
               type="number"
+              inputMode="numeric"
               min="0"
               error={errors.reorderPoint?.message}
               {...register('reorderPoint', { valueAsNumber: true })}
@@ -415,6 +417,7 @@ export function AddEditInventoryPage(): JSX.Element {
             <TouchInput
               label="Reorder Qty"
               type="number"
+              inputMode="numeric"
               min="1"
               error={errors.reorderQuantity?.message}
               {...register('reorderQuantity', { valueAsNumber: true })}

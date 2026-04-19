@@ -8,7 +8,11 @@ export type Permission =
   | 'users:view' | 'users:invite' | 'users:edit' | 'users:remove'
   | 'settings:view' | 'settings:edit'
   | 'billing:view' | 'billing:edit'
-  | 'reports:view' | 'reports:export';
+  | 'reports:view' | 'reports:export'
+  | 'products:view' | 'products:create' | 'products:edit' | 'products:delete'
+  | 'images:upload' | 'images:delete'
+  | 'dashboard:view'
+  | 'catalog:search';
 
 export const PERMISSIONS: Record<Permission, UserRole[]> = {
   'orders:view':      ['OWNER', 'ADMIN', 'MANAGER', 'STAFF', 'VIEWER'],
@@ -38,6 +42,14 @@ export const PERMISSIONS: Record<Permission, UserRole[]> = {
   'billing:edit':     ['OWNER'],
   'reports:view':     ['OWNER', 'ADMIN', 'MANAGER'],
   'reports:export':   ['OWNER', 'ADMIN'],
+  'products:view':    ['OWNER', 'ADMIN', 'MANAGER', 'STAFF', 'VIEWER'],
+  'products:create':  ['OWNER', 'ADMIN', 'MANAGER'],
+  'products:edit':    ['OWNER', 'ADMIN', 'MANAGER'],
+  'products:delete':  ['OWNER', 'ADMIN'],
+  'images:upload':    ['OWNER', 'ADMIN', 'MANAGER', 'STAFF'],
+  'images:delete':    ['OWNER', 'ADMIN', 'MANAGER'],
+  'dashboard:view':   ['OWNER', 'ADMIN', 'MANAGER', 'STAFF', 'VIEWER'],
+  'catalog:search':   ['OWNER', 'ADMIN', 'MANAGER', 'STAFF', 'VIEWER'],
 };
 
 export function hasPermission(

@@ -6,6 +6,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   BuildingStorefrontIcon,
+  ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { clsx } from 'clsx';
@@ -50,7 +51,7 @@ export function PurchaseOrderListPage(): JSX.Element {
   const { data: vendorsList } = useVendors({ limit: 100 });
   const vendors = vendorsList?.data?.data ?? [];
 
-  const { data, isLoading, isError } = usePurchaseOrders({
+  const { data, isLoading, isError, refetch } = usePurchaseOrders({
     page,
     limit,
     status: status || undefined,
@@ -114,7 +115,7 @@ export function PurchaseOrderListPage(): JSX.Element {
             className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-gray-300 bg-white text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        
+
         {/* Status */}
         <select
           value={status}
@@ -149,6 +150,22 @@ export function PurchaseOrderListPage(): JSX.Element {
         </div>
       </div>
 
+      {/* Error Banner */}
+      {isError && (
+        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <ExclamationCircleIcon className="h-5 w-5 text-red-500 flex-shrink-0" />
+          <p className="text-sm text-red-700 flex-1">
+            Failed to load purchase orders. Check your connection and try again.
+          </p>
+          <button
+            onClick={() => void refetch()}
+            className="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors min-h-[44px] px-4 rounded-xl hover:bg-red-50"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Desktop Table View */}
       <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
@@ -167,7 +184,7 @@ export function PurchaseOrderListPage(): JSX.Element {
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <SkeletonLoader variant="table" rows={5} />
-              ) : isError || purchaseOrders.length === 0 ? (
+              ) : purchaseOrders.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="p-0">
                     <div className="flex justify-center p-8">
@@ -238,7 +255,7 @@ export function PurchaseOrderListPage(): JSX.Element {
       <div className="lg:hidden space-y-4">
         {isLoading ? (
           <SkeletonLoader variant="card" rows={4} />
-        ) : isError || purchaseOrders.length === 0 ? (
+        ) : purchaseOrders.length === 0 ? (
           <EmptyState
             icon={<BuildingStorefrontIcon className="h-8 w-8" />}
             title="No purchase orders found"

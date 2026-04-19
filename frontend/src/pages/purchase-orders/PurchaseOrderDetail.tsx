@@ -48,6 +48,7 @@ export function PurchaseOrderDetailPage(): JSX.Element {
   const po = data?.data;
 
   const sendPO = useSendPurchaseOrder();
+  const { confirm } = useConfirm();
 
   if (isLoading) {
     return (
@@ -80,8 +81,6 @@ export function PurchaseOrderDetailPage(): JSX.Element {
   const totalOrdered = po.items.reduce((acc, curr) => acc + curr.quantity, 0);
   const totalReceived = po.items.reduce((acc, curr) => acc + curr.quantityRecv, 0);
   const receiveProgress = totalOrdered > 0 ? (totalReceived / totalOrdered) * 100 : 0;
-  const { confirm } = useConfirm();
-
   return (
     <>
       <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6 print:p-0">

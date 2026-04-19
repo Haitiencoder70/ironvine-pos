@@ -136,6 +136,7 @@ export function PaymentModal({
                 </label>
                 <input
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   step="0.01"
                   value={cashTendered}
@@ -196,6 +197,7 @@ export function PaymentModal({
                 </label>
                 <input
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   max={total}
                   step="0.01"

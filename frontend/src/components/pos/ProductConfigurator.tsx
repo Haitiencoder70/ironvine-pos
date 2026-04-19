@@ -1,10 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
   getBrands,
   getStylesByBrand,
   getColorsByBrandAndStyle,
   getSizesByBrandAndStyle,
-  generateGarmentDescription
 } from '../../constants/productCatalog';
 import { Modal } from '../ui/Modal';
 import { TouchButton } from '../ui/TouchButton';

@@ -1,7 +1,7 @@
 import { ShieldCheckIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { useQuery } from '@tanstack/react-query';
-import { ROLE_PERMISSIONS, type Permission, type UserRole } from '../../lib/permissions';
+import { PERMISSIONS, type Permission, type UserRole } from '../../lib/permissions';
 import { useAuthStore } from '../../store/authStore';
 import { settingsApi, type AuditLogEntry } from '../../lib/api';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -12,8 +12,10 @@ const ROLES: UserRole[] = ['OWNER', 'MANAGER', 'STAFF'];
 
 const ROLE_COLORS: Record<UserRole, string> = {
   OWNER: 'bg-purple-100 text-purple-700',
+  ADMIN: 'bg-indigo-100 text-indigo-700',
   MANAGER: 'bg-blue-100 text-blue-700',
   STAFF: 'bg-gray-100 text-gray-700',
+  VIEWER: 'bg-green-100 text-green-700',
 };
 
 const PERMISSION_GROUPS: { label: string; permissions: Permission[] }[] = [
@@ -215,7 +217,7 @@ export function RolesPermissionsTab(): React.JSX.Element {
                       </div>
                     </td>
                     {ROLES.map((role) => {
-                      const granted = ROLE_PERMISSIONS[role].includes(perm);
+                      const granted = PERMISSIONS[perm]?.includes(role) ?? false;
                       return (
                         <td key={role} className="px-3 text-center min-h-[44px]">
                           <div className="flex items-center justify-center min-h-[44px]">

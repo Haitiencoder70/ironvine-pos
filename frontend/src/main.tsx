@@ -20,6 +20,7 @@ import { App } from './App';
 import { queryClient } from './lib/queryClient';
 import { setApiToken } from './lib/api';
 import { AuthSync } from './components/auth/AuthSync';
+import { getCurrentSubdomain } from './utils/tenant';
 import { IntercomWidget } from './components/support/IntercomWidget';
 import { heartbeatService } from './services/heartbeatService';
 import { useAuthStore } from './store/authStore';
@@ -36,8 +37,10 @@ function TokenSync(): null {
   const { organization } = useOrganization();
 
   React.useEffect(() => {
-    // Initialize heartbeat loop on first mount
-    heartbeatService.startHeartbeatLoop();
+    // Only start heartbeat on org subdomains — not on the marketing landing page
+    if (getCurrentSubdomain()) {
+      heartbeatService.startHeartbeatLoop();
+    }
   }, []);
 
   React.useEffect(() => {

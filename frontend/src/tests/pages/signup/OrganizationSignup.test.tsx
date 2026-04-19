@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { z } from 'zod';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../utils';
@@ -74,14 +75,12 @@ describe('OrganizationSignup — step 1 validation', () => {
 describe('OrganizationSignup — slug validation rule', () => {
   it('slug schema rejects uppercase letters', () => {
     // Test the Zod schema directly — simpler and more reliable than driving the full form
-    const { z } = require('zod');
     const schema = z.string().regex(/^[a-z0-9-]+$/, 'Only lowercase letters, numbers, and hyphens');
     expect(schema.safeParse('MyShop').success).toBe(false);
     expect(schema.safeParse('myshop').success).toBe(true);
   });
 
   it('slug schema rejects spaces', () => {
-    const { z } = require('zod');
     const schema = z.string().regex(/^[a-z0-9-]+$/, 'Only lowercase letters, numbers, and hyphens');
     expect(schema.safeParse('my shop').success).toBe(false);
     expect(schema.safeParse('my-shop').success).toBe(true);
@@ -102,9 +101,9 @@ describe('OrganizationSignup — step navigation', () => {
 
     await user.click(screen.getByRole('button', { name: /continue/i }));
 
-    // Step 2 shows personal details fields
+    // Step 2 shows plan selection
     await waitFor(() => {
-      expect(screen.getByText('First Name')).toBeInTheDocument();
+      expect(screen.getByText('Choose Plan')).toBeInTheDocument();
     });
   });
 });

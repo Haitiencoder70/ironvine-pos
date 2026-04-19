@@ -62,10 +62,36 @@ export function AddEditCustomerPage(): JSX.Element {
   const { canAddCustomer, billing } = usePlanLimits();
 
   const { data, isLoading: isFetchingCust } = useCustomer(id ?? '');
-  const customer = data?.data;
-
   const createCustomer = useCreateCustomer();
   const updateCustomer = useUpdateCustomer();
+  const { can } = usePermissions();
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      company: '',
+      phone: '',
+      email: '',
+      shippingSameAsBilling: true,
+      billing: { street: '', city: '', state: '', zip: '' },
+      shipping: { street: '', city: '', state: '', zip: '' },
+      notes: '',
+    },
+  });
+
+  const sameAsBilling = useWatch({ control, name: 'shippingSameAsBilling' });
+
+  const customer = data?.data;
+  const isSubmitting = createCustomer.isPending || updateCustomer.isPending;
+  const canSubmit = isEditing ? can('customers:edit') : can('customers:create');
 
   // Gate only applies when creating (not editing)
   const limitCheck = canAddCustomer(false);
@@ -92,32 +118,6 @@ export function AddEditCustomerPage(): JSX.Element {
       </div>
     );
   }
-  const isSubmitting = createCustomer.isPending || updateCustomer.isPending;
-  const { can } = usePermissions();
-  const canSubmit = isEditing ? can('customers:edit') : can('customers:create');
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      company: '',
-      phone: '',
-      email: '',
-      shippingSameAsBilling: true,
-      billing: { street: '', city: '', state: '', zip: '' },
-      shipping: { street: '', city: '', state: '', zip: '' },
-      notes: '',
-    },
-  });
-
-  const sameAsBilling = useWatch({ control, name: 'shippingSameAsBilling' });
 
   useEffect(() => {
     if (isEditing && customer) {
@@ -207,18 +207,21 @@ export function AddEditCustomerPage(): JSX.Element {
             <TouchInput
               label="First Name *"
               placeholder="Jane"
+              autoComplete="given-name"
               error={errors.firstName?.message}
               {...register('firstName')}
             />
             <TouchInput
               label="Last Name *"
               placeholder="Smith"
+              autoComplete="family-name"
               error={errors.lastName?.message}
               {...register('lastName')}
             />
             <TouchInput
               label="Company"
               placeholder="Acme Corp"
+              autoComplete="organization"
               icon={<BuildingOfficeIcon className="h-4 w-4" />}
               error={errors.company?.message}
               {...register('company')}
@@ -229,6 +232,7 @@ export function AddEditCustomerPage(): JSX.Element {
               label="Phone"
               placeholder="(555) 000-0000"
               type="tel"
+              autoComplete="tel"
               icon={<PhoneIcon className="h-4 w-4" />}
               error={errors.phone?.message}
               {...register('phone')}
@@ -237,6 +241,7 @@ export function AddEditCustomerPage(): JSX.Element {
               label="Email"
               placeholder="jane@example.com"
               type="email"
+              autoComplete="email"
               icon={<EnvelopeIcon className="h-4 w-4" />}
               error={errors.email?.message}
               {...register('email')}
@@ -255,6 +260,7 @@ export function AddEditCustomerPage(): JSX.Element {
             <div className="md:col-span-12">
                <TouchInput
                  label="Street Address"
+                 autoComplete="street-address"
                  {...register('billing.street')}
                  error={errors.billing?.street?.message}
                />
@@ -262,6 +268,7 @@ export function AddEditCustomerPage(): JSX.Element {
             <div className="md:col-span-5">
                <TouchInput
                  label="City"
+                 autoComplete="address-level2"
                  {...register('billing.city')}
                  error={errors.billing?.city?.message}
                />
@@ -279,6 +286,7 @@ export function AddEditCustomerPage(): JSX.Element {
             <div className="md:col-span-3">
                <TouchInput
                  label="ZIP"
+                 autoComplete="postal-code"
                  {...register('billing.zip')}
                  error={errors.billing?.zip?.message}
                />
@@ -309,6 +317,7 @@ export function AddEditCustomerPage(): JSX.Element {
               <div className="md:col-span-12">
                  <TouchInput
                    label="Street Address"
+                   autoComplete="street-address"
                    {...register('shipping.street')}
                    error={errors.shipping?.street?.message}
                  />
@@ -316,6 +325,7 @@ export function AddEditCustomerPage(): JSX.Element {
               <div className="md:col-span-5">
                  <TouchInput
                    label="City"
+                   autoComplete="address-level2"
                    {...register('shipping.city')}
                    error={errors.shipping?.city?.message}
                  />
@@ -333,6 +343,7 @@ export function AddEditCustomerPage(): JSX.Element {
               <div className="md:col-span-3">
                  <TouchInput
                    label="ZIP"
+                   autoComplete="postal-code"
                    {...register('shipping.zip')}
                    error={errors.shipping?.zip?.message}
                  />

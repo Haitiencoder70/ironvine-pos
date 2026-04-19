@@ -203,7 +203,7 @@ function ProductCard({
 
 export function ProductListPage(): JSX.Element {
   const navigate = useNavigate();
-  const { products, duplicateProduct, updateProduct, loadDefaultProducts } = useProducts();
+  const { products, isLoading, duplicateProduct, updateProduct, loadDefaultProducts } = useProducts();
 
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
@@ -350,8 +350,15 @@ export function ProductListPage(): JSX.Element {
         </select>
       </div>
 
-      {/* ── Product Grid / Empty State ── */}
-      {!hasAnyProducts ? (
+      {/* ── Product Grid / Empty State / Loading ── */}
+      {isLoading ? (
+        /* Loading skeleton */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-48 bg-gray-100 rounded-2xl" />
+          ))}
+        </div>
+      ) : !hasAnyProducts ? (
         /* Full empty state — no products at all */
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 flex flex-col items-center text-center gap-6">
           <div className="w-20 h-20 rounded-2xl bg-blue-50 flex items-center justify-center text-4xl">👕</div>

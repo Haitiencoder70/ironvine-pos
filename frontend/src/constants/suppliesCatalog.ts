@@ -6,7 +6,21 @@
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-export type SupplyUnit = 'each' | 'pack' | 'roll' | 'box' | 'case' | 'ream' | 'bag' | 'kit' | 'bottle';
+export type SupplyUnit =
+  | 'each'
+  | 'pack'
+  | 'roll'
+  | 'box'
+  | 'case'
+  | 'ream'
+  | 'bag'
+  | 'kit'
+  | 'bottle'
+  | 'pack of 25'
+  | 'pack of 100'
+  | 'pack of 250'
+  | 'roll of 500'
+  | 'each (60 sheets)';
 
 export interface SupplyVariant {
   id: string;

@@ -49,6 +49,8 @@ const mainDomainRouter = createBrowserRouter([
   { path: '/pricing', element: <Suspense fallback={<PageFallback />}><PricingPage /></Suspense> },
   { path: '/signup',  element: <Suspense fallback={<PageFallback />}><OrganizationSignup /></Suspense> },
   { path: '/sign-in/*', element: <Suspense fallback={<PageFallback />}><SignInPage /></Suspense> },
+  // After Clerk redirects to /dashboard on localhost (no subdomain), send user to signup flow
+  { path: '/dashboard', element: <Navigate to="/signup" replace /> },
   { path: '*',       element: <Navigate to="/" replace /> },
 ]);
 

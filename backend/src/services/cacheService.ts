@@ -6,19 +6,24 @@ const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
 let client: RedisClientType | null = null;
 let connected = false;
 
+let unavailable = false; // set permanently after first failed connect attempt
+
 async function getClient(): Promise<RedisClientType | null> {
+  if (unavailable) return null;
   if (connected) return client;
-  if (client) return null; // connection in progress or failed
+  if (client) return null; // connection in progress
 
   try {
-    client = createClient({ url: REDIS_URL }) as RedisClientType;
+    client = createClient({
+      url: REDIS_URL,
+      socket: {
+        reconnectStrategy: false, // don't retry — if Redis isn't there, skip it
+        connectTimeout: 2000,
+      },
+    }) as RedisClientType;
 
-    client.on('error', (err: Error) => {
-      logger.warn('Redis client error — cache disabled', { error: err.message });
-      connected = false;
-    });
-
-    client.on('reconnecting', () => {
+    client.on('error', () => {
+      // Suppress repeated error logs — already warned on first connect failure
       connected = false;
     });
 
@@ -29,6 +34,7 @@ async function getClient(): Promise<RedisClientType | null> {
     logger.warn('Redis unavailable — running without cache', { error: (err as Error).message });
     client = null;
     connected = false;
+    unavailable = true; // stop all future attempts
   }
 
   return connected ? client : null;

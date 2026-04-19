@@ -47,6 +47,8 @@ export function InventoryDetailPage(): JSX.Element {
   const [showAdjustModal, setShowAdjustModal] = useState(false);
 
   const { data, isLoading, isError, refetch } = useInventoryItem(id ?? '');
+  const { confirm } = useConfirm();
+  const deleteItem = useDeleteInventoryItem();
   const item = data?.data;
 
   // ── Skeleton ──
@@ -80,8 +82,6 @@ export function InventoryDetailPage(): JSX.Element {
   }
 
   const isLowStock = item.quantityAvailable <= item.reorderPoint;
-  const { confirm } = useConfirm();
-  const deleteItem = useDeleteInventoryItem();
 
   const handleDelete = async () => {
     if (!id) return;

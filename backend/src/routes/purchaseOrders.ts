@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
+
 import { validate } from '../middleware/validate';
 import { authorize } from '../middleware/authorize';
 import {
@@ -19,7 +18,7 @@ import { PurchaseOrderStatus } from '@prisma/client';
 export const purchaseOrdersRouter = Router();
 
 // All PO routes require auth + tenant
-purchaseOrdersRouter.use(requireAuth, injectTenant);
+// removed redundant middleware
 
 // ─── List Purchase Orders ─────────────────────────────────────────────────────
 purchaseOrdersRouter.get('/', authorize('pos:view'), validate(listPOQuerySchema, 'query'), getAll);

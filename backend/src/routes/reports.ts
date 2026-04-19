@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
+
 import { authorize } from '../middleware/authorize';
 import {
   getSalesReportHandler,
@@ -10,7 +9,7 @@ import {
 
 export const reportsRouter = Router();
 
-reportsRouter.use(requireAuth, injectTenant);
+// removed redundant middleware
 
 reportsRouter.get('/sales', authorize('reports:view'), getSalesReportHandler);
 reportsRouter.get('/inventory', authorize('reports:view'), getInventoryReportHandler);

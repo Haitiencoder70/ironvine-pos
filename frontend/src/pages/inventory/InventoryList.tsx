@@ -5,6 +5,7 @@ import {
   PlusIcon,
   ArrowUpTrayIcon,
   ExclamationTriangleIcon,
+  ExclamationCircleIcon,
   XMarkIcon,
   FunnelIcon,
   ChevronLeftIcon,
@@ -68,7 +69,7 @@ export function InventoryListPage(): JSX.Element {
   const [sortBy, setSortBy] = useState<'name' | 'quantity' | 'lowStock'>('name');
 
   // Query
-  const { data, isLoading, isError } = useInventory({
+  const { data, isLoading, isError, refetch } = useInventory({
     page,
     limit,
     search: debouncedSearch || undefined,
@@ -243,6 +244,22 @@ export function InventoryListPage(): JSX.Element {
         </div>
       </div>
 
+      {/* ── Error Banner ── */}
+      {isError && (
+        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <ExclamationCircleIcon className="h-5 w-5 text-red-500 flex-shrink-0" />
+          <p className="text-sm text-red-700 flex-1">
+            Failed to load inventory. Check your connection and try again.
+          </p>
+          <button
+            onClick={() => void refetch()}
+            className="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors min-h-[44px] px-4 rounded-xl hover:bg-red-50"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* ── Desktop Table ── */}
       <div className="hidden lg:block glass-panel rounded-2xl overflow-hidden border-white/10">
         <div className="overflow-x-auto">
@@ -261,13 +278,13 @@ export function InventoryListPage(): JSX.Element {
             <tbody className="divide-y divide-white/5">
               {isLoading ? (
                 <SkeletonLoader variant="table" rows={5} />
-              ) : isError || inventoryItems.length === 0 ? (
+              ) : inventoryItems.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="p-0">
                     <div className="flex justify-center p-8">
                       <EmptyState
-                        title={isError ? 'Failed to load inventory' : 'No items found'}
-                        description={isError ? 'Please check your connection.' : 'No inventory matches your criteria.'}
+                        title="No items found"
+                        description="No inventory matches your criteria."
                         minHeight="min-h-[300px]"
                         className="w-full max-w-lg border-0 shadow-none bg-transparent"
                       />
@@ -340,10 +357,10 @@ export function InventoryListPage(): JSX.Element {
       <div className="lg:hidden space-y-4">
         {isLoading ? (
           <SkeletonLoader variant="card" rows={4} />
-        ) : isError || inventoryItems.length === 0 ? (
+        ) : inventoryItems.length === 0 ? (
           <EmptyState
-            title={isError ? 'Failed to load inventory' : 'No items found'}
-            description={isError ? 'Please check your connection.' : 'No inventory matches your criteria.'}
+            title="No items found"
+            description="No inventory matches your criteria."
             minHeight="min-h-[200px]"
           />
         ) : (

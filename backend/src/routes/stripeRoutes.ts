@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import express from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
 import {
   createCheckout,
   createPortal,
@@ -14,6 +12,6 @@ export const stripeRouter = Router();
 stripeRouter.post('/webhook', express.raw({ type: 'application/json' }), webhook);
 
 // Authenticated routes
-stripeRouter.use(requireAuth, injectTenant);
+// removed redundant middleware
 stripeRouter.post('/create-checkout', createCheckout);
 stripeRouter.post('/create-portal', createPortal);

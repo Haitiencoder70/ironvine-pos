@@ -7,6 +7,7 @@ export function SignInPage(): JSX.Element {
       <SignIn
         routing="path"
         path="/sign-in"
+        fallbackRedirectUrl="/signup"
         appearance={{
           elements: {
             formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 min-h-[44px]',

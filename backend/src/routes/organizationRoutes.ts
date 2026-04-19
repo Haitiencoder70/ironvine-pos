@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../middleware/auth';
+import { requireRole } from '../middleware/auth';
 import {
   getCurrent,
   update,
@@ -15,15 +15,14 @@ import {
   getInvoices,
 } from '../controllers/organizationController';
 
-export const organizationRouter = Router();
-
 // ─── Public invite endpoints (no Clerk JWT required) ─────────────────────────
-// These sit on the router but must be mounted BEFORE the clerkAuth / tenant
-// middleware in app.ts.  We surface them here so all org-related routes live
-// in one file; see app.ts for the mounting order.
+// Mounted before clerkAuth in app.ts so unauthenticated invite-accept pages work.
+export const publicInviteRouter = Router();
+publicInviteRouter.get('/invites/:token',  getInviteDetails);
+publicInviteRouter.post('/invites/accept', acceptInviteHandler);
 
-organizationRouter.get('/invites/:token',  getInviteDetails);
-organizationRouter.post('/invites/accept', acceptInviteHandler);
+// ─── Authenticated router ─────────────────────────────────────────────────────
+export const organizationRouter = Router();
 
 // ─── Authenticated endpoints ──────────────────────────────────────────────────
 // All routes below require a valid Clerk session AND an organisation context.
@@ -31,17 +30,19 @@ organizationRouter.post('/invites/accept', acceptInviteHandler);
 //   (clerkAuth → injectTenant → requireAuth).
 
 // ── Organisation details ──────────────────────────────────────────────────────
-organizationRouter.get('/',       requireAuth, getCurrent);
-organizationRouter.patch('/',     requireAuth, requireRole(['org:admin', 'OWNER', 'ADMIN']), update);
-organizationRouter.get('/usage',  requireAuth, getUsage);
+// Note: requireAuth is applied globally in app.ts — no need to repeat it here.
+organizationRouter.get('/',      getCurrent);
+organizationRouter.get('/me',    getCurrent);   // alias used by frontend
+organizationRouter.patch('/',    requireRole(['org:admin', 'OWNER', 'ADMIN']), update);
+organizationRouter.get('/usage', getUsage);
 
 // ── Team management ───────────────────────────────────────────────────────────
-organizationRouter.get('/team',                    requireAuth, getTeam);
-organizationRouter.post('/team/invite',             requireAuth, requireRole(['org:admin', 'OWNER', 'ADMIN']), inviteUserHandler);
-organizationRouter.delete('/team/invites/:inviteId', requireAuth, requireRole(['org:admin', 'OWNER', 'ADMIN']), cancelInviteHandler);
-organizationRouter.delete('/team/:userId',           requireAuth, requireRole(['org:admin', 'OWNER', 'ADMIN']), removeUser);
-organizationRouter.patch('/team/:userId/role',       requireAuth, requireRole(['org:admin', 'OWNER', 'ADMIN']), updateUserRole);
+organizationRouter.get('/team',                      getTeam);
+organizationRouter.post('/team/invite',               requireRole(['org:admin', 'OWNER', 'ADMIN']), inviteUserHandler);
+organizationRouter.delete('/team/invites/:inviteId',  requireRole(['org:admin', 'OWNER', 'ADMIN']), cancelInviteHandler);
+organizationRouter.delete('/team/:userId',            requireRole(['org:admin', 'OWNER', 'ADMIN']), removeUser);
+organizationRouter.patch('/team/:userId/role',        requireRole(['org:admin', 'OWNER', 'ADMIN']), updateUserRole);
 
 // ── Billing ───────────────────────────────────────────────────────────────────
-organizationRouter.get('/billing',  requireAuth, getBilling);
-organizationRouter.get('/invoices', requireAuth, getInvoices);
+organizationRouter.get('/billing',  getBilling);
+organizationRouter.get('/invoices', getInvoices);

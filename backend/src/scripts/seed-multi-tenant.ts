@@ -9,7 +9,7 @@
  *   npx tsx src/scripts/seed-multi-tenant.ts
  */
 
-import { PrismaClient, SubscriptionPlan, UserRole, OrderStatus, GarmentType, PrintMethod } from '@prisma/client';
+import { PrismaClient, SubscriptionPlan, OrderStatus, GarmentType, PrintMethod } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -162,11 +162,11 @@ async function seedOrder(
       items: {
         create: [
           {
-            productId,
+            productType: productId,
             quantity: 10,
             unitPrice: 12.50,
-            size: 'L',
-            color: 'Black',
+            lineTotal: 125.00,
+            organizationId: orgId,
           },
         ],
       },
@@ -184,7 +184,9 @@ async function seedInventory(orgId: string, name: string, sku: string): Promise<
     data: {
       name,
       sku,
-      quantity: 200,
+      category: 'OTHER',
+      costPrice: 0,
+      quantityOnHand: 200,
       reorderPoint: 20,
       organizationId: orgId,
     },

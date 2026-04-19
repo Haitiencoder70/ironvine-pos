@@ -9,6 +9,7 @@ import {
   BuildingOfficeIcon,
   PhoneIcon,
   EnvelopeIcon,
+  ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { useCustomers } from '../../hooks/useCustomers';
@@ -42,7 +43,7 @@ export function CustomerListPage(): JSX.Element {
     created: 'createdAt',
   };
 
-  const { data, isLoading, isError } = useCustomers({
+  const { data, isLoading, isError, refetch } = useCustomers({
     page,
     limit,
     search: debouncedSearch,
@@ -133,6 +134,22 @@ export function CustomerListPage(): JSX.Element {
         </div>
       </div>
 
+      {/* Error Banner */}
+      {isError && (
+        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <ExclamationCircleIcon className="h-5 w-5 text-red-500 flex-shrink-0" />
+          <p className="text-sm text-red-700 flex-1">
+            Failed to load customers. Check your connection and try again.
+          </p>
+          <button
+            onClick={() => void refetch()}
+            className="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors min-h-[44px] px-4 rounded-xl hover:bg-red-50"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Desktop Table View */}
       <div className="hidden lg:block glass-panel rounded-2xl overflow-hidden border-white/10">
         <div className="overflow-x-auto">
@@ -150,7 +167,7 @@ export function CustomerListPage(): JSX.Element {
             <tbody className="divide-y divide-white/5">
               {isLoading ? (
                 <SkeletonLoader variant="table" rows={5} />
-              ) : isError || rawCustomers.length === 0 ? (
+              ) : rawCustomers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-0">
                     <div className="flex justify-center p-8">
@@ -230,7 +247,7 @@ export function CustomerListPage(): JSX.Element {
       <div className="lg:hidden space-y-4">
         {isLoading ? (
            <SkeletonLoader variant="card" rows={4} />
-        ) : isError || rawCustomers.length === 0 ? (
+        ) : rawCustomers.length === 0 ? (
           <EmptyState
             icon={<UserPlusIcon className="h-8 w-8" />}
             title="No customers found"

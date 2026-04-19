@@ -40,6 +40,7 @@ export interface CreateOrderItemInput {
   unitPrice: number;
   printMethod?: PrintMethod;
   printLocations?: PrintLocation[];
+  attributes?: Record<string, unknown>;
   description?: string;
   requiredMaterials?: RequiredMaterialInput[];
 }

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@clerk/clerk-react';
 import { z } from 'zod';
 import { PlanCard } from '../../components/signup/PlanCard';
 import { SubdomainChecker } from '../../components/signup/SubdomainChecker';
@@ -13,17 +14,6 @@ const step1Schema = z.object({
   industry: z.string().min(1, 'Please select an industry'),
 });
 
-const step2Schema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName:  z.string().min(1, 'Last name is required'),
-  email:     z.string().email('Enter a valid email'),
-  password:  z.string().min(8, 'Password must be at least 8 characters'),
-  confirm:   z.string(),
-}).refine((d) => d.password === d.confirm, {
-  message: 'Passwords do not match',
-  path: ['confirm'],
-});
-
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type PlanKey = 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';
@@ -33,20 +23,12 @@ interface FormState {
   name: string;
   slug: string;
   industry: string;
-  // Step 2
-  firstName: string;
-  lastName:  string;
-  email:     string;
-  password:  string;
-  confirm:   string;
-  // Step 3
   plan: PlanKey;
   cycle: 'monthly' | 'yearly';
 }
 
 const INITIAL: FormState = {
   name: '', slug: '', industry: '',
-  firstName: '', lastName: '', email: '', password: '', confirm: '',
   plan: 'FREE', cycle: 'monthly',
 };
 
@@ -83,26 +65,6 @@ const PLANS = [
   },
 ] as const;
 
-// ─── Password strength ────────────────────────────────────────────────────────
-
-function passwordStrength(pw: string): { score: number; label: string; color: string } {
-  let score = 0;
-  if (pw.length >= 8)  score++;
-  if (pw.length >= 12) score++;
-  if (/[A-Z]/.test(pw)) score++;
-  if (/[0-9]/.test(pw)) score++;
-  if (/[^A-Za-z0-9]/.test(pw)) score++;
-  const levels = [
-    { label: '', color: 'bg-gray-200' },
-    { label: 'Weak', color: 'bg-red-400' },
-    { label: 'Fair', color: 'bg-amber-400' },
-    { label: 'Good', color: 'bg-blue-400' },
-    { label: 'Strong', color: 'bg-green-500' },
-    { label: 'Very Strong', color: 'bg-green-600' },
-  ];
-  return { score, ...levels[score] };
-}
-
 // ─── Step indicators ─────────────────────────────────────────────────────────
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
@@ -136,7 +98,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full min-h-[44px] px-3 text-sm rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${props.className ?? ''}`}
+      className={`w-full min-h-[44px] px-3 text-sm text-gray-900 placeholder-gray-400 bg-white rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${props.className ?? ''}`}
     />
   );
 }
@@ -146,6 +108,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
 export function OrganizationSignup(): React.JSX.Element {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { isLoaded, isSignedIn } = useAuth();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>({
     ...INITIAL,
@@ -154,12 +117,19 @@ export function OrganizationSignup(): React.JSX.Element {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
+  // If Clerk has loaded and user is NOT signed in, send them to sign-up first
+  // They'll return here after authenticating
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      navigate('/sign-in?redirect_url=' + encodeURIComponent('/signup' + window.location.search));
+    }
+  }, [isLoaded, isSignedIn, navigate]);
+
   function set(field: keyof FormState, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
     setErrors((e) => { const next = { ...e }; delete next[field]; return next; });
   }
 
-  // Auto-generate slug from org name
   function handleNameChange(value: string) {
     set('name', value);
     if (!form.slug || form.slug === slugify(form.name)) {
@@ -174,18 +144,6 @@ export function OrganizationSignup(): React.JSX.Element {
   function validateStep(n: number): boolean {
     if (n === 1) {
       const result = step1Schema.safeParse({ name: form.name, slug: form.slug, industry: form.industry });
-      if (!result.success) {
-        const errs: Record<string, string> = {};
-        result.error.issues.forEach((i) => { errs[i.path[0] as string] = i.message; });
-        setErrors(errs);
-        return false;
-      }
-    }
-    if (n === 2) {
-      const result = step2Schema.safeParse({
-        firstName: form.firstName, lastName: form.lastName,
-        email: form.email, password: form.password, confirm: form.confirm,
-      });
       if (!result.success) {
         const errs: Record<string, string> = {};
         result.error.issues.forEach((i) => { errs[i.path[0] as string] = i.message; });
@@ -209,16 +167,15 @@ export function OrganizationSignup(): React.JSX.Element {
         name: form.name,
         slug: form.slug,
         industry: form.industry,
-        ownerFirstName: form.firstName,
-        ownerLastName: form.lastName,
-        ownerEmail: form.email,
         plan: form.plan,
       });
 
       if (result.checkoutUrl) {
         window.location.href = result.checkoutUrl;
       } else {
-        navigate('/dashboard');
+        // Redirect to the org's subdomain. In local dev, show instructions.
+        const appUrl = `http://${form.slug}.localhost:5173/dashboard`;
+        window.location.href = appUrl;
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
@@ -228,8 +185,17 @@ export function OrganizationSignup(): React.JSX.Element {
     }
   }
 
-  const STEP_TITLES = ['Organization Details', 'Owner Account', 'Choose Plan', 'Payment'];
-  const totalSteps = form.plan === 'FREE' ? 3 : 4;
+  // Show spinner while Clerk loads or redirecting unauthenticated users
+  if (!isLoaded || !isSignedIn) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="h-8 w-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  const STEP_TITLES = ['Organization Details', 'Choose Plan', 'Payment'];
+  const totalSteps = form.plan === 'FREE' ? 2 : 3;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-12">
@@ -280,44 +246,8 @@ export function OrganizationSignup(): React.JSX.Element {
             </div>
           )}
 
-          {/* ── Step 2: Owner Account ── */}
+          {/* ── Step 2: Choose Plan ── */}
           {step === 2 && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="First Name" error={errors.firstName}>
-                  <Input value={form.firstName} onChange={(e) => set('firstName', e.target.value)} placeholder="Jane" />
-                </Field>
-                <Field label="Last Name" error={errors.lastName}>
-                  <Input value={form.lastName} onChange={(e) => set('lastName', e.target.value)} placeholder="Smith" />
-                </Field>
-              </div>
-              <Field label="Email" error={errors.email}>
-                <Input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="jane@example.com" />
-              </Field>
-              <Field label="Password" error={errors.password}>
-                <Input type="password" value={form.password} onChange={(e) => set('password', e.target.value)} placeholder="Min 8 characters" />
-                {form.password && (() => {
-                  const s = passwordStrength(form.password);
-                  return (
-                    <div className="mt-1.5 space-y-1">
-                      <div className="flex gap-1">
-                        {[1,2,3,4,5].map((i) => (
-                          <div key={i} className={`h-1 flex-1 rounded-full ${i <= s.score ? s.color : 'bg-gray-200'}`} />
-                        ))}
-                      </div>
-                      {s.label && <p className="text-xs text-gray-500">{s.label}</p>}
-                    </div>
-                  );
-                })()}
-              </Field>
-              <Field label="Confirm Password" error={errors.confirm}>
-                <Input type="password" value={form.confirm} onChange={(e) => set('confirm', e.target.value)} placeholder="Repeat password" />
-              </Field>
-            </div>
-          )}
-
-          {/* ── Step 3: Choose Plan ── */}
-          {step === 3 && (
             <div className="space-y-4">
               <div className="flex justify-center">
                 <div className="inline-flex bg-gray-100 rounded-xl p-1 gap-1">

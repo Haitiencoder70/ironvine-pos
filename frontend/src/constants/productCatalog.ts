@@ -1,4 +1,3 @@
-import { clsx } from 'clsx';
 
 /**
  * PRODUCT CATALOG SYSTEM
@@ -35,6 +34,7 @@ export type FabricType =
   | '65% Poly / 35% Cotton'
   | '50% Poly / 25% Cotton / 25% Rayon'
   | '52% Cotton / 48% Poly'
+  | '60% Cotton / 40% Poly'
   | '100% Ring-Spun Cotton'
   | '50/50 Cotton/Poly'
   | '100% Cotton Pique';

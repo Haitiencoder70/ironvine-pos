@@ -4,7 +4,6 @@ import { clsx } from 'clsx';
 import { ProductGrid } from '../../components/pos/ProductGrid';
 import { CartPanel } from '../../components/pos/CartPanel';
 import { ReceiptModal } from '../../components/pos/ReceiptModal';
-import { ProductConfigurator } from '../../components/pos/ProductConfigurator';
 import { useCart } from '../../hooks/usePOS';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import type { Sale } from '../../types';
@@ -13,30 +12,9 @@ export function POSTerminal(): React.JSX.Element {
   const cartState = useCart();
   const [completedSale, setCompletedSale] = useState<Sale | null>(null);
   const [showMobileCart, setShowMobileCart] = useState(false);
-  const [showConfigurator, setShowConfigurator] = useState(false);
-
   const handleSaleComplete = (sale: Sale): void => {
     setCompletedSale(sale);
     setShowMobileCart(false);
-  };
-
-  const handleConfigureProduct = (config: {
-    name: string;
-    sku: string;
-    color: string;
-    size: string;
-    costPrice: number;
-  }) => {
-    cartState.addToCart({
-      id: `custom-${Date.now()}`, // Temporary ID for carted custom items
-      name: config.name,
-      sku: config.sku,
-      color: config.color,
-      size: config.size,
-      costPrice: config.costPrice,
-      quantityAvailable: 999, // Assumed for custom config
-    });
-    setShowConfigurator(false);
   };
 
   const cartCount = cartState.cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -58,7 +36,7 @@ export function POSTerminal(): React.JSX.Element {
           <div className="flex-1 overflow-hidden">
             <ProductGrid
               onAddToCart={cartState.addToCart}
-              onOpenConfigurator={() => setShowConfigurator(true)}
+              onOpenConfigurator={() => undefined}
             />
           </div>
         </div>

@@ -6,6 +6,7 @@ import { TopBar } from './TopBar';
 import { SocketInit } from './SocketInit';
 import { BottomNav } from '../mobile/BottomNav';
 import { Omnibar } from '../ui/Omnibar';
+import { OfflineBanner } from '../ui/OfflineBanner';
 import { PlanLimitBanner } from '../PlanLimitBanner';
 import { UpgradeModal } from '../UpgradeModal';
 import { useUiStore } from '../../store/uiStore';
@@ -50,6 +51,7 @@ export function MainLayout(): React.JSX.Element {
 
   return (
     <div className="flex h-screen overflow-hidden bg-transparent">
+      <OfflineBanner />
       <SocketInit />
       <Omnibar />
 

@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
+
 import { checkLimit } from '../middleware/limits';
 import { validate } from '../middleware/validate';
 import { authorize } from '../middleware/authorize';
@@ -24,7 +23,7 @@ import { z } from 'zod';
 export const inventoryRouter = Router();
 
 // All inventory routes require auth + tenant
-inventoryRouter.use(requireAuth, injectTenant);
+// removed redundant middleware
 
 // ─── List Inventory ───────────────────────────────────────────────────────────
 inventoryRouter.get('/', authorize('inventory:view'), validate(listInventoryQuerySchema, 'query'), getAll);

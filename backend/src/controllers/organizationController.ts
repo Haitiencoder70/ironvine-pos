@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
+import { getAuth } from '@clerk/express';
 import { AuthenticatedRequest } from '../types';
 import { AppError } from '../middleware/errorHandler';
 import { prisma } from '../lib/prisma';
@@ -79,7 +80,14 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
     const parsed = updateOrgSchema.safeParse(req.body);
     if (!parsed.success) return next(new AppError(400, parsed.error.message, 'VALIDATION_ERROR'));
 
-    const updated = await updateOrganization(orgDbId, parsed.data, authReq.auth.userId);
+    const { logoUrl, primaryColor, secondaryColor, ...rest } = parsed.data;
+    const updateInput = {
+      ...rest,
+      ...(logoUrl !== undefined && { logoUrl: logoUrl === null ? undefined : logoUrl }),
+      ...(primaryColor !== undefined && { primaryColor: primaryColor === null ? undefined : primaryColor }),
+      ...(secondaryColor !== undefined && { secondaryColor: secondaryColor === null ? undefined : secondaryColor }),
+    };
+    const updated = await updateOrganization(orgDbId, updateInput, authReq.auth.userId);
     res.json({ data: updated });
   } catch (err) {
     next(err);
@@ -320,6 +328,93 @@ export const getInvoices = async (req: Request, res: Response, next: NextFunctio
     });
 
     res.json({ data: history });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── checkSlugAvailability ────────────────────────────────────────────────────
+// Public — no tenant context required (used before org is created).
+
+const slugCheckSchema = z.object({
+  slug: z.string().min(2).max(60).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, or hyphens'),
+});
+
+export const checkSlugAvailability = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const parsed = slugCheckSchema.safeParse(req.query);
+    if (!parsed.success) {
+      return next(new AppError(400, parsed.error.errors[0]?.message ?? 'Invalid slug', 'VALIDATION_ERROR'));
+    }
+
+    const { slug } = parsed.data;
+    const existing = await prisma.organization.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+
+    if (existing) {
+      const base = slug.replace(/-\d+$/, '');
+      const suggestions = [1, 2, 3].map((n) => `${base}-${n}`);
+      res.json({ available: false, suggestions });
+    } else {
+      res.json({ available: true });
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── createOrganization ───────────────────────────────────────────────────────
+// Requires Clerk auth but NO tenant context — creates the org for the first time.
+
+const createOrgSchema = z.object({
+  name:           z.string().min(1).max(120),
+  slug:           z.string().min(2).max(60).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, or hyphens'),
+  industry:       z.string().min(1).max(80),
+  ownerFirstName: z.string().max(80).optional().or(z.literal('')),
+  ownerLastName:  z.string().max(80).optional().or(z.literal('')),
+  ownerEmail:     z.string().email().optional().or(z.literal('')),
+  plan:           z.enum(['FREE', 'STARTER', 'PROFESSIONAL', 'ENTERPRISE']),
+});
+
+export const createOrganization = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const auth = getAuth(req);
+    if (!auth.userId) {
+      return next(new AppError(401, 'Authentication required.', 'UNAUTHENTICATED'));
+    }
+
+    const parsed = createOrgSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return next(new AppError(400, parsed.error.errors[0]?.message ?? 'Invalid input', 'VALIDATION_ERROR'));
+    }
+
+    const { name, slug, plan } = parsed.data;
+
+    // Ensure slug is unique
+    const existing = await prisma.organization.findUnique({ where: { slug }, select: { id: true } });
+    if (existing) {
+      return next(new AppError(409, 'That slug is already taken.', 'SLUG_TAKEN'));
+    }
+
+    // Use Clerk orgId from session if available, otherwise use userId as placeholder
+    const clerkOrgId = auth.orgId ?? `pending_${auth.userId}`;
+
+    const org = await prisma.organization.upsert({
+      where:  { clerkOrgId },
+      update: { name, slug, subdomain: slug },
+      create: {
+        clerkOrgId,
+        name,
+        slug,
+        subdomain: slug,
+        plan: plan === 'PROFESSIONAL' ? 'PRO' : plan as 'FREE' | 'STARTER' | 'ENTERPRISE',
+      },
+      select: { id: true, slug: true },
+    });
+
+    res.status(201).json({ organizationId: org.id });
   } catch (err) {
     next(err);
   }

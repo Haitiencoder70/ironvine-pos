@@ -209,7 +209,7 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
       // Add stock if linked to an inventory item
       const inventoryItemId = item.inventoryItemId ?? poItem.inventoryItemId;
       if (inventoryItemId) {
-        await receiveStock(tx, {
+        await receiveStock(tx as Prisma.TransactionClient, {
           organizationId,
           inventoryItemId,
           quantity: item.quantityReceived,

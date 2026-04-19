@@ -1,10 +1,8 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
+import { authorize } from '../middleware/authorize';
+
 import { globalSearchHandler } from '../controllers/searchController';
 
 export const searchRouter = Router();
 
-searchRouter.use(requireAuth, injectTenant);
-
-searchRouter.get('/', globalSearchHandler);
+searchRouter.get('/', authorize('catalog:search'), globalSearchHandler);

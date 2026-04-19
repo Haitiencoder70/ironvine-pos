@@ -1,5 +1,4 @@
 import { baseTemplate, ctaButton, h1, p, featureList, infoBox, divider } from './base';
-import { APP_URL } from '../../lib/resend';
 
 export function inviteEmailHtml(opts: {
   inviterName: string;

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
+import { authorize } from '../middleware/authorize';
+
 import {
   getStats,
   getRecentOrdersHandler,
@@ -14,15 +14,12 @@ import {
 
 export const dashboardRouter = Router();
 
-// All dashboard routes require auth + tenant
-dashboardRouter.use(requireAuth, injectTenant);
-
 // ─── Dashboard Stats ──────────────────────────────────────────────────────────
-dashboardRouter.get('/stats', getStats);
-dashboardRouter.get('/recent-orders', getRecentOrdersHandler);
-dashboardRouter.get('/orders-by-status', getOrdersByStatusHandler);
-dashboardRouter.get('/low-stock', getLowStockAlertsHandler);
-dashboardRouter.get('/pending-pos', getPendingPOsHandler);
-dashboardRouter.get('/profit-stats', getProfitStatsHandler);
-dashboardRouter.get('/profit-trend', getProfitTrendHandler);
-dashboardRouter.get('/top-products', getTopProductsHandler);
+dashboardRouter.get('/stats', authorize('dashboard:view'), getStats);
+dashboardRouter.get('/recent-orders', authorize('dashboard:view'), getRecentOrdersHandler);
+dashboardRouter.get('/orders-by-status', authorize('dashboard:view'), getOrdersByStatusHandler);
+dashboardRouter.get('/low-stock', authorize('dashboard:view'), getLowStockAlertsHandler);
+dashboardRouter.get('/pending-pos', authorize('dashboard:view'), getPendingPOsHandler);
+dashboardRouter.get('/profit-stats', authorize('dashboard:view'), getProfitStatsHandler);
+dashboardRouter.get('/profit-trend', authorize('dashboard:view'), getProfitTrendHandler);
+dashboardRouter.get('/top-products', authorize('dashboard:view'), getTopProductsHandler);

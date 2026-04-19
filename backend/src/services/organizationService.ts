@@ -271,7 +271,7 @@ export async function deleteOrganization(orgDbId: string, performedBy: string): 
   // Cancel Stripe subscription immediately (non-fatal if it fails)
   if (org.stripeSubscriptionId && env.STRIPE_SECRET_KEY) {
     try {
-      const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-03-31.basil' });
+      const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-02-24.acacia' });
       await stripe.subscriptions.cancel(org.stripeSubscriptionId);
       logger.info('Stripe subscription cancelled', { subscriptionId: org.stripeSubscriptionId, orgId: orgDbId });
     } catch (err) {

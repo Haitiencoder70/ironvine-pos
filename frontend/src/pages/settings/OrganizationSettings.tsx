@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { settingsApi } from '../../services/api';
-import { useBillingUsage, useCreateCheckout, useOpenPortal } from '../../hooks/useBilling';
+import { useBillingUsage, useOpenPortal } from '../../hooks/useBilling';
 import { UsageProgressBar } from '../../components/settings/UsageProgressBar';
 import { InviteUserModal } from '../../components/settings/InviteUserModal';
 import { EditUserRoleModal } from '../../components/settings/EditUserRoleModal';
@@ -106,7 +106,7 @@ function GeneralTab({ settings, onSave }: { settings: OrgSettings; onSave: (d: P
         <Input value={settings.slug ?? ''} disabled />
       </Field>
       <Field label="Industry">
-        <Select value={(settings as OrgSettings & { industry?: string }).industry ?? ''} onChange={(e) => onSave({ ...(settings as Record<string, unknown>), industry: e.target.value } as Partial<OrgSettings>)}>
+        <Select value={(settings as OrgSettings & { industry?: string }).industry ?? ''} onChange={(e) => onSave({ ...(settings as unknown as Record<string, unknown>), industry: e.target.value } as Partial<OrgSettings>)}>
           <option value="">Select industry…</option>
           {INDUSTRIES.map((i) => <option key={i} value={i}>{i}</option>)}
         </Select>
@@ -157,7 +157,7 @@ function BrandingTab({ settings, plan }: { settings: OrgSettings; plan: string }
     if (!file) return;
     const id = toast.loading('Uploading logo…');
     settingsApi.uploadLogo(file)
-      .then((res) => {
+      .then((_res) => {
         void qc.invalidateQueries({ queryKey: ['settings', 'org'] });
         toast.success('Logo updated', { id });
       })
@@ -366,7 +366,6 @@ function TeamTab() {
 function BillingTab() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const { data: billing, isLoading } = useBillingUsage();
-  const checkout = useCreateCheckout();
   const portal = useOpenPortal();
 
   const currentUser = useAuthStore((s) => s.user);

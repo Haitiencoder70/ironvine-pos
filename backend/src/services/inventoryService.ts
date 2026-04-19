@@ -338,8 +338,6 @@ export async function getInventoryItemById(
     ...item,
     quantityAvailable: Math.max(0, item.quantityOnHand - item.quantityReserved),
   };
-
-  return item;
 }
 
 export interface UpdateInventoryItemInput {

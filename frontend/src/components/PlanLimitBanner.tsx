@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { usePlanLimits } from '../hooks/usePlanLimits';
 import { formatCount, getPercentage } from '../utils/formatUsage';
 import type { LimitType } from '../hooks/usePlanLimits';
@@ -12,7 +11,6 @@ const LIMIT_LABELS: Record<LimitType, string> = {
 };
 
 export function PlanLimitBanner(): React.JSX.Element | null {
-  const navigate = useNavigate();
   const { billing, limitStatuses, showUpgradeModal } = usePlanLimits();
   const [dismissed, setDismissed] = useState<LimitType | null>(null);
 

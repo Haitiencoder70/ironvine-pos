@@ -44,7 +44,7 @@ async function send(opts: {
       subject: opts.subject,
       html: opts.html,
       text: opts.text,
-      reply_to: opts.replyTo,
+      replyTo: opts.replyTo,
     });
     if (error) {
       logger.error('[email] Resend error', { to: opts.to, subject: opts.subject, error });

@@ -6,7 +6,6 @@ import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
 import { env } from '../config/env';
 import { createOrganization, getOrganizationUsage } from './organizationService';
-import { SUBSCRIPTION_LIMITS } from '../types';
 
 const resend = new Resend(process.env['RESEND_API_KEY'] ?? 're_dummy_key');
 
@@ -219,7 +218,7 @@ export async function upgradeOrganization(
 
     if (priceId) {
       try {
-        const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-03-31.basil' });
+        const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-02-24.acacia' });
         const subscription = await stripe.subscriptions.retrieve(org.stripeSubscriptionId);
         const itemId = subscription.items.data[0]?.id;
         if (itemId) {
@@ -324,7 +323,7 @@ export async function downgradeOrganization(
 
     if (priceId) {
       try {
-        const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-03-31.basil' });
+        const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-02-24.acacia' });
         const subscription = await stripe.subscriptions.retrieve(org.stripeSubscriptionId);
         const itemId = subscription.items.data[0]?.id;
         if (itemId) {
@@ -340,7 +339,7 @@ export async function downgradeOrganization(
     } else if (newPlan === 'FREE') {
       // Cancels at period end on downgrade to free
       try {
-        const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-03-31.basil' });
+        const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-02-24.acacia' });
         await stripe.subscriptions.update(org.stripeSubscriptionId, { cancel_at_period_end: true });
       } catch (err) {
         logger.error('Stripe cancel-at-period-end failed', { err, orgId: orgDbId });

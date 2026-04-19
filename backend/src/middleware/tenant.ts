@@ -28,6 +28,11 @@ function extractSubdomain(hostname: string): string | null {
   // Skip raw IP addresses
   if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return null;
 
+  // Handle *.localhost for local development (e.g. "ironvine.localhost")
+  if (host.endsWith('.localhost')) {
+    return host.replace(/\.localhost$/, '') || null;
+  }
+
   // Skip localhost and single-label hosts
   const parts = host.split('.');
   if (parts.length < 3) return null;
@@ -64,7 +69,11 @@ export async function injectTenant(
   const authReq = req as AuthenticatedRequest;
 
   try {
-    const subdomain = extractSubdomain(req.hostname);
+    // Also accept X-Organization-Slug header as a subdomain hint (used in local
+    // dev where the frontend runs on localhost without a real subdomain).
+    const headerSlug = req.headers['x-organization-slug'] as string | undefined;
+    const subdomain = extractSubdomain(req.hostname) ?? (headerSlug || null);
+    logger.debug('injectTenant', { hostname: req.hostname, headerSlug, subdomain, path: req.path });
 
     if (subdomain) {
       // ── Path 1: subdomain-based lookup (cache-first) ────────────────────────

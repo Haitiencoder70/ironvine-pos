@@ -22,7 +22,7 @@ interface ProductGridProps {
   onOpenConfigurator: () => void;
 }
 
-export function ProductGrid({ onAddToCart, onOpenConfigurator }: ProductGridProps): React.JSX.Element {
+export function ProductGrid({ onAddToCart, onOpenConfigurator: _onOpenConfigurator }: ProductGridProps): React.JSX.Element {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [tappedId, setTappedId] = useState<string | null>(null);
@@ -83,7 +83,7 @@ export function ProductGrid({ onAddToCart, onOpenConfigurator }: ProductGridProp
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {Array.from({ length: 8 }).map((_, i) => (
-              <SkeletonLoader key={i} lines={3} />
+              <SkeletonLoader key={i} rows={3} />
             ))}
           </div>
         ) : products.length === 0 ? (

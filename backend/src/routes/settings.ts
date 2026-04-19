@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
+
 import { authorize } from '../middleware/authorize';
 import {
   getOrgHandler,
@@ -16,7 +15,7 @@ import {
 
 export const settingsRouter = Router();
 
-settingsRouter.use(requireAuth, injectTenant);
+// removed redundant middleware
 
 // Org
 settingsRouter.get('/org', authorize('settings:view'), getOrgHandler);

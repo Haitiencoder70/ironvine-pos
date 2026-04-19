@@ -2,9 +2,44 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
 
+const trackingQuery = {
+  include: {
+    items: {
+      select: {
+        id: true,
+        productType: true,
+        quantity: true,
+        printMethod: true,
+      },
+    },
+    statusHistory: {
+      orderBy: { createdAt: 'desc' as const },
+      select: {
+        fromStatus: true,
+        toStatus: true,
+        createdAt: true,
+        // purposely omitting 'notes' and 'changedBy' to ensure privacy
+      },
+    },
+    organization: {
+      select: {
+        name: true,
+        logoUrl: true,
+      },
+    },
+    customer: {
+      select: {
+        firstName: true,
+        // Last name obscured or completely omitted for privacy, just need greeting
+      },
+    },
+  },
+} as const;
+
 export const getOrderTrackingStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { id } = req.params;
+    const rawId = req.params['id'];
+    const id = Array.isArray(rawId) ? rawId[0] : rawId;
 
     if (!id) {
       throw new AppError(400, 'Order ID is required', 'MISSING_ORDER_ID');
@@ -12,39 +47,7 @@ export const getOrderTrackingStatus = async (req: Request, res: Response, next: 
 
     const order = await prisma.order.findUnique({
       where: { id },
-      include: {
-        items: {
-          select: {
-            id: true,
-            productType: true,
-            quantity: true,
-            color: true,
-            size: true,
-            printMethod: true,
-          }
-        },
-        statusHistory: {
-          orderBy: { createdAt: 'desc' },
-          select: {
-            fromStatus: true,
-            toStatus: true,
-            createdAt: true,
-            // purposely omitting 'notes' and 'changedBy' to ensure privacy
-          }
-        },
-        organization: {
-          select: {
-            name: true,
-            logoUrl: true,
-          }
-        },
-        customer: {
-          select: {
-            firstName: true,
-            // Last name obscured or completely omitted for privacy, just need greeting
-          }
-        }
-      }
+      ...trackingQuery,
     });
 
     if (!order || order.status === 'CANCELLED') {
@@ -64,7 +67,7 @@ export const getOrderTrackingStatus = async (req: Request, res: Response, next: 
         history: order.statusHistory,
         organization: order.organization,
         customerName: order.customer.firstName,
-      }
+      },
     });
   } catch (error) {
     next(error);

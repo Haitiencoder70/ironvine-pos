@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
+
 import {
   getBrandingHandler,
   saveBrandingHandler,
@@ -11,7 +10,7 @@ import {
 
 export const brandingRouter = Router();
 
-brandingRouter.use(requireAuth, injectTenant);
+// removed redundant middleware
 
 brandingRouter.get('/',                getBrandingHandler);
 brandingRouter.put('/',                saveBrandingHandler);

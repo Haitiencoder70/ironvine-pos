@@ -18,6 +18,8 @@ import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { clerkAuth, requireAuth } from './middleware/auth';
 import { injectTenant } from './middleware/tenant';
+import { sanitizeInput } from './middleware/sanitize';
+import { authLimiter, uploadLimiter } from './middleware/rateLimiter';
 
 // Routers
 import { healthRouter } from './routes/health';
@@ -31,13 +33,14 @@ import { purchaseOrdersRouter } from './routes/purchaseOrders';
 import { shipmentsRouter } from './routes/shipments';
 import { reportsRouter } from './routes/reports';
 import { settingsRouter } from './routes/settings';
-import { billingRouter } from './routes/billing';
+import { billingRouter, billingWebhookRouter } from './routes/billing';
 import { searchRouter } from './routes/search';
 import { posRouter } from './routes/pos';
 import { productsRouter, productCategoriesRouter, productAddOnsRouter } from './routes/products';
 import { imagesRouter } from './routes/images';
 import { trackingRouter } from './routes/tracking';
-import { organizationRouter } from './routes/organizationRoutes';
+import { organizationRouter, publicInviteRouter } from './routes/organizationRoutes';
+import { organizationsRouter } from './routes/organizationsRoutes';
 import { analyticsRouter } from './routes/analytics';
 import { brandingRouter } from './routes/branding';
 import { auditLogRouter } from './routes/auditLog';
@@ -50,12 +53,27 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'", "https://js.stripe.com", "https://browser.sentry-cdn.com"],
-      frameSrc: ["https://js.stripe.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://sentry.io", "https://*.sentry.io"],
+      scriptSrc: [
+        "'self'",
+        "https://js.stripe.com",
+        "https://browser.sentry-cdn.com",
+        "https://clerk.dev",
+        "https://*.clerk.accounts.dev",
+      ],
+      frameSrc: ["https://js.stripe.com", "https://clerk.dev", "https://*.clerk.accounts.dev"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      connectSrc: [
+        "'self'",
+        "https://sentry.io",
+        "https://*.sentry.io",
+        "https://api.stripe.com",
+        "https://clerk.dev",
+        "https://*.clerk.accounts.dev",
+        env.CORS_ORIGINS,
+      ],
     },
   },
+  crossOriginEmbedderPolicy: false,
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
@@ -65,11 +83,23 @@ app.use(helmet({
 app.use(compression());
 app.use(
   cors({
-    origin: env.CORS_ORIGINS.split(','),
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const allowed = env.CORS_ORIGINS.split(',').map(o => o.trim());
+      // Allow exact matches or any subdomain of an allowed origin
+      const isAllowed = allowed.some(a => {
+        if (origin === a) return true;
+        // e.g. allow *.localhost:5173 if localhost:5173 is in the list
+        const base = a.replace(/^https?:\/\//, '');
+        return origin.endsWith(`.${base}`) || new RegExp(`^https?://${base.replace('.', '\\.')}$`).test(origin);
+      });
+      callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+    },
     credentials: true,
   }),
 );
 app.use(express.json({ limit: '10mb' }));
+app.use(sanitizeInput);
 // Global rate limiter — coarse guard before auth resolves
 app.use(
   rateLimit({
@@ -104,17 +134,18 @@ app.use('/api/health', healthRouter);
 // Order tracking is unauthenticated (customers use a share link).
 app.use('/api/tracking', trackingRouter);
 
-// ─── Billing (before clerkAuth — Stripe webhooks carry no auth token) ─────
-app.use('/api/billing', billingRouter);
+// ─── Stripe webhook (before clerkAuth — raw body, no Clerk JWT) ──────────
+app.use('/api/billing', billingWebhookRouter);
 
 // ─── Public org invite endpoints (no auth — accept-invite page) ───────────
-// Only the two public sub-routes are accessible here; all other /api/organization
-// routes are protected by the tenant+auth chain mounted below.
-app.use('/api/organization', organizationRouter);
+app.use('/api/organization', publicInviteRouter);
 
 // ─── Clerk auth middleware ────────────────────────────────────────────────
 // Parses and verifies the Clerk JWT for all /api routes below.
 app.use('/api', clerkAuth);
+
+// ─── Signup endpoints (auth but no tenant context yet) ───────────────────
+app.use('/api/organizations', organizationsRouter);
 
 // ─── Tenant + auth middleware chain ──────────────────────────────────────
 // Order matters:
@@ -134,7 +165,7 @@ app.use('/api', orgRateLimiter);
 app.use('/api', requestTimer);
 
 // ─── API Routes ───────────────────────────────────────────────────────────
-app.use('/api/auth',              authRouter);
+app.use('/api/auth',              authLimiter, authRouter);
 app.use('/api/dashboard',         dashboardRouter);
 app.use('/api/orders',            ordersRouter);
 app.use('/api/inventory',         inventoryRouter);
@@ -143,13 +174,14 @@ app.use('/api/vendors',           vendorsRouter);
 app.use('/api/purchase-orders',   purchaseOrdersRouter);
 app.use('/api/shipments',         shipmentsRouter);
 app.use('/api/reports',           reportsRouter);
+app.use('/api/billing',           billingRouter);
 app.use('/api/settings',          settingsRouter);
 app.use('/api/search',            searchRouter);
 app.use('/api/pos',               posRouter);
 app.use('/api/products',          productsRouter);
 app.use('/api/product-categories', productCategoriesRouter);
 app.use('/api/product-addons',    productAddOnsRouter);
-app.use('/api/images',            imagesRouter);
+app.use('/api/images',            uploadLimiter, imagesRouter);
 app.use('/api/organization',      organizationRouter);
 app.use('/api/analytics',         analyticsRouter);
 app.use('/api/branding',          brandingRouter);

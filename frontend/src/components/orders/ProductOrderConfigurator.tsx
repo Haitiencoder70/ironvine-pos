@@ -165,6 +165,7 @@ function CustomItemForm({ onBack, onAdd }: CustomItemFormProps): JSX.Element {
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Quantity *</label>
             <input
               type="number"
+              inputMode="numeric"
               min={1}
               value={quantity}
               onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
@@ -175,6 +176,7 @@ function CustomItemForm({ onBack, onAdd }: CustomItemFormProps): JSX.Element {
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Unit Price ($) *</label>
             <input
               type="number"
+              inputMode="decimal"
               step="0.01"
               min={0}
               value={unitPrice}
@@ -279,6 +281,7 @@ function PriceOverrideRow({ originalPrice, overridePrice, overrideReason, onPric
               <label className="block text-xs font-medium text-gray-600 mb-1">Override Unit Price ($)</label>
               <input
                 type="number"
+                inputMode="decimal"
                 step="0.01"
                 min={0}
                 value={overridePrice}
@@ -585,6 +588,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Quantity *</label>
               <input
                 type="number"
+                inputMode="numeric"
                 min={1}
                 value={singleQty}
                 onChange={e => setSingleQty(Math.max(1, parseInt(e.target.value) || 1))}
@@ -608,6 +612,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
                       </div>
                       <input
                         type="number"
+                        inputMode="numeric"
                         min={0}
                         value={sizeBreakdown[size] ?? 0}
                         onChange={e => setSizeBreakdown(prev => ({

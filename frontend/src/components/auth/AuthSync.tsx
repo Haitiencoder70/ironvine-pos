@@ -35,10 +35,9 @@ export function AuthSync(): null {
   }, [clerkUser, setUser]);
 
   useEffect(() => {
-    if (!clerkOrg) {
-      setOrganization(null);
-      return;
-    }
+    // Only sync from Clerk if a Clerk org exists.
+    // TenantProvider owns the org state when using DB-backed orgs.
+    if (!clerkOrg) return;
 
     setOrganization({
       id: clerkOrg.id,

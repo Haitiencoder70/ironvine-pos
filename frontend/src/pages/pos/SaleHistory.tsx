@@ -34,7 +34,7 @@ export function SaleHistory(): React.JSX.Element {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <SkeletonLoader key={i} lines={2} />
+            <SkeletonLoader key={i} rows={2} />
           ))}
         </div>
       ) : sales.length === 0 ? (

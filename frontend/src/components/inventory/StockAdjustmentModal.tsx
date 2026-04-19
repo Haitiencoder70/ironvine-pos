@@ -171,6 +171,7 @@ export function StockAdjustmentModal({ open, onClose, item }: StockAdjustmentMod
               <div className="relative">
                 <input
                   type="number"
+                  inputMode="numeric"
                   {...field}
                   onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                   className={clsx(

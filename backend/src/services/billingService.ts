@@ -6,7 +6,6 @@ import { SubscriptionPlan } from '@prisma/client';
 import { stripe, PRICE_IDS } from '../config/stripe';
 import {
   notifySubscriptionConfirmed,
-  notifyPaymentSuccess,
   notifyPaymentFailed as notifyPaymentFailedEmail,
   notifySubscriptionCanceled,
 } from './notificationService';
@@ -52,14 +51,17 @@ export async function createCheckoutSession(
     });
   }
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'subscription',
-    customer: customerId,
-    line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${returnUrl}?billing=success`,
-    cancel_url: `${returnUrl}?billing=canceled`,
-    metadata: { orgDbId },
-  });
+  const session = await stripe.checkout.sessions.create(
+    {
+      mode: 'subscription',
+      customer: customerId,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${returnUrl}?billing=success`,
+      cancel_url: `${returnUrl}?billing=canceled`,
+      metadata: { orgDbId },
+    },
+    { idempotencyKey: `checkout-${orgDbId}-${plan}` },
+  );
 
   if (!session.url) throw new AppError(500, 'Failed to create Stripe checkout session', 'STRIPE_ERROR');
   return session.url;

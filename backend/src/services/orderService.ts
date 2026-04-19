@@ -164,7 +164,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
     });
 
     return created;
-  });
+  }) as Order & { items: OrderItem[] };
 
   logger.info('Order created', { orderId: order.id, orderNumber: order.orderNumber, organizationId });
   emitToOrg(organizationId, 'order:created', order);

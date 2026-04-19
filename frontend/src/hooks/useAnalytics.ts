@@ -13,7 +13,7 @@ export interface PeriodUsage {
 }
 
 async function fetchCurrentPeriod(): Promise<PeriodUsage[]> {
-  const res = await api.get<{ data: PeriodUsage[] }>('/api/analytics/current');
+  const res = await api.get<{ data: PeriodUsage[] }>('/analytics/current');
   return res.data.data;
 }
 

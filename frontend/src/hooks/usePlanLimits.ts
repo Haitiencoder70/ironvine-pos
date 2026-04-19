@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { useBillingUsage } from './useBilling';
 import { getLimitStatus, formatCount } from '../utils/formatUsage';
-import { setUpgradeModalHandler } from '../lib/api';
 
 // The upgrade modal handler is registered in App.tsx via setUpgradeModalHandler.
 // We trigger it here by posting a custom event that App.tsx listens for, so this

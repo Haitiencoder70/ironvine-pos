@@ -122,7 +122,7 @@ export async function webhookHandler(req: Request, res: Response, next: NextFunc
             select: { id: true },
           });
           if (org) {
-            const { notifyPaymentSuccess } = await import('../services/notificationService');
+            const { notifyPaymentSuccess } = await import('../services/notificationService.js');
             await notifyPaymentSuccess(org.id, {
               amountCents: invoice.amount_paid ?? 0,
               invoiceUrl: invoice.hosted_invoice_url ?? undefined,

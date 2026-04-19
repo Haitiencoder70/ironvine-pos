@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -98,8 +98,8 @@ export function CreatePOPage(): JSX.Element {
         item.requiredMaterials?.map(rm => ({
           inventoryItemId: rm.inventoryItemId,
           description: rm.description,
-          quantity: rm.quantity,
-          unitCost: rm.unitPrice || 0,
+          quantity: rm.quantityRequired,
+          unitCost: 0,
         })) || []
       );
 
@@ -283,6 +283,7 @@ export function CreatePOPage(): JSX.Element {
                       <TouchInput
                         label="Quantity"
                         type="number"
+                        inputMode="numeric"
                         min="1"
                         error={itemError?.quantity?.message}
                         {...register(`items.${index}.quantity` as const, { valueAsNumber: true })}
@@ -290,6 +291,7 @@ export function CreatePOPage(): JSX.Element {
                       <TouchInput
                         label="Unit Cost ($)"
                         type="number"
+                        inputMode="decimal"
                         step="0.01"
                         min="0"
                         error={itemError?.unitCost?.message}

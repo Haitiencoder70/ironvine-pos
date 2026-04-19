@@ -88,6 +88,39 @@
     border-radius: 6px;
   }
 
+  input, select, textarea {
+    font-size: 16px;
+    color: #f1f5f9;
+    font-weight: 500;
+    background-color: transparent;
+  }
+
+  select {
+    background-color: rgba(10, 10, 20, 0.85);
+    color: #f1f5f9;
+  }
+
+  select option {
+    background-color: #0e0e18;
+    color: #f1f5f9;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(148, 163, 184, 0.6);
+    font-weight: 400;
+  }
+
+  /* Autofill override — browsers inject yellow/blue bg that kills readability */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: #f1f5f9;
+    -webkit-box-shadow: 0 0 0 1000px rgba(10, 10, 20, 0.9) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+
   html {
     -webkit-text-size-adjust: 100%;
     font-feature-settings: 'ss01', 'cv11', 'liga';

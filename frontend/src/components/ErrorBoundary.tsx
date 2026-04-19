@@ -10,23 +10,28 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  componentStack: string | null;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
+    componentStack: null,
   };
 
-  public static getDerivedStateFromError(error: Error): State {
-    // Update state so the next render will show the fallback UI
+  public static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // In a real app we'd log this to Sentry, DataDog, etc.
     console.error('Uncaught error:', error, errorInfo);
+    this.setState({ componentStack: errorInfo.componentStack ?? null });
   }
+
+  private handleReset = () => {
+    this.setState({ hasError: false, error: null, componentStack: null });
+  };
 
   private handleReload = () => {
     window.location.reload();
@@ -68,26 +73,44 @@ export class ErrorBoundary extends Component<Props, State> {
                     {this.state.error.message}
                   </p>
                 </div>
+                {this.state.componentStack && (
+                  <details className="mt-2">
+                    <summary className="text-xs font-mono text-gray-500 cursor-pointer">Component stack</summary>
+                    <pre className="text-xs font-mono text-gray-500 break-words whitespace-pre-wrap mt-1 max-h-48 overflow-y-auto">
+                      {this.state.componentStack}
+                    </pre>
+                  </details>
+                )}
               </div>
             )}
 
-            <div className="flex w-full flex-col gap-3 sm:flex-row">
-              <TouchButton
-                variant="secondary"
-                size="lg"
-                fullWidth
-                onClick={this.handleGoHome}
-              >
-                Dashboard
-              </TouchButton>
+            <div className="flex w-full flex-col gap-3">
               <TouchButton
                 variant="primary"
                 size="lg"
                 fullWidth
-                onClick={this.handleReload}
+                onClick={this.handleReset}
               >
-                Reload Page
+                Try Again
               </TouchButton>
+              <div className="flex w-full gap-3">
+                <TouchButton
+                  variant="secondary"
+                  size="lg"
+                  fullWidth
+                  onClick={this.handleGoHome}
+                >
+                  Dashboard
+                </TouchButton>
+                <TouchButton
+                  variant="secondary"
+                  size="lg"
+                  fullWidth
+                  onClick={this.handleReload}
+                >
+                  Reload Page
+                </TouchButton>
+              </div>
             </div>
           </div>
         </div>

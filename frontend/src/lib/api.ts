@@ -86,8 +86,8 @@ api.interceptors.response.use(
       const method = config?.method?.toLowerCase();
       if (method && ['post', 'put', 'patch', 'delete'].includes(method)) {
         // Avoid queuing the same request multiple times if it's a retry
-        const url = config.url || '';
-        const data = config.data;
+        const url = config?.url || '';
+        const data = config?.data;
         await offlineSync.enqueue(url, method, data);
       }
 
@@ -131,7 +131,7 @@ api.interceptors.response.use(
         } else if (error.response.status === 400 && data.code === 'VALIDATION_ERROR') {
           toast.error('Please check your inputs for errors.', { id: 'api-validation' });
         } else if (error.response.status === 401 || error.response.status === 403) {
-          toast.error('You do not have permission to perform this action.', { id: 'api-auth' });
+          toast.error(`Auth Error: ${data.code} - ${data.error}`, { id: 'api-auth', duration: 8000 });
         } else if (error.response.status === 409) {
           toast.error(data.error || 'A record with this information already exists.', { id: 'api-conflict' });
         } else if (error.response.status === 404) {

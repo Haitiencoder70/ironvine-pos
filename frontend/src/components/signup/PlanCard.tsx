@@ -1,7 +1,3 @@
-interface PlanFeature {
-  text: string;
-}
-
 interface PlanCardProps {
   name: string;
   price: number | 'Custom';

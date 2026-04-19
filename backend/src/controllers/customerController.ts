@@ -41,15 +41,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
     const authReq = req as AuthenticatedRequest;
     const orgDbId = authReq.organizationDbId!;
 
-    // 1. Validate using the schema defined in validators/customer.ts
-    const { createCustomerSchema } = await import('../validators/customer');
-    const parsed = createCustomerSchema.safeParse(req.body);
-
-    if (!parsed.success) {
-      return next(new AppError(400, parsed.error.message, 'VALIDATION_ERROR'));
-    }
-
-    const { billing, shipping, ...rest } = parsed.data;
+    const { billing, shipping, ...rest } = req.body;
 
     const customer = await createCustomer({
       organizationId: orgDbId,
@@ -79,15 +71,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
     const authReq = req as AuthenticatedRequest;
     const orgDbId = authReq.organizationDbId!;
 
-    // 1. Validate using the schema
-    const { updateCustomerSchema } = await import('../validators/customer');
-    const parsed = updateCustomerSchema.safeParse(req.body);
-
-    if (!parsed.success) {
-      return next(new AppError(400, parsed.error.message, 'VALIDATION_ERROR'));
-    }
-
-    const { billing, shipping, ...rest } = parsed.data;
+    const { billing, shipping, ...rest } = req.body;
 
     const customer = await updateCustomer({
       organizationId: orgDbId,
