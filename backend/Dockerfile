@@ -22,8 +22,7 @@ COPY . .
 RUN npx prisma generate
 RUN npm run build
 
-# Prune dev dependencies for a smaller production image
-RUN npm ci --only=production
+# Removed: RUN npm ci --only=production to preserve the generated Prisma client
 
 # -------------------------
 # Stage 2: Production Runtime

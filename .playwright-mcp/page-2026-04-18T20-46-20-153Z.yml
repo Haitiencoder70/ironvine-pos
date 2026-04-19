@@ -1,0 +1,48 @@
+- generic [ref=e2]:
+  - generic [ref=e175]:
+    - generic [ref=e176]:
+      - generic [ref=e178]:
+        - heading "Sign in to My Application" [level=1] [ref=e179]
+        - paragraph [ref=e180]: Welcome back! Please sign in to continue
+      - generic [ref=e181]:
+        - button "Sign in with Google Continue with Google" [ref=e184] [cursor=pointer]:
+          - generic [ref=e185]:
+            - img "Sign in with Google" [ref=e187]
+            - generic [ref=e188]: Continue with Google
+        - paragraph [ref=e191]: or
+        - generic [ref=e193]:
+          - generic [ref=e194]:
+            - generic [ref=e197]:
+              - generic [ref=e199]: Email address
+              - textbox "Email address" [ref=e200]:
+                - /placeholder: Enter your email address
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Password
+                  - generic:
+                    - textbox "Password":
+                      - /placeholder: Enter your password
+                    - button "Show password":
+                      - img
+          - button "Continue" [ref=e203] [cursor=pointer]:
+            - generic [ref=e204]:
+              - text: Continue
+              - img [ref=e205]
+    - generic [ref=e207]:
+      - generic [ref=e208]:
+        - generic [ref=e209]: Don’t have an account?
+        - link "Sign up" [ref=e210] [cursor=pointer]:
+          - /url: http://localhost:5173/signup
+      - generic [ref=e212]:
+        - generic [ref=e214]:
+          - paragraph [ref=e215]: Secured by
+          - link "Clerk logo" [ref=e216] [cursor=pointer]:
+            - /url: https://go.clerk.com/components
+            - img [ref=e217]
+        - paragraph [ref=e222]: Development mode
+  - generic [ref=e74]:
+    - img [ref=e76]
+    - button "Open Tanstack query devtools" [ref=e124] [cursor=pointer]:
+      - img [ref=e125]

@@ -1,0 +1,74 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]: YourApp
+    - generic [ref=e6]:
+      - button "Pricing" [ref=e7] [cursor=pointer]
+      - button "Sign In" [ref=e8] [cursor=pointer]
+      - button "Start Free" [ref=e9] [cursor=pointer]
+  - generic [ref=e10]:
+    - generic [ref=e11]: Built for Print & Embroidery Shops
+    - heading "The POS built for T-shirt businesses" [level=1] [ref=e12]:
+      - text: The POS built for
+      - text: T-shirt businesses
+    - paragraph [ref=e13]: Manage orders, inventory, customers, and production — all from a single touch-optimized platform designed for the shop floor.
+    - generic [ref=e14]:
+      - button "Start Free — No Card Required" [ref=e15] [cursor=pointer]
+      - button "See Pricing" [ref=e16] [cursor=pointer]
+    - paragraph [ref=e17]: Free forever · Paid plans from $29/mo · 14-day trial
+  - generic [ref=e19]:
+    - heading "Everything your shop needs" [level=2] [ref=e20]
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]: 🖨️
+        - heading "Built for Print Shops" [level=3] [ref=e24]
+        - paragraph [ref=e25]: Order workflows, production stages, and garment tracking designed specifically for T-shirt and embroidery businesses.
+      - generic [ref=e26]:
+        - generic [ref=e27]: 📦
+        - heading "Inventory & Stock Control" [level=3] [ref=e28]
+        - paragraph [ref=e29]: Track blanks, threads, and consumables. Get low-stock alerts before you run out mid-job.
+      - generic [ref=e30]:
+        - generic [ref=e31]: 👥
+        - heading "Customer CRM" [level=3] [ref=e32]
+        - paragraph [ref=e33]: Store customer details, order history, and custom pricing — everything in one place.
+      - generic [ref=e34]:
+        - generic [ref=e35]: 📊
+        - heading "Real-Time Reports" [level=3] [ref=e36]
+        - paragraph [ref=e37]: Sales, profit, and production reports updated live so you always know where your business stands.
+      - generic [ref=e38]:
+        - generic [ref=e39]: 📱
+        - heading "Touch-Optimized POS" [level=3] [ref=e40]
+        - paragraph [ref=e41]: Designed for touchscreens and tablets on the shop floor — not a desktop-first afterthought.
+      - generic [ref=e42]:
+        - generic [ref=e43]: 🔒
+        - heading "Multi-Location Ready" [level=3] [ref=e44]
+        - paragraph [ref=e45]: Manage multiple shops under one account with per-location inventory and staff access controls.
+  - generic [ref=e46]:
+    - heading "Simple pricing, no surprises" [level=2] [ref=e47]
+    - paragraph [ref=e48]: Start free. Upgrade as you grow. Cancel anytime.
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - paragraph [ref=e51]: Free
+        - paragraph [ref=e52]: $0
+      - generic [ref=e53]:
+        - paragraph [ref=e54]: Starter
+        - paragraph [ref=e55]: $29/mo
+      - generic [ref=e56]:
+        - paragraph [ref=e57]: Pro
+        - paragraph [ref=e58]: $79/mo
+        - generic [ref=e59]: Most Popular
+      - generic [ref=e60]:
+        - paragraph [ref=e61]: Enterprise
+        - paragraph [ref=e62]: Custom
+    - button "Compare all plans →" [ref=e63] [cursor=pointer]
+  - generic [ref=e64]:
+    - heading "Ready to grow your shop?" [level=2] [ref=e65]
+    - paragraph [ref=e66]: Join hundreds of print shops already using YourApp.
+    - button "Get Started Free" [ref=e67] [cursor=pointer]
+  - contentinfo [ref=e68]:
+    - paragraph [ref=e69]: © 2026 YourApp. All rights reserved.
+    - generic [ref=e70]:
+      - link "Support" [ref=e71] [cursor=pointer]:
+        - /url: mailto:support@yourapp.com
+      - link "Sales" [ref=e72] [cursor=pointer]:
+        - /url: mailto:sales@yourapp.com
+      - button "Pricing" [ref=e73] [cursor=pointer]

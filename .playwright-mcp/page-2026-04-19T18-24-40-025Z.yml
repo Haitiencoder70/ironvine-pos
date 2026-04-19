@@ -1,0 +1,38 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - text: YourApp
+      - paragraph [ref=e6]: Create your organization
+    - generic [ref=e7]:
+      - generic [ref=e11]:
+        - heading "Organization Details" [level=2] [ref=e12]
+        - paragraph [ref=e13]: Step 1 of 2
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: Organization Name
+          - textbox "Acme T-Shirts" [ref=e17]
+        - generic [ref=e18]:
+          - generic [ref=e19]: Organization URL
+          - generic [ref=e20]:
+            - textbox "my-company" [ref=e21]
+            - generic [ref=e22]: .yourapp.com
+        - generic [ref=e23]:
+          - generic [ref=e24]: Industry
+          - combobox [ref=e25]:
+            - option "Select industry…" [selected]
+            - option "T-Shirts"
+            - option "Embroidery"
+            - option "Screen Printing"
+            - option "DTG Printing"
+            - option "Sublimation"
+            - option "Embellishments"
+            - option "Promotional Products"
+            - option "Other"
+      - button "Continue" [ref=e27] [cursor=pointer]
+      - paragraph [ref=e28]:
+        - text: Already have an account?
+        - button "Sign in" [ref=e29] [cursor=pointer]
+  - generic [ref=e30]:
+    - img [ref=e32]
+    - button "Open Tanstack query devtools" [ref=e80] [cursor=pointer]:
+      - img [ref=e81]
