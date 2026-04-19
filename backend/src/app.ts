@@ -69,7 +69,7 @@ app.use(helmet({
         "https://api.stripe.com",
         "https://clerk.dev",
         "https://*.clerk.accounts.dev",
-        env.CORS_ORIGINS,
+        ...env.CORS_ORIGINS.split(',').map(o => o.trim()),
       ],
     },
   },
