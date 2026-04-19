@@ -19,6 +19,9 @@ jobs:
       - name: Install backend deps
         run: cd backend && npm ci
 
+      - name: Generate Prisma client
+        run: cd backend && npx prisma generate
+
       - name: Type check backend
         run: cd backend && npm run typecheck
 

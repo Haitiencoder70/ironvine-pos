@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { injectTenant } from '../middleware/tenant';
+
 import { validate } from '../middleware/validate';
 import { authorize } from '../middleware/authorize';
 import {
@@ -15,12 +14,12 @@ import {
   createCustomerSchema,
   updateCustomerSchema,
   listCustomersQuerySchema,
-} from '../validators/customer';
+} from '../validators/customer.js';
 
 export const customersRouter = Router();
 
-// All customer routes require auth + tenant
-customersRouter.use(requireAuth, injectTenant);
+// All customer routes require auth + tenant (Already applied globally in app.ts)
+// // removed redundant middleware
 
 // ─── List Customers ───────────────────────────────────────────────────────────
 customersRouter.get('/', authorize('customers:view'), validate(listCustomersQuerySchema, 'query'), getAll);

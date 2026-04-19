@@ -9,7 +9,7 @@ import {
   notifyTrialEnding,
   notifyPlanLimitWarning,
   notifyUsageReport,
-} from '../services/notificationService';
+} from '../services/notificationService.js';
 import { resetMonthlyCounters } from '../services/analyticsService';
 
 // ─── Trial ending check (daily at 09:00 UTC) ─────────────────────────────────
