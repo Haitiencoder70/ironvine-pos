@@ -14,7 +14,7 @@ import {
   createCustomerSchema,
   updateCustomerSchema,
   listCustomersQuerySchema,
-} from '../validators/customer.js';
+} from '../validators/customer';
 
 export const customersRouter = Router();
 
