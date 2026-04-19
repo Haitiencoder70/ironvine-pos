@@ -8,21 +8,31 @@ WORKDIR /app
 # Install openssl for Prisma
 RUN apk add --no-cache openssl
 
-# Copy package files from backend
-COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
+# --- Build Backend ---
+COPY backend/package*.json ./backend/
+COPY backend/prisma ./backend/prisma/
+RUN cd backend && npm ci
 
-# Install dependencies explicitly to generate prisma client correctly
-RUN npm ci
+COPY backend/ ./backend/
+RUN cd backend && npx prisma generate && npm run build
 
-# Copy source code from backend
-COPY backend/ .
+# --- Build Frontend ---
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm ci
 
-# Generate Prisma Client & Build TypeScript
-RUN npx prisma generate
-RUN npm run build
+COPY frontend/ ./frontend/
 
-# Removed: RUN npm ci --only=production to preserve the generated Prisma client
+# Railway build-time args for Vite
+# (Defaulting to relative paths for monolith deployment)
+ARG VITE_API_URL=/api
+ARG VITE_CLERK_PUBLISHABLE_KEY
+ARG VITE_SOCKET_URL=/
+
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
+ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
+
+RUN cd frontend && npm run build
 
 # -------------------------
 # Stage 2: Production Runtime
@@ -37,14 +47,17 @@ RUN apk add --no-cache openssl
 # Set environment
 ENV NODE_ENV=production
 
-# Copy built artifacts and necessary files from builder
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+# Copy built backend
+COPY --from=builder /app/backend/package*.json ./backend/
+COPY --from=builder /app/backend/node_modules ./backend/node_modules
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/prisma ./backend/prisma
+
+# Copy built frontend
+COPY --from=builder /app/frontend/dist ./frontend/dist
 
 # Expose port
 EXPOSE 3001
 
-# Start the server (ensure package.json has "start" script)
-CMD ["npm", "run", "start"]
+# Start the server using the backend directory
+CMD ["npm", "run", "start", "--prefix", "backend"]

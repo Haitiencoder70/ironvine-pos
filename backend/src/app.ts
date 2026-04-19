@@ -8,6 +8,7 @@ Sentry.init({
 });
 
 import express from 'express';
+import path from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -186,6 +187,17 @@ app.use('/api/organization',      organizationRouter);
 app.use('/api/analytics',         analyticsRouter);
 app.use('/api/branding',          brandingRouter);
 app.use('/api/audit-log',         auditLogRouter);
+
+// ─── Frontend Static Serving (Monolith Deployment) ────────────────────────
+const frontendDistPath = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(frontendDistPath));
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/health')) {
+    return next();
+  }
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
+});
 
 // ─── Global Error Handler ─────────────────────────────────────────────────
 // Sentry must capture errors before our custom handler transforms them.
