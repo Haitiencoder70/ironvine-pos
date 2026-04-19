@@ -47,6 +47,7 @@ jobs:
         with:
           node-version: '20'
       - name: Deploy to Vercel
+        working-directory: frontend
         run: |
           npm install -g vercel
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
