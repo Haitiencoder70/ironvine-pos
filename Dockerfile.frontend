@@ -1,0 +1,52 @@
+# -------------------------
+# Stage 1: Build & Dependencies
+# -------------------------
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files from frontend
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code from frontend
+COPY frontend/ .
+
+# Note: We need to pass build-time environment variables for Vite to use.
+# Railway provides these automatically if they are set in the dashboard.
+ARG VITE_API_URL
+ARG VITE_CLERK_PUBLISHABLE_KEY
+ARG VITE_SOCKET_URL
+
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
+ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
+
+# Build the frontend (Vite)
+RUN npm run build
+
+# -------------------------
+# Stage 2: Production Runtime (Nginx)
+# -------------------------
+FROM nginx:alpine AS runner
+
+# Copy the built assets from the builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Add a simple nginx config to handle React Router (SPA routing)
+RUN echo 'server { \
+    listen 80; \
+    location / { \
+        root /usr/share/nginx/html; \
+        index index.html index.htm; \
+        try_files $uri $uri/ /index.html; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
