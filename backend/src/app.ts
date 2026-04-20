@@ -48,6 +48,10 @@ import { auditLogRouter } from './routes/auditLog';
 
 export const app = express();
 
+// Trust Railway's reverse proxy / load balancer so that X-Forwarded-For
+// is used correctly by express-rate-limit and other IP-aware middleware.
+app.set('trust proxy', 1);
+
 // ─── Security and utility middleware ──────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: {
