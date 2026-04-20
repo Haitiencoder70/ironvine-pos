@@ -12,8 +12,12 @@ export function setUpgradeModalHandler(fn: (message?: string) => void): void {
 
 const BASE_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? 'http://localhost:3001';
 
+// If BASE_URL already contains /api (e.g. monolith deploy), use it exactly.
+// Otherwise append /api for local development.
+const resolvedBaseUrl = BASE_URL.endsWith('/api') ? BASE_URL : `${BASE_URL}/api`;
+
 export const api = axios.create({
-  baseURL: `${BASE_URL}/api`,
+  baseURL: resolvedBaseUrl,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
   timeout: 8000,

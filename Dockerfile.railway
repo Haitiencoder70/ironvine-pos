@@ -23,14 +23,10 @@ RUN cd frontend && npm ci
 
 COPY frontend/ ./frontend/
 
-# Railway build-time args for Vite
-# (Defaulting to relative paths for monolith deployment)
-ARG VITE_API_URL=/api
-ARG VITE_SOCKET_URL=/
-
-ENV VITE_API_URL=$VITE_API_URL
+# Force monolithic URLs directly, bypassing ARGs that might be empty
+ENV VITE_API_URL="/api"
 ENV VITE_CLERK_PUBLISHABLE_KEY="pk_test_cHJvLWplbm5ldC02MC5jbGVyay5hY2NvdW50cy5kZXYk"
-ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
+ENV VITE_SOCKET_URL="/"
 ENV VITE_DEV_SUBDOMAIN="ironvine"
 
 RUN cd frontend && npm run build
