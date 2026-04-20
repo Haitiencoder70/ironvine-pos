@@ -63,4 +63,4 @@ EXPOSE 3001
 
 # Start the server using the backend directory
 WORKDIR /app/backend
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
