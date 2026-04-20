@@ -60,4 +60,5 @@ COPY --from=builder /app/frontend/dist ./frontend/dist
 EXPOSE 3001
 
 # Start the server using the backend directory
-CMD ["npm", "run", "start", "--prefix", "backend"]
+WORKDIR /app/backend
+CMD ["npm", "run", "start"]
