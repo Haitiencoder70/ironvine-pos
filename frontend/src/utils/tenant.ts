@@ -9,11 +9,17 @@ const VITE_API_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? 
  * - "acme.localhost"     → "acme"
  */
 export function getCurrentSubdomain(): string | null {
+  // If a forced subdomain is provided via env (useful for Railway/single-tenant testing), use it globally
+  const forcedSubdomain = import.meta.env['VITE_DEV_SUBDOMAIN'] as string | undefined;
+  if (forcedSubdomain) {
+    return forcedSubdomain;
+  }
+
   const hostname = window.location.hostname;
 
   // localhost family — support "acme.localhost" for local dev
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return (import.meta.env['VITE_DEV_SUBDOMAIN'] as string | undefined) ?? null;
+    return null;
   }
 
   if (hostname.endsWith('.localhost')) {
