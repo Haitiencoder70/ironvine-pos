@@ -13,7 +13,7 @@ const envSchema = z.object({
   STRIPE_PRICE_ENTERPRISE: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   FRONTEND_URL: z.string().url().default('http://localhost:5173'),
-  CORS_ORIGINS: z.string().default('http://localhost:5173'),
+  CORS_ORIGINS: z.string().default('http://localhost:5173,https://ironvine-pos-production.up.railway.app,https://ironvine.ironvine-pos-production.up.railway.app'),
 });
 
 function parseEnv(): z.infer<typeof envSchema> {

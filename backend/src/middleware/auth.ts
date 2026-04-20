@@ -16,8 +16,19 @@ export const clerkAuth = (req: Request, res: Response, next: NextFunction): void
     rawClerkAuth(req, res, (err) => {
       if (err) {
         logger.error('clerkMiddleware passed an error to next', { error: err.message, stack: err.stack });
-        // Instead of letting it crash, send it back so we can see it in curl!
-        res.status(500).json({ error: 'Clerk Auth Error', details: err.message });
+        
+        // Debug info to verify what string was actually passed to Clerk
+        const pk = env.CLERK_PUBLISHABLE_KEY || '';
+        const debugPk = `${pk.substring(0, 10)}...${pk.substring(pk.length - 5)} (len=${pk.length})`;
+        
+        res.status(500).json({ 
+          error: 'Clerk Auth Error', 
+          details: err.message,
+          debug: {
+            pk: debugPk,
+            envHasPk: !!process.env.CLERK_PUBLISHABLE_KEY
+          }
+        });
         return;
       }
       next();
