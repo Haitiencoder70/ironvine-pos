@@ -4,8 +4,12 @@ import { AuthenticatedRequest } from '../types';
 import { AppError } from './errorHandler';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
+import { env } from '../config/env';
 
-const rawClerkAuth = clerkMiddleware();
+const rawClerkAuth = clerkMiddleware({
+  publishableKey: env.CLERK_PUBLISHABLE_KEY,
+  secretKey: env.CLERK_SECRET_KEY,
+});
 
 export const clerkAuth = (req: Request, res: Response, next: NextFunction): void => {
   try {
@@ -71,7 +75,10 @@ export async function requireAuth(
         // Just-in-time provisioning: create the user row on first authenticated
         // request if they have a valid Clerk session but no DB record yet.
         try {
-          const clerk = createClerkClient({ secretKey: process.env['CLERK_SECRET_KEY'] });
+          const clerk = createClerkClient({ 
+            secretKey: env.CLERK_SECRET_KEY,
+            publishableKey: env.CLERK_PUBLISHABLE_KEY 
+          });
           const clerkUser = await clerk.users.getUser(auth.userId);
           const role = auth.orgRole === 'org:admin' ? 'OWNER'
             : auth.orgRole === 'org:manager' ? 'MANAGER'
