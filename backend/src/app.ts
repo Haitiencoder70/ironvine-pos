@@ -65,8 +65,9 @@ app.use(helmet({
         "https://browser.sentry-cdn.com",
         "https://clerk.dev",
         "https://*.clerk.accounts.dev",
+        "https://*.clerk.com",
       ],
-      frameSrc: ["https://js.stripe.com", "https://clerk.dev", "https://*.clerk.accounts.dev"],
+      frameSrc: ["https://js.stripe.com", "https://clerk.dev", "https://*.clerk.accounts.dev", "https://*.clerk.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       connectSrc: [
         "'self'",
@@ -75,6 +76,7 @@ app.use(helmet({
         "https://api.stripe.com",
         "https://clerk.dev",
         "https://*.clerk.accounts.dev",
+        "https://*.clerk.com",
         ...env.CORS_ORIGINS.split(',').map(o => o.trim()),
       ],
     },
