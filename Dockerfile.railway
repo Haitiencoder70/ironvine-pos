@@ -2,7 +2,7 @@
 # Stage 1: Build & Dependencies
 # -------------------------
 FROM node:22-alpine AS builder
-LABEL build="2026-04-20-v2"
+LABEL build="2026-04-20-v3-fresh"
 
 WORKDIR /app
 
