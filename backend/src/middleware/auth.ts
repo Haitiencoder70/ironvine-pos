@@ -7,19 +7,21 @@ import { logger } from '../lib/logger';
 
 const rawClerkAuth = clerkMiddleware();
 
-export const clerkAuth = (req: Request, res: Response, next: NextFunction) => {
+export const clerkAuth = (req: Request, res: Response, next: NextFunction): void => {
   try {
     rawClerkAuth(req, res, (err) => {
       if (err) {
         logger.error('clerkMiddleware passed an error to next', { error: err.message, stack: err.stack });
         // Instead of letting it crash, send it back so we can see it in curl!
-        return res.status(500).json({ error: 'Clerk Auth Error', details: err.message });
+        res.status(500).json({ error: 'Clerk Auth Error', details: err.message });
+        return;
       }
       next();
     });
   } catch (err) {
     logger.error('clerkMiddleware threw an error synchronously', { error: (err as Error).message });
-    return res.status(500).json({ error: 'Clerk Auth Sync Error', details: (err as Error).message });
+    res.status(500).json({ error: 'Clerk Auth Sync Error', details: (err as Error).message });
+    return;
   }
 };
 
