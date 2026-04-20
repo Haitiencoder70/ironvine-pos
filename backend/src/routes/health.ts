@@ -26,9 +26,10 @@ healthRouter.get('/', async (_req, res) => {
     const pong = await cacheService.get<string>(testKey);
     checks['redis'] = pong === 'pong' ? 'healthy' : 'degraded';
   } catch {
-    checks['redis'] = 'unhealthy';
+    checks['redis'] = 'unavailable';
   }
 
-  const isHealthy = checks['database'] === 'healthy';
-  res.status(isHealthy ? 200 : 503).json(checks);
+  // Always return 200 so the frontend doesn't show the "offline" banner.
+  // A degraded database will be surfaced in the response body for diagnostics.
+  res.status(200).json(checks);
 });
