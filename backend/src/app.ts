@@ -192,7 +192,7 @@ app.use('/api/audit-log',         auditLogRouter);
 const frontendDistPath = path.join(__dirname, '../../frontend/dist');
 app.use(express.static(frontendDistPath));
 
-app.get('*', (req, res, next) => {
+app.get(/.*/, (req, res, next) => {
   if (req.path.startsWith('/api') || req.path.startsWith('/health')) {
     return next();
   }
