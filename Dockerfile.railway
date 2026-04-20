@@ -23,11 +23,17 @@ RUN cd frontend && npm ci
 
 COPY frontend/ ./frontend/
 
-# Force monolithic URLs directly, bypassing ARGs that might be empty
-ENV VITE_API_URL="/api"
-ENV VITE_CLERK_PUBLISHABLE_KEY="pk_test_cHJvLWplbm5ldC02MC5jbGVyay5hY2NvdW50cy5kZXYk"
-ENV VITE_SOCKET_URL="/"
-ENV VITE_DEV_SUBDOMAIN="ironvine"
+# Accept environment variables from Railway during build
+ARG VITE_API_URL=/api
+ARG VITE_SOCKET_URL=/
+ARG CLERK_PUBLISHABLE_KEY
+ARG VITE_DEV_SUBDOMAIN=ironvine
+
+# Set them as ENV so Vite picks them up during build
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
+ENV VITE_CLERK_PUBLISHABLE_KEY=$CLERK_PUBLISHABLE_KEY
+ENV VITE_DEV_SUBDOMAIN=$VITE_DEV_SUBDOMAIN
 
 RUN cd frontend && npm run build
 
