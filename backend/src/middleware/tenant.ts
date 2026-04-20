@@ -69,11 +69,15 @@ export async function injectTenant(
   const authReq = req as AuthenticatedRequest;
 
   try {
-    // Also accept X-Organization-Slug header as a subdomain hint (used in local
-    // dev where the frontend runs on localhost without a real subdomain).
+    // Also accept X-Organization-Slug header as a subdomain hint.
+    // If VITE_DEV_SUBDOMAIN is hardcoded for a single-tenant deployment, use it.
+    const forcedSubdomain = process.env.VITE_DEV_SUBDOMAIN;
     const headerSlug = req.headers['x-organization-slug'] as string | undefined;
-    const subdomain = extractSubdomain(req.hostname) ?? (headerSlug || null);
-    logger.debug('injectTenant', { hostname: req.hostname, headerSlug, subdomain, path: req.path });
+    
+    // Priority: 1. Forced Env Var -> 2. Explicit Header from Frontend -> 3. Hostname Extraction
+    const subdomain = forcedSubdomain || headerSlug || extractSubdomain(req.hostname);
+    
+    logger.debug('injectTenant', { hostname: req.hostname, headerSlug, forcedSubdomain, subdomain, path: req.path });
 
     if (subdomain) {
       // ── Path 1: subdomain-based lookup (cache-first) ────────────────────────
