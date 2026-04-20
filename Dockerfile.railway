@@ -63,4 +63,4 @@ EXPOSE 3001
 
 # Start the server using the backend directory
 WORKDIR /app/backend
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+CMD ["sh", "-c", "export DIRECT_URL=$(node -e \"console.log((process.env.DATABASE_URL || '').replace('-pooler', '').replace('&pgbouncer=true', '').replace('?pgbouncer=true', '?'))\") && npx prisma migrate deploy && npm run start"]
