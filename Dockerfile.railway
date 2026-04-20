@@ -27,12 +27,11 @@ COPY frontend/ ./frontend/
 # (Defaulting to relative paths for monolith deployment)
 ARG VITE_API_URL=/api
 ARG VITE_SOCKET_URL=/
-ARG VITE_DEV_SUBDOMAIN
 
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_CLERK_PUBLISHABLE_KEY="pk_test_cHJvLWplbm5ldC02MC5jbGVyay5hY2NvdW50cy5kZXYk"
 ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
-ENV VITE_DEV_SUBDOMAIN=$VITE_DEV_SUBDOMAIN
+ENV VITE_DEV_SUBDOMAIN="ironvine"
 
 RUN cd frontend && npm run build
 
