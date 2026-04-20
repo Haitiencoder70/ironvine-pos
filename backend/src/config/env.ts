@@ -4,8 +4,8 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
-  CLERK_SECRET_KEY: z.string().min(1, 'CLERK_SECRET_KEY is required'),
-  CLERK_PUBLISHABLE_KEY: z.string().min(1, 'CLERK_PUBLISHABLE_KEY is required'),
+  CLERK_SECRET_KEY: z.string().min(1, 'CLERK_SECRET_KEY is required').transform(s => s.replace(/^"|"$/g, '').trim()),
+  CLERK_PUBLISHABLE_KEY: z.string().min(1, 'CLERK_PUBLISHABLE_KEY is required').transform(s => s.replace(/^"|"$/g, '').trim()),
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   STRIPE_PRICE_STARTER: z.string().optional(),
@@ -30,4 +30,10 @@ function parseEnv(): z.infer<typeof envSchema> {
 }
 
 export const env = parseEnv();
+
+// Mutate process.env directly so external libraries like clerkMiddleware
+// that read directly from process.env get the cleaned/unquoted versions.
+process.env.CLERK_SECRET_KEY = env.CLERK_SECRET_KEY;
+process.env.CLERK_PUBLISHABLE_KEY = env.CLERK_PUBLISHABLE_KEY;
+
 export type Env = typeof env;
