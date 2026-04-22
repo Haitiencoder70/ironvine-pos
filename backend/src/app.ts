@@ -146,6 +146,7 @@ const orgRateLimiter = rateLimit({
 
 // ─── Health Check ─────────────────────────────────────────────────────────
 // Before clerkAuth so load-balancers and uptime monitors can probe freely.
+app.get('/', (req, res) => res.send('Server is healthy'));
 app.use('/health', healthRouter);
 app.use('/api/health', healthRouter);
 

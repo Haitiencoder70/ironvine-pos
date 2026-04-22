@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.coerce.number().default(3001),
+  PORT: z.coerce.number().default(process.env.PORT ? Number(process.env.PORT) : 3001),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   CLERK_SECRET_KEY: z.string().min(1, 'CLERK_SECRET_KEY is required').transform(s => s.replace(/^"|"$/g, '').trim()),
   CLERK_PUBLISHABLE_KEY: z.string().min(1, 'CLERK_PUBLISHABLE_KEY is required').transform(s => s.replace(/^"|"$/g, '').trim()),
