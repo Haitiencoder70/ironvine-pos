@@ -207,7 +207,9 @@ app.use('/api/branding',          brandingRouter);
 app.use('/api/audit-log',         auditLogRouter);
 
 // ─── Frontend Static Serving (Monolith Deployment) ────────────────────────
-const frontendDistPath = path.join(__dirname, '../../frontend/dist');
+const frontendDistPath = process.env.NODE_ENV === 'production'
+  ? path.join(process.cwd(), '../frontend/dist')
+  : path.join(__dirname, '../../frontend/dist');
 app.use(express.static(frontendDistPath));
 
 app.get(/.*/, (req, res, next) => {
