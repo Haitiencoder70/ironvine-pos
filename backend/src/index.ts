@@ -54,8 +54,8 @@ io.on('connection', (socket) => {
 
 const PORT = env.PORT;
 
-const server = httpServer.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT} (${env.NODE_ENV})`);
+const server = httpServer.listen(PORT, '0.0.0.0', () => {
+  logger.info(`Server running on port ${PORT} (0.0.0.0) (${env.NODE_ENV})`);
   if (env.NODE_ENV !== 'test') {
     startScheduledJobs();
   }
