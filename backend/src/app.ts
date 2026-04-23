@@ -201,18 +201,20 @@ app.use('/api/organizations', organizationsRouter);
 
 // ─── Tenant + auth middleware chain ──────────────────────────────────────
 // Order matters:
-//   1. injectTenant  → resolves org from subdomain or Clerk orgId,
+//   1. requireAuth   → verifies Clerk JWT session, attaches req.auth so that
+//                       injectTenant can read auth.orgId for the cross-check.
+//   2. injectTenant  → resolves org from subdomain or Clerk orgId,
 //                       sets req.organizationId / req.organizationDbId,
+//                       runs ORG_MISMATCH guard (needs req.auth populated),
 //                       and pushes a TenantContext into AsyncLocalStorage
 //                       so the Prisma isolation middleware can read it.
-//   2. requireAuth   → verifies session, checks org membership, attaches auth.
 //
 // Both are applied together so every authenticated route is tenant-scoped.
 //
 // We wrap `next` in `runWithTenantContext` inside injectTenant itself, so
 // the entire downstream handler chain runs inside the correct ALS store.
-app.use('/api', injectTenant);
 app.use('/api', requireAuth);
+app.use('/api', injectTenant);
 app.use('/api', orgRateLimiter);
 app.use('/api', requestTimer);
 
