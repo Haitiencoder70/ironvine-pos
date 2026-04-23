@@ -38,11 +38,10 @@ const updateUserRoleSchema = z.object({
 });
 
 const acceptInviteSchema = z.object({
-  token:      z.string().min(1),
-  clerkUserId: z.string().min(1),
-  firstName:  z.string().min(1).max(80),
-  lastName:   z.string().min(1).max(80),
-  avatarUrl:  z.string().url().optional(),
+  token:     z.string().min(1),
+  firstName: z.string().min(1).max(80),
+  lastName:  z.string().min(1).max(80),
+  avatarUrl: z.string().url().optional(),
 });
 
 // ─── getCurrent ───────────────────────────────────────────────────────────────
@@ -187,10 +186,13 @@ export const getInviteDetails = async (req: Request, res: Response, next: NextFu
 
 export const acceptInviteHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    const clerkUserId = getAuth(req).userId;
+    if (!clerkUserId) return next(new AppError(401, 'Authentication required', 'UNAUTHENTICATED'));
+
     const parsed = acceptInviteSchema.safeParse(req.body);
     if (!parsed.success) return next(new AppError(400, parsed.error.message, 'VALIDATION_ERROR'));
 
-    const result = await acceptInvite(parsed.data);
+    const result = await acceptInvite({ ...parsed.data, clerkUserId });
     res.json({ data: result });
   } catch (err) {
     next(err);
