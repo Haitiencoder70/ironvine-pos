@@ -32,6 +32,7 @@ imagesRouter.get(
 // GET /api/images/:entityType/:entityId  — e.g. /api/images/order/clxxx
 imagesRouter.get(
   '/:entityType/:entityId',
+  authorize('images:view'),
   getByEntityHandler,
 );
 
