@@ -106,8 +106,10 @@ export async function injectTenant(
         );
       }
 
-      // Optional: verify the authenticated user's Clerk org matches
-      if (authReq.auth?.orgId && org.clerkOrgId !== authReq.auth.orgId) {
+      // Only enforce the Clerk org cross-check when the DB org has an explicit
+      // clerkOrgId set. If it's null (e.g. migrated from another Clerk instance
+      // or single-tenant mode), subdomain-based routing is sufficient.
+      if (authReq.auth?.orgId && org.clerkOrgId && org.clerkOrgId !== authReq.auth.orgId) {
         logger.warn('Clerk org mismatch for subdomain', {
           subdomain,
           dbClerkOrgId: org.clerkOrgId,
