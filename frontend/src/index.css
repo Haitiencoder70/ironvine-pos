@@ -98,9 +98,23 @@
   /* Light-background inputs (bg-white, bg-gray-*) need dark text — overrides
      the near-white default above so text is readable on white card surfaces */
   input.bg-white, select.bg-white, textarea.bg-white,
-  input[class*="bg-gray-5"], select[class*="bg-gray-5"], textarea[class*="bg-gray-5"],
+  input[class*="bg-gray-5"], select[class*="bg-gray-5"], textarea[class*="bg-slate"],
   input[class*="bg-slate"], select[class*="bg-slate"], textarea[class*="bg-slate"] {
     color: #111827;
+  }
+
+  /* Inputs/selects inside light-background table rows or cards inherit a white
+     surface but rely on a global near-white text color — force dark text so
+     they remain readable regardless of the parent background */
+  tr input, tr select, tr textarea,
+  .bg-gray-50 input, .bg-gray-50 select, .bg-gray-50 textarea,
+  .bg-white input, .bg-white select, .bg-white textarea {
+    color: #111827;
+    background-color: #ffffff;
+  }
+
+  tr input::placeholder, tr textarea::placeholder {
+    color: #9ca3af;
   }
 
   /* Dark-themed selects (no bg-white override) */
