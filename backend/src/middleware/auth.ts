@@ -16,18 +16,9 @@ export const clerkAuth = (req: Request, res: Response, next: NextFunction): void
     rawClerkAuth(req, res, (err) => {
       if (err) {
         logger.error('clerkMiddleware passed an error to next', { error: err.message, stack: err.stack });
-        
-        // Debug info to verify what string was actually passed to Clerk
-        const pk = env.CLERK_PUBLISHABLE_KEY || '';
-        const debugPk = `${pk.substring(0, 10)}...${pk.substring(pk.length - 5)} (len=${pk.length})`;
-        
-        res.status(500).json({ 
-          error: 'Clerk Auth Error', 
-          details: err.message,
-          debug: {
-            pk: debugPk,
-            envHasPk: !!process.env.CLERK_PUBLISHABLE_KEY
-          }
+        res.status(500).json({
+          error: 'Authentication service error',
+          code: 'AUTH_SERVICE_ERROR',
         });
         return;
       }
@@ -35,7 +26,10 @@ export const clerkAuth = (req: Request, res: Response, next: NextFunction): void
     });
   } catch (err) {
     logger.error('clerkMiddleware threw an error synchronously', { error: (err as Error).message });
-    res.status(500).json({ error: 'Clerk Auth Sync Error', details: (err as Error).message });
+    res.status(500).json({
+      error: 'Authentication service error',
+      code: 'AUTH_SERVICE_ERROR',
+    });
     return;
   }
 };
