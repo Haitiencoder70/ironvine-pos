@@ -73,10 +73,10 @@ const clerkScriptSrc = [
   "https://clerk.dev",
   "https://*.clerk.accounts.dev",
   "https://*.clerk.com",
+  // Clerk uses Cloudflare Turnstile for CAPTCHA bot protection
+  "https://challenges.cloudflare.com",
   // Allow Clerk's proxy on the current domain (e.g. clerk.printflowpos.com)
   ...(clerkProxyWildcard ? [clerkProxyWildcard] : []),
-  // Legacy: if old publishable key still points at adequatemedia.net
-  "https://*.adequatemedia.net",
 ];
 
 app.use(helmet({
@@ -93,6 +93,8 @@ app.use(helmet({
         "https://clerk.dev",
         "https://*.clerk.accounts.dev",
         "https://*.clerk.com",
+        // Cloudflare Turnstile CAPTCHA runs in an iframe
+        "https://challenges.cloudflare.com",
         ...(clerkProxyWildcard ? [clerkProxyWildcard] : []),
       ],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
@@ -104,8 +106,8 @@ app.use(helmet({
         "https://clerk.dev",
         "https://*.clerk.accounts.dev",
         "https://*.clerk.com",
+        "https://challenges.cloudflare.com",
         ...(clerkProxyWildcard ? [clerkProxyWildcard] : []),
-        "https://*.adequatemedia.net",
         ...env.CORS_ORIGINS.split(',').map(o => o.trim()),
       ],
     },
