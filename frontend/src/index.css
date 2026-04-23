@@ -95,7 +95,16 @@
     background-color: transparent;
   }
 
-  select {
+  /* Light-background inputs (bg-white, bg-gray-*) need dark text — overrides
+     the near-white default above so text is readable on white card surfaces */
+  input.bg-white, select.bg-white, textarea.bg-white,
+  input[class*="bg-gray-5"], select[class*="bg-gray-5"], textarea[class*="bg-gray-5"],
+  input[class*="bg-slate"], select[class*="bg-slate"], textarea[class*="bg-slate"] {
+    color: #111827;
+  }
+
+  /* Dark-themed selects (no bg-white override) */
+  select:not(.bg-white) {
     background-color: rgba(10, 10, 20, 0.85);
     color: #f1f5f9;
   }
@@ -109,6 +118,12 @@
   textarea::placeholder {
     color: rgba(148, 163, 184, 0.6);
     font-weight: 400;
+  }
+
+  /* Placeholder for light-background inputs */
+  input.bg-white::placeholder,
+  textarea.bg-white::placeholder {
+    color: #9ca3af;
   }
 
   /* Autofill override — browsers inject yellow/blue bg that kills readability */
