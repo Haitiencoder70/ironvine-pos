@@ -302,8 +302,7 @@ export const getBilling = async (req: Request, res: Response, next: NextFunction
     const org = await prisma.organization.findUnique({
       where:  { id: orgDbId },
       select: {
-        plan: true, subscriptionStatus: true, stripeCustomerId: true,
-        stripeSubscriptionId: true, trialEndsAt: true, subscriptionEndsAt: true,
+        plan: true, subscriptionStatus: true, trialEndsAt: true, subscriptionEndsAt: true,
         maxUsers: true, maxOrders: true, maxInventoryItems: true, maxCustomers: true, storageLimit: true,
       },
     });
