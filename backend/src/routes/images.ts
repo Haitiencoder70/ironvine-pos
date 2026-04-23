@@ -17,6 +17,7 @@ export const imagesRouter = Router();
 
 imagesRouter.get(
   '/garment',
+  authorize('images:view'),
   getGarmentImageHandler,
 );
 
@@ -24,6 +25,7 @@ imagesRouter.get(
 // Returns SVG directly — auth required to prevent abuse
 imagesRouter.get(
   '/placeholder',
+  authorize('images:view'),
   getPlaceholderHandler,
 );
 
