@@ -70,8 +70,13 @@ export async function injectTenant(
 
   try {
     // Also accept X-Organization-Slug header as a subdomain hint.
-    // If VITE_DEV_SUBDOMAIN is hardcoded for a single-tenant deployment, use it.
-    const forcedSubdomain = process.env.VITE_DEV_SUBDOMAIN;
+    // VITE_DEV_SUBDOMAIN is only honoured outside production to prevent silent
+    // tenant collapse if the variable is accidentally set on a production host.
+    if (process.env.VITE_DEV_SUBDOMAIN && process.env.NODE_ENV === 'production') {
+      logger.error('VITE_DEV_SUBDOMAIN is set in production — ignoring to prevent tenant collapse');
+    }
+    const forcedSubdomain =
+      process.env.NODE_ENV !== 'production' ? process.env.VITE_DEV_SUBDOMAIN : undefined;
     const headerSlug = req.headers['x-organization-slug'] as string | undefined;
     
     // Priority: 1. Forced Env Var -> 2. Explicit Header from Frontend -> 3. Hostname Extraction
