@@ -96,14 +96,6 @@ export function errorHandler(
   // ── Unknown / unhandled errors ─────────────────────────────────────────────
   const message = err instanceof Error ? err.message : String(err);
   const stack = err instanceof Error ? err.stack : undefined;
-  try {
-    require('fs').appendFileSync(
-      'error_debug.txt',
-      `\n\n--- UNHANDLED ERROR ---\n${new Date().toISOString()}\nMessage: ${message}\nStack: ${stack}\nPath: ${_req.path}\n`
-    );
-  } catch (e) {
-    // Ignore
-  }
   logger.error('Unhandled error', { message, stack, path: _req.path, method: _req.method });
   res.status(500).json({
     error: 'Internal server error',
