@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
 import { AuthenticatedRequest } from '../types';
+import { AppError } from '../middleware/errorHandler';
 import { prisma } from '../lib/prisma';
 import {
   getOrgSettings,
@@ -13,6 +15,15 @@ import {
   updateProfile,
 } from '../services/settingsService';
 import { trackEvent } from '../services/analyticsService';
+
+// ─── Validation schemas ───────────────────────────────────────────────────────
+
+const updateUserSchema = z.object({
+  role:      z.enum(['ADMIN', 'MANAGER', 'STAFF']).optional(), // OWNER cannot be assigned via API
+  isActive:  z.boolean().optional(),
+  firstName: z.string().min(1).max(80).optional(),
+  lastName:  z.string().min(1).max(80).optional(),
+});
 
 // ─── Org ──────────────────────────────────────────────────────────────────────
 
@@ -56,7 +67,9 @@ export const updateUserHandler = async (req: Request, res: Response, next: NextF
   try {
     const authReq = req as AuthenticatedRequest;
     const id = req.params['id'] as string;
-    const data = await updateOrgUser(id, authReq.organizationDbId!, req.body as Parameters<typeof updateOrgUser>[2]);
+    const parsed = updateUserSchema.safeParse(req.body);
+    if (!parsed.success) return next(new AppError(400, parsed.error.message, 'VALIDATION_ERROR'));
+    const data = await updateOrgUser(id, authReq.organizationDbId!, parsed.data);
     res.json({ data });
   } catch (err) { next(err); }
 };
