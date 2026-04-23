@@ -189,12 +189,25 @@ export const PRODUCT_CATEGORIES = [
   'Polos', 'Tank Tops', 'Youth', 'Ladies', 'Specialty',
 ];
 
+// Enum values that match the Prisma GarmentType enum
 export const GARMENT_TYPES = [
-  'T-Shirt', 'Hoodie', 'Long Sleeve', 'Sweatshirt',
-  'Polo', 'Tank Top', 'Crewneck', 'Zip-Up',
+  'TSHIRT', 'HOODIE', 'LONG_SLEEVE', 'SWEATSHIRT',
+  'POLO', 'TANK_TOP', 'JACKET', 'HAT', 'BAG', 'OTHER',
 ];
 
-export const PRINT_METHODS = ['DTF', 'HTV', 'Screen Print', 'Embroidery', 'None'];
+export const GARMENT_TYPE_LABELS: Record<string, string> = {
+  TSHIRT: 'T-Shirt', HOODIE: 'Hoodie', LONG_SLEEVE: 'Long Sleeve',
+  SWEATSHIRT: 'Sweatshirt', POLO: 'Polo', TANK_TOP: 'Tank Top',
+  JACKET: 'Jacket', HAT: 'Hat', BAG: 'Bag', OTHER: 'Other',
+};
+
+// Enum values that match the Prisma PrintMethod enum
+export const PRINT_METHODS = ['DTF', 'HTV', 'SCREEN_PRINT', 'EMBROIDERY', 'SUBLIMATION', 'DTG', 'NONE'];
+
+export const PRINT_METHOD_LABELS: Record<string, string> = {
+  DTF: 'DTF', HTV: 'HTV', SCREEN_PRINT: 'Screen Print',
+  EMBROIDERY: 'Embroidery', SUBLIMATION: 'Sublimation', DTG: 'DTG', NONE: 'None',
+};
 
 export const PRINT_LOCATIONS = [
   'Front', 'Back', 'Left Chest', 'Right Chest',

@@ -23,7 +23,9 @@ import {
   useProductCategories,
   PRODUCT_CATEGORIES,
   GARMENT_TYPES,
+  GARMENT_TYPE_LABELS,
   PRINT_METHODS,
+  PRINT_METHOD_LABELS,
   PRINT_LOCATIONS,
   BRANDS,
   SIZES,
@@ -106,11 +108,13 @@ function ToggleGroup({
   selected,
   onChange,
   multi = true,
+  labels,
 }: {
   options: string[];
   selected: string[];
   onChange: (next: string[]) => void;
   multi?: boolean;
+  labels?: Record<string, string>;
 }): JSX.Element {
   const toggle = (val: string) => {
     if (multi) {
@@ -134,7 +138,7 @@ function ToggleGroup({
               : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
           )}
         >
-          {opt}
+          {labels?.[opt] ?? opt}
         </button>
       ))}
     </div>
@@ -171,7 +175,7 @@ export function AddEditProductPage(): JSX.Element {
       description: '',
       sku: '',
       category: '',
-      garmentType: 'T-Shirt',
+      garmentType: 'TSHIRT',
       printMethod: 'DTF',
       printLocations: ['Front'],
       maxPrintLocations: 1,
@@ -403,9 +407,10 @@ export function AddEditProductPage(): JSX.Element {
               </label>
               <ToggleGroup
                 options={GARMENT_TYPES}
+                labels={GARMENT_TYPE_LABELS}
                 selected={[watchedGarment]}
                 multi={false}
-                onChange={([v]) => setValue('garmentType', v ?? 'T-Shirt', { shouldValidate: true })}
+                onChange={([v]) => setValue('garmentType', v ?? 'TSHIRT', { shouldValidate: true })}
               />
               {errors.garmentType && <p className="mt-1 text-xs text-red-500">{errors.garmentType.message}</p>}
             </div>
@@ -416,6 +421,7 @@ export function AddEditProductPage(): JSX.Element {
               </label>
               <ToggleGroup
                 options={PRINT_METHODS}
+                labels={PRINT_METHOD_LABELS}
                 selected={[watchedMethod]}
                 multi={false}
                 onChange={([v]) => setValue('printMethod', v ?? 'DTF', { shouldValidate: true })}

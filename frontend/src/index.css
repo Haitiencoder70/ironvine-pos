@@ -103,18 +103,22 @@
     color: #111827;
   }
 
-  /* Inputs/selects inside light-background table rows or cards inherit a white
-     surface but rely on a global near-white text color — force dark text so
-     they remain readable regardless of the parent background */
-  tr input, tr select, tr textarea,
-  .bg-gray-50 input, .bg-gray-50 select, .bg-gray-50 textarea,
-  .bg-white input, .bg-white select, .bg-white textarea {
-    color: #111827;
-    background-color: #ffffff;
+  /* Inputs/selects inside light-background table rows — glass style that fits
+     the dark theme while keeping text readable on the light surface */
+  tr input, tr select, tr textarea {
+    color: #1e293b;
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: rgba(148, 163, 184, 0.25);
+    backdrop-filter: blur(4px);
+  }
+
+  tr input:focus, tr select:focus, tr textarea:focus {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #1e293b;
   }
 
   tr input::placeholder, tr textarea::placeholder {
-    color: #9ca3af;
+    color: rgba(148, 163, 184, 0.5);
   }
 
   /* Dark-themed selects (no bg-white override) */
