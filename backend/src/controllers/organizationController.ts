@@ -377,7 +377,6 @@ const createOrgSchema = z.object({
   ownerFirstName: z.string().max(80).optional().or(z.literal('')),
   ownerLastName:  z.string().max(80).optional().or(z.literal('')),
   ownerEmail:     z.string().email().optional().or(z.literal('')),
-  plan:           z.enum(['FREE', 'STARTER', 'PROFESSIONAL', 'ENTERPRISE']),
 });
 
 export const createOrganization = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -392,7 +391,7 @@ export const createOrganization = async (req: Request, res: Response, next: Next
       return next(new AppError(400, parsed.error.errors[0]?.message ?? 'Invalid input', 'VALIDATION_ERROR'));
     }
 
-    const { name, slug, plan } = parsed.data;
+    const { name, slug } = parsed.data;
 
     // Ensure slug is unique
     const existing = await prisma.organization.findUnique({ where: { slug }, select: { id: true } });
@@ -411,7 +410,7 @@ export const createOrganization = async (req: Request, res: Response, next: Next
         name,
         slug,
         subdomain: slug,
-        plan: plan === 'PROFESSIONAL' ? 'PRO' : plan as 'FREE' | 'STARTER' | 'ENTERPRISE',
+        plan: 'FREE',
       },
       select: { id: true, slug: true },
     });
