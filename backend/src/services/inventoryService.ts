@@ -171,6 +171,7 @@ export async function reserveMaterials(input: ReserveMaterialsInput): Promise<In
       SELECT id, "organizationId", "quantityOnHand", "quantityReserved", name
       FROM inventory_items
       WHERE id = ${inventoryItemId}
+        AND "organizationId" = ${organizationId}
       FOR UPDATE
     `;
 
