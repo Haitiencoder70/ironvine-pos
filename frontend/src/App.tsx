@@ -61,7 +61,12 @@ const appRouter = createBrowserRouter([
     element: <Suspense fallback={<PageFallback />}><SignInPage /></Suspense>,
   },
   {
+    // Support both /signup and /sign-up (Clerk uses the hyphenated version)
     path: '/signup',
+    element: <Suspense fallback={<PageFallback />}><OrganizationSignup /></Suspense>,
+  },
+  {
+    path: '/sign-up/*',
     element: <Suspense fallback={<PageFallback />}><OrganizationSignup /></Suspense>,
   },
   {
