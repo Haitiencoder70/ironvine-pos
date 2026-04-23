@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
 import { AuthenticatedRequest } from '../types';
 import { getSalesReport, getInventoryReport, getProductionReport } from '../services/reportService';
 import { subDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek, subMonths } from 'date-fns';
+
+const groupBySchema = z.enum(['day', 'week', 'month']).default('day');
 
 function parseDateRange(query: Record<string, unknown>): { startDate: Date; endDate: Date } {
   const { preset, startDate, endDate } = query as Record<string, string | undefined>;
@@ -43,7 +46,7 @@ export const getSalesReportHandler = async (
   try {
     const authReq = req as AuthenticatedRequest;
     const { startDate, endDate } = parseDateRange(req.query as Record<string, unknown>);
-    const groupBy = (req.query.groupBy as 'day' | 'week' | 'month') ?? 'day';
+    const groupBy = groupBySchema.parse(req.query.groupBy);
     const data = await getSalesReport(authReq.organizationDbId!, startDate, endDate, groupBy);
     res.json({ data });
   } catch (err) {
