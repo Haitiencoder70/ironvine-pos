@@ -53,21 +53,48 @@ export const app = express();
 app.set('trust proxy', 1);
 
 // ─── Security and utility middleware ──────────────────────────────────────
+// Derive the root domain and clerk proxy URL from FRONTEND_URL for CSP.
+// e.g. FRONTEND_URL=https://pos.printflowpos.com → allows *.printflowpos.com
+const frontendHostname = (() => {
+  try {
+    return new URL(env.FRONTEND_URL).hostname;
+  } catch {
+    return '';
+  }
+})();
+// Extract root domain (last two parts) e.g. pos.printflowpos.com → printflowpos.com
+const rootDomain = frontendHostname.split('.').slice(-2).join('.');
+const clerkProxyWildcard = rootDomain ? `https://*.${rootDomain}` : null;
+
+const clerkScriptSrc = [
+  "'self'",
+  "https://js.stripe.com",
+  "https://browser.sentry-cdn.com",
+  "https://clerk.dev",
+  "https://*.clerk.accounts.dev",
+  "https://*.clerk.com",
+  // Allow Clerk's proxy on the current domain (e.g. clerk.printflowpos.com)
+  ...(clerkProxyWildcard ? [clerkProxyWildcard] : []),
+  // Legacy: if old publishable key still points at adequatemedia.net
+  "https://*.adequatemedia.net",
+];
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https:", "data:", "https://fonts.gstatic.com"],
-      scriptSrc: [
-        "'self'",
+      scriptSrc: clerkScriptSrc,
+      // Explicitly set script-src-elem to avoid browser CSP fallback warnings
+      scriptSrcElem: clerkScriptSrc,
+      frameSrc: [
         "https://js.stripe.com",
-        "https://browser.sentry-cdn.com",
         "https://clerk.dev",
         "https://*.clerk.accounts.dev",
         "https://*.clerk.com",
+        ...(clerkProxyWildcard ? [clerkProxyWildcard] : []),
       ],
-      frameSrc: ["https://js.stripe.com", "https://clerk.dev", "https://*.clerk.accounts.dev", "https://*.clerk.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       connectSrc: [
         "'self'",
@@ -77,6 +104,8 @@ app.use(helmet({
         "https://clerk.dev",
         "https://*.clerk.accounts.dev",
         "https://*.clerk.com",
+        ...(clerkProxyWildcard ? [clerkProxyWildcard] : []),
+        "https://*.adequatemedia.net",
         ...env.CORS_ORIGINS.split(',').map(o => o.trim()),
       ],
     },
