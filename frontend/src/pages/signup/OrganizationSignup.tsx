@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, RedirectToSignIn } from '@clerk/clerk-react';
 import { z } from 'zod';
 import { PlanCard } from '../../components/signup/PlanCard';
 import { SubdomainChecker } from '../../components/signup/SubdomainChecker';
@@ -117,13 +117,15 @@ export function OrganizationSignup(): React.JSX.Element {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  // If Clerk has loaded and user is NOT signed in, send them to sign-up first
-  // They'll return here after authenticating
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      navigate('/sign-in?redirect_url=' + encodeURIComponent('/signup' + window.location.search));
-    }
-  }, [isLoaded, isSignedIn, navigate]);
+  // Detect if we're in the middle of a Clerk SSO callback — the URL will contain
+  // '__clerk_status' or 'rotating_token_nonce' query params while Clerk is
+  // finishing the OAuth handshake. We must NOT redirect during that window or
+  // we create a double-encoded redirect_url loop.
+  const isSsoCallback = typeof window !== 'undefined' &&
+    (window.location.search.includes('__clerk') ||
+     window.location.search.includes('rotating_token') ||
+     window.location.pathname.includes('sso-callback') ||
+     window.location.hash.includes('__clerk'));
 
   function set(field: keyof FormState, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -185,13 +187,20 @@ export function OrganizationSignup(): React.JSX.Element {
     }
   }
 
-  // Show spinner while Clerk loads or redirecting unauthenticated users
-  if (!isLoaded || !isSignedIn) {
+  // While Clerk is loading, show a spinner — never redirect during this time
+  if (!isLoaded || isSsoCallback) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="h-8 w-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
       </div>
     );
+  }
+
+  // Once Clerk has loaded and confirmed the user is NOT signed in,
+  // use Clerk's own redirect (full page, not React Router push) to avoid
+  // the double-encoded redirect_url loop that navigate() creates.
+  if (!isSignedIn) {
+    return <RedirectToSignIn redirectUrl={'/signup' + window.location.search} />;
   }
 
   const STEP_TITLES = ['Organization Details', 'Choose Plan', 'Payment'];
