@@ -17,7 +17,7 @@ export const imagesRouter = Router();
 
 imagesRouter.get(
   '/garment',
-  authorize('images:view'),
+  authorize('products:view'),
   getGarmentImageHandler,
 );
 
@@ -25,7 +25,7 @@ imagesRouter.get(
 // Returns SVG directly — auth required to prevent abuse
 imagesRouter.get(
   '/placeholder',
-  authorize('images:view'),
+  authorize('products:view'),
   getPlaceholderHandler,
 );
 
@@ -34,7 +34,7 @@ imagesRouter.get(
 // GET /api/images/:entityType/:entityId  — e.g. /api/images/order/clxxx
 imagesRouter.get(
   '/:entityType/:entityId',
-  authorize('images:view'),
+  authorize('products:view'),
   getByEntityHandler,
 );
 
