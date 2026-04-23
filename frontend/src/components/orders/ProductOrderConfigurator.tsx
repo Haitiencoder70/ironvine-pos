@@ -345,7 +345,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
   const [overridePrice, setOverridePrice] = useState<number | null>(null);
   const [overrideReason, setOverrideReason] = useState('');
 
-  const activeAddOns = product.addOns.filter(a => a.isActive);
+  const activeAddOns = (product.addOns ?? []).filter(a => a.isActive);
 
   // Total qty
   const totalQty = useMemo(() => {
@@ -355,7 +355,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
 
   // Tier for total qty
   const tier = useMemo(() => getPriceTierForQty(product, totalQty), [product, totalQty]);
-  const tierUnitPrice = tier?.unitPrice ?? product.basePrice;
+  const tierUnitPrice = tier ? Number(tier.price) : Number(product.basePrice);
 
   // Final unit price (override or tier)
   const finalUnitPrice = overridePrice !== null ? overridePrice : tierUnitPrice;
@@ -389,7 +389,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
   const addOnsTotal = useMemo(() => {
     let total = 0;
     for (const ao of activeAddOns) {
-      if (selectedAddOnIds.has(ao.id)) total += ao.price * totalQty;
+      if (selectedAddOnIds.has(ao.id)) total += Number(ao.price) * totalQty;
     }
     return total;
   }, [activeAddOns, selectedAddOnIds, totalQty]);
@@ -419,7 +419,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
     });
 
     if (product.printMethod === 'DTF') {
-      const locations = product.printLocations.length || 1;
+      const locations = (product.includedPrintLocations ?? []).length || 1;
       const sheetsNeeded = Math.ceil((totalQty * locations) / 6);
       mats.push({
         category: 'DTF_TRANSFER',
@@ -428,7 +428,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
         unitPrice: 30,
       });
     } else if (product.printMethod === 'HTV') {
-      const locations = product.printLocations.length || 1;
+      const locations = (product.includedPrintLocations ?? []).length || 1;
       mats.push({
         category: 'HTV_VINYL',
         description: `HTV Vinyl cuts - ${totalQty * locations} pieces × ${locations} location${locations > 1 ? 's' : ''}`,
@@ -442,7 +442,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
   const handleAdd = () => {
     const addOnsList: SelectedAddOn[] = activeAddOns
       .filter(ao => selectedAddOnIds.has(ao.id))
-      .map(ao => ({ id: ao.id, name: ao.name, pricePerItem: ao.price }));
+      .map(ao => ({ id: ao.id, name: ao.name, pricePerItem: Number(ao.price) }));
 
     const finalSizeBreakdown: SizeQty[] =
       sizeMode === 'single'
@@ -475,7 +475,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
       priceOverrideReason: overrideReason,
       originalTierPrice: tierUnitPrice,
       selectedAddOns: addOnsList,
-      printLocations: product.printLocations,
+      printLocations: product.includedPrintLocations ?? [],
       designDescription,
       itemNotes,
       printMethod: product.printMethod,
@@ -514,7 +514,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
       <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
         <h3 className="font-bold text-blue-900 text-base">{product.name}</h3>
         <p className="text-sm text-blue-700 mt-0.5">
-          Starting at {formatCurrency(product.priceTiers.reduce((m, t) => Math.min(m, t.unitPrice), product.basePrice))} per unit
+          Starting at {formatCurrency((product.priceTiers ?? []).reduce((m, t) => Math.min(m, Number(t.price)), Number(product.basePrice)))} per unit
           {product.description && ` · ${product.description}`}
         </p>
       </div>
@@ -647,7 +647,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
             {tier && (
               <div className="flex-1 text-right">
                 <p className="text-xs text-gray-500">
-                  {tier.minQty}{tier.maxQty ? `–${tier.maxQty}` : '+'} qty tier
+                  {tier.minQty}+ qty tier
                 </p>
                 <p className="text-lg font-black text-blue-700">{formatCurrency(tierUnitPrice)}/unit</p>
               </div>
@@ -663,7 +663,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
         <div>
           <p className="text-xs font-semibold text-gray-600 mb-2">Print Locations (included with product)</p>
           <div className="flex flex-wrap gap-1.5">
-            {product.printLocations.map(loc => (
+            {(product.includedPrintLocations ?? []).map(loc => (
               <span key={loc} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg font-semibold border border-blue-200">
                 ✅ {loc}
               </span>
@@ -711,9 +711,9 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
                   <span className={clsx('flex-1 text-sm font-medium', checked ? 'text-blue-900' : 'text-gray-700')}>
                     {ao.name}
                   </span>
-                  <span className="text-sm text-gray-600">+{formatCurrency(ao.price)}/item</span>
+                  <span className="text-sm text-gray-600">+{formatCurrency(Number(ao.price))}/item</span>
                   {checked && totalQty > 0 && (
-                    <span className="text-sm font-bold text-blue-700">= {formatCurrency(ao.price * totalQty)}</span>
+                    <span className="text-sm font-bold text-blue-700">= {formatCurrency(Number(ao.price) * totalQty)}</span>
                   )}
                 </label>
               );
@@ -739,8 +739,8 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
             ))}
             {activeAddOns.filter(ao => selectedAddOnIds.has(ao.id)).map(ao => (
               <div key={ao.id} className="flex justify-between text-gray-700">
-                <span>{ao.name} ({totalQty} × {formatCurrency(ao.price)})</span>
-                <span className="font-semibold">{formatCurrency(ao.price * totalQty)}</span>
+                <span>{ao.name} ({totalQty} × {formatCurrency(Number(ao.price))})</span>
+                <span className="font-semibold">{formatCurrency(Number(ao.price) * totalQty)}</span>
               </div>
             ))}
             <div className="border-t border-gray-200 pt-2 mt-2">

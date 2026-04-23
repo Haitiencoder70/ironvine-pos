@@ -9,10 +9,13 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   SparklesIcon,
+  // SparklesIcon kept — used on isFeatured badge in ProductCard
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import {
   useProducts,
+  useDuplicateProduct,
+  useUpdateProduct,
   formatCurrency,
   PRODUCT_CATEGORIES,
   type Product,
@@ -53,12 +56,12 @@ function ProductCard({
 }): JSX.Element {
   const navigate = useNavigate();
 
-  const lowestTierPrice = product.priceTiers.reduce(
-    (min, t) => Math.min(min, t.unitPrice),
-    product.basePrice
+  const lowestTierPrice = (product.priceTiers ?? []).reduce(
+    (min, t) => Math.min(min, Number(t.price)),
+    Number(product.basePrice)
   );
 
-  const displayedTiers = product.priceTiers.slice(0, 5);
+  const displayedTiers = (product.priceTiers ?? []).slice(0, 5);
 
   return (
     <TouchCard
@@ -90,7 +93,7 @@ function ProductCard({
             )}
           </div>
           <div className="flex flex-wrap items-center gap-1.5 mt-1">
-            <span className="text-xs text-gray-500">{product.category}</span>
+            <span className="text-xs text-gray-500">{product.category?.name}</span>
             <span className="text-gray-300">·</span>
             <span className={clsx(
               'text-xs font-semibold px-2 py-0.5 rounded-full',
@@ -98,7 +101,7 @@ function ProductCard({
             )}>
               {product.printMethod}
             </span>
-            {product.printLocations.map(loc => (
+            {(product.includedPrintLocations ?? []).map(loc => (
               <span key={loc} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                 {loc}
               </span>
@@ -121,10 +124,10 @@ function ProductCard({
             {displayedTiers.map((tier, i) => (
               <div key={i} className="text-xs bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-center">
                 <span className="text-gray-500">
-                  {tier.minQty}{tier.maxQty ? `–${tier.maxQty}` : '+'}:
+                  {tier.minQty}+:
                 </span>
                 {' '}
-                <span className="font-bold text-gray-800">{formatCurrency(tier.unitPrice)}</span>
+                <span className="font-bold text-gray-800">{formatCurrency(Number(tier.price))}</span>
               </div>
             ))}
           </div>
@@ -132,11 +135,11 @@ function ProductCard({
       )}
 
       {/* Size upcharges */}
-      {product.sizeUpcharges.length > 0 && (
+      {product.sizeUpcharges && Object.keys(product.sizeUpcharges).length > 0 && (
         <div className="px-4 pb-3">
           <p className="text-[10px] text-gray-400">
             Size upcharges:{' '}
-            {product.sizeUpcharges.map(u => `${u.size}+${formatCurrency(u.upcharge)}`).join(', ')}
+            {Object.entries(product.sizeUpcharges).map(([size, upcharge]) => `${size}+${formatCurrency(upcharge)}`).join(', ')}
           </p>
         </div>
       )}
@@ -157,8 +160,8 @@ function ProductCard({
             </>
           )}
           <span className="text-gray-200 ml-1">·</span>
-          <span className={clsx('text-xs font-medium ml-1', DIFFICULTY_COLORS[product.difficulty])}>
-            {product.difficulty.charAt(0) + product.difficulty.slice(1).toLowerCase()}
+          <span className={clsx('text-xs font-medium ml-1', DIFFICULTY_COLORS[product.difficultyLevel ?? ''])}>
+            {product.difficultyLevel ? product.difficultyLevel.charAt(0) + product.difficultyLevel.slice(1).toLowerCase() : ''}
           </span>
         </div>
 
@@ -203,19 +206,24 @@ function ProductCard({
 
 export function ProductListPage(): JSX.Element {
   const navigate = useNavigate();
-  const { products, isLoading, duplicateProduct, updateProduct, loadDefaultProducts } = useProducts();
-
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [methodFilter, setMethodFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ACTIVE');
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'category'>('name');
 
+  const { data: productsData, isLoading } = useProducts({
+    isActive: statusFilter === 'INACTIVE' ? false : statusFilter === 'ACTIVE' ? true : undefined,
+  });
+  const duplicateProduct = useDuplicateProduct();
+  const updateProduct = useUpdateProduct();
+  const products = productsData?.data ?? [];
+
   // Category counts
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { All: products.length };
     for (const cat of PRODUCT_CATEGORIES) {
-      counts[cat] = products.filter(p => p.category === cat).length;
+      counts[cat] = products.filter(p => p.category?.name === cat).length;
     }
     return counts;
   }, [products]);
@@ -224,36 +232,34 @@ export function ProductListPage(): JSX.Element {
   const displayed = useMemo(() => {
     let list = [...products];
 
-    if (activeCategory !== 'All') list = list.filter(p => p.category === activeCategory);
+    if (activeCategory !== 'All') list = list.filter(p => p.category?.name === activeCategory);
     if (methodFilter !== 'All') list = list.filter(p => p.printMethod === methodFilter);
-    if (statusFilter === 'ACTIVE') list = list.filter(p => p.isActive);
-    if (statusFilter === 'INACTIVE') list = list.filter(p => !p.isActive);
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(p =>
         p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q)
+        (p.description ?? '').toLowerCase().includes(q) ||
+        (p.sku ?? '').toLowerCase().includes(q)
       );
     }
 
     list.sort((a, b) => {
       if (sortBy === 'name') return a.name.localeCompare(b.name);
-      if (sortBy === 'price') return a.basePrice - b.basePrice;
-      if (sortBy === 'category') return a.category.localeCompare(b.category);
+      if (sortBy === 'price') return Number(a.basePrice) - Number(b.basePrice);
+      if (sortBy === 'category') return (a.category?.name ?? '').localeCompare(b.category?.name ?? '');
       return 0;
     });
 
     return list;
-  }, [products, activeCategory, methodFilter, statusFilter, search, sortBy]);
+  }, [products, activeCategory, methodFilter, search, sortBy]);
 
   const handleDuplicate = (id: string) => {
-    const copy = duplicateProduct(id);
-    navigate(`/products/${copy.id}/edit`);
+    duplicateProduct.mutate(id);
+    navigate('/products');
   };
 
   const handleToggleActive = (product: Product) => {
-    updateProduct(product.id, { isActive: !product.isActive });
+    updateProduct.mutate({ id: product.id, body: { isActive: !product.isActive } });
   };
 
   const hasAnyProducts = products.length > 0;
@@ -376,14 +382,6 @@ export function ProductListPage(): JSX.Element {
               onClick={() => navigate('/products/new')}
             >
               Create First Product
-            </TouchButton>
-            <TouchButton
-              variant="secondary"
-              size="lg"
-              icon={<SparklesIcon className="h-5 w-5" />}
-              onClick={loadDefaultProducts}
-            >
-              Load Default Products
             </TouchButton>
           </div>
         </div>

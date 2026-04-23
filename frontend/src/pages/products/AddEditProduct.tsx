@@ -18,14 +18,15 @@ import {
 import { clsx } from 'clsx';
 import {
   useProduct,
-  useProducts,
+  useCreateProduct,
+  useUpdateProduct,
+  useProductCategories,
   PRODUCT_CATEGORIES,
   GARMENT_TYPES,
   PRINT_METHODS,
   PRINT_LOCATIONS,
   BRANDS,
   SIZES,
-  type ProductFormData,
 } from '../../hooks/useProducts';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
@@ -147,8 +148,12 @@ export function AddEditProductPage(): JSX.Element {
   const isEdit = Boolean(id);
   const navigate = useNavigate();
 
-  const { product, isLoading: isLoadingProduct } = useProduct(id ?? '');
-  const { createProduct, updateProduct } = useProducts();
+  const { data: productData, isLoading: isLoadingProduct } = useProduct(id ?? '');
+  const product = productData?.data;
+  const createProduct = useCreateProduct();
+  const updateProduct = useUpdateProduct();
+  const { data: categoriesData } = useProductCategories();
+  const categories = categoriesData?.data ?? [];
 
   const {
     register,
@@ -206,23 +211,40 @@ export function AddEditProductPage(): JSX.Element {
     if (isEdit && product) {
       reset({
         name:                       product.name,
-        description:                product.description,
-        sku:                        product.sku,
-        category:                   product.category,
+        description:                product.description ?? '',
+        sku:                        product.sku ?? '',
+        category:                   product.category?.name ?? '',
         garmentType:                product.garmentType,
         printMethod:                product.printMethod,
-        printLocations:             product.printLocations,
+        printLocations:             product.includedPrintLocations ?? [],
         maxPrintLocations:          product.maxPrintLocations,
         availableBrands:            product.availableBrands,
         availableSizes:             product.availableSizes,
-        basePrice:                  product.basePrice,
-        priceTiers:                 product.priceTiers,
-        sizeUpcharges:              product.sizeUpcharges,
-        materialCosts:              product.materialCosts,
-        addOns:                     product.addOns,
-        estimatedProductionMinutes: product.estimatedProductionMinutes,
-        difficulty:                 product.difficulty,
-        productionNotes:            product.productionNotes,
+        basePrice:                  Number(product.basePrice),
+        priceTiers:                 (product.priceTiers ?? []).map(t => ({
+                                      minQty: t.minQty,
+                                      maxQty: null,
+                                      unitPrice: Number(t.price),
+                                    })),
+        sizeUpcharges:              Object.entries(product.sizeUpcharges ?? {}).map(([size, upcharge]) => ({
+                                      size,
+                                      upcharge: Number(upcharge),
+                                    })),
+        materialCosts:              (product.materialTemplates ?? []).map(m => ({
+                                      id: m.id,
+                                      material: m.description,
+                                      qtyPerUnit: Number(m.quantityPerUnit),
+                                      estimatedCost: Number(m.estimatedCostPerUnit),
+                                    })),
+        addOns:                     (product.addOns ?? []).map(a => ({
+                                      id: a.id,
+                                      name: a.name,
+                                      price: Number(a.price),
+                                      isActive: a.isActive,
+                                    })),
+        estimatedProductionMinutes: product.estimatedProductionMinutes ?? 5,
+        difficulty:                 (product.difficultyLevel ?? 'EASY') as 'EASY' | 'MEDIUM' | 'COMPLEX',
+        productionNotes:            '',
         isActive:                   product.isActive,
         isFeatured:                 product.isFeatured,
       });
@@ -242,37 +264,45 @@ export function AddEditProductPage(): JSX.Element {
   const baseMargin = watchedBasePrice > 0 ? (baseProfit / watchedBasePrice) * 100 : 0;
 
   const onSubmit = useCallback(async (data: ProductFormValues) => {
-    const payload: ProductFormData = {
+    // Look up categoryId by name
+    const matchedCategory = categories.find(c => c.name === data.category);
+    const categoryId = matchedCategory?.id;
+
+    const payload = {
       name:                       data.name,
       description:                data.description ?? '',
       sku:                        data.sku ?? '',
-      category:                   data.category,
+      categoryId,
       garmentType:                data.garmentType,
       printMethod:                data.printMethod,
-      printLocations:             data.printLocations,
+      includedPrintLocations:     data.printLocations,
       maxPrintLocations:          data.maxPrintLocations,
       availableBrands:            data.availableBrands,
       availableSizes:             data.availableSizes,
       basePrice:                  data.basePrice,
-      priceTiers:                 data.priceTiers,
-      sizeUpcharges:              data.sizeUpcharges,
-      materialCosts:              data.materialCosts,
+      priceTiers:                 data.priceTiers.map(t => ({ minQty: t.minQty, price: t.unitPrice })),
+      sizeUpcharges:              Object.fromEntries(data.sizeUpcharges.map(u => [u.size, u.upcharge])),
+      materialTemplates:          data.materialCosts.map(m => ({
+                                    id: m.id,
+                                    description: m.material,
+                                    quantityPerUnit: m.qtyPerUnit,
+                                    estimatedCostPerUnit: m.estimatedCost,
+                                  })),
       addOns:                     data.addOns,
       estimatedProductionMinutes: data.estimatedProductionMinutes,
-      difficulty:                 data.difficulty,
-      productionNotes:            data.productionNotes ?? '',
+      difficultyLevel:            data.difficulty,
       isActive:                   data.isActive,
       isFeatured:                 data.isFeatured,
     };
 
     if (isEdit && id) {
-      updateProduct(id, payload);
+      await updateProduct.mutateAsync({ id, body: payload });
       navigate(`/products/${id}`);
     } else {
-      const created = createProduct(payload);
-      navigate(`/products/${created.id}`);
+      const result = await createProduct.mutateAsync(payload);
+      navigate(`/products/${result.data.id}`);
     }
-  }, [isEdit, id, createProduct, updateProduct, navigate]);
+  }, [isEdit, id, createProduct, updateProduct, navigate, categories]);
 
   if (isEdit && isLoadingProduct) {
     return (

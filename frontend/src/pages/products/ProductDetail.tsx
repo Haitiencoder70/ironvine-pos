@@ -13,7 +13,8 @@ import {
 import { clsx } from 'clsx';
 import {
   useProduct,
-  useProducts,
+  useDuplicateProduct,
+  useUpdateProduct,
   formatCurrency,
   calcTotalMaterialCost,
   getPriceTierForQty,
@@ -53,9 +54,10 @@ function ProfitTable({ product }: { product: Product }): JSX.Element {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
-          {product.priceTiers.map((tier, i) => {
-            const profit = tier.unitPrice - costPerUnit;
-            const margin = tier.unitPrice > 0 ? (profit / tier.unitPrice) * 100 : 0;
+          {(product.priceTiers ?? []).map((tier, i) => {
+            const tierPrice = Number(tier.price);
+            const profit = tierPrice - costPerUnit;
+            const margin = tierPrice > 0 ? (profit / tierPrice) * 100 : 0;
             const marginColor =
               margin >= 50 ? 'text-emerald-600'
               : margin >= 30 ? 'text-amber-600'
@@ -64,10 +66,10 @@ function ProfitTable({ product }: { product: Product }): JSX.Element {
             return (
               <tr key={i} className="hover:bg-gray-50">
                 <td className="py-2.5 pr-4 font-medium text-gray-700">
-                  {tier.minQty}{tier.maxQty ? `–${tier.maxQty}` : '+'} units
+                  {tier.minQty}+ units
                 </td>
                 <td className="text-right py-2.5 px-2 font-bold text-gray-900">
-                  {formatCurrency(tier.unitPrice)}
+                  {formatCurrency(tierPrice)}
                 </td>
                 <td className="text-right py-2.5 px-2 text-gray-500">
                   {formatCurrency(costPerUnit)}
@@ -91,20 +93,21 @@ function ProfitTable({ product }: { product: Product }): JSX.Element {
 
 function MarginChart({ product }: { product: Product }): JSX.Element {
   const costPerUnit = calcTotalMaterialCost(product);
-  const maxPrice = Math.max(...product.priceTiers.map(t => t.unitPrice), product.basePrice);
+  const maxPrice = Math.max(...(product.priceTiers ?? []).map(t => Number(t.price)), Number(product.basePrice));
 
   return (
     <div className="space-y-3 mt-4">
-      {product.priceTiers.map((tier, i) => {
-        const margin = tier.unitPrice > 0 ? ((tier.unitPrice - costPerUnit) / tier.unitPrice) * 100 : 0;
-        const profitPct = (tier.unitPrice - costPerUnit) / maxPrice * 100;
+      {(product.priceTiers ?? []).map((tier, i) => {
+        const tierPrice = Number(tier.price);
+        const margin = tierPrice > 0 ? ((tierPrice - costPerUnit) / tierPrice) * 100 : 0;
+        const profitPct = (tierPrice - costPerUnit) / maxPrice * 100;
         const costPct = costPerUnit / maxPrice * 100;
 
         return (
           <div key={i}>
             <div className="flex justify-between text-xs mb-1 text-gray-500">
-              <span>{tier.minQty}{tier.maxQty ? `–${tier.maxQty}` : '+'} units</span>
-              <span className="font-semibold">{formatCurrency(tier.unitPrice)} · {margin.toFixed(0)}% margin</span>
+              <span>{tier.minQty}+ units</span>
+              <span className="font-semibold">{formatCurrency(tierPrice)} · {margin.toFixed(0)}% margin</span>
             </div>
             <div className="h-3 rounded-full bg-gray-100 overflow-hidden flex">
               <div
@@ -115,7 +118,7 @@ function MarginChart({ product }: { product: Product }): JSX.Element {
               <div
                 className="h-full bg-emerald-400 transition-all"
                 style={{ width: `${Math.max(0, profitPct)}%` }}
-                title={`Profit: ${formatCurrency(tier.unitPrice - costPerUnit)}`}
+                title={`Profit: ${formatCurrency(Number(tier.price) - costPerUnit)}`}
               />
             </div>
           </div>
@@ -134,8 +137,10 @@ function MarginChart({ product }: { product: Product }): JSX.Element {
 export function ProductDetailPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { product, isLoading } = useProduct(id ?? '');
-  const { duplicateProduct, updateProduct } = useProducts();
+  const { data: productData, isLoading } = useProduct(id ?? '');
+  const product = productData?.data;
+  const duplicateMutation = useDuplicateProduct();
+  const updateMutation = useUpdateProduct();
 
   if (isLoading) {
     return (
@@ -159,21 +164,22 @@ export function ProductDetailPage(): JSX.Element {
   }
 
   const handleDuplicate = () => {
-    const copy = duplicateProduct(product.id);
-    navigate(`/products/${copy.id}/edit`);
+    duplicateMutation.mutate(product.id);
+    navigate('/products');
   };
 
   const handleToggleActive = () => {
-    updateProduct(product.id, { isActive: !product.isActive });
+    updateMutation.mutate({ id: product.id, body: { isActive: !product.isActive } });
   };
 
   const costPerUnit = calcTotalMaterialCost(product);
-  const baseProfit = product.basePrice - costPerUnit;
-  const baseMargin = product.basePrice > 0 ? (baseProfit / product.basePrice) * 100 : 0;
+  const basePrice = Number(product.basePrice);
+  const baseProfit = basePrice - costPerUnit;
+  const baseMargin = basePrice > 0 ? (baseProfit / basePrice) * 100 : 0;
 
   // Compute "starting at" using tier for qty=1
   const singleTier = getPriceTierForQty(product, 1);
-  const startingAt = singleTier?.unitPrice ?? product.basePrice;
+  const startingAt = singleTier ? Number(singleTier.price) : basePrice;
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6 pb-12">
@@ -249,7 +255,7 @@ export function ProductDetailPage(): JSX.Element {
             <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div>
                 <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Category</dt>
-                <dd className="mt-1 font-semibold text-gray-900">{product.category}</dd>
+                <dd className="mt-1 font-semibold text-gray-900">{product.category?.name ?? '—'}</dd>
               </div>
               <div>
                 <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Garment Type</dt>
@@ -262,7 +268,7 @@ export function ProductDetailPage(): JSX.Element {
               <div>
                 <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Print Locations</dt>
                 <dd className="mt-1 flex flex-wrap gap-1">
-                  {product.printLocations.map(loc => (
+                  {(product.includedPrintLocations ?? []).map(loc => (
                     <span key={loc} className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md font-medium">{loc}</span>
                   ))}
                 </dd>
@@ -274,11 +280,11 @@ export function ProductDetailPage(): JSX.Element {
               <div>
                 <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Difficulty</dt>
                 <dd className={clsx('mt-1 font-semibold',
-                  product.difficulty === 'EASY' ? 'text-emerald-600'
-                  : product.difficulty === 'MEDIUM' ? 'text-amber-600'
+                  product.difficultyLevel === 'EASY' ? 'text-emerald-600'
+                  : product.difficultyLevel === 'MEDIUM' ? 'text-amber-600'
                   : 'text-red-600'
                 )}>
-                  {product.difficulty.charAt(0) + product.difficulty.slice(1).toLowerCase()}
+                  {product.difficultyLevel ? product.difficultyLevel.charAt(0) + product.difficultyLevel.slice(1).toLowerCase() : '—'}
                 </dd>
               </div>
               <div>
@@ -286,10 +292,10 @@ export function ProductDetailPage(): JSX.Element {
                 <dd className="mt-1 font-semibold text-gray-900">{product.estimatedProductionMinutes} min/unit</dd>
               </div>
             </dl>
-            {product.productionNotes && (
+            {product.description && (
               <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
-                <p className="text-xs font-semibold text-amber-700 mb-1">Production Notes</p>
-                <p className="text-sm text-amber-800">{product.productionNotes}</p>
+                <p className="text-xs font-semibold text-amber-700 mb-1">Description</p>
+                <p className="text-sm text-amber-800">{product.description}</p>
               </div>
             )}
           </TouchCard>
@@ -315,13 +321,13 @@ export function ProductDetailPage(): JSX.Element {
                   ))}
                 </div>
               </div>
-              {product.sizeUpcharges.length > 0 && (
+              {product.sizeUpcharges && Object.keys(product.sizeUpcharges).length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Size Upcharges</p>
                   <div className="flex flex-wrap gap-2">
-                    {product.sizeUpcharges.map(u => (
-                      <span key={u.size} className="text-sm bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-lg font-medium">
-                        {u.size}: +{formatCurrency(u.upcharge)}
+                    {Object.entries(product.sizeUpcharges).map(([size, upcharge]) => (
+                      <span key={size} className="text-sm bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-lg font-medium">
+                        {size}: +{formatCurrency(Number(upcharge))}
                       </span>
                     ))}
                   </div>
@@ -342,7 +348,7 @@ export function ProductDetailPage(): JSX.Element {
               <div className="h-10 w-px bg-gray-200" />
               <div>
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Base Price</p>
-                <p className="text-3xl font-black text-gray-900">{formatCurrency(product.basePrice)}</p>
+                <p className="text-3xl font-black text-gray-900">{formatCurrency(Number(product.basePrice))}</p>
               </div>
             </div>
 
@@ -372,7 +378,7 @@ export function ProductDetailPage(): JSX.Element {
               <MarginChart product={product} />
 
               {/* Material costs breakdown */}
-              {product.materialCosts.length > 0 && (
+              {(product.materialTemplates ?? []).length > 0 && (
                 <div className="mt-5">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Material Breakdown</p>
                   <table className="w-full text-sm">
@@ -385,13 +391,13 @@ export function ProductDetailPage(): JSX.Element {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
-                      {product.materialCosts.map(m => (
+                      {(product.materialTemplates ?? []).map(m => (
                         <tr key={m.id} className="hover:bg-gray-50">
-                          <td className="py-2 font-medium text-gray-700">{m.material}</td>
-                          <td className="py-2 text-center text-gray-500">{m.qtyPerUnit}</td>
-                          <td className="py-2 text-right text-gray-600">{formatCurrency(m.estimatedCost)}</td>
+                          <td className="py-2 font-medium text-gray-700">{m.description}</td>
+                          <td className="py-2 text-center text-gray-500">{Number(m.quantityPerUnit)}</td>
+                          <td className="py-2 text-right text-gray-600">{formatCurrency(Number(m.estimatedCostPerUnit))}</td>
                           <td className="py-2 text-right font-semibold text-gray-800">
-                            {formatCurrency(m.qtyPerUnit * m.estimatedCost)}
+                            {formatCurrency(Number(m.quantityPerUnit) * Number(m.estimatedCostPerUnit))}
                           </td>
                         </tr>
                       ))}
@@ -407,11 +413,11 @@ export function ProductDetailPage(): JSX.Element {
           )}
 
           {/* Add-Ons */}
-          {product.addOns.length > 0 && (
+          {(product.addOns ?? []).length > 0 && (
             <TouchCard padding="lg" className="border border-gray-200 shadow-sm">
               <SectionHeader icon={<WrenchScrewdriverIcon className="h-5 w-5" />} title="Add-Ons" />
               <div className="space-y-2">
-                {product.addOns.map(ao => (
+                {(product.addOns ?? []).map(ao => (
                   <div
                     key={ao.id}
                     className={clsx(
@@ -427,7 +433,7 @@ export function ProductDetailPage(): JSX.Element {
                       <span className="font-medium text-gray-800">{ao.name}</span>
                       {!ao.isActive && <span className="text-xs text-gray-400">(inactive)</span>}
                     </div>
-                    <span className="font-bold text-gray-900">+{formatCurrency(ao.price)}/item</span>
+                    <span className="font-bold text-gray-900">+{formatCurrency(Number(ao.price))}/item</span>
                   </div>
                 ))}
               </div>

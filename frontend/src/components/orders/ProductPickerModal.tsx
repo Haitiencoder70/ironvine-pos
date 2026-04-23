@@ -25,9 +25,9 @@ const METHOD_COLORS: Record<string, string> = {
 // ─── Product card (picker variant) ────────────────────────────────────────────
 
 function PickerCard({ product, onSelect }: { product: Product; onSelect: () => void }): JSX.Element {
-  const startingAt = product.priceTiers.reduce(
-    (min, t) => Math.min(min, t.unitPrice),
-    product.basePrice
+  const startingAt = (product.priceTiers ?? []).reduce(
+    (min, t) => Math.min(min, Number(t.price)),
+    Number(product.basePrice)
   );
 
   return (
@@ -55,7 +55,7 @@ function PickerCard({ product, onSelect }: { product: Product; onSelect: () => v
               {product.printMethod}
             </span>
             <span className="text-[10px] text-gray-400">
-              {product.printLocations.length} loc.
+              {(product.includedPrintLocations ?? []).length} loc.
             </span>
           </div>
         </div>
@@ -81,7 +81,8 @@ interface ProductPickerModalProps {
 
 export function ProductPickerModal({ onSelectProduct, onCustomItem, onCancel }: ProductPickerModalProps): JSX.Element {
   const navigate = useNavigate();
-  const { products } = useProducts();
+  const { data } = useProducts({ isActive: true });
+  const products = data?.data ?? [];
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -90,19 +91,19 @@ export function ProductPickerModal({ onSelectProduct, onCustomItem, onCancel }: 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { All: activeProducts.length };
     for (const cat of PRODUCT_CATEGORIES) {
-      counts[cat] = activeProducts.filter(p => p.category === cat).length;
+      counts[cat] = activeProducts.filter(p => p.category?.name === cat).length;
     }
     return counts;
   }, [activeProducts]);
 
   const displayed = useMemo(() => {
     let list = [...activeProducts];
-    if (activeCategory !== 'All') list = list.filter(p => p.category === activeCategory);
+    if (activeCategory !== 'All') list = list.filter(p => p.category?.name === activeCategory);
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(p =>
         p.name.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
+        (p.category?.name ?? '').toLowerCase().includes(q) ||
         p.printMethod.toLowerCase().includes(q)
       );
     }

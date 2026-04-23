@@ -21,7 +21,7 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
   const [size, setSize] = useState(product.availableSizes[3] ?? product.availableSizes[0] ?? 'XL');
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set());
 
-  const activeAddOns = product.addOns.filter(a => a.isActive);
+  const activeAddOns = (product.addOns ?? []).filter(a => a.isActive);
 
   const toggleAddOn = (id: string) => {
     setSelectedAddOns(prev => {
@@ -37,7 +37,7 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
 
   const calc = useMemo(() => {
     const tier = getPriceTierForQty(product, qty);
-    const unitBase = tier?.unitPrice ?? product.basePrice;
+    const unitBase = tier ? Number(tier.price) : Number(product.basePrice);
     const sizeUC = getSizeUpcharge(product, size);
     const unitPrice = unitBase + sizeUC;
     const garmentsSubtotal = unitPrice * qty;
@@ -46,9 +46,10 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
     const addOnLines: { name: string; perItem: number; total: number }[] = [];
     for (const ao of activeAddOns) {
       if (selectedAddOns.has(ao.id)) {
-        const lineTotal = ao.price * qty;
+        const aoPrice = Number(ao.price);
+        const lineTotal = aoPrice * qty;
         addOnsTotal += lineTotal;
-        addOnLines.push({ name: ao.name, perItem: ao.price, total: lineTotal });
+        addOnLines.push({ name: ao.name, perItem: aoPrice, total: lineTotal });
       }
     }
 
@@ -196,7 +197,7 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
                     {ao.name}
                   </span>
                   <span className="text-sm font-semibold text-gray-600">
-                    +{formatCurrency(ao.price)}/item
+                    +{formatCurrency(Number(ao.price))}/item
                   </span>
                 </label>
               ))}
@@ -214,7 +215,7 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
           </p>
           <div className="space-y-1.5 text-sm">
             <BreakdownRow
-              label={`Base price (${calc.tier ? `${calc.tier.minQty}${calc.tier.maxQty ? `–${calc.tier.maxQty}` : '+'}` : ''}${' '}qty tier)`}
+              label={`Base price (${calc.tier ? `${calc.tier.minQty}+` : ''}qty tier)`}
               value={formatCurrency(calc.unitBase)}
             />
             {calc.sizeUC > 0 && (
