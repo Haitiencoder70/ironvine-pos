@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, RedirectToSignIn } from '@clerk/clerk-react';
 import { z } from 'zod';
