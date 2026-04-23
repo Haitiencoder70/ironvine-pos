@@ -10,6 +10,7 @@ const config: Config = {
   globalTeardown: '../jest.global-teardown.ts',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^@aws-sdk/(.*)$': '<rootDir>/tests/mocks/aws-sdk.ts',
   },
   testTimeout: 30000,
   forceExit: true,
