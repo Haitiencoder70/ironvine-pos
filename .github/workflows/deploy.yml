@@ -37,16 +37,10 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
 
-  # Frontend deploys automatically via Vercel git integration on push to main
-
+  # Backend and Frontend deploy automatically via Render git integration on push to main
   deploy-backend:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # Backend deploys automatically via Vercel's git integration
-      # Add RAILWAY_TOKEN secret and uncomment below for Railway:
-      # - uses: bervProject/railway-deploy@main
-      #   with:
-      #     railway_token: ${{ secrets.RAILWAY_TOKEN }}
-      #     service: backend
+      # Render handles the deployment via GitHub App integration

@@ -1,4 +1,4 @@
-import { put } from '@vercel/blob';
+import { uploadFile } from './storageService';
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
 import type { SaveBrandingInput } from '../validators/branding';
@@ -102,17 +102,13 @@ export async function uploadBrandingAsset(
   const ext = file.originalname.split('.').pop() ?? (type === 'favicon' ? 'ico' : 'png');
   const path = `branding/${orgId}/${type}.${ext}`;
 
-  const blob = await put(path, file.buffer, {
-    access: 'public',
-    contentType: file.mimetype,
-    addRandomSuffix: false,
-  });
+  const assetUrl = await uploadFile(path, file.buffer, file.mimetype);
 
   const field = type === 'logo' ? 'logoUrl' : 'faviconUrl';
   await prisma.organization.update({
     where: { id: orgId },
-    data: { [field]: blob.url },
+    data: { [field]: assetUrl },
   });
 
-  return blob.url;
+  return assetUrl;
 }

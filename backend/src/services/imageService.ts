@@ -1,5 +1,5 @@
 import { Image, ImageType, GarmentType } from '@prisma/client';
-import { put, del } from '@vercel/blob';
+import { uploadFile, deleteFile } from './storageService';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
@@ -64,17 +64,11 @@ export async function uploadImage(input: UploadImageInput): Promise<Image> {
     height = optimized.height;
 
     const thumbBuffer = await resizeImage(optimizedBuffer, 400);
-    const thumbBlob = await put(buildStoragePath(organizationId, entityType, entityId, originalName, 'thumb'), thumbBuffer, {
-      access: 'public',
-      contentType: mimeType,
-    });
-    thumbnailUrl = thumbBlob.url;
+    const thumbBlobUrl = await uploadFile(buildStoragePath(organizationId, entityType, entityId, originalName, 'thumb'), thumbBuffer, mimeType);
+    thumbnailUrl = thumbBlobUrl;
   }
 
-  const mainBlob = await put(buildStoragePath(organizationId, entityType, entityId, originalName, 'full'), optimizedBuffer, {
-    access: 'public',
-    contentType: mimeType,
-  });
+  const mainBlobUrl = await uploadFile(buildStoragePath(organizationId, entityType, entityId, originalName, 'full'), optimizedBuffer, mimeType);
 
   // Determine display order (append after existing images for this entity)
   const existingCount = await prisma.image.count({
@@ -87,7 +81,7 @@ export async function uploadImage(input: UploadImageInput): Promise<Image> {
   const image = await prisma.image.create({
     data: {
       organizationId,
-      url: mainBlob.url,
+      url: mainBlobUrl,
       thumbnailUrl,
       fileName: originalName,
       fileSize,
@@ -121,10 +115,10 @@ export async function deleteImage(organizationId: string, imageId: string): Prom
     throw new AppError(404, 'Image not found');
   }
 
-  // Delete from Vercel Blob storage
-  await del(image.url);
+  // Delete from storage
+  await deleteFile(image.url);
   if (image.thumbnailUrl) {
-    await del(image.thumbnailUrl);
+    await deleteFile(image.thumbnailUrl);
   }
 
   await prisma.image.delete({ where: { id: imageId } });

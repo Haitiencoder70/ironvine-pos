@@ -4,8 +4,8 @@
 
 | Layer | Service |
 |---|---|
-| Frontend | Vercel |
-| Backend | Vercel (serverless) or Railway |
+| Frontend | Render |
+| Backend | Render (Monolith) |
 | Database | Neon (PostgreSQL) |
 | Auth | Clerk |
 | Payments | Stripe |
@@ -38,14 +38,9 @@ After setup, copy:
 - Webhook signing secret (`whsec_...`)
 - Price IDs for each plan
 
-## 4. Backend Deployment (Vercel)
+## 4. Backend Deployment (Render)
 
-```bash
-cd backend
-vercel --prod
-```
-
-**Required environment variables in Vercel dashboard:**
+The backend is deployed as a Monolith on Render. Connect your GitHub repository to Render and use the following settings.
 
 ```
 DATABASE_URL            = <Neon pooled URL>
@@ -60,14 +55,9 @@ CORS_ORIGINS            = https://yourapp.com,https://*.yourapp.com
 NODE_ENV                = production
 ```
 
-## 5. Frontend Deployment (Vercel)
+## 5. Frontend Deployment (Render)
 
-```bash
-cd frontend
-vercel --prod
-```
-
-**Required environment variables:**
+The frontend is built as part of the Monolith deployment on Render.
 
 ```
 VITE_CLERK_PUBLISHABLE_KEY = pk_live_...
@@ -75,25 +65,21 @@ VITE_API_URL               = https://api.yourapp.com
 VITE_APP_DOMAIN            = yourapp.com
 ```
 
-## 6. DNS & Wildcard Subdomains
+## 6. DNS & Cloudflare Configuration
 
-In your DNS provider (Cloudflare recommended):
+In Cloudflare:
 
 | Type | Name | Value |
 |---|---|---|
-| A | `@` | `76.76.21.21` (Vercel) |
-| CNAME | `www` | `cname.vercel-dns.com` |
-| CNAME | `*` | `cname.vercel-dns.com` |
+| CNAME | `pos` | `your-service.onrender.com` |
 
-The wildcard `*` record routes all tenant subdomains (`acme.yourapp.com`) to your frontend.
-
-In Vercel → your frontend project → **Domains**: add `*.yourapp.com`.
+The `pos` record routes the POS system to Render.
 
 ## 7. Stripe Webhook
 
 In Stripe dashboard → **Developers** → **Webhooks** → **Add endpoint**:
 
-- URL: `https://api.yourapp.com/api/stripe/webhook`
+- URL: `https://pos.printflowpos.com/api/stripe/webhook`
 - Events to listen for:
   - `customer.subscription.updated`
   - `customer.subscription.deleted`
@@ -105,9 +91,9 @@ Copy the webhook signing secret → set as `STRIPE_WEBHOOK_SECRET`.
 
 ## 8. Post-deployment checklist
 
-- [ ] `GET https://api.yourapp.com/api/health` returns `200`
+- [ ] `GET https://pos.printflowpos.com/api/health` returns `200`
 - [ ] Signup flow works end-to-end on production domain
 - [ ] Stripe test payment succeeds and upgrades plan
-- [ ] Wildcard subdomain resolves (`acme.yourapp.com` loads the app)
+- [ ] Wildcard subdomain resolves (`acme.printflowpos.com` loads the app)
 - [ ] Clerk session persists after page reload
 - [ ] Webhook events show as delivered in Stripe dashboard
