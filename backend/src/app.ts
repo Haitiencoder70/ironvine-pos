@@ -146,7 +146,8 @@ const orgRateLimiter = rateLimit({
 
 // ─── Health Check ─────────────────────────────────────────────────────────
 // Before clerkAuth so load-balancers and uptime monitors can probe freely.
-app.get('/', (_, res) => res.send('Server is healthy'));
+// NOTE: '/' is intentionally NOT a health endpoint — the React SPA is served at '/'.
+// Render's health check should point to /health or /api/health instead.
 app.use('/health', healthRouter);
 app.use('/api/health', healthRouter);
 

@@ -23,16 +23,18 @@ RUN cd frontend && npm ci
 
 COPY frontend/ ./frontend/
 
-# Accept environment variables from Railway during build
+# Accept environment variables from Render/Railway during build
 ARG VITE_API_URL=/api
 ARG VITE_SOCKET_URL=/
+ARG VITE_CLERK_PUBLISHABLE_KEY
 ARG CLERK_PUBLISHABLE_KEY
 ARG VITE_DEV_SUBDOMAIN=ironvine
 
 # Set them as ENV so Vite picks them up during build
+# Support both VITE_CLERK_PUBLISHABLE_KEY (Render style) and CLERK_PUBLISHABLE_KEY (legacy)
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
-ENV VITE_CLERK_PUBLISHABLE_KEY=$CLERK_PUBLISHABLE_KEY
+ENV VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY:-$CLERK_PUBLISHABLE_KEY}
 ENV VITE_DEV_SUBDOMAIN=$VITE_DEV_SUBDOMAIN
 
 RUN cd frontend && npm run build
