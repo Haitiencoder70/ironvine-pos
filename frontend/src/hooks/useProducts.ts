@@ -1,62 +1,188 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type UseQueryResult,
+  type UseMutationResult,
+} from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
+import { productApi, type BackendProduct, type BackendProductCategory } from '../services/api';
+import { useIsReady } from './useIsReady';
+
+// ─── Re-export backend types under familiar names ─────────────────────────────
+
+export type Product = BackendProduct;
+export type ProductCategory = BackendProductCategory;
+
+// ─── Query Key Factories ──────────────────────────────────────────────────────
+
+export const productKeys = {
+  all: ['products'] as const,
+  lists: () => [...productKeys.all, 'list'] as const,
+  list: (params: ProductListParams) => [...productKeys.lists(), params] as const,
+  details: () => [...productKeys.all, 'detail'] as const,
+  detail: (id: string) => [...productKeys.details(), id] as const,
+  categories: () => [...productKeys.all, 'categories'] as const,
+};
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+export interface ProductListParams {
+  search?: string;
+  categoryId?: string;
+  isActive?: boolean;
+  isFeatured?: boolean;
+}
+
 export interface PriceTier {
   minQty: number;
-  maxQty: number | null; // null = unlimited
-  unitPrice: number;
-}
-
-export interface SizeUpcharge {
-  size: string;
-  upcharge: number;
-}
-
-export interface MaterialCost {
-  id: string;
-  material: string;
-  qtyPerUnit: number;
-  estimatedCost: number;
-}
-
-export interface AddOn {
-  id: string;
-  name: string;
   price: number;
-  isActive: boolean;
 }
 
-export interface Product {
-  id: string;
-  organizationId: string;
-  name: string;
-  description: string;
-  sku: string;
-  category: string;
-  garmentType: string;
-  printMethod: string;
-  printLocations: string[];
-  maxPrintLocations: number;
-  availableBrands: string[];
-  availableSizes: string[];
-  basePrice: number;
-  priceTiers: PriceTier[];
-  sizeUpcharges: SizeUpcharge[];
-  materialCosts: MaterialCost[];
-  addOns: AddOn[];
-  estimatedProductionMinutes: number;
-  difficulty: 'EASY' | 'MEDIUM' | 'COMPLEX';
-  productionNotes: string;
-  isActive: boolean;
-  isFeatured: boolean;
-  createdAt: string;
-  updatedAt: string;
+export interface SizeUpcharges {
+  [size: string]: number;
 }
 
-export type ProductFormData = Omit<Product, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'>;
+// ─── useProducts — list ───────────────────────────────────────────────────────
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+export function useProducts(
+  params: ProductListParams = {},
+): UseQueryResult<{ data: Product[] }> {
+  const isReady = useIsReady();
+  return useQuery({
+    queryKey: productKeys.list(params),
+    queryFn: () => productApi.getAll(params),
+    staleTime: 60_000,
+    placeholderData: (prev) => prev,
+    enabled: isReady,
+  });
+}
+
+// ─── useProduct — single ──────────────────────────────────────────────────────
+
+export function useProduct(id: string): UseQueryResult<{ data: Product }> {
+  const isReady = useIsReady();
+  return useQuery({
+    queryKey: productKeys.detail(id),
+    queryFn: () => productApi.getById(id),
+    enabled: isReady && !!id,
+    staleTime: 60_000,
+  });
+}
+
+// ─── useProductCategories ─────────────────────────────────────────────────────
+
+export function useProductCategories(): UseQueryResult<{ data: ProductCategory[] }> {
+  const isReady = useIsReady();
+  return useQuery({
+    queryKey: productKeys.categories(),
+    queryFn: () => productApi.getCategories(),
+    staleTime: 5 * 60_000,
+    enabled: isReady,
+  });
+}
+
+// ─── useCreateProduct ─────────────────────────────────────────────────────────
+
+export function useCreateProduct(): UseMutationResult<{ data: Product }, Error, unknown> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: unknown) => productApi.create(body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      toast.success('Product created');
+    },
+    onError: (err) => toast.error(err.message ?? 'Failed to create product'),
+  });
+}
+
+// ─── useUpdateProduct ─────────────────────────────────────────────────────────
+
+export function useUpdateProduct(): UseMutationResult<{ data: Product }, Error, { id: string; body: unknown }> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }) => productApi.update(id, body),
+    onSuccess: (_, { id }) => {
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: productKeys.detail(id) });
+      toast.success('Product updated');
+    },
+    onError: (err) => toast.error(err.message ?? 'Failed to update product'),
+  });
+}
+
+// ─── useDeleteProduct ─────────────────────────────────────────────────────────
+
+export function useDeleteProduct(): UseMutationResult<{ data: void }, Error, string> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => productApi.remove(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      toast.success('Product deleted');
+    },
+    onError: (err) => toast.error(err.message ?? 'Failed to delete product'),
+  });
+}
+
+// ─── useDuplicateProduct ──────────────────────────────────────────────────────
+
+export function useDuplicateProduct(): UseMutationResult<{ data: Product }, Error, string> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => productApi.duplicate(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      toast.success('Product duplicated');
+    },
+    onError: (err) => toast.error(err.message ?? 'Failed to duplicate product'),
+  });
+}
+
+// ─── useCreateProductCategory ─────────────────────────────────────────────────
+
+export function useCreateProductCategory(): UseMutationResult<
+  { data: ProductCategory },
+  Error,
+  { name: string; description?: string; icon?: string; displayOrder?: number }
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body) => productApi.createCategory(body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: productKeys.categories() });
+      toast.success('Category created');
+    },
+    onError: (err) => toast.error(err.message ?? 'Failed to create category'),
+  });
+}
+
+// ─── Pricing Utilities ────────────────────────────────────────────────────────
+
+export function getPriceTierForQty(product: Product, qty: number): PriceTier | null {
+  const tiers = (product.priceTiers ?? []) as PriceTier[];
+  if (!tiers.length) return null;
+  const sorted = [...tiers].sort((a, b) => b.minQty - a.minQty);
+  return sorted.find((t) => qty >= t.minQty) ?? sorted[sorted.length - 1] ?? null;
+}
+
+export function getSizeUpcharge(product: Product, size: string): number {
+  return (product.sizeUpcharges as SizeUpcharges)?.[size] ?? 0;
+}
+
+export function calcTotalMaterialCost(product: Product): number {
+  return (product.materialTemplates ?? []).reduce(
+    (sum, m) => sum + Number(m.quantityPerUnit) * Number(m.estimatedCostPerUnit),
+    0,
+  );
+}
+
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+}
+
+// ─── Constants (kept for compatibility with existing UI components) ────────────
 
 export const PRODUCT_CATEGORIES = [
   'T-Shirts', 'Hoodies', 'Long Sleeve', 'Sweatshirts',
@@ -79,319 +205,17 @@ export const BRANDS = ['Gildan', 'Bella+Canvas', 'Next Level', 'Comfort Colors',
 
 export const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
 
-// ─── Default Catalog ──────────────────────────────────────────────────────────
+// ─── Socket subscription for real-time product updates ────────────────────────
 
-const DEFAULT_PRODUCTS: Omit<Product, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'>[] = [
-  {
-    name: 'DTF T-Shirt - Front Print',
-    description: 'Standard short-sleeve t-shirt with DTF transfer on the front.',
-    sku: 'DTF-TEE-FRONT',
-    category: 'T-Shirts',
-    garmentType: 'T-Shirt',
-    printMethod: 'DTF',
-    printLocations: ['Front'],
-    maxPrintLocations: 1,
-    availableBrands: ['Gildan', 'Bella+Canvas', 'Next Level'],
-    availableSizes: ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'],
-    basePrice: 18,
-    priceTiers: [
-      { minQty: 1,   maxQty: 11,  unitPrice: 18 },
-      { minQty: 12,  maxQty: 24,  unitPrice: 16 },
-      { minQty: 25,  maxQty: 49,  unitPrice: 15 },
-      { minQty: 50,  maxQty: 99,  unitPrice: 13 },
-      { minQty: 100, maxQty: null, unitPrice: 11 },
-    ],
-    sizeUpcharges: [
-      { size: '2XL', upcharge: 2 },
-      { size: '3XL', upcharge: 3 },
-      { size: '4XL', upcharge: 4 },
-    ],
-    materialCosts: [
-      { id: 'mc1', material: 'Blank T-Shirt', qtyPerUnit: 1, estimatedCost: 3.50 },
-      { id: 'mc2', material: 'DTF Transfer (front)', qtyPerUnit: 1, estimatedCost: 3.00 },
-    ],
-    addOns: [
-      { id: 'ao1', name: 'Rush Order', price: 10, isActive: true },
-      { id: 'ao2', name: 'Individual Names', price: 3, isActive: true },
-      { id: 'ao3', name: 'Oversized Print', price: 3, isActive: true },
-    ],
-    estimatedProductionMinutes: 5,
-    difficulty: 'EASY',
-    productionNotes: 'Press at 325°F for 15 seconds.',
-    isActive: true,
-    isFeatured: true,
-  },
-  {
-    name: 'DTF T-Shirt - Front & Back',
-    description: 'Short-sleeve t-shirt with DTF transfers on front and back.',
-    sku: 'DTF-TEE-FB',
-    category: 'T-Shirts',
-    garmentType: 'T-Shirt',
-    printMethod: 'DTF',
-    printLocations: ['Front', 'Back'],
-    maxPrintLocations: 2,
-    availableBrands: ['Gildan', 'Bella+Canvas', 'Next Level'],
-    availableSizes: ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'],
-    basePrice: 24,
-    priceTiers: [
-      { minQty: 1,   maxQty: 11,  unitPrice: 24 },
-      { minQty: 12,  maxQty: 24,  unitPrice: 21 },
-      { minQty: 25,  maxQty: 49,  unitPrice: 19 },
-      { minQty: 50,  maxQty: 99,  unitPrice: 17 },
-      { minQty: 100, maxQty: null, unitPrice: 15 },
-    ],
-    sizeUpcharges: [
-      { size: '2XL', upcharge: 2 },
-      { size: '3XL', upcharge: 3 },
-      { size: '4XL', upcharge: 4 },
-    ],
-    materialCosts: [
-      { id: 'mc1', material: 'Blank T-Shirt', qtyPerUnit: 1, estimatedCost: 3.50 },
-      { id: 'mc2', material: 'DTF Transfer (front)', qtyPerUnit: 1, estimatedCost: 3.00 },
-      { id: 'mc3', material: 'DTF Transfer (back)', qtyPerUnit: 1, estimatedCost: 3.00 },
-    ],
-    addOns: [
-      { id: 'ao1', name: 'Rush Order', price: 10, isActive: true },
-      { id: 'ao2', name: 'Individual Names', price: 3, isActive: true },
-    ],
-    estimatedProductionMinutes: 8,
-    difficulty: 'EASY',
-    productionNotes: 'Front first, let cool, then back. 325°F / 15 sec each.',
-    isActive: true,
-    isFeatured: false,
-  },
-  {
-    name: 'DTF Hoodie - Front Print',
-    description: 'Pullover hoodie with DTF transfer on front.',
-    sku: 'DTF-HOOD-FRONT',
-    category: 'Hoodies',
-    garmentType: 'Hoodie',
-    printMethod: 'DTF',
-    printLocations: ['Front'],
-    maxPrintLocations: 1,
-    availableBrands: ['Gildan', 'Bella+Canvas'],
-    availableSizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'],
-    basePrice: 32,
-    priceTiers: [
-      { minQty: 1,   maxQty: 11,  unitPrice: 32 },
-      { minQty: 12,  maxQty: 24,  unitPrice: 28 },
-      { minQty: 25,  maxQty: 49,  unitPrice: 25 },
-      { minQty: 50,  maxQty: 99,  unitPrice: 22 },
-      { minQty: 100, maxQty: null, unitPrice: 19 },
-    ],
-    sizeUpcharges: [
-      { size: '2XL', upcharge: 3 },
-      { size: '3XL', upcharge: 4 },
-    ],
-    materialCosts: [
-      { id: 'mc1', material: 'Blank Hoodie', qtyPerUnit: 1, estimatedCost: 10.00 },
-      { id: 'mc2', material: 'DTF Transfer (front)', qtyPerUnit: 1, estimatedCost: 4.50 },
-    ],
-    addOns: [
-      { id: 'ao1', name: 'Rush Order', price: 12, isActive: true },
-      { id: 'ao2', name: 'Individual Names', price: 3, isActive: true },
-    ],
-    estimatedProductionMinutes: 7,
-    difficulty: 'EASY',
-    productionNotes: 'Press at 320°F for 15 seconds. Use cover sheet.',
-    isActive: true,
-    isFeatured: true,
-  },
-  {
-    name: 'HTV T-Shirt - Single Color',
-    description: 'Single color HTV vinyl application on t-shirt.',
-    sku: 'HTV-TEE-1C',
-    category: 'T-Shirts',
-    garmentType: 'T-Shirt',
-    printMethod: 'HTV',
-    printLocations: ['Front'],
-    maxPrintLocations: 1,
-    availableBrands: ['Gildan', 'Hanes', 'Port & Company'],
-    availableSizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'],
-    basePrice: 16,
-    priceTiers: [
-      { minQty: 1,   maxQty: 11,  unitPrice: 16 },
-      { minQty: 12,  maxQty: 24,  unitPrice: 14 },
-      { minQty: 25,  maxQty: 49,  unitPrice: 13 },
-      { minQty: 50,  maxQty: 99,  unitPrice: 12 },
-      { minQty: 100, maxQty: null, unitPrice: 10 },
-    ],
-    sizeUpcharges: [
-      { size: '2XL', upcharge: 2 },
-      { size: '3XL', upcharge: 3 },
-    ],
-    materialCosts: [
-      { id: 'mc1', material: 'Blank T-Shirt', qtyPerUnit: 1, estimatedCost: 3.00 },
-      { id: 'mc2', material: 'HTV Vinyl (single color)', qtyPerUnit: 1, estimatedCost: 1.50 },
-    ],
-    addOns: [
-      { id: 'ao1', name: 'Rush Order', price: 8, isActive: true },
-      { id: 'ao2', name: 'Additional Color Layer', price: 2, isActive: true },
-    ],
-    estimatedProductionMinutes: 6,
-    difficulty: 'EASY',
-    productionNotes: 'Press at 305°F for 10-15 seconds. Medium pressure.',
-    isActive: true,
-    isFeatured: false,
-  },
-];
-
-// ─── Storage Helpers ──────────────────────────────────────────────────────────
-
-const STORAGE_KEY = 'pos_products';
-
-function loadProducts(): Product[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as Product[];
-  } catch { /* empty */ }
-  return [];
-}
-
-function saveProducts(products: Product[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-}
-
-function generateId(): string {
-  return `prod_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
-
-// ─── Hooks ────────────────────────────────────────────────────────────────────
-
-export function useProducts() {
-  const [products, setProducts] = useState<Product[]>(() => loadProducts());
-  const [isLoading, setIsLoading] = useState(false);
-
-  const refresh = useCallback(() => {
-    setProducts(loadProducts());
-  }, []);
-
-  const createProduct = useCallback((data: ProductFormData): Product => {
-    setIsLoading(true);
-    const now = new Date().toISOString();
-    const product: Product = {
-      ...data,
-      id: generateId(),
-      organizationId: 'default',
-      createdAt: now,
-      updatedAt: now,
-    };
-    const updated = [...loadProducts(), product];
-    saveProducts(updated);
-    setProducts(updated);
-    setIsLoading(false);
-    return product;
-  }, []);
-
-  const updateProduct = useCallback((id: string, data: Partial<ProductFormData>): Product => {
-    setIsLoading(true);
-    const current = loadProducts();
-    const idx = current.findIndex(p => p.id === id);
-    if (idx === -1) throw new Error('Product not found');
-    const updated = [...current];
-    updated[idx] = { ...updated[idx], ...data, updatedAt: new Date().toISOString() };
-    saveProducts(updated);
-    setProducts(updated);
-    setIsLoading(false);
-    return updated[idx];
-  }, []);
-
-  const deleteProduct = useCallback((id: string): void => {
-    const updated = loadProducts().filter(p => p.id !== id);
-    saveProducts(updated);
-    setProducts(updated);
-  }, []);
-
-  const duplicateProduct = useCallback((id: string): Product => {
-    const source = loadProducts().find(p => p.id === id);
-    if (!source) throw new Error('Product not found');
-    const now = new Date().toISOString();
-    const copy: Product = {
-      ...source,
-      id: generateId(),
-      name: `${source.name} (Copy)`,
-      sku: source.sku ? `${source.sku}-COPY` : '',
-      createdAt: now,
-      updatedAt: now,
-    };
-    const current = loadProducts();
-    const updated = [...current, copy];
-    saveProducts(updated);
-    setProducts(updated);
-    return copy;
-  }, []);
-
-  const loadDefaultProducts = useCallback((): void => {
-    const existing = loadProducts();
-    const now = new Date().toISOString();
-    const defaults: Product[] = DEFAULT_PRODUCTS.map(d => ({
-      ...d,
-      id: generateId(),
-      organizationId: 'default',
-      createdAt: now,
-      updatedAt: now,
-    }));
-    const merged = [...existing, ...defaults];
-    saveProducts(merged);
-    setProducts(merged);
-  }, []);
-
-  // Sync across tabs
+export function useProductsRealtime(): void {
+  const queryClient = useQueryClient();
   useEffect(() => {
-    const handler = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) refresh();
+    // When socket emits product changes, invalidate product queries so all
+    // devices get fresh data automatically.
+    const handler = () => {
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
     };
-    window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
-  }, [refresh]);
-
-  return {
-    products,
-    isLoading,
-    createProduct,
-    updateProduct,
-    deleteProduct,
-    duplicateProduct,
-    loadDefaultProducts,
-    refresh,
-  };
-}
-
-export function useProduct(id: string) {
-  const [product, setProduct] = useState<Product | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!id) { setIsLoading(false); return; }
-    const all = loadProducts();
-    const found = all.find(p => p.id === id) ?? null;
-    setProduct(found);
-    setIsLoading(false);
-  }, [id]);
-
-  return { product, isLoading };
-}
-
-// ─── Pricing Utilities ────────────────────────────────────────────────────────
-
-export function getPriceTierForQty(product: Product, qty: number): PriceTier | null {
-  for (const tier of product.priceTiers) {
-    if (qty >= tier.minQty && (tier.maxQty === null || qty <= tier.maxQty)) {
-      return tier;
-    }
-  }
-  return product.priceTiers[0] ?? null;
-}
-
-export function getSizeUpcharge(product: Product, size: string): number {
-  const uc = product.sizeUpcharges.find(u => u.size === size);
-  return uc?.upcharge ?? 0;
-}
-
-export function calcTotalMaterialCost(product: Product): number {
-  return product.materialCosts.reduce((sum, m) => sum + m.qtyPerUnit * m.estimatedCost, 0);
-}
-
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    window.addEventListener('pos:products-changed', handler);
+    return () => window.removeEventListener('pos:products-changed', handler);
+  }, [queryClient]);
 }

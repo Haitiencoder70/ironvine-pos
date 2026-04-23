@@ -240,6 +240,68 @@ export interface CompleteSalePayload {
   cardAmount?: number;
 }
 
+// ─── Products ─────────────────────────────────────────────────────────────────
+
+export const productApi = {
+  getAll: (params?: { search?: string; categoryId?: string; isActive?: boolean; isFeatured?: boolean }) =>
+    api.get<ApiResponse<BackendProduct[]>>('/products', { params: cleanParams(params) }).then((r) => r.data),
+  getById: (id: string) =>
+    api.get<ApiResponse<BackendProduct>>(`/products/${id}`).then((r) => r.data),
+  create: (body: unknown) =>
+    api.post<ApiResponse<BackendProduct>>('/products', body).then((r) => r.data),
+  update: (id: string, body: unknown) =>
+    api.patch<ApiResponse<BackendProduct>>(`/products/${id}`, body).then((r) => r.data),
+  remove: (id: string) =>
+    api.delete<ApiResponse<void>>(`/products/${id}`).then((r) => r.data),
+  duplicate: (id: string) =>
+    api.post<ApiResponse<BackendProduct>>(`/products/${id}/duplicate`).then((r) => r.data),
+  getCategories: () =>
+    api.get<ApiResponse<BackendProductCategory[]>>('/product-categories').then((r) => r.data),
+  createCategory: (body: { name: string; description?: string; icon?: string; displayOrder?: number }) =>
+    api.post<ApiResponse<BackendProductCategory>>('/product-categories', body).then((r) => r.data),
+  seedDefaults: () =>
+    api.post<ApiResponse<void>>('/products/seed-defaults').then((r) => r.data),
+};
+
+export interface BackendProductCategory {
+  id: string;
+  organizationId: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  displayOrder: number;
+  isActive: boolean;
+  _count?: { products: number };
+}
+
+export interface BackendProduct {
+  id: string;
+  organizationId: string;
+  categoryId: string;
+  category?: BackendProductCategory;
+  name: string;
+  description?: string;
+  sku?: string;
+  garmentType: string;
+  printMethod: string;
+  includedPrintLocations: string[];
+  maxPrintLocations: number;
+  basePrice: number | string;
+  sizeUpcharges?: Record<string, number>;
+  priceTiers?: Array<{ minQty: number; price: number }>;
+  availableBrands: string[];
+  availableSizes: string[];
+  availableColors: string[];
+  estimatedProductionMinutes?: number;
+  difficultyLevel?: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  addOns?: Array<{ id: string; name: string; price: number | string; type: string; isActive: boolean }>;
+  materialTemplates?: Array<{ id: string; description: string; quantityPerUnit: number | string; estimatedCostPerUnit: number | string }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const posApi = {
   getProducts: (params?: { search?: string; category?: string }) =>
     api.get<ApiResponse<POSProduct[]>>('/pos/products', { params }).then((r) => r.data),
