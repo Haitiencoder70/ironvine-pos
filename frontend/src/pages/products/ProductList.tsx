@@ -83,26 +83,26 @@ function ProductCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <h3 className={clsx(
-              'font-bold text-gray-900 leading-tight truncate text-base',
-              !product.isActive && 'line-through text-gray-400'
+              'font-bold text-white leading-tight truncate text-base',
+              !product.isActive && 'line-through text-white/40'
             )}>
               {product.name}
             </h3>
             {product.isFeatured && (
-              <SparklesIcon className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" title="Featured" />
+              <SparklesIcon className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" title="Featured" />
             )}
           </div>
           <div className="flex flex-wrap items-center gap-1.5 mt-1">
-            <span className="text-xs text-gray-500">{product.category?.name}</span>
-            <span className="text-gray-300">·</span>
+            <span className="text-xs text-white/50">{product.category?.name}</span>
+            <span className="text-white/30">·</span>
             <span className={clsx(
               'text-xs font-semibold px-2 py-0.5 rounded-full',
-              METHOD_COLORS[product.printMethod] ?? 'bg-gray-100 text-gray-600'
+              METHOD_COLORS[product.printMethod] ?? 'bg-white/10 text-white/70'
             )}>
               {product.printMethod}
             </span>
             {(product.includedPrintLocations ?? []).map(loc => (
-              <span key={loc} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+              <span key={loc} className="text-xs bg-white/10 text-white/70 px-2 py-0.5 rounded-full">
                 {loc}
               </span>
             ))}
@@ -112,22 +112,22 @@ function ProductCard({
 
       {/* Starting price */}
       <div className="px-4 pb-3">
-        <p className="text-xs text-gray-400 font-medium">Starting at</p>
-        <p className="text-xl font-black text-gray-900">{formatCurrency(lowestTierPrice)}</p>
+        <p className="text-xs text-white/50 font-medium">Starting at</p>
+        <p className="text-xl font-black text-white">{formatCurrency(lowestTierPrice)}</p>
       </div>
 
       {/* Price tiers grid */}
       {displayedTiers.length > 0 && (
         <div className="px-4 pb-3">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Price Tiers</p>
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1.5">Price Tiers</p>
           <div className="flex flex-wrap gap-1.5">
             {displayedTiers.map((tier, i) => (
-              <div key={i} className="text-xs bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-center">
-                <span className="text-gray-500">
+              <div key={i} className="text-xs bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-center">
+                <span className="text-white/50">
                   {tier.minQty}+:
                 </span>
                 {' '}
-                <span className="font-bold text-gray-800">{formatCurrency(Number(tier.price))}</span>
+                <span className="font-bold text-white">{formatCurrency(Number(tier.price))}</span>
               </div>
             ))}
           </div>
@@ -137,7 +137,7 @@ function ProductCard({
       {/* Size upcharges */}
       {product.sizeUpcharges && Object.keys(product.sizeUpcharges).length > 0 && (
         <div className="px-4 pb-3">
-          <p className="text-[10px] text-gray-400">
+          <p className="text-[10px] text-white/40">
             Size upcharges:{' '}
             {Object.entries(product.sizeUpcharges).map(([size, upcharge]) => `${size}+${formatCurrency(upcharge)}`).join(', ')}
           </p>
@@ -145,13 +145,13 @@ function ProductCard({
       )}
 
       {/* Footer */}
-      <div className="mt-auto px-4 py-3 border-t border-gray-100 flex items-center justify-between gap-2">
+      <div className="mt-auto px-4 py-3 border-t border-white/10 flex items-center justify-between gap-2">
         {/* Status */}
         <div className="flex items-center gap-1.5">
           {product.isActive ? (
             <>
               <span className="h-2 w-2 rounded-full bg-emerald-500 flex-shrink-0" />
-              <span className="text-xs font-semibold text-emerald-600">Active</span>
+              <span className="text-xs font-semibold text-emerald-400">Active</span>
             </>
           ) : (
             <>
@@ -159,7 +159,7 @@ function ProductCard({
               <span className="text-xs font-semibold text-gray-400">Inactive</span>
             </>
           )}
-          <span className="text-gray-200 ml-1">·</span>
+          <span className="text-white/20 ml-1">·</span>
           <span className={clsx('text-xs font-medium ml-1', DIFFICULTY_COLORS[product.difficultyLevel ?? ''])}>
             {product.difficultyLevel ? product.difficultyLevel.charAt(0) + product.difficultyLevel.slice(1).toLowerCase() : ''}
           </span>
