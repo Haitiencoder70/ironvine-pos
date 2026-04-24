@@ -96,6 +96,7 @@ function resolveTierPrice(tiers: PriceTier[], quantity: number): PriceTier | nul
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 export async function getProductCategories(organizationId: string) {
+  await seedDefaultProducts(organizationId);
   return prisma.productCategory.findMany({
     where: { organizationId, isActive: true },
     orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
