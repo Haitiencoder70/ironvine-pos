@@ -32,9 +32,7 @@ export const createProductSchema = z.object({
   sizeUpcharges: z.record(z.number().nonnegative()).optional(),
   estimatedProductionMinutes: z.number().int().nonnegative().optional(),
   difficultyLevel: z.string().optional(),
-  productionNotes: z.string().max(1000).optional(),
   materialTemplates: z.array(z.object({
-    id: z.string().optional(),
     description: z.string(),
     quantityPerUnit: z.number().positive(),
     estimatedCostPerUnit: z.number().nonnegative(),
