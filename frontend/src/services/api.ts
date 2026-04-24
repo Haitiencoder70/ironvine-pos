@@ -311,6 +311,19 @@ export const posApi = {
     api.get<ApiResponse<PaginatedResult<Sale>>>('/pos/sales', { params }).then((r) => r.data),
 };
 
+// ─── Images ───────────────────────────────────────────────────────────────────
+
+export const imagesApi = {
+  getForEntity: (entityType: string, entityId: string) =>
+    api.get<ApiResponse<Image[]>>(`/images/${entityType}/${entityId}`).then((r) => r.data),
+  delete: (imageId: string) =>
+    api.delete<ApiResponse<void>>(`/images/${imageId}`).then((r) => r.data),
+  setPrimary: (imageId: string) =>
+    api.patch<ApiResponse<Image>>(`/images/${imageId}/primary`).then((r) => r.data),
+  reorder: (imageIds: string[]) =>
+    api.patch<ApiResponse<void>>('/images/reorder', { imageIds }).then((r) => r.data),
+};
+
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 export const dashboardApi = {
