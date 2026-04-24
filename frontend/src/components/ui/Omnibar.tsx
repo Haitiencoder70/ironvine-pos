@@ -111,7 +111,7 @@ export function Omnibar() {
                         <li key={o.id}>
                           <button
                             onClick={() => closeAndNavigate(`/orders/${o.id}`)}
-                            className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-left transition-colors"
+                            className="w-full flex items-center justify-between px-3 py-2 min-h-[44px] rounded-xl hover:bg-gray-50 text-left transition-colors"
                           >
                             <div>
                               <span className="font-semibold text-gray-900">{o.orderNumber}</span>
@@ -133,7 +133,7 @@ export function Omnibar() {
                         <li key={i.id}>
                           <button
                             onClick={() => closeAndNavigate(`/inventory/${i.id}`)}
-                            className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-left transition-colors"
+                            className="w-full flex items-center justify-between px-3 py-2 min-h-[44px] rounded-xl hover:bg-gray-50 text-left transition-colors"
                           >
                             <div>
                               <span className="font-semibold text-gray-900">{i.name}</span>
@@ -155,7 +155,7 @@ export function Omnibar() {
                         <li key={c.id}>
                           <button
                             onClick={() => closeAndNavigate(`/customers`)} // Map to customers page specifically finding them if modal exists
-                            className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-left transition-colors"
+                            className="w-full flex items-center justify-between px-3 py-2 min-h-[44px] rounded-xl hover:bg-gray-50 text-left transition-colors"
                           >
                             <div>
                               <span className="font-semibold text-gray-900">{c.firstName} {c.lastName}</span>
