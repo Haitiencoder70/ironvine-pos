@@ -22,7 +22,12 @@ import {
   ArrowPathIcon,
   ClipboardDocumentListIcon,
   QrCodeIcon,
+  PhotoIcon,
+  CameraIcon,
 } from '@heroicons/react/24/outline';
+import { ImageUploader } from '../../components/images/ImageUploader';
+import { ImageGallery } from '../../components/images/ImageGallery';
+import { useEntityImages } from '../../hooks/useImages';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
@@ -180,6 +185,7 @@ export function OrderDetailPage(): JSX.Element {
   const updateStatus = useUpdateOrderStatus();
 
   const order = data?.data;
+  const orderImages = useEntityImages('order', order?.id);
 
   // Real-time socket updates for this specific order
   useEffect(() => {
@@ -679,6 +685,63 @@ export function OrderDetailPage(): JSX.Element {
                 </div>
               </TouchCard>
             )}
+
+            {/* Design Mockups */}
+            <TouchCard padding="md" className="shadow-sm border border-gray-100">
+              <SectionHeader
+                icon={<PhotoIcon className="h-4 w-4 text-gray-500" />}
+                title="Design Mockups"
+              />
+              <div className="space-y-4">
+                <ImageGallery
+                  images={orderImages.images.filter((img) => img.imageType === 'MOCKUP')}
+                  editable
+                  onUpload={() => {}}
+                  onDelete={orderImages.onDelete}
+                  onSetPrimary={orderImages.onSetPrimary}
+                  onReorder={orderImages.onReorder}
+                  emptyMessage="No mockups uploaded yet"
+                  columns={3}
+                />
+                <ImageUploader
+                  entityType="order"
+                  entityId={order.id}
+                  imageType="MOCKUP"
+                  onUploadComplete={orderImages.onUploaded}
+                  onError={(msg) => console.error(msg)}
+                />
+              </div>
+            </TouchCard>
+
+            {/* Production Photos */}
+            <TouchCard padding="md" className="shadow-sm border border-gray-100">
+              <SectionHeader
+                icon={<CameraIcon className="h-4 w-4 text-gray-500" />}
+                title="Production Photos"
+              />
+              <div className="space-y-4">
+                <p className="text-xs text-gray-400">
+                  Photos taken during production for quality assurance.
+                </p>
+                <ImageGallery
+                  images={orderImages.images.filter((img) => img.imageType === 'ORDER')}
+                  editable
+                  onUpload={() => {}}
+                  onDelete={orderImages.onDelete}
+                  onSetPrimary={orderImages.onSetPrimary}
+                  onReorder={orderImages.onReorder}
+                  emptyMessage="No production photos yet"
+                  columns={3}
+                />
+                <ImageUploader
+                  entityType="order"
+                  entityId={order.id}
+                  imageType="ORDER"
+                  onUploadComplete={orderImages.onUploaded}
+                  onError={(msg) => console.error(msg)}
+                />
+              </div>
+            </TouchCard>
 
             {/* Totals */}
             <TouchCard padding="md" className="shadow-sm border border-gray-100">
