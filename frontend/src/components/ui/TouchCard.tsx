@@ -86,8 +86,7 @@ export const TouchCard = memo(forwardRef<HTMLDivElement, TouchCardProps>(
           )
         )}
         style={{ ...baseStyle, ...glowStyle, ...selectedStyle, ...style }}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        {...(props as any)}
+        {...(props as React.ComponentPropsWithoutRef<typeof motion.div>)}
       >
         {children}
       </motion.div>

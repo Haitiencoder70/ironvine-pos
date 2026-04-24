@@ -16,8 +16,7 @@ export async function trackEvent(
 ): Promise<void> {
   try {
     await prisma.usageEvent.create({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: { organizationId, metricType, count: 1, metadata: (metadata as any) ?? undefined },
+      data: { organizationId, metricType, count: 1, metadata: metadata ?? undefined },
     });
   } catch (err) {
     // Non-critical — log and continue

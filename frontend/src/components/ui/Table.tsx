@@ -42,9 +42,8 @@ export function Table<T extends Record<string, unknown>>({
 
   const getValue = (item: T, key: keyof T | string): unknown => {
     if (typeof key === 'string' && key.includes('.')) {
-      return key.split('.').reduce((obj, k) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (obj as any)?.[k];
+      return key.split('.').reduce<unknown>((obj, k) => {
+        return (obj as Record<string, unknown>)?.[k];
       }, item);
     }
     return item[key];
