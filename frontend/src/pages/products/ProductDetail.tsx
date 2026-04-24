@@ -163,9 +163,9 @@ export function ProductDetailPage(): JSX.Element {
     );
   }
 
-  const handleDuplicate = () => {
-    duplicateMutation.mutate(product.id);
-    navigate('/products');
+  const handleDuplicate = async () => {
+    const result = await duplicateMutation.mutateAsync(product.id);
+    navigate(`/products/${result.data.id}/edit`);
   };
 
   const handleToggleActive = () => {
