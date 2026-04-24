@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { AuthenticatedRequest } from '../types';
 import { AppError } from '../middleware/errorHandler';
+import { UserRole } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import {
   getOrgSettings,
@@ -9,11 +10,11 @@ import {
   getOrgUsers,
   updateOrgUser,
   removeOrgUser,
-  inviteUser,
   getNotificationSettings,
   updateNotificationSettings,
   updateProfile,
 } from '../services/settingsService';
+import { inviteUser } from '../services/inviteService';
 import { trackEvent } from '../services/analyticsService';
 
 // ─── Validation schemas ───────────────────────────────────────────────────────
@@ -56,10 +57,15 @@ export const getUsersHandler = async (req: Request, res: Response, next: NextFun
 export const inviteUserHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authReq = req as AuthenticatedRequest;
-    const org = await prisma.organization.findUniqueOrThrow({ where: { id: authReq.organizationDbId! } });
-    const data = await inviteUser(authReq.organizationDbId!, org.clerkOrgId, req.body as { email: string; firstName: string; lastName: string; role: string }, authReq.auth.userId);
+    const body = req.body as { email: string; firstName: string; lastName: string; role: string };
+    const { invite, inviteLink } = await inviteUser({
+      organizationId:       authReq.organizationDbId!,
+      email:                body.email,
+      role:                 body.role as UserRole,
+      invitedByClerkUserId: authReq.auth.userId,
+    });
     void trackEvent(authReq.organizationDbId!, 'user_invited');
-    res.status(201).json({ data });
+    res.status(201).json({ data: { invite, inviteLink } });
   } catch (err) { next(err); }
 };
 
