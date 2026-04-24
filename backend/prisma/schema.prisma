@@ -155,7 +155,7 @@ model Order {
   materialUsages MaterialUsage[]
   items          OrderItem[]
   statusHistory  OrderStatusHistory[]
-  customer       Customer             @relation(fields: [customerId], references: [id])
+  customer       Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)
   organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   purchaseOrders PurchaseOrder[]
   shipments      Shipment[]
@@ -239,7 +239,7 @@ model StockMovement {
   organizationId  String
   createdAt       DateTime          @default(now())
   inventoryItem   InventoryItem     @relation(fields: [inventoryItemId], references: [id])
-  order           Order?            @relation(fields: [orderId], references: [id])
+  order           Order?            @relation(fields: [orderId], references: [id], onDelete: Cascade)
   organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
@@ -403,6 +403,7 @@ model MaterialUsage {
 
   @@index([orderId])
   @@index([inventoryItemId])
+  @@index([organizationId])
   @@map("material_usage")
 }
 
