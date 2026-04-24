@@ -80,8 +80,8 @@ interface DiscountConfig {
 export interface CartState {
   cart: CartItem[];
   addToCart: (product: POSProduct) => void;
-  removeFromCart: (inventoryItemId: string) => void;
-  updateQty: (inventoryItemId: string, qty: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQty: (productId: string, qty: number) => void;
   clearCart: () => void;
   subtotal: number;
   taxRate: number;
@@ -100,10 +100,10 @@ export function useCart(): CartState {
 
   const addToCart = useCallback((product: POSProduct) => {
     setCart((prev) => {
-      const existing = prev.find((item) => item.inventoryItemId === product.id);
+      const existing = prev.find((item) => item.productId === product.id);
       if (existing) {
         return prev.map((item) =>
-          item.inventoryItemId === product.id
+          item.productId === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item,
         );
@@ -111,28 +111,28 @@ export function useCart(): CartState {
       return [
         ...prev,
         {
-          inventoryItemId: product.id,
+          productId: product.id,
           name: product.name,
           sku: product.sku,
           quantity: 1,
-          unitPrice: product.costPrice,
+          unitPrice: product.basePrice,
         },
       ];
     });
   }, []);
 
-  const removeFromCart = useCallback((inventoryItemId: string) => {
-    setCart((prev) => prev.filter((item) => item.inventoryItemId !== inventoryItemId));
+  const removeFromCart = useCallback((productId: string) => {
+    setCart((prev) => prev.filter((item) => item.productId !== productId));
   }, []);
 
-  const updateQty = useCallback((inventoryItemId: string, qty: number) => {
+  const updateQty = useCallback((productId: string, qty: number) => {
     if (qty <= 0) {
-      setCart((prev) => prev.filter((item) => item.inventoryItemId !== inventoryItemId));
+      setCart((prev) => prev.filter((item) => item.productId !== productId));
       return;
     }
     setCart((prev) =>
       prev.map((item) =>
-        item.inventoryItemId === inventoryItemId ? { ...item, quantity: qty } : item,
+        item.productId === productId ? { ...item, quantity: qty } : item,
       ),
     );
   }, []);

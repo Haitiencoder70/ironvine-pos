@@ -1,21 +1,38 @@
 import { useState } from 'react';
 import { MagnifyingGlassIcon, TagIcon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
+import { useQuery } from '@tanstack/react-query';
 import { useProducts } from '../../hooks/usePOS';
 import { useDebounce } from '../../hooks/useDebounce';
+import { productApi } from '../../services/api';
 import { SkeletonLoader, EmptyState } from '../ui';
 import type { POSProduct } from '../../types';
 
-const CATEGORIES: { value: string; label: string }[] = [
-  { value: '', label: 'All' },
-  { value: 'BLANK_SHIRTS', label: 'Blank Shirts' },
-  { value: 'DTF_TRANSFERS', label: 'DTF Transfers' },
-  { value: 'VINYL', label: 'Vinyl' },
-  { value: 'INK', label: 'Ink' },
-  { value: 'PACKAGING', label: 'Packaging' },
-  { value: 'EMBROIDERY_THREAD', label: 'Embroidery' },
-  { value: 'OTHER', label: 'Other' },
-];
+const METHOD_COLORS: Record<string, string> = {
+  DTF:        'bg-purple-100 text-purple-700',
+  HTV:        'bg-pink-100 text-pink-700',
+  SCREEN:     'bg-blue-100 text-blue-700',
+  EMBROIDERY: 'bg-amber-100 text-amber-700',
+  SUBLIMATION:'bg-green-100 text-green-700',
+  DEFAULT:    'bg-gray-100 text-gray-600',
+};
+
+function methodLabel(method: string): string {
+  const MAP: Record<string, string> = {
+    DTF: 'DTF', HTV: 'HTV', SCREEN_PRINT: 'Screen', EMBROIDERY: 'Embroidery',
+    SUBLIMATION: 'Sublimation', VINYL: 'Vinyl', DIRECT_TO_GARMENT: 'DTG',
+  };
+  return MAP[method] ?? method;
+}
+
+function methodColor(method: string): string {
+  const MAP: Record<string, string> = {
+    DTF: METHOD_COLORS.DTF, HTV: METHOD_COLORS.HTV,
+    SCREEN_PRINT: METHOD_COLORS.SCREEN, EMBROIDERY: METHOD_COLORS.EMBROIDERY,
+    SUBLIMATION: METHOD_COLORS.SUBLIMATION,
+  };
+  return MAP[method] ?? METHOD_COLORS.DEFAULT;
+}
 
 interface ProductGridProps {
   onAddToCart: (product: POSProduct) => void;
@@ -28,15 +45,19 @@ export function ProductGrid({ onAddToCart, onOpenConfigurator: _onOpenConfigurat
   const [tappedId, setTappedId] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(search, 300);
-  const { data, isLoading } = useProducts(
-    debouncedSearch || undefined,
-    category || undefined,
-  );
+  const { data, isLoading } = useProducts(debouncedSearch || undefined, category || undefined);
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ['product-categories'],
+    queryFn: () => productApi.getCategories(),
+    select: (r) => r.data,
+    staleTime: 60_000,
+  });
 
   const products = data?.data ?? [];
+  const categories = categoriesData ?? [];
 
   const handleTap = (product: POSProduct): void => {
-    if (product.quantityAvailable <= 0) return;
     setTappedId(product.id);
     onAddToCart(product);
     setTimeout(() => setTappedId(null), 200);
@@ -59,20 +80,29 @@ export function ProductGrid({ onAddToCart, onOpenConfigurator: _onOpenConfigurat
 
         {/* Category chips */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {CATEGORIES.map((cat) => (
+          <button
+            onClick={() => setCategory('')}
+            className={clsx(
+              'flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium min-h-[36px] transition-colors whitespace-nowrap',
+              category === ''
+                ? 'bg-blue-600 text-white'
+                : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600',
+            )}
+          >
+            All
+          </button>
+          {categories.map((cat) => (
             <button
-              key={cat.value}
-              onClick={() => {
-                setCategory(cat.value);
-              }}
+              key={cat.id}
+              onClick={() => setCategory(cat.name)}
               className={clsx(
                 'flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium min-h-[36px] transition-colors whitespace-nowrap',
-                category === cat.value
+                category === cat.name
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600',
               )}
             >
-              {cat.label}
+              {cat.name}
             </button>
           ))}
         </div>
@@ -94,55 +124,54 @@ export function ProductGrid({ onAddToCart, onOpenConfigurator: _onOpenConfigurat
               description={
                 search || category
                   ? 'Try adjusting your search or filter'
-                  : 'No products are available for sale'
+                  : 'No active products available'
               }
             />
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {products.map((product) => {
-              const outOfStock = product.quantityAvailable <= 0;
               const isTapped = tappedId === product.id;
               return (
                 <button
                   key={product.id}
                   onClick={() => handleTap(product)}
-                  disabled={outOfStock}
                   className={clsx(
-                    'rounded-xl shadow-sm bg-white p-4 text-left cursor-pointer transition-all duration-150 min-h-[100px] flex flex-col justify-between',
-                    outOfStock
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:shadow-md active:scale-95',
+                    'rounded-xl shadow-sm bg-white p-3 text-left cursor-pointer transition-all duration-150 min-h-[120px] flex flex-col justify-between active:scale-95',
+                    'hover:shadow-md hover:ring-1 hover:ring-blue-200',
                     isTapped && 'scale-95 ring-2 ring-blue-500',
                   )}
                 >
-                  <div className="flex-1 min-w-0">
+                  {/* Image or placeholder */}
+                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 mb-2 flex-shrink-0 flex items-center justify-center">
+                    {product.image ? (
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-3xl">👕</span>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0 space-y-1">
                     <p className="text-sm font-semibold text-gray-900 leading-tight line-clamp-2">
                       {product.name}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5 truncate">{product.sku}</p>
-                    {(product.size || product.color) && (
-                      <p className="text-xs text-gray-500 mt-1 truncate">
-                        {[product.color, product.size].filter(Boolean).join(' / ')}
+                    <p className="text-xs text-gray-400 truncate">{product.categoryName}</p>
+
+                    {/* Print method badge */}
+                    <span className={clsx('inline-block text-xs font-medium px-2 py-0.5 rounded-full', methodColor(product.printMethod))}>
+                      {methodLabel(product.printMethod)}
+                    </span>
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-gray-50">
+                    <span className="text-base font-bold text-blue-600">
+                      ${product.basePrice.toFixed(2)}
+                    </span>
+                    {product.priceTiers && product.priceTiers.length > 0 && (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {product.priceTiers.length} tier{product.priceTiers.length !== 1 ? 's' : ''}
                       </p>
                     )}
-                  </div>
-                  <div className="mt-2 flex items-end justify-between gap-2">
-                    <span className="text-base font-bold text-blue-600">
-                      ${product.costPrice.toFixed(2)}
-                    </span>
-                    <span
-                      className={clsx(
-                        'text-xs font-medium px-2 py-0.5 rounded-full',
-                        outOfStock
-                          ? 'bg-red-50 text-red-600'
-                          : product.quantityAvailable <= 5
-                            ? 'bg-amber-50 text-amber-600'
-                            : 'bg-green-50 text-green-700',
-                      )}
-                    >
-                      {outOfStock ? 'Out' : `${product.quantityAvailable}`}
-                    </span>
                   </div>
                 </button>
               );

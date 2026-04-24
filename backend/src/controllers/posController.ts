@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { InventoryCategory } from '@prisma/client';
 import { AuthenticatedRequest } from '../types';
 import { AppError } from '../middleware/errorHandler';
 import { getProducts, completeSale, getSaleHistory } from '../services/posService';
@@ -9,14 +8,14 @@ import { getProducts, completeSale, getSaleHistory } from '../services/posServic
 
 const getProductsQuerySchema = z.object({
   search: z.string().optional(),
-  category: z.nativeEnum(InventoryCategory).optional(),
+  category: z.string().optional(),
 });
 
 const completeSaleBodySchema = z.object({
   items: z
     .array(
       z.object({
-        inventoryItemId: z.string().min(1),
+        productId: z.string().min(1),
         quantity: z.number().int().positive(),
         unitPrice: z.number().nonnegative(),
       }),

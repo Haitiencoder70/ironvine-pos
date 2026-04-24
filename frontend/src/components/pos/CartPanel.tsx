@@ -66,7 +66,7 @@ export function CartPanel({ cartState, onSaleComplete }: CartPanelProps): React.
           ) : (
             cart.map((item) => (
               <div
-                key={item.inventoryItemId}
+                key={item.productId}
                 className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0"
               >
                 <div className="flex-1 min-w-0">
@@ -77,7 +77,7 @@ export function CartPanel({ cartState, onSaleComplete }: CartPanelProps): React.
                 {/* Qty stepper */}
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <button
-                    onClick={() => updateQty(item.inventoryItemId, item.quantity - 1)}
+                    onClick={() => updateQty(item.productId, item.quantity - 1)}
                     className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors min-h-[44px] min-w-[36px]"
                     aria-label="Decrease quantity"
                   >
@@ -87,7 +87,7 @@ export function CartPanel({ cartState, onSaleComplete }: CartPanelProps): React.
                     {item.quantity}
                   </span>
                   <button
-                    onClick={() => updateQty(item.inventoryItemId, item.quantity + 1)}
+                    onClick={() => updateQty(item.productId, item.quantity + 1)}
                     className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors min-h-[44px] min-w-[36px]"
                     aria-label="Increase quantity"
                   >
@@ -100,7 +100,7 @@ export function CartPanel({ cartState, onSaleComplete }: CartPanelProps): React.
                 </span>
 
                 <button
-                  onClick={() => removeFromCart(item.inventoryItemId)}
+                  onClick={() => removeFromCart(item.productId)}
                   className="flex-shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors min-h-[44px] min-w-[36px] flex items-center justify-center"
                   aria-label="Remove item"
                 >

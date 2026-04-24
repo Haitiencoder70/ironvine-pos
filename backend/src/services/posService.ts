@@ -1,4 +1,3 @@
-import { InventoryCategory, StockMovementType } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
@@ -8,17 +7,18 @@ import { AppError } from '../middleware/errorHandler';
 export interface PosProduct {
   id: string;
   name: string;
-  sku: string;
-  category: InventoryCategory;
-  costPrice: number;
-  quantityAvailable: number;
-  brand: string | null;
-  size: string | null;
-  color: string | null;
+  sku: string | null;
+  categoryName: string;
+  basePrice: number;
+  image: string | null;
+  garmentType: string;
+  printMethod: string;
+  priceTiers: Array<{ minQty: number; price: number }> | null;
+  sizeUpcharges: Array<{ size: string; upcharge: number }> | null;
 }
 
 export interface SaleItem {
-  inventoryItemId: string;
+  productId: string;
   quantity: number;
   unitPrice: number;
 }
@@ -117,15 +117,13 @@ async function getOrCreateWalkInCustomer(orgId: string, tx: Parameters<Parameter
 export async function getProducts(
   orgId: string,
   search?: string,
-  category?: InventoryCategory,
+  category?: string,
 ): Promise<PosProduct[]> {
-  const items = await prisma.inventoryItem.findMany({
+  const items = await prisma.product.findMany({
     where: {
       organizationId: orgId,
       isActive: true,
-      // quantityAvailable is computed as quantityOnHand - quantityReserved;
-      // filter where on-hand exceeds reserved (available > 0)
-      ...(category ? { category } : {}),
+      ...(category ? { category: { name: { contains: category, mode: 'insensitive' } } } : {}),
       ...(search
         ? {
             OR: [
@@ -139,30 +137,29 @@ export async function getProducts(
       id: true,
       name: true,
       sku: true,
-      category: true,
-      costPrice: true,
-      quantityOnHand: true,
-      quantityReserved: true,
-      brand: true,
-      size: true,
-      color: true,
+      basePrice: true,
+      image: true,
+      garmentType: true,
+      printMethod: true,
+      priceTiers: true,
+      sizeUpcharges: true,
+      category: { select: { name: true } },
     },
     orderBy: { name: 'asc' },
   });
 
-  return items
-    .map((item) => ({
-      id: item.id,
-      name: item.name,
-      sku: item.sku,
-      category: item.category,
-      costPrice: Number(item.costPrice),
-      quantityAvailable: item.quantityOnHand - item.quantityReserved,
-      brand: item.brand,
-      size: item.size,
-      color: item.color,
-    }))
-    .filter((item) => item.quantityAvailable > 0);
+  return items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    sku: item.sku ?? null,
+    categoryName: item.category.name,
+    basePrice: Number(item.basePrice),
+    image: item.image ?? null,
+    garmentType: item.garmentType,
+    printMethod: item.printMethod,
+    priceTiers: item.priceTiers as Array<{ minQty: number; price: number }> | null,
+    sizeUpcharges: item.sizeUpcharges as Array<{ size: string; upcharge: number }> | null,
+  }));
 }
 
 // ─── completeSale ─────────────────────────────────────────────────────────────
@@ -201,36 +198,23 @@ export async function completeSale(input: CompleteSaleInput): Promise<SaleResult
   const order = await prisma.$transaction(async (tx) => {
     const walkInCustomerId = await getOrCreateWalkInCustomer(orgId, tx);
 
-    // Verify all inventory items belong to org and have sufficient stock
+    // Verify all products belong to org and are active
+    const productNames: Record<string, string> = {};
     for (const saleItem of items) {
       if (saleItem.quantity <= 0) {
         throw new AppError(400, 'Item quantity must be positive', 'INVALID_QUANTITY');
       }
 
-      const invItem = await tx.inventoryItem.findUnique({
-        where: { id: saleItem.inventoryItemId },
-        select: {
-          id: true,
-          organizationId: true,
-          name: true,
-          quantityOnHand: true,
-          quantityReserved: true,
-          isActive: true,
-        },
+      const product = await tx.product.findUnique({
+        where: { id: saleItem.productId },
+        select: { id: true, organizationId: true, name: true, isActive: true },
       });
 
-      if (!invItem || invItem.organizationId !== orgId || !invItem.isActive) {
-        throw new AppError(404, `Inventory item ${saleItem.inventoryItemId} not found`, 'INVENTORY_NOT_FOUND');
+      if (!product || product.organizationId !== orgId || !product.isActive) {
+        throw new AppError(404, `Product ${saleItem.productId} not found`, 'PRODUCT_NOT_FOUND');
       }
 
-      const available = invItem.quantityOnHand - invItem.quantityReserved;
-      if (available < saleItem.quantity) {
-        throw new AppError(
-          400,
-          `Insufficient stock for "${invItem.name}". Available: ${available}, requested: ${saleItem.quantity}`,
-          'INSUFFICIENT_STOCK',
-        );
-      }
+      productNames[saleItem.productId] = product.name;
     }
 
     // Create order
@@ -248,7 +232,7 @@ export async function completeSale(input: CompleteSaleInput): Promise<SaleResult
         notes: `POS walk-in sale | Payment: ${paymentMethod}`,
         items: {
           create: items.map((saleItem) => ({
-            productType: 'POS Item',
+            productType: productNames[saleItem.productId] ?? 'POS Item',
             quantity: saleItem.quantity,
             unitPrice: saleItem.unitPrice,
             lineTotal: saleItem.quantity * saleItem.unitPrice,
@@ -268,25 +252,6 @@ export async function completeSale(input: CompleteSaleInput): Promise<SaleResult
         },
       },
     });
-
-    // Decrement quantityOnHand for each inventory item
-    for (const saleItem of items) {
-      await tx.inventoryItem.update({
-        where: { id: saleItem.inventoryItemId },
-        data: { quantityOnHand: { decrement: saleItem.quantity } },
-      });
-
-      await tx.stockMovement.create({
-        data: {
-          inventoryItemId: saleItem.inventoryItemId,
-          type: StockMovementType.OUT,
-          quantity: saleItem.quantity,
-          reason: `POS sale ${orderNumber} by ${userId}`,
-          orderId: created.id,
-          organizationId: orgId,
-        },
-      });
-    }
 
     await tx.activityLog.create({
       data: {

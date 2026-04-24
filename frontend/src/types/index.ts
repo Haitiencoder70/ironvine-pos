@@ -484,19 +484,20 @@ export interface ProductionReport {
 export interface POSProduct {
   id: string;
   name: string;
-  sku: string;
-  category: string;
-  costPrice: number;
-  quantityAvailable: number;
-  brand?: string;
-  size?: string;
-  color?: string;
+  sku: string | null;
+  categoryName: string;
+  basePrice: number;
+  image: string | null;
+  garmentType: string;
+  printMethod: string;
+  priceTiers: Array<{ minQty: number; price: number }> | null;
+  sizeUpcharges: Array<{ size: string; upcharge: number }> | null;
 }
 
 export interface CartItem {
-  inventoryItemId: string;
+  productId: string;
   name: string;
-  sku: string;
+  sku: string | null;
   quantity: number;
   unitPrice: number;
 }
