@@ -8,7 +8,8 @@ const S3_BUCKET = process.env.S3_BUCKET;
 const S3_REGION = process.env.S3_REGION || 'us-east-1';
 const S3_ACCESS_KEY = process.env.S3_ACCESS_KEY;
 const S3_SECRET_KEY = process.env.S3_SECRET_KEY;
-const S3_ENDPOINT = process.env.S3_ENDPOINT; // Optional: for S3-compatible services like DigitalOcean or Cloudflare R2
+const S3_ENDPOINT = process.env.S3_ENDPOINT;
+const S3_PUBLIC_URL = process.env.S3_PUBLIC_URL; // Public CDN URL (e.g. Cloudflare R2 public dev URL)
 
 if (!S3_BUCKET || !S3_ACCESS_KEY || !S3_SECRET_KEY) {
   logger.error('S3 configuration is missing. Please check S3_BUCKET, S3_ACCESS_KEY, and S3_SECRET_KEY environment variables.');
@@ -42,10 +43,7 @@ export async function uploadFile(
       }),
     );
 
-    // Construct the public URL.
-    // If using S3, it's usually https://bucket.s3.region.amazonaws.com/key
-    // If using custom endpoint, it's endpoint/key
-    const baseUrl = S3_ENDPOINT || `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com`;
+    const baseUrl = S3_PUBLIC_URL || S3_ENDPOINT || `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com`;
     return `${baseUrl}/${path}`;
   } catch (error) {
     logger.error('S3 upload failed', { path, error });
