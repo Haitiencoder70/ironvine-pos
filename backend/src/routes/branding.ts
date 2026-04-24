@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { authorize } from '../middleware/authorize';
 
 import {
   getBrandingHandler,
@@ -10,9 +11,7 @@ import {
 
 export const brandingRouter = Router();
 
-// removed redundant middleware
-
-brandingRouter.get('/',                getBrandingHandler);
-brandingRouter.put('/',                saveBrandingHandler);
-brandingRouter.post('/upload-logo',    brandingUpload.single('file'), uploadLogoHandler);
-brandingRouter.post('/upload-favicon', brandingUpload.single('file'), uploadFaviconHandler);
+brandingRouter.get('/',                authorize('settings:view'), getBrandingHandler);
+brandingRouter.put('/',                authorize('settings:edit'), saveBrandingHandler);
+brandingRouter.post('/upload-logo',    authorize('settings:edit'), brandingUpload.single('file'), uploadLogoHandler);
+brandingRouter.post('/upload-favicon', authorize('settings:edit'), brandingUpload.single('file'), uploadFaviconHandler);
