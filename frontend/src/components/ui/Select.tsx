@@ -133,7 +133,7 @@ export function Select({
                     value={searchQuery}
                     onChange={(v) => setSearchQuery(v)}
                     placeholder="Search..."
-                    className="min-h-[40px]"
+                    className="min-h-[44px]"
                   />
                 </div>
               )}
