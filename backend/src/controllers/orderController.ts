@@ -152,17 +152,18 @@ export const requestDesignApproval = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { organizationDbId } = req as AuthenticatedRequest;
-    const { id } = req.params;
+    const authReq = req as AuthenticatedRequest;
+    const orgDbId = authReq.organizationDbId!;
+    const orderId = authReq.params['id'] as string;
 
     const order = await prisma.order.findFirst({
-      where: { id, organizationId: organizationDbId! },
+      where: { id: orderId, organizationId: orgDbId },
       select: { id: true },
     });
     if (!order) return next(new AppError(404, 'Order not found', 'NOT_FOUND'));
 
     await prisma.order.update({
-      where: { id },
+      where: { id: orderId },
       data: { designApproved: false, designApprovedAt: null, designApprovedBy: null },
     });
 
@@ -176,21 +177,22 @@ export const approveDesign = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { organizationDbId, auth } = req as AuthenticatedRequest;
-    const { id } = req.params;
+    const authReq = req as AuthenticatedRequest;
+    const orgDbId = authReq.organizationDbId!;
+    const orderId = authReq.params['id'] as string;
 
     const order = await prisma.order.findFirst({
-      where: { id, organizationId: organizationDbId! },
+      where: { id: orderId, organizationId: orgDbId },
       select: { id: true },
     });
     if (!order) return next(new AppError(404, 'Order not found', 'NOT_FOUND'));
 
     const updated = await prisma.order.update({
-      where: { id },
+      where: { id: orderId },
       data: {
         designApproved: true,
         designApprovedAt: new Date(),
-        designApprovedBy: auth.userId,
+        designApprovedBy: authReq.auth.userId,
       },
       select: { id: true, designApproved: true, designApprovedAt: true, designApprovedBy: true },
     });

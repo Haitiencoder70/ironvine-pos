@@ -36,6 +36,7 @@ import {
   PaymentMethod,
   CartItem,
   GlobalSearchResult,
+  Image,
 } from '../types';
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
