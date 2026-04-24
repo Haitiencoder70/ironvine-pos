@@ -69,7 +69,6 @@ export const uploadLogoHandler = async (
 ): Promise<void> => {
   try {
     const { organizationDbId } = req as AuthenticatedRequest;
-    await requireBrandingPlan(organizationDbId!);
 
     if (!req.file) throw new AppError(400, 'No file uploaded', 'NO_FILE');
     const url = await uploadBrandingAsset(organizationDbId!, req.file, 'logo');

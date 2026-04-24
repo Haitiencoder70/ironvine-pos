@@ -181,8 +181,8 @@ export const settingsApi = {
     api.patch<ApiResponse<OrgSettings>>('/settings/org', data).then((r) => r.data),
   uploadLogo: (file: File) => {
     const form = new FormData();
-    form.append('logo', file);
-    return api.post<ApiResponse<{ logoUrl: string }>>('/settings/org/logo', form, {
+    form.append('file', file);
+    return api.post<ApiResponse<{ logoUrl: string }>>('/branding/upload-logo', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }).then((r) => r.data);
   },
