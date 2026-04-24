@@ -21,7 +21,6 @@ import {
   useCreateProduct,
   useUpdateProduct,
   useProductCategories,
-  PRODUCT_CATEGORIES,
   GARMENT_TYPES,
   GARMENT_TYPE_LABELS,
   PRINT_METHODS,
@@ -66,7 +65,7 @@ const productFormSchema = z.object({
   name:                       z.string().min(1, 'Product name is required').max(200),
   description:                z.string().max(1000).optional().default(''),
   sku:                        z.string().max(100).optional().default(''),
-  category:                   z.string().min(1, 'Category is required'),
+  categoryId:                 z.string().min(1, 'Category is required'),
   garmentType:                z.string().min(1, 'Garment type is required'),
   printMethod:                z.string().min(1, 'Print method is required'),
   printLocations:             z.array(z.string()).min(1, 'Select at least one location'),
@@ -174,7 +173,7 @@ export function AddEditProductPage(): JSX.Element {
       name: '',
       description: '',
       sku: '',
-      category: '',
+      categoryId: '',
       garmentType: 'TSHIRT',
       printMethod: 'DTF',
       printLocations: ['Front'],
@@ -217,7 +216,7 @@ export function AddEditProductPage(): JSX.Element {
         name:                       product.name,
         description:                product.description ?? '',
         sku:                        product.sku ?? '',
-        category:                   product.category?.name ?? '',
+        categoryId:                 product.categoryId ?? '',
         garmentType:                product.garmentType,
         printMethod:                product.printMethod,
         printLocations:             product.includedPrintLocations ?? [],
@@ -268,15 +267,11 @@ export function AddEditProductPage(): JSX.Element {
   const baseMargin = watchedBasePrice > 0 ? (baseProfit / watchedBasePrice) * 100 : 0;
 
   const onSubmit = useCallback(async (data: ProductFormValues) => {
-    // Look up categoryId by name
-    const matchedCategory = categories.find(c => c.name === data.category);
-    const categoryId = matchedCategory?.id;
-
     const payload = {
       name:                       data.name,
       description:                data.description ?? '',
       sku:                        data.sku ?? '',
-      categoryId,
+      categoryId:                 data.categoryId,
       garmentType:                data.garmentType,
       printMethod:                data.printMethod,
       includedPrintLocations:     data.printLocations,
@@ -351,24 +346,24 @@ export function AddEditProductPage(): JSX.Element {
                 Category <span className="text-red-500">*</span>
               </label>
               <Controller
-                name="category"
+                name="categoryId"
                 control={control}
                 render={({ field }) => (
                   <select
                     {...field}
                     className={clsx(
-                      'w-full min-h-[44px] rounded-xl border px-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer',
-                      errors.category ? 'border-red-400' : 'border-gray-200'
+                      'w-full min-h-[44px] rounded-xl border px-3 text-base bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer',
+                      errors.categoryId ? 'border-red-400' : 'border-gray-200'
                     )}
                   >
                     <option value="">Select category...</option>
-                    {PRODUCT_CATEGORIES.map(c => (
-                      <option key={c} value={c}>{c}</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
                 )}
               />
-              {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category.message}</p>}
+              {errors.categoryId && <p className="mt-1 text-xs text-red-500">{errors.categoryId.message}</p>}
             </div>
 
             <TouchInput
@@ -542,7 +537,7 @@ export function AddEditProductPage(): JSX.Element {
                             step="0.01"
                             min="0"
                             {...register(`sizeUpcharges.${i}.upcharge`, { valueAsNumber: true })}
-                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </td>
                         <td className="px-4 py-2 text-center">
@@ -591,7 +586,7 @@ export function AddEditProductPage(): JSX.Element {
                             type="number"
                             min="1"
                             {...register(`priceTiers.${i}.minQty`, { valueAsNumber: true })}
-                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </td>
                         <td className="px-4 py-2">
@@ -602,7 +597,7 @@ export function AddEditProductPage(): JSX.Element {
                             {...register(`priceTiers.${i}.maxQty`, {
                               setValueAs: v => v === '' || v === null ? null : parseInt(v),
                             })}
-                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </td>
                         <td className="px-4 py-2">
@@ -611,7 +606,7 @@ export function AddEditProductPage(): JSX.Element {
                             step="0.01"
                             min="0"
                             {...register(`priceTiers.${i}.unitPrice`, { valueAsNumber: true })}
-                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </td>
                         <td className="px-4 py-2 text-center">
