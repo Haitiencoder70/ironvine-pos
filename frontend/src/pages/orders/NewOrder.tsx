@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useNavigate, useBlocker } from 'react-router-dom';
+import { useNavigate, useBlocker, useSearchParams } from 'react-router-dom';
 import { useForm, FormProvider, useFormContext, Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,6 +22,7 @@ import { OrderItemsEditor } from '../../components/orders/OrderItemsEditor';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useCreateOrder } from '../../hooks/useOrders';
+import { useCustomer } from '../../hooks/useCustomers';
 import { useOfflineStore } from '../../store/offlineStore';
 import { usePlanLimits } from '../../hooks/usePlanLimits';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -459,6 +460,8 @@ function Step3Review({ selectedCustomer, formValues }: Step3ReviewProps) {
 
 export function NewOrderPage(): JSX.Element {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const preselectedCustomerId = searchParams.get('customerId') ?? '';
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [customerError, setCustomerError] = useState('');
@@ -466,6 +469,8 @@ export function NewOrderPage(): JSX.Element {
   const isOnline = useOfflineStore((s) => s.isOnline);
   const { canCreateOrder, billing } = usePlanLimits();
   const { can } = usePermissions();
+
+  const { data: preselectedCustomerData } = useCustomer(preselectedCustomerId);
 
   const methods = useForm<NewOrderFormValues>({
     resolver: zodResolver(newOrderSchema),
@@ -508,6 +513,15 @@ export function NewOrderPage(): JSX.Element {
   } = methods;
 
   const formValues = watch();
+
+  // Pre-select customer from URL param (e.g. coming from customer detail page)
+  useEffect(() => {
+    if (preselectedCustomerData?.data && !selectedCustomer) {
+      const customer = preselectedCustomerData.data;
+      setSelectedCustomer(customer);
+      setValue('customerId', customer.id, { shouldDirty: false });
+    }
+  }, [preselectedCustomerData, selectedCustomer, setValue]);
 
   // Auto-save draft to localStorage
   useEffect(() => {
