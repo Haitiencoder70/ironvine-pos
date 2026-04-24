@@ -5,7 +5,7 @@ import { logger } from '../lib/logger';
  * Models that do NOT belong to a single tenant and must be excluded from
  * automatic `organizationId` filtering / injection.
  */
-const EXCLUDED_MODELS = new Set(['Organization']);
+const EXCLUDED_MODELS = new Set(['Organization', 'GarmentImage']);
 
 /**
  * Applies tenant isolation to a single Prisma operation's args.
