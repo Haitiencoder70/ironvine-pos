@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -209,9 +209,13 @@ export function AddEditProductPage(): JSX.Element {
   const materialArray = useFieldArray({ control, name: 'materialCosts' });
   const addOnArray = useFieldArray({ control, name: 'addOns' });
 
-  // Load existing product into form
+  // Guard so React Query re-fetches don't overwrite user edits after initial load
+  const formInitialized = useRef(false);
+
+  // Load existing product into form — runs once when product first arrives
   useEffect(() => {
-    if (isEdit && product) {
+    if (isEdit && product && !formInitialized.current) {
+      formInitialized.current = true;
       reset({
         name:                       product.name,
         description:                product.description ?? '',
