@@ -74,6 +74,18 @@ export interface ConfiguredOrderItem {
   quantity: number;
 }
 
+// ─── Shared input classes ─────────────────────────────────────────────────────
+
+const inputCls =
+  'w-full min-h-[44px] rounded-xl border border-white/10 bg-[#0e0e18] px-3 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/50 transition-colors cursor-pointer';
+
+const textareaCls =
+  'w-full rounded-xl border border-white/10 bg-[#0e0e18] px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/50 resize-none transition-colors';
+
+const labelCls = 'block text-sm font-semibold text-white/70 mb-1.5';
+
+const sectionHeaderCls = 'text-[10px] font-bold uppercase tracking-[0.14em] text-white/30 mb-3';
+
 // ─── Custom item form ─────────────────────────────────────────────────────────
 
 interface CustomItemFormProps {
@@ -129,18 +141,18 @@ function CustomItemForm({ onBack, onAdd }: CustomItemFormProps): JSX.Element {
       <button
         type="button"
         onClick={onBack}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 min-h-[44px] -ml-2 px-2 rounded-xl hover:bg-gray-100 transition-colors"
+        className="flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80 min-h-[44px] -ml-2 px-2 rounded-xl hover:bg-white/5 transition-colors"
       >
         <ChevronLeftIcon className="h-4 w-4" />
         Back to Product Catalog
       </button>
 
       {/* Warning */}
-      <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-200">
-        <InformationCircleIcon className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+      <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/25 bg-amber-500/10">
+        <InformationCircleIcon className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-semibold text-amber-800">Custom item — no catalog pricing</p>
-          <p className="text-xs text-amber-700 mt-0.5">
+          <p className="text-sm font-semibold text-amber-300">Custom item — no catalog pricing</p>
+          <p className="text-xs text-amber-400/80 mt-0.5">
             Consider adding this as a product for future orders so pricing is automatic.
           </p>
         </div>
@@ -148,32 +160,32 @@ function CustomItemForm({ onBack, onAdd }: CustomItemFormProps): JSX.Element {
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-            Description <span className="text-red-500">*</span>
+          <label className={labelCls}>
+            Description <span className="text-red-400">*</span>
           </label>
           <textarea
             rows={2}
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder="e.g. Custom DTF T-shirt, Gildan 5000 Black..."
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className={textareaCls}
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Quantity *</label>
+            <label className={labelCls}>Quantity *</label>
             <input
               type="number"
               inputMode="numeric"
               min={1}
               value={quantity}
               onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-              className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputCls}
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Unit Price ($) *</label>
+            <label className={labelCls}>Unit Price ($) *</label>
             <input
               type="number"
               inputMode="decimal"
@@ -181,13 +193,13 @@ function CustomItemForm({ onBack, onAdd }: CustomItemFormProps): JSX.Element {
               min={0}
               value={unitPrice}
               onChange={e => setUnitPrice(parseFloat(e.target.value) || 0)}
-              className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputCls}
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Print Method</label>
+          <label className={labelCls}>Print Method</label>
           <div className="flex flex-wrap gap-2">
             {['DTF', 'HTV', 'Screen Print', 'Embroidery', 'None'].map(m => (
               <button
@@ -197,8 +209,8 @@ function CustomItemForm({ onBack, onAdd }: CustomItemFormProps): JSX.Element {
                 className={clsx(
                   'px-4 py-2 rounded-xl text-sm font-semibold border min-h-[44px] transition-all',
                   printMethod === m
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                    ? 'bg-blue-600 text-white border-blue-500 shadow-[0_0_16px_rgba(59,130,246,0.35)]'
+                    : 'bg-white/5 text-white/60 border-white/10 hover:border-white/25 hover:text-white/80'
                 )}
               >
                 {m}
@@ -208,21 +220,21 @@ function CustomItemForm({ onBack, onAdd }: CustomItemFormProps): JSX.Element {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Notes</label>
+          <label className={labelCls}>Notes</label>
           <textarea
             rows={2}
             value={itemNotes}
             onChange={e => setItemNotes(e.target.value)}
             placeholder="Special instructions..."
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className={textareaCls}
           />
         </div>
       </div>
 
       {/* Total preview */}
-      <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 flex justify-between items-center">
-        <span className="text-sm text-gray-600">Line Total</span>
-        <span className="font-black text-gray-900 text-lg">{formatCurrency(quantity * unitPrice)}</span>
+      <div className="p-3 glass rounded-xl flex justify-between items-center">
+        <span className="text-sm text-white/50">Line Total</span>
+        <span className="font-black text-white text-lg">{formatCurrency(quantity * unitPrice)}</span>
       </div>
 
       <div className="flex gap-3 pt-2">
@@ -263,22 +275,22 @@ function PriceOverrideRow({ originalPrice, overridePrice, overrideReason, onPric
         <button
           type="button"
           onClick={() => setShowOverride(true)}
-          className="text-xs text-gray-400 hover:text-blue-600 underline min-h-[36px] px-1"
+          className="text-xs text-white/30 hover:text-blue-400 underline min-h-[36px] px-1 transition-colors"
         >
           Override price
         </button>
       ) : (
-        <div className="space-y-2 p-3 bg-amber-50 rounded-xl border border-amber-200">
+        <div className="space-y-2 p-3 rounded-xl border border-amber-500/25 bg-amber-500/8">
           <div className="flex items-center gap-2">
-            <ExclamationTriangleIcon className="h-4 w-4 text-amber-600 flex-shrink-0" />
-            <p className="text-xs font-semibold text-amber-800">
+            <ExclamationTriangleIcon className="h-4 w-4 text-amber-400 flex-shrink-0" />
+            <p className="text-xs font-semibold text-amber-300">
               Price override from {formatCurrency(originalPrice)}
               {discountPct > 0 && ` (−${discountPct.toFixed(0)}%)`}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Override Unit Price ($)</label>
+              <label className="block text-xs font-medium text-white/50 mb-1">Override Unit Price ($)</label>
               <input
                 type="number"
                 inputMode="decimal"
@@ -286,12 +298,12 @@ function PriceOverrideRow({ originalPrice, overridePrice, overrideReason, onPric
                 min={0}
                 value={overridePrice}
                 onChange={e => onPriceChange(parseFloat(e.target.value) || 0)}
-                className="w-full min-h-[44px] rounded-xl border border-amber-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full min-h-[44px] rounded-xl border border-amber-500/30 bg-[#0e0e18] px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-400/50"
               />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-white/50 mb-1">
               Reason for override{needsApproval ? ' (required — discount >20%)' : ''}
             </label>
             <input
@@ -299,18 +311,18 @@ function PriceOverrideRow({ originalPrice, overridePrice, overrideReason, onPric
               value={overrideReason}
               onChange={e => onReasonChange(e.target.value)}
               placeholder="e.g. Repeat customer discount, price match..."
-              className="w-full min-h-[44px] rounded-xl border border-amber-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full min-h-[44px] rounded-xl border border-amber-500/30 bg-[#0e0e18] px-3 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
             />
           </div>
           {needsApproval && (
-            <p className="text-xs font-bold text-red-600">
+            <p className="text-xs font-bold text-red-400">
               ⚠ Discount exceeds 20% — manager approval required before submitting.
             </p>
           )}
           <button
             type="button"
             onClick={() => { setShowOverride(false); onPriceChange(originalPrice); onReasonChange(''); }}
-            className="text-xs text-gray-400 hover:text-gray-600 underline"
+            className="text-xs text-white/30 hover:text-white/60 underline transition-colors"
           >
             Cancel override
           </button>
@@ -499,58 +511,63 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
   };
 
   return (
-    <div className="space-y-5 overflow-y-auto" style={{ maxHeight: '72vh' }}>
+    <div className="space-y-4 overflow-y-auto" style={{ maxHeight: '72vh' }}>
+
       {/* Back */}
       <button
         type="button"
         onClick={onBack}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 min-h-[44px] -ml-2 px-2 rounded-xl hover:bg-gray-100 transition-colors flex-shrink-0"
+        className="flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80 min-h-[44px] -ml-2 px-2 rounded-xl hover:bg-white/5 transition-colors flex-shrink-0"
       >
         <ChevronLeftIcon className="h-4 w-4" />
         Back to Product Catalog
       </button>
 
       {/* Product header */}
-      <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-        <h3 className="font-bold text-blue-900 text-base">{product.name}</h3>
-        <p className="text-sm text-blue-700 mt-0.5">
+      <div
+        className="p-4 rounded-2xl border border-blue-500/25"
+        style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(59,130,246,0.06) 100%)' }}
+      >
+        <h3 className="font-bold text-white text-base">{product.name}</h3>
+        <p className="text-sm text-blue-300/80 mt-0.5">
           Starting at {formatCurrency((product.priceTiers ?? []).reduce((m, t) => Math.min(m, Number(t.price)), Number(product.basePrice)))} per unit
           {product.description && ` · ${product.description}`}
         </p>
       </div>
 
       {/* ── Garment Selection ── */}
-      <section className="space-y-4">
-        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Garment Selection</h4>
+      <section className="glass-panel rounded-2xl p-4 space-y-4">
+        <p className={sectionHeaderCls}>Garment Selection</p>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Brand</label>
+            <label className={labelCls}>Brand</label>
             <select
               value={brand}
               onChange={e => setBrand(e.target.value)}
-              className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className={inputCls}
+              style={{ colorScheme: 'dark' }}
             >
               <option value="">Any brand</option>
               {product.availableBrands.map(b => <option key={b} value={b}>{b}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Color</label>
+            <label className={labelCls}>Color</label>
             <input
               type="text"
               value={color}
               onChange={e => setColor(e.target.value)}
               placeholder="e.g. Black, Navy..."
-              className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputCls}
             />
           </div>
         </div>
       </section>
 
       {/* ── Sizes & Quantities ── */}
-      <section className="space-y-4">
-        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Sizes & Quantities</h4>
+      <section className="glass-panel rounded-2xl p-4 space-y-4">
+        <p className={sectionHeaderCls}>Sizes & Quantities</p>
 
         {/* Mode toggle */}
         <div className="flex gap-2">
@@ -562,8 +579,8 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
               className={clsx(
                 'flex-1 min-h-[44px] rounded-xl border text-sm font-semibold transition-all',
                 sizeMode === mode
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                  ? 'bg-blue-600 text-white border-blue-500 shadow-[0_0_16px_rgba(59,130,246,0.35)]'
+                  : 'bg-white/5 text-white/55 border-white/10 hover:border-white/25 hover:text-white/75'
               )}
             >
               {mode === 'single' ? '○ Single Size' : '● Multiple Sizes'}
@@ -574,25 +591,26 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
         {sizeMode === 'single' ? (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Size *</label>
+              <label className={labelCls}>Size *</label>
               <select
                 value={singleSize}
                 onChange={e => setSingleSize(e.target.value)}
-                className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                className={inputCls}
+                style={{ colorScheme: 'dark' }}
               >
                 <option value="">Select size...</option>
                 {product.availableSizes.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Quantity *</label>
+              <label className={labelCls}>Quantity *</label>
               <input
                 type="number"
                 inputMode="numeric"
                 min={1}
                 value={singleQty}
                 onChange={e => setSingleQty(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={clsx(inputCls, 'text-base font-semibold text-center')}
               />
             </div>
           </div>
@@ -602,24 +620,30 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
               <div className="flex gap-2 min-w-max pb-1">
                 {product.availableSizes.map(size => {
                   const upcharge = getSizeUpcharge(product, size);
+                  const qty = sizeBreakdown[size] ?? 0;
                   return (
                     <div key={size} className="flex flex-col items-center gap-1.5 w-16">
                       <div className="text-center">
-                        <span className="text-xs font-bold text-gray-700">{size}</span>
+                        <span className="text-xs font-bold text-white/80">{size}</span>
                         {upcharge > 0 && (
-                          <span className="block text-[9px] text-amber-600 font-medium">+${upcharge}</span>
+                          <span className="block text-[9px] text-amber-400 font-medium">+${upcharge}</span>
                         )}
                       </div>
                       <input
                         type="number"
                         inputMode="numeric"
                         min={0}
-                        value={sizeBreakdown[size] ?? 0}
+                        value={qty}
                         onChange={e => setSizeBreakdown(prev => ({
                           ...prev,
                           [size]: Math.max(0, parseInt(e.target.value) || 0),
                         }))}
-                        className="w-full text-center min-h-[48px] rounded-xl border border-gray-200 text-base font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className={clsx(
+                          'w-full text-center min-h-[48px] rounded-xl border text-base font-bold text-white focus:outline-none focus:ring-2 focus:ring-blue-500/60 transition-colors',
+                          qty > 0
+                            ? 'bg-blue-600/20 border-blue-500/40 text-blue-300'
+                            : 'bg-[#0e0e18] border-white/10 text-white/60'
+                        )}
                         style={{ appearance: 'textfield' }}
                       />
                     </div>
@@ -630,7 +654,7 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
 
             {/* Size breakdown summary */}
             {totalQty > 0 && (
-              <div className="mt-3 text-xs text-gray-500">
+              <div className="mt-3 text-xs text-white/40">
                 {product.availableSizes.filter(s => (sizeBreakdown[s] ?? 0) > 0).map(s => `${sizeBreakdown[s]}×${s}`).join(', ')}
               </div>
             )}
@@ -639,17 +663,17 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
 
         {/* Tier info */}
         {totalQty > 0 && (
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+          <div className="flex items-center gap-3 p-3 glass rounded-xl">
             <div className="flex-1">
-              <p className="text-xs text-gray-500">Total Quantity</p>
-              <p className="text-lg font-black text-gray-900">{totalQty} units</p>
+              <p className="text-xs text-white/40">Total Quantity</p>
+              <p className="text-lg font-black text-white">{totalQty} units</p>
             </div>
             {tier && (
               <div className="flex-1 text-right">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-white/40">
                   {tier.minQty}+ qty tier
                 </p>
-                <p className="text-lg font-black text-blue-700">{formatCurrency(tierUnitPrice)}/unit</p>
+                <p className="text-lg font-black text-blue-400">{formatCurrency(tierUnitPrice)}/unit</p>
               </div>
             )}
           </div>
@@ -657,36 +681,41 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
       </section>
 
       {/* ── Design Details ── */}
-      <section className="space-y-3">
-        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Design Details</h4>
+      <section className="glass-panel rounded-2xl p-4 space-y-3">
+        <p className={sectionHeaderCls}>Design Details</p>
 
-        <div>
-          <p className="text-xs font-semibold text-gray-600 mb-2">Print Locations (included with product)</p>
-          <div className="flex flex-wrap gap-1.5">
-            {(product.includedPrintLocations ?? []).map(loc => (
-              <span key={loc} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg font-semibold border border-blue-200">
-                ✅ {loc}
-              </span>
-            ))}
+        {(product.includedPrintLocations ?? []).length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-white/50 mb-2">Print Locations (included with product)</p>
+            <div className="flex flex-wrap gap-1.5">
+              {(product.includedPrintLocations ?? []).map(loc => (
+                <span
+                  key={loc}
+                  className="text-xs bg-blue-500/15 text-blue-300 px-2.5 py-1 rounded-lg font-semibold border border-blue-500/25"
+                >
+                  ✅ {loc}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Design Description</label>
+          <label className={labelCls}>Design Description</label>
           <textarea
             rows={2}
             value={designDescription}
             onChange={e => setDesignDescription(e.target.value)}
             placeholder="Describe the design, colors, artwork file reference..."
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className={textareaCls}
           />
         </div>
       </section>
 
       {/* ── Add-Ons ── */}
       {activeAddOns.length > 0 && (
-        <section className="space-y-3">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Add-Ons</h4>
+        <section className="glass-panel rounded-2xl p-4 space-y-3">
+          <p className={sectionHeaderCls}>Add-Ons</p>
           <div className="space-y-2">
             {activeAddOns.map(ao => {
               const checked = selectedAddOnIds.has(ao.id);
@@ -695,7 +724,9 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
                   key={ao.id}
                   className={clsx(
                     'flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all min-h-[48px]',
-                    checked ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'
+                    checked
+                      ? 'border-blue-500/40 bg-blue-500/10'
+                      : 'border-white/8 bg-white/3 hover:border-white/15'
                   )}
                 >
                   <input
@@ -706,14 +737,14 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
                       next.has(ao.id) ? next.delete(ao.id) : next.add(ao.id);
                       return next;
                     })}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500/50 accent-blue-500"
                   />
-                  <span className={clsx('flex-1 text-sm font-medium', checked ? 'text-blue-900' : 'text-gray-700')}>
+                  <span className={clsx('flex-1 text-sm font-medium', checked ? 'text-white' : 'text-white/65')}>
                     {ao.name}
                   </span>
-                  <span className="text-sm text-gray-600">+{formatCurrency(Number(ao.price))}/item</span>
+                  <span className="text-sm text-white/45">+{formatCurrency(Number(ao.price))}/item</span>
                   {checked && totalQty > 0 && (
-                    <span className="text-sm font-bold text-blue-700">= {formatCurrency(Number(ao.price) * totalQty)}</span>
+                    <span className="text-sm font-bold text-blue-400">= {formatCurrency(Number(ao.price) * totalQty)}</span>
                   )}
                 </label>
               );
@@ -725,31 +756,31 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
       {/* ── Price Breakdown ── */}
       {totalQty > 0 && (
         <section className="space-y-3">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Price Breakdown</h4>
-          <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-1.5 text-sm">
+          <p className={sectionHeaderCls}>Price Breakdown</p>
+          <div className="glass-panel-weighted rounded-xl p-4 space-y-1.5 text-sm">
             {sizeLines.map((line, i) => (
-              <div key={i} className="flex justify-between text-gray-700">
+              <div key={i} className="flex justify-between text-white/60">
                 <span>
                   {line.qty}× {line.size}
-                  {line.upcharge > 0 && <span className="text-amber-600"> (+{formatCurrency(line.upcharge)} upcharge)</span>}
+                  {line.upcharge > 0 && <span className="text-amber-400"> (+{formatCurrency(line.upcharge)} upcharge)</span>}
                   {' '}× {formatCurrency(line.unitBase + line.upcharge)}
                 </span>
-                <span className="font-semibold">{formatCurrency(line.lineTotal)}</span>
+                <span className="font-semibold text-white/80">{formatCurrency(line.lineTotal)}</span>
               </div>
             ))}
             {activeAddOns.filter(ao => selectedAddOnIds.has(ao.id)).map(ao => (
-              <div key={ao.id} className="flex justify-between text-gray-700">
+              <div key={ao.id} className="flex justify-between text-white/60">
                 <span>{ao.name} ({totalQty} × {formatCurrency(Number(ao.price))})</span>
-                <span className="font-semibold">{formatCurrency(Number(ao.price) * totalQty)}</span>
+                <span className="font-semibold text-white/80">{formatCurrency(Number(ao.price) * totalQty)}</span>
               </div>
             ))}
-            <div className="border-t border-gray-200 pt-2 mt-2">
-              <div className="flex justify-between font-bold text-gray-900 text-base">
+            <div className="border-t border-white/8 pt-2 mt-2">
+              <div className="flex justify-between font-bold text-white text-base">
                 <span>Item Total</span>
-                <span>{formatCurrency(lineTotal)}</span>
+                <span className="text-gradient-blue">{formatCurrency(lineTotal)}</span>
               </div>
               {totalQty > 0 && (
-                <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+                <div className="flex justify-between text-xs text-white/30 mt-0.5">
                   <span>Avg per unit</span>
                   <span>{formatCurrency(lineTotal / totalQty)}</span>
                 </div>
@@ -758,12 +789,12 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
 
             {/* Profit estimate */}
             {costPerUnit > 0 && (
-              <div className="border-t border-gray-100 pt-2 mt-2 space-y-1 text-xs">
-                <div className="flex justify-between text-gray-500">
+              <div className="border-t border-white/8 pt-2 mt-2 space-y-1 text-xs">
+                <div className="flex justify-between text-white/35">
                   <span>Est. material cost</span>
                   <span>{formatCurrency(estimatedCost)}</span>
                 </div>
-                <div className={clsx('flex justify-between font-semibold', estimatedProfit >= 0 ? 'text-emerald-600' : 'text-red-500')}>
+                <div className={clsx('flex justify-between font-semibold', estimatedProfit >= 0 ? 'text-emerald-400' : 'text-red-400')}>
                   <span>Est. profit</span>
                   <span>{formatCurrency(estimatedProfit)} ({profitMargin.toFixed(1)}%)</span>
                 </div>
@@ -785,11 +816,11 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
       {/* ── Required Materials ── */}
       {totalQty > 0 && (
         <section className="space-y-3">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Required Materials (auto-calculated)</h4>
-          <div className="bg-amber-50 rounded-xl border border-amber-200 px-4 py-3 space-y-1.5">
+          <p className={sectionHeaderCls}>Required Materials (auto-calculated)</p>
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/8 px-4 py-3 space-y-1.5">
             {buildMaterials().map((mat, i) => (
-              <div key={i} className="flex items-start gap-2 text-sm text-amber-900">
-                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber-500 flex-shrink-0" />
+              <div key={i} className="flex items-start gap-2 text-sm text-amber-300/80">
+                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber-400 flex-shrink-0" />
                 <span>{mat.quantity}× {mat.description}</span>
               </div>
             ))}
@@ -799,18 +830,18 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
 
       {/* ── Item Notes ── */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Item Notes</label>
+        <label className={labelCls}>Item Notes</label>
         <textarea
           rows={2}
           value={itemNotes}
           onChange={e => setItemNotes(e.target.value)}
           placeholder="Customer will provide name list by Friday..."
-          className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          className={textareaCls}
         />
       </div>
 
       {/* ── Actions ── */}
-      <div className="flex gap-3 pt-2 sticky bottom-0 bg-white pb-1">
+      <div className="flex gap-3 pt-2 sticky bottom-0 pb-1" style={{ background: 'transparent' }}>
         <TouchButton variant="secondary" size="md" fullWidth onClick={onBack}>Cancel</TouchButton>
         <TouchButton
           variant="primary"
