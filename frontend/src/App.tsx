@@ -19,6 +19,7 @@ const CustomersPage    = lazy(() => import('@/pages/Customers').then(m => ({ def
 const InventoryPage    = lazy(() => import('@/pages/Inventory').then(m => ({ default: m.InventoryPage })));
 const PurchaseOrderListPage = lazy(() => import('@/pages/purchase-orders/PurchaseOrderList').then(m => ({ default: m.PurchaseOrderListPage })));
 const CreatePOPage = lazy(() => import('@/pages/purchase-orders/CreatePO').then(m => ({ default: m.CreatePOPage })));
+const CreatePOForOrderPage = lazy(() => import('@/pages/purchase-orders/CreatePOForOrder').then(m => ({ default: m.CreatePOPage })));
 const PurchaseOrderDetailPage = lazy(() => import('@/pages/purchase-orders/PurchaseOrderDetail').then(m => ({ default: m.PurchaseOrderDetailPage })));
 const VendorListPage = lazy(() => import('@/pages/vendors/VendorList').then(m => ({ default: m.VendorListPage })));
 const VendorDetailPage = lazy(() => import('@/pages/vendors/VendorDetail').then(m => ({ default: m.VendorDetailPage })));
@@ -110,6 +111,7 @@ const appRouter = createBrowserRouter([
             children: [
               { index: true, element: <Suspense fallback={<PageFallback />}><PurchaseOrderListPage /></Suspense> },
               { path: 'new', element: <Suspense fallback={<PageFallback />}><CreatePOPage /></Suspense> },
+              { path: 'new-for-order/:orderId', element: <Suspense fallback={<PageFallback />}><CreatePOForOrderPage /></Suspense> },
               { path: ':id', element: <Suspense fallback={<PageFallback />}><PurchaseOrderDetailPage /></Suspense> },
             ]
           },
