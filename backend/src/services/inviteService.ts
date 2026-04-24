@@ -125,13 +125,29 @@ export async function inviteUser(input: InviteUserInput): Promise<{ invite: Orga
     throw new AppError(409, `${email} is already an active member of this organisation.`, 'ALREADY_MEMBER');
   }
 
-  // Check for an unexpired pending invite
+  // If a pending invite already exists, resend it rather than blocking
   const pendingInvite = await prisma.organizationInvite.findFirst({
     where: { email, organizationId, acceptedAt: null, expiresAt: { gt: new Date() } },
-    select: { id: true },
   });
   if (pendingInvite) {
-    throw new AppError(409, `An active invitation for ${email} already exists.`, 'INVITE_PENDING');
+    const inviter = await prisma.user.findFirst({
+      where:  { clerkUserId: invitedByClerkUserId, organizationId },
+      select: { firstName: true, lastName: true },
+    });
+    const inviterName = inviter ? `${inviter.firstName} ${inviter.lastName}` : 'A team member';
+    const inviteLink  = `${env.FRONTEND_URL}/invite/accept?token=${pendingInvite.token}`;
+    try {
+      await resend.emails.send({
+        from:    getFromAddress(org),
+        to:      email,
+        subject: `You've been invited to join ${org.name} on Ironvine POS`,
+        html:    inviteEmailHtml(org.name, inviterName, role, inviteLink),
+      });
+    } catch (err) {
+      logger.error('Failed to resend invite email', { err, email, organizationId });
+    }
+    logger.info('Invite resent', { email, organizationId });
+    return { invite: pendingInvite, inviteLink };
   }
 
   // Enforce user-seat limit

@@ -238,7 +238,6 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
           AND sm."organizationId" = ${organizationId}
           AND sm.type = 'RESERVED'::"StockMovementType"
         GROUP BY sm."inventoryItemId", ii."quantityReserved"
-        FOR UPDATE OF ii
       `;
 
       for (const reserved of reservedItems) {
