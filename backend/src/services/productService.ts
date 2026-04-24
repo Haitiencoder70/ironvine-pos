@@ -223,6 +223,7 @@ export async function createProduct(organizationId: string, data: CreateProductI
         ? {
             create: materialTemplates.map((t) => ({
               ...t,
+              materialCategory: 'GENERAL',
               organizationId,
               quantityPerUnit: new Prisma.Decimal(t.quantityPerUnit),
               estimatedCostPerUnit: new Prisma.Decimal(t.estimatedCostPerUnit),
@@ -270,6 +271,7 @@ export async function updateProduct(
     updateData.materialTemplates = {
       create: materialTemplates.map((t) => ({
         ...t,
+        materialCategory: 'GENERAL',
         organizationId,
         quantityPerUnit: new Prisma.Decimal(t.quantityPerUnit),
         estimatedCostPerUnit: new Prisma.Decimal(t.estimatedCostPerUnit),

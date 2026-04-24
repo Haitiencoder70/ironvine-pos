@@ -86,6 +86,7 @@ export function errorHandler(
   }
 
   if (err instanceof Prisma.PrismaClientValidationError) {
+    logger.error('PrismaClientValidationError', { message: err.message, path: _req.path, method: _req.method });
     res.status(400).json({
       error: 'Invalid data supplied to the database.',
       code: 'DATABASE_VALIDATION_ERROR',
