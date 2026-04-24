@@ -121,13 +121,14 @@ export async function inviteUser(
   organizationId: string,
   clerkOrgId: string,
   data: { email: string; firstName: string; lastName: string; role: string },
+  inviterUserId: string,
 ) {
   // Create invitation via Clerk
   await clerkClient.organizations.createOrganizationInvitation({
     organizationId: clerkOrgId,
     emailAddress: data.email,
     role: data.role === 'OWNER' ? 'org:admin' : data.role === 'MANAGER' ? 'org:manager' : 'org:member',
-    inviterUserId: '',
+    inviterUserId,
   });
 
   // Optimistically create user row (will be fully populated on first login)

@@ -325,7 +325,7 @@ export async function duplicateProduct(organizationId: string, productId: string
       availableColors: source.availableColors,
       estimatedProductionMinutes: source.estimatedProductionMinutes,
       difficultyLevel: source.difficultyLevel,
-      isActive: false,
+      isActive: true,
       isFeatured: false,
       materialTemplates: {
         create: source.materialTemplates.map(({ id: _id, createdAt: _c, updatedAt: _u, productId: _p, ...t }) => ({

@@ -57,7 +57,7 @@ export const inviteUserHandler = async (req: Request, res: Response, next: NextF
   try {
     const authReq = req as AuthenticatedRequest;
     const org = await prisma.organization.findUniqueOrThrow({ where: { id: authReq.organizationDbId! } });
-    const data = await inviteUser(authReq.organizationDbId!, org.clerkOrgId, req.body as { email: string; firstName: string; lastName: string; role: string });
+    const data = await inviteUser(authReq.organizationDbId!, org.clerkOrgId, req.body as { email: string; firstName: string; lastName: string; role: string }, authReq.auth.userId);
     void trackEvent(authReq.organizationDbId!, 'user_invited');
     res.status(201).json({ data });
   } catch (err) { next(err); }
