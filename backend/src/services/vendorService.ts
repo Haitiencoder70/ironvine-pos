@@ -186,6 +186,16 @@ export async function getVendors(
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
+export async function deleteVendor(organizationId: string, vendorId: string): Promise<void> {
+  const existing = await prisma.vendor.findFirst({
+    where: { id: vendorId, organizationId },
+    select: { id: true },
+  });
+  if (!existing) throw new AppError(404, 'Vendor not found', 'NOT_FOUND');
+
+  await prisma.vendor.delete({ where: { id: vendorId } });
+}
+
 export async function getVendorById(organizationId: string, vendorId: string): Promise<Vendor & {
   _count: { purchaseOrders: number };
 }> {

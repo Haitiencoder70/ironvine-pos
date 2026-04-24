@@ -7,6 +7,7 @@ import {
   getById,
   create,
   update,
+  deleteVendorHandler,
 } from '../controllers/vendorController';
 import { createVendorSchema, updateVendorSchema, listVendorsQuerySchema } from '../validators/vendor';
 
@@ -26,3 +27,6 @@ vendorsRouter.post('/', authorize('inventory:create'), validate(createVendorSche
 
 // ─── Update Vendor ────────────────────────────────────────────────────────────
 vendorsRouter.patch('/:id', authorize('inventory:edit'), validate(updateVendorSchema), update);
+
+// ─── Delete Vendor ────────────────────────────────────────────────────────────
+vendorsRouter.delete('/:id', authorize('inventory:delete'), deleteVendorHandler);

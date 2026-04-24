@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types';
-import { createVendor, updateVendor, getVendors, getVendorById } from '../services/vendorService';
+import { createVendor, updateVendor, getVendors, getVendorById, deleteVendor } from '../services/vendorService';
 
 export const getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -60,6 +60,17 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
     });
 
     res.json({ data: vendor });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteVendorHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const orgDbId = authReq.organizationDbId!;
+    await deleteVendor(orgDbId, authReq.params['id'] as string);
+    res.status(204).send();
   } catch (err) {
     next(err);
   }
