@@ -11,6 +11,8 @@ import {
   updateStatus,
   useMaterialsHandler,
   getWorkflowStatus,
+  requestDesignApproval,
+  approveDesign,
 } from '../controllers/orderController';
 import {
   createOrderSchema,
@@ -49,3 +51,7 @@ ordersRouter.post('/:id/use-materials', authorize('orders:edit'), validate(useMa
 
 // ─── Workflow Status ──────────────────────────────────────────────────────────
 ordersRouter.get('/:id/workflow', authorize('orders:view'), getWorkflowStatus);
+
+// ─── Design Approval ─────────────────────────────────────────────────────────
+ordersRouter.patch('/:id/request-approval', authorize('orders:edit'), requestDesignApproval);
+ordersRouter.patch('/:id/approve-design',   authorize('orders:edit'), approveDesign);

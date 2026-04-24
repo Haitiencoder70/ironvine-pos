@@ -39,6 +39,7 @@ import { Modal } from '../../components/ui/Modal';
 import { OrderWorkflow } from '../../components/orders/OrderWorkflow';
 import { OrderLabelPrint } from '../../components/orders/OrderLabelPrint';
 import { UseMaterialsModal } from '../../components/orders/UseMaterialsModal';
+import { DesignApprovalPanel } from '../../components/orders/DesignApprovalPanel';
 import { CreateShipmentModal } from '../../components/shipments/CreateShipmentModal';
 import { useOrder, useUpdateOrderStatus, orderKeys } from '../../hooks/useOrders';
 import { useConfirm } from '../../hooks/useConfirm';
@@ -710,6 +711,7 @@ export function OrderDetailPage(): JSX.Element {
                   onUploadComplete={orderImages.onUploaded}
                   onError={(msg) => console.error(msg)}
                 />
+                <DesignApprovalPanel order={order} />
               </div>
             </TouchCard>
 

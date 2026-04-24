@@ -141,6 +141,9 @@ export interface Order {
   designNotes?: string;
   designFiles: string[];
   items: OrderItem[];
+  designApproved: boolean;
+  designApprovedAt: string | null;
+  designApprovedBy: string | null;
   createdAt: string;
   updatedAt: string;
 }

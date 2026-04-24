@@ -145,3 +145,56 @@ export const getWorkflowStatus = async (req: Request, res: Response, next: NextF
     next(err);
   }
 };
+
+export const requestDesignApproval = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { organizationDbId } = req as AuthenticatedRequest;
+    const { id } = req.params;
+
+    const order = await prisma.order.findFirst({
+      where: { id, organizationId: organizationDbId! },
+      select: { id: true },
+    });
+    if (!order) return next(new AppError(404, 'Order not found', 'NOT_FOUND'));
+
+    await prisma.order.update({
+      where: { id },
+      data: { designApproved: false, designApprovedAt: null, designApprovedBy: null },
+    });
+
+    res.json({ data: { requested: true } });
+  } catch (err) { next(err); }
+};
+
+export const approveDesign = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { organizationDbId, auth } = req as AuthenticatedRequest;
+    const { id } = req.params;
+
+    const order = await prisma.order.findFirst({
+      where: { id, organizationId: organizationDbId! },
+      select: { id: true },
+    });
+    if (!order) return next(new AppError(404, 'Order not found', 'NOT_FOUND'));
+
+    const updated = await prisma.order.update({
+      where: { id },
+      data: {
+        designApproved: true,
+        designApprovedAt: new Date(),
+        designApprovedBy: auth.userId,
+      },
+      select: { id: true, designApproved: true, designApprovedAt: true, designApprovedBy: true },
+    });
+
+    res.json({ data: updated });
+  } catch (err) { next(err); }
+};

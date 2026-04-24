@@ -59,6 +59,10 @@ export const orderApi = {
     api.post<ApiResponse<null>>(`/orders/${id}/use-materials`, { materials }).then((r) => r.data),
   getWorkflow: (id: string) =>
     api.get<ApiResponse<OrderWorkflow>>(`/orders/${id}/workflow`).then((r) => r.data),
+  requestApproval: (id: string) =>
+    api.patch<ApiResponse<{ requested: boolean }>>(`/orders/${id}/request-approval`).then((r) => r.data),
+  approveDesign: (id: string) =>
+    api.patch<ApiResponse<{ id: string; designApproved: boolean; designApprovedAt: string; designApprovedBy: string }>>(`/orders/${id}/approve-design`).then((r) => r.data),
 };
 
 // ─── Inventory ────────────────────────────────────────────────────────────────
