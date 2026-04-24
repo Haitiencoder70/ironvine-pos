@@ -1,20 +1,15 @@
 import { Router } from 'express';
 
+import { authorize } from '../middleware/authorize';
 import { getProductsHandler, completeSaleHandler, getSaleHistoryHandler } from '../controllers/posController';
 
 export const posRouter = Router();
 
-// All POS routes require auth + tenant resolution
-// removed redundant middleware
-
 // ─── Products ──────────────────────────────────────────────────────────────────
-// GET /api/pos/products?search=...&category=...
-posRouter.get('/products', getProductsHandler);
+posRouter.get('/products', authorize('pos:view'), getProductsHandler);
 
 // ─── Complete Sale ─────────────────────────────────────────────────────────────
-// POST /api/pos/sale
-posRouter.post('/sale', completeSaleHandler);
+posRouter.post('/sale', authorize('pos:create'), completeSaleHandler);
 
 // ─── Sale History ──────────────────────────────────────────────────────────────
-// GET /api/pos/sales?limit=...&offset=...
-posRouter.get('/sales', getSaleHistoryHandler);
+posRouter.get('/sales', authorize('pos:view'), getSaleHistoryHandler);
