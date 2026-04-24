@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback, DragEvent, ChangeEvent } from 'react';
+import type { AxiosProgressEvent } from 'axios';
+import { api } from '../../lib/api';
 import { useCamera } from '../../hooks/useCamera';
 import type { Image, ImageType } from '../../types';
 
@@ -58,7 +60,6 @@ async function compressImage(file: File, targetBytes: number): Promise<File> {
   });
 }
 
-// Simulated upload — replace with real API call when backend image endpoint exists
 async function uploadFile(
   file: File,
   entityType: string,
@@ -66,35 +67,22 @@ async function uploadFile(
   imageType: ImageType,
   onProgress: (p: number) => void,
 ): Promise<Image> {
-  // TODO: replace with api.post('/images', formData, { onUploadProgress })
-  return new Promise((resolve) => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress = Math.min(progress + 20, 90);
-      onProgress(progress);
-    }, 150);
-    setTimeout(() => {
-      clearInterval(interval);
-      onProgress(100);
-      resolve({
-        id: `img_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-        organizationId: '',
-        entityType,
-        entityId,
-        imageType,
-        url: URL.createObjectURL(file),
-        thumbnailUrl: URL.createObjectURL(file),
-        filename: file.name,
-        mimeType: file.type,
-        sizeBytes: file.size,
-        isPrimary: false,
-        sortOrder: 0,
-        uploadedBy: '',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-    }, 1200);
+  const form = new FormData();
+  form.append('file', file);
+  form.append('entityType', entityType);
+  form.append('entityId', entityId);
+  form.append('imageType', imageType);
+
+  const response = await api.post<{ data: Image }>('/images/upload', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (event: AxiosProgressEvent) => {
+      if (event.total) {
+        onProgress(Math.round((event.loaded / event.total) * 100));
+      }
+    },
   });
+
+  return response.data.data;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
