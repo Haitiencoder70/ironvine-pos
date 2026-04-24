@@ -1,6 +1,9 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { ImageUploader } from '../../components/images/ImageUploader';
+import { ImageGallery } from '../../components/images/ImageGallery';
+import { useEntityImages } from '../../hooks/useImages';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -155,6 +158,7 @@ export function AddEditProductPage(): JSX.Element {
   const product = productData?.data;
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
+  const productImages = useEntityImages('product', id);
   const { data: categoriesData } = useProductCategories();
   const categories = categoriesData?.data ?? [];
 
@@ -899,6 +903,30 @@ export function AddEditProductPage(): JSX.Element {
             </div>
           </div>
         </TouchCard>
+
+        {/* ── Product Images ── */}
+        {id && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-gray-700">Product Photos</h3>
+            <ImageGallery
+              images={productImages.images}
+              editable
+              onUpload={() => {}}
+              onDelete={productImages.onDelete}
+              onSetPrimary={productImages.onSetPrimary}
+              onReorder={productImages.onReorder}
+              emptyMessage="No product photos yet"
+              columns={4}
+            />
+            <ImageUploader
+              entityType="product"
+              entityId={id}
+              imageType="PRODUCT"
+              onUploadComplete={productImages.onUploaded}
+              onError={(msg) => console.error(msg)}
+            />
+          </div>
+        )}
 
         {/* ── Fixed bottom actions ── */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 z-20 lg:pl-72">
