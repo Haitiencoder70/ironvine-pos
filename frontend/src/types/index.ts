@@ -519,13 +519,14 @@ export interface Sale {
 // ─── Images ───────────────────────────────────────────────────────────────────
 
 export type ImageType =
-  | 'PRODUCT'
-  | 'DESIGN'
-  | 'MOCKUP'
-  | 'ORDER'
-  | 'ORDER_ITEM'
-  | 'REFERENCE'
-  | 'PROOF';
+  | 'PRODUCT_PHOTO'
+  | 'PRODUCT_MOCKUP'
+  | 'DESIGN_FILE'
+  | 'DESIGN_MOCKUP'
+  | 'PRODUCTION_PHOTO'
+  | 'PROOF_PHOTO'
+  | 'LOGO'
+  | 'OTHER';
 
 export interface Image {
   id: string;

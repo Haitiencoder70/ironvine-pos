@@ -695,7 +695,7 @@ export function OrderDetailPage(): JSX.Element {
               />
               <div className="space-y-4">
                 <ImageGallery
-                  images={orderImages.images.filter((img) => img.imageType === 'MOCKUP')}
+                  images={orderImages.images.filter((img) => img.imageType === 'DESIGN_MOCKUP')}
                   editable
                   onUpload={() => {}}
                   onDelete={orderImages.onDelete}
@@ -707,7 +707,7 @@ export function OrderDetailPage(): JSX.Element {
                 <ImageUploader
                   entityType="order"
                   entityId={order.id}
-                  imageType="MOCKUP"
+                  imageType="DESIGN_MOCKUP"
                   onUploadComplete={orderImages.onUploaded}
                   onError={(msg) => console.error(msg)}
                 />
@@ -726,7 +726,7 @@ export function OrderDetailPage(): JSX.Element {
                   Photos taken during production for quality assurance.
                 </p>
                 <ImageGallery
-                  images={orderImages.images.filter((img) => img.imageType === 'ORDER')}
+                  images={orderImages.images.filter((img) => img.imageType === 'PRODUCTION_PHOTO')}
                   editable
                   onUpload={() => {}}
                   onDelete={orderImages.onDelete}
@@ -738,7 +738,7 @@ export function OrderDetailPage(): JSX.Element {
                 <ImageUploader
                   entityType="order"
                   entityId={order.id}
-                  imageType="ORDER"
+                  imageType="PRODUCTION_PHOTO"
                   onUploadComplete={orderImages.onUploaded}
                   onError={(msg) => console.error(msg)}
                 />

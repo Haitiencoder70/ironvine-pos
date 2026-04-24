@@ -921,7 +921,7 @@ export function AddEditProductPage(): JSX.Element {
             <ImageUploader
               entityType="product"
               entityId={id}
-              imageType="PRODUCT"
+              imageType="PRODUCT_PHOTO"
               onUploadComplete={productImages.onUploaded}
               onError={(msg) => console.error(msg)}
             />
