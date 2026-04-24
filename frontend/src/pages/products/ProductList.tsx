@@ -14,10 +14,10 @@ import {
 import { clsx } from 'clsx';
 import {
   useProducts,
+  useProductCategories,
   useDuplicateProduct,
   useUpdateProduct,
   formatCurrency,
-  PRODUCT_CATEGORIES,
   type Product,
 } from '../../hooks/useProducts';
 import { TouchButton } from '../../components/ui/TouchButton';
@@ -215,6 +215,8 @@ export function ProductListPage(): JSX.Element {
   const { data: productsData, isLoading } = useProducts({
     isActive: statusFilter === 'INACTIVE' ? false : statusFilter === 'ACTIVE' ? true : undefined,
   });
+  const { data: categoriesData } = useProductCategories();
+  const backendCategories = categoriesData?.data ?? [];
   const duplicateProduct = useDuplicateProduct();
   const updateProduct = useUpdateProduct();
   const products = productsData?.data ?? [];
@@ -222,11 +224,11 @@ export function ProductListPage(): JSX.Element {
   // Category counts
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { All: products.length };
-    for (const cat of PRODUCT_CATEGORIES) {
-      counts[cat] = products.filter(p => p.category?.name === cat).length;
+    for (const cat of backendCategories) {
+      counts[cat.name] = products.filter(p => p.category?.name === cat.name).length;
     }
     return counts;
-  }, [products]);
+  }, [products, backendCategories]);
 
   // Filtered & sorted products
   const displayed = useMemo(() => {
@@ -286,7 +288,7 @@ export function ProductListPage(): JSX.Element {
       {/* ── Category Tabs ── */}
       <div className="overflow-x-auto -mx-4 sm:mx-0 pb-1">
         <div className="flex gap-2 px-4 sm:px-0 min-w-max">
-          {['All', ...PRODUCT_CATEGORIES].map(cat => (
+          {['All', ...backendCategories.map(c => c.name)].map(cat => (
             <button
               key={cat}
               type="button"
