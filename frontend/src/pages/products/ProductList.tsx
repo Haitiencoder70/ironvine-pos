@@ -56,10 +56,11 @@ function ProductCard({
 }): JSX.Element {
   const navigate = useNavigate();
 
-  const lowestTierPrice = (product.priceTiers ?? []).reduce(
-    (min, t) => Math.min(min, Number(t.price)),
-    Number(product.basePrice)
-  );
+  const tiers = product.priceTiers ?? [];
+  const sortedTiers = [...tiers].sort((a, b) => a.minQty - b.minQty);
+  const lowestTierPrice = sortedTiers.length > 0
+    ? Number(sortedTiers[0].price)
+    : Number(product.basePrice);
 
   const displayedTiers = (product.priceTiers ?? []).slice(0, 5);
 

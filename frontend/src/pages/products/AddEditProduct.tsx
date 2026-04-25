@@ -187,11 +187,7 @@ export function AddEditProductPage(): JSX.Element {
       availableSizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'],
       basePrice: 18,
       priceTiers: [
-        { minQty: 1,   maxQty: 11,  unitPrice: 18 },
-        { minQty: 12,  maxQty: 24,  unitPrice: 16 },
-        { minQty: 25,  maxQty: 49,  unitPrice: 15 },
-        { minQty: 50,  maxQty: 99,  unitPrice: 13 },
-        { minQty: 100, maxQty: null, unitPrice: 11 },
+        { minQty: 1, maxQty: null, unitPrice: 18 },
       ],
       sizeUpcharges: [
         { size: '2XL', upcharge: 2 },
@@ -214,13 +210,14 @@ export function AddEditProductPage(): JSX.Element {
   const materialArray = useFieldArray({ control, name: 'materialCosts' });
   const addOnArray = useFieldArray({ control, name: 'addOns' });
 
-  // Guard so React Query re-fetches don't overwrite user edits after initial load
-  const formInitialized = useRef(false);
+  // Track which product ID we last initialized from so re-fetches and
+  // navigating between products both work correctly.
+  const formInitialized = useRef<string | null>(null);
 
-  // Load existing product into form — runs once when product first arrives
+  // Load existing product into form — runs once per product ID
   useEffect(() => {
-    if (isEdit && product && !formInitialized.current) {
-      formInitialized.current = true;
+    if (isEdit && product && formInitialized.current !== product.id) {
+      formInitialized.current = product.id;
       reset({
         name:                       product.name,
         description:                product.description ?? '',
