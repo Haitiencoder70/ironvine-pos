@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
+import { logger } from '../../lib/logger';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { ImageUploader } from '../../components/images/ImageUploader';
@@ -923,7 +924,7 @@ export function AddEditProductPage(): JSX.Element {
               entityId={id}
               imageType="PRODUCT_PHOTO"
               onUploadComplete={productImages.onUploaded}
-              onError={(msg) => console.error(msg)}
+              onError={(msg) => logger.error(msg)}
             />
           </div>
         )}

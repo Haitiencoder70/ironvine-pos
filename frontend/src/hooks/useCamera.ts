@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { logger } from '../lib/logger';
 
 export interface UseCameraReturn {
   takePhoto: () => Promise<File | null>;
@@ -65,7 +66,7 @@ export function useCamera(): UseCameraReturn {
         streamRef.current.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
       }
-      console.error('[useCamera] takePhoto error:', err);
+      logger.error('[useCamera] takePhoto error:', err);
       return null;
     }
   }, [isAvailable]);

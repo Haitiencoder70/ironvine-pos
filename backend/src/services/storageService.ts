@@ -1,15 +1,16 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
+import { env } from '../config/env';
 
 // ─── Configuration ────────────────────────────────────────────────────────────────
 
-const S3_BUCKET = process.env.S3_BUCKET;
-const S3_REGION = process.env.S3_REGION || 'us-east-1';
-const S3_ACCESS_KEY = process.env.S3_ACCESS_KEY;
-const S3_SECRET_KEY = process.env.S3_SECRET_KEY;
-const S3_ENDPOINT = process.env.S3_ENDPOINT;
-const S3_PUBLIC_URL = process.env.S3_PUBLIC_URL; // Public CDN URL (e.g. Cloudflare R2 public dev URL)
+const S3_BUCKET = env.S3_BUCKET;
+const S3_REGION = env.S3_REGION;
+const S3_ACCESS_KEY = env.S3_ACCESS_KEY;
+const S3_SECRET_KEY = env.S3_SECRET_KEY;
+const S3_ENDPOINT = env.S3_ENDPOINT;
+const S3_PUBLIC_URL = env.S3_PUBLIC_URL;
 
 if (!S3_BUCKET || !S3_ACCESS_KEY || !S3_SECRET_KEY) {
   logger.error('S3 configuration is missing. Please check S3_BUCKET, S3_ACCESS_KEY, and S3_SECRET_KEY environment variables.');

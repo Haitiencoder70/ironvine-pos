@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '../../lib/logger';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
@@ -709,7 +710,7 @@ export function OrderDetailPage(): JSX.Element {
                   entityId={order.id}
                   imageType="DESIGN_MOCKUP"
                   onUploadComplete={orderImages.onUploaded}
-                  onError={(msg) => console.error(msg)}
+                  onError={(msg) => logger.error(msg)}
                 />
                 <DesignApprovalPanel order={order} />
               </div>
@@ -740,7 +741,7 @@ export function OrderDetailPage(): JSX.Element {
                   entityId={order.id}
                   imageType="PRODUCTION_PHOTO"
                   onUploadComplete={orderImages.onUploaded}
-                  onError={(msg) => console.error(msg)}
+                  onError={(msg) => logger.error(msg)}
                 />
               </div>
             </TouchCard>

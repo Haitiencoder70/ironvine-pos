@@ -3,7 +3,7 @@ import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types';
 import { AppError } from './errorHandler';
 import { logger } from '../lib/logger';
-import { setTenantContext } from '../utils/tenantContext';
+import { runWithTenantContext } from '../utils/tenantContext';
 import { cacheService } from '../services/cacheService';
 
 const ORG_CACHE_TTL = 300; // 5 minutes
@@ -153,9 +153,10 @@ export async function injectTenant(
     }
 
     // Push into AsyncLocalStorage so services can call getCurrentOrganizationId()
-    setTenantContext({ organizationId: req.organizationId!, organizationDbId: req.organizationDbId! });
-
-    next();
+    runWithTenantContext(
+      { organizationId: req.organizationId!, organizationDbId: req.organizationDbId! },
+      next,
+    );
   } catch (error) {
     logger.error('Failed to resolve tenant', { error, hostname: req.hostname });
     next(new AppError(500, 'Failed to resolve organisation.', 'TENANT_ERROR'));

@@ -8,7 +8,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction): Pr
     
     // Attempt to fetch user from DB if synced, otherwise just return the clerk auth payload
     const user = await prisma.user.findUnique({
-      where: { id: authReq.auth.userId },
+      where: { clerkUserId: authReq.auth.userId },
       include: {
         organization: true,
       },

@@ -2,6 +2,7 @@ import { Prisma, InventoryItem, StockMovementType, InventoryCategory } from '@pr
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { emitToOrg } from '../lib/socket';
+import { getCurrentOrganizationId } from '../utils/tenantContext';
 import { AppError } from '../middleware/errorHandler';
 import { sendLowStockAlertEmail } from './notificationService';
 import type {
@@ -138,7 +139,7 @@ export async function adjustStock(input: AdjustStockInput): Promise<InventoryIte
 
     // Emit a low-stock event if the stock falls below the reorder point
     if (updated.quantityOnHand <= updated.reorderPoint) {
-      emitToOrg(organizationId, 'inventory:low-stock', updated);
+      emitToOrg(getCurrentOrganizationId(), 'inventory:low-stock', updated);
       void sendLowStockAlertEmail(organizationId, updated.name, updated.quantityOnHand, updated.reorderPoint);
     }
 

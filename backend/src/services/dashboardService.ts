@@ -156,43 +156,44 @@ export async function getProfitStats(
 }
 
 export async function getProfitTrend(organizationId: string, months = 6) {
-  const results: Array<{ month: string; revenue: number; costs: number; profit: number }> = [];
   const now = new Date();
 
-  for (let i = months - 1; i >= 0; i--) {
-    const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59, 999);
+  const results = await Promise.all(
+    Array.from({ length: months }, (_, idx) => months - 1 - idx).map(async (i) => {
+      const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59, 999);
 
-    const [revenueResult, costRows] = await Promise.all([
-      prisma.order.aggregate({
-        where: {
-          organizationId,
-          createdAt: { gte: start, lte: end },
-          status: { notIn: ['CANCELLED'] as OrderStatus[] },
-        },
-        _sum: { total: true },
-      }),
-      prisma.$queryRaw<Array<{ totalCost: string }>>`
-        SELECT COALESCE(SUM(mu."quantityUsed" * ii."costPrice"), 0)::text AS "totalCost"
-        FROM material_usage mu
-        JOIN inventory_items ii ON ii.id = mu."inventoryItemId"
-        JOIN orders o ON o.id = mu."orderId"
-        WHERE mu."organizationId" = ${organizationId}
-          AND o."createdAt" >= ${start}
-          AND o."createdAt" <= ${end}
-          AND o.status != 'CANCELLED'
-      `,
-    ]);
+      const [revenueResult, costRows] = await Promise.all([
+        prisma.order.aggregate({
+          where: {
+            organizationId,
+            createdAt: { gte: start, lte: end },
+            status: { notIn: ['CANCELLED'] as OrderStatus[] },
+          },
+          _sum: { total: true },
+        }),
+        prisma.$queryRaw<Array<{ totalCost: string }>>`
+          SELECT COALESCE(SUM(mu."quantityUsed" * ii."costPrice"), 0)::text AS "totalCost"
+          FROM material_usage mu
+          JOIN inventory_items ii ON ii.id = mu."inventoryItemId"
+          JOIN orders o ON o.id = mu."orderId"
+          WHERE mu."organizationId" = ${organizationId}
+            AND o."createdAt" >= ${start}
+            AND o."createdAt" <= ${end}
+            AND o.status != 'CANCELLED'
+        `,
+      ]);
 
-    const revenue = Number(revenueResult._sum.total ?? 0);
-    const costs = Number(costRows[0]?.totalCost ?? 0);
-    results.push({
-      month: start.toLocaleString('en-US', { month: 'short', year: 'numeric' }),
-      revenue,
-      costs,
-      profit: revenue - costs,
-    });
-  }
+      const revenue = Number(revenueResult._sum.total ?? 0);
+      const costs = Number(costRows[0]?.totalCost ?? 0);
+      return {
+        month: start.toLocaleString('en-US', { month: 'short', year: 'numeric' }),
+        revenue,
+        costs,
+        profit: revenue - costs,
+      };
+    }),
+  );
 
   return results;
 }

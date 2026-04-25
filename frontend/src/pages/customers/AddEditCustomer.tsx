@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { logger } from '../../lib/logger';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -160,7 +161,7 @@ export function AddEditCustomerPage(): JSX.Element {
         navigate(`/customers/${res.data.id}`);
       }
     } catch (err) {
-      console.error('Customer submission failed:', err);
+      logger.error('Customer submission failed:', err);
       // The hook's onError handles the toast, but we catch here to prevent navigation
     }
   };

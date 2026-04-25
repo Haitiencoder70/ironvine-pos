@@ -3,11 +3,13 @@ import { openDB } from 'idb';
 import { useOfflineStore } from '../store/offlineStore';
 import { getApiToken } from '../lib/api';
 import toast from 'react-hot-toast';
+import { logger } from '../lib/logger';
 
 const DB_NAME = 'ironvine-pos-offline';
 const STORE_NAME = 'mutation-queue';
 const DB_VERSION = 1;
 const BASE_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? 'http://localhost:3001';
+const MAX_RETRY_COUNT = 5;
 
 export interface QueuedMutation {
   id: string;
@@ -63,7 +65,7 @@ export const offlineSync = {
    */
   async sync(): Promise<void> {
     if (!navigator.onLine) {
-      console.debug('[offlineSync] Sync aborted: navigator.onLine is false');
+      logger.debug('[offlineSync] Sync aborted: navigator.onLine is false');
       return;
     }
 
@@ -72,7 +74,7 @@ export const offlineSync = {
 
     if (queue.length === 0) return;
 
-    console.debug(`[offlineSync] Attempting to sync ${queue.length} mutations...`);
+    logger.debug(`[offlineSync] Attempting to sync ${queue.length} mutations...`);
 
     // Sort by timestamp to preserve order of operations
     const sortedQueue = queue.sort((a: QueuedMutation, b: QueuedMutation) => a.timestamp - b.timestamp);
@@ -96,17 +98,17 @@ export const offlineSync = {
 
         // Success: Remove from queue
         await db.delete(STORE_NAME, mutation.id);
-        console.debug(`[offlineSync] Successfully synced mutation ${mutation.id}`);
+        logger.debug(`[offlineSync] Successfully synced mutation ${mutation.id}`);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
-        console.error(`[offlineSync] Sync failed for mutation ${mutation.id}:`, message);
+        logger.error(`[offlineSync] Sync failed for mutation ${mutation.id}:`, message);
 
         // Increment retry count
         const updated = { ...mutation, retryCount: mutation.retryCount + 1 };
         await db.put(STORE_NAME, updated);
 
-        if (updated.retryCount >= 5) {
-          console.error(`[offlineSync] Mutation ${mutation.id} failed too many times. Removing from queue.`);
+        if (updated.retryCount >= MAX_RETRY_COUNT) {
+          logger.error(`[offlineSync] Mutation ${mutation.id} failed too many times. Removing from queue.`);
           await db.delete(STORE_NAME, mutation.id);
         }
       }
@@ -132,7 +134,7 @@ export const offlineSync = {
 // Listen for online event to trigger sync automatically
 if (typeof window !== 'undefined') {
   window.addEventListener('online', async () => {
-    console.debug('[offlineSync] Window online event detected. Triggering sync...');
+    logger.debug('[offlineSync] Window online event detected. Triggering sync...');
     // setOnline(true) is handled by offlineStore.ts — avoid double-calling
     await offlineSync.sync();
   });

@@ -2,6 +2,7 @@ import { Prisma, Order, OrderStatus, OrderItem, OrderPriority, StockMovementType
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { emitToOrg } from '../lib/socket';
+import { getCurrentOrganizationId } from '../utils/tenantContext';
 import { AppError } from '../middleware/errorHandler';
 import { generateOrderNumber } from '../utils/generators';
 import { sendOrderStatusEmail, sendOrderReadySMS } from './notificationService';
@@ -167,7 +168,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
   }) as Order & { items: OrderItem[] };
 
   logger.info('Order created', { orderId: order.id, orderNumber: order.orderNumber, organizationId });
-  emitToOrg(organizationId, 'order:created', order);
+  emitToOrg(getCurrentOrganizationId(), 'order:created', order);
   return order;
 }
 
@@ -265,7 +266,7 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
   });
 
   logger.info('Order status updated', { orderId, from: order.status, to: newStatus });
-  emitToOrg(organizationId, 'order:status-changed', updated);
+  emitToOrg(getCurrentOrganizationId(), 'order:status-changed', updated);
 
   // Send notifications sequentially after commit to ensure integrity
   if (order.customer?.email) {
@@ -435,7 +436,7 @@ export async function updateOrder(input: UpdateOrderInput): Promise<Order> {
   });
 
   logger.info('Order updated', { orderId, organizationId });
-  emitToOrg(organizationId, 'order:updated', updated);
+  emitToOrg(getCurrentOrganizationId(), 'order:updated', updated);
   return updated;
 }
 
