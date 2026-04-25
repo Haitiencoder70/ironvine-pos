@@ -29,9 +29,12 @@ function OrderItemRow({
   const { watch } = useFormContext<NewOrderFormValues>();
   const [expanded, setExpanded] = useState(false);
 
-  const item = watch(`items.${index}`) as OrderItemFormValues;
-  const config: ConfiguredOrderItem | undefined = item._configured;
-  const lineTotal = config?.lineTotal ?? (item.quantity * item.unitPrice);
+  const item = watch(`items.${index}`) as OrderItemFormValues | undefined;
+  const config: ConfiguredOrderItem | undefined = item?._configured;
+  const lineTotal = config?.lineTotal ?? ((item?.quantity ?? 0) * (item?.unitPrice ?? 0));
+
+  // Guard: during AnimatePresence exit the form field is already removed
+  if (!item) return <div />;
 
   return (
     <motion.div

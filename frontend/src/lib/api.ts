@@ -135,7 +135,12 @@ api.interceptors.response.use(
         } else if (error.response.status === 400 && data.code === 'VALIDATION_ERROR') {
           toast.error('Please check your inputs for errors.', { id: 'api-validation' });
         } else if (error.response.status === 401 || error.response.status === 403) {
-          toast.error(`Auth Error: ${data.code} - ${data.error}`, { id: 'api-auth', duration: 8000 });
+          // Don't toast on auth/invite pages — 401s are expected there and the
+          // routing (ProtectedRoute / InviteAcceptPage) already handles them.
+          const onAuthPage = /^\/(sign-in|sign-up|signup|invite)/.test(window.location.pathname);
+          if (!onAuthPage) {
+            toast.error(`Auth Error: ${data.code} - ${data.error}`, { id: 'api-auth', duration: 8000 });
+          }
         } else if (error.response.status === 409) {
           toast.error(data.error || 'A record with this information already exists.', { id: 'api-conflict' });
         } else if (error.response.status === 404) {
