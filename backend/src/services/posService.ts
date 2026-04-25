@@ -148,13 +148,26 @@ export async function getProducts(
     orderBy: { name: 'asc' },
   });
 
+  // Fetch primary images from the image management system (one extra query)
+  const productIds = items.map((p) => p.id);
+  const primaryImages = await prisma.image.findMany({
+    where: {
+      organizationId: orgId,
+      entityType: 'product',
+      entityId: { in: productIds },
+      isPrimary: true,
+    },
+    select: { entityId: true, url: true, thumbnailUrl: true },
+  });
+  const imageMap = new Map(primaryImages.map((img) => [img.entityId, img.thumbnailUrl ?? img.url]));
+
   return items.map((item) => ({
     id: item.id,
     name: item.name,
     sku: item.sku ?? null,
     categoryName: item.category.name,
     basePrice: Number(item.basePrice),
-    image: item.image ?? null,
+    image: imageMap.get(item.id) ?? item.image ?? null,
     garmentType: item.garmentType,
     printMethod: item.printMethod,
     priceTiers: item.priceTiers as Array<{ minQty: number; price: number }> | null,
