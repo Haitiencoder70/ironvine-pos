@@ -30,6 +30,7 @@ const ReportsPageRouter  = lazy(() => import('@/pages/Reports').then(m => ({ def
 const SettingsPageRouter = lazy(() => import('@/pages/Settings').then(m => ({ default: m.SettingsPageRouter })));
 const POSPage          = lazy(() => import('@/pages/POS').then(m => ({ default: m.POSPage })));
 const SignInPage       = lazy(() => import('@/pages/SignIn').then(m => ({ default: m.SignInPage })));
+const InviteAcceptPage = lazy(() => import('@/pages/InviteAccept').then(m => ({ default: m.InviteAcceptPage })));
 const ProductListPage  = lazy(() => import('@/pages/products/ProductList').then(m => ({ default: m.ProductListPage })));
 const ProductDetailPage = lazy(() => import('@/pages/products/ProductDetail').then(m => ({ default: m.ProductDetailPage })));
 const AddEditProductPage = lazy(() => import('@/pages/products/AddEditProduct').then(m => ({ default: m.AddEditProductPage })));
@@ -50,6 +51,7 @@ const mainDomainRouter = createBrowserRouter([
   { path: '/pricing', element: <Suspense fallback={<PageFallback />}><PricingPage /></Suspense> },
   { path: '/signup',  element: <Suspense fallback={<PageFallback />}><OrganizationSignup /></Suspense> },
   { path: '/sign-in/*', element: <Suspense fallback={<PageFallback />}><SignInPage /></Suspense> },
+  { path: '/invite/accept', element: <Suspense fallback={<PageFallback />}><InviteAcceptPage /></Suspense> },
   // After Clerk redirects to /dashboard on localhost (no subdomain), send user to signup flow
   { path: '/dashboard', element: <Navigate to="/signup" replace /> },
   { path: '*',       element: <Navigate to="/" replace /> },
@@ -60,6 +62,10 @@ const appRouter = createBrowserRouter([
   {
     path: '/sign-in/*',
     element: <Suspense fallback={<PageFallback />}><SignInPage /></Suspense>,
+  },
+  {
+    path: '/invite/accept',
+    element: <Suspense fallback={<PageFallback />}><InviteAcceptPage /></Suspense>,
   },
   {
     // Support both /signup and /sign-up (Clerk uses the hyphenated version)

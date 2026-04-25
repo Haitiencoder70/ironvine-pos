@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { requireRole } from '../middleware/auth';
+import { requireRole, clerkAuth } from '../middleware/auth';
 import {
   getCurrent,
   update,
@@ -28,7 +28,7 @@ const inviteLimiter = rateLimit({
 // Mounted before clerkAuth in app.ts so unauthenticated invite-accept pages work.
 export const publicInviteRouter = Router();
 publicInviteRouter.get('/invites/:token',  inviteLimiter, getInviteDetails);
-publicInviteRouter.post('/invites/accept', inviteLimiter, acceptInviteHandler);
+publicInviteRouter.post('/invites/accept', inviteLimiter, clerkAuth, acceptInviteHandler);
 
 // ─── Authenticated router ─────────────────────────────────────────────────────
 export const organizationRouter = Router();
