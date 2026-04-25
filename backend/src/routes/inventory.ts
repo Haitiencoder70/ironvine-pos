@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { checkInventoryLimit } from '../middleware/usage';
+import { checkInventoryLimit, checkTrialExpiry } from '../middleware/usage';
 import { validate } from '../middleware/validate';
 import { authorize } from '../middleware/authorize';
 import {
@@ -29,7 +29,7 @@ export const inventoryRouter = Router();
 inventoryRouter.get('/', authorize('inventory:view'), validate(listInventoryQuerySchema, 'query'), getAll);
 
 // ─── Create Inventory Item ────────────────────────────────────────────────────
-inventoryRouter.post('/', authorize('inventory:create'), checkInventoryLimit, validate(createInventoryItemSchema), create);
+inventoryRouter.post('/', authorize('inventory:create'), checkTrialExpiry, checkInventoryLimit, validate(createInventoryItemSchema), create);
 
 // ─── Low Stock Alert Items ────────────────────────────────────────────────────
 // IMPORTANT: Must be registered BEFORE /:id to avoid Express treating "low-stock" as an ID

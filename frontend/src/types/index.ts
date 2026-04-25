@@ -8,6 +8,7 @@ export interface Organization {
   plan: 'FREE' | 'PRO' | 'ENTERPRISE';
   subscriptionStatus: string | null;
   logoUrl?: string;
+  trialEndsAt?: string | null;
   taxRate?: number;
   orderNumberPrefix?: string;
   currency?: string;

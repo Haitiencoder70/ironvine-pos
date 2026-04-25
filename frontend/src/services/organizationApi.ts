@@ -36,7 +36,7 @@ export const organizationApi = {
     api.post<{ organizationId: string; checkoutUrl?: string }>('/organizations', data).then((r) => r.data),
 
   getOrganization: () =>
-    api.get<{ data: { id: string; name: string; slug: string; plan: string; logoUrl?: string | null } }>('/organization/me').then((r) => r.data.data),
+    api.get<{ data: { id: string; name: string; slug: string; plan: string; logoUrl?: string | null; trialEndsAt?: string | null } }>('/organization/me').then((r) => r.data.data),
 
   updateOrganization: (data: Partial<Pick<OrgCreatePayload, 'name' | 'slug' | 'industry'>>) =>
     api.patch('/organization/me', data).then((r) => r.data),

@@ -8,6 +8,7 @@ import { BottomNav } from '../mobile/BottomNav';
 import { Omnibar } from '../ui/Omnibar';
 import { OfflineBanner } from '../ui/OfflineBanner';
 import { PlanLimitBanner } from '../PlanLimitBanner';
+import { TrialBanner } from '../TrialBanner';
 import { UpgradeModal } from '../UpgradeModal';
 import { useUiStore } from '../../store/uiStore';
 import { useSwipeBack } from '../../hooks/useSwipeBack';
@@ -91,6 +92,7 @@ export function MainLayout(): React.JSX.Element {
       {/* ── Main content area ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <TopBar />
+        <TrialBanner />
         <PlanLimitBanner />
 
         {/* Scrollable page content — extra bottom padding on mobile for bottom nav */}

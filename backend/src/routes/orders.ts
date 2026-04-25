@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { checkOrderLimit } from '../middleware/usage';
+import { checkOrderLimit, checkTrialExpiry } from '../middleware/usage';
 import { validate } from '../middleware/validate';
 import { authorize } from '../middleware/authorize';
 import {
@@ -31,7 +31,7 @@ export const ordersRouter = Router();
 ordersRouter.get('/', authorize('orders:view'), validate(listOrdersQuerySchema, 'query'), getAll);
 
 // ─── Create Order ─────────────────────────────────────────────────────────────
-ordersRouter.post('/', authorize('orders:create'), checkOrderLimit, validate(createOrderSchema), create);
+ordersRouter.post('/', authorize('orders:create'), checkTrialExpiry, checkOrderLimit, validate(createOrderSchema), create);
 
 // ─── Get Order ────────────────────────────────────────────────────────────────
 ordersRouter.get('/:id', authorize('orders:view'), getById);

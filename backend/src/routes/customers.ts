@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { validate } from '../middleware/validate';
 import { authorize } from '../middleware/authorize';
-import { checkCustomerLimit } from '../middleware/usage';
+import { checkCustomerLimit, checkTrialExpiry } from '../middleware/usage';
 import {
   getAll,
   getById,
@@ -29,7 +29,7 @@ customersRouter.get('/', authorize('customers:view'), validate(listCustomersQuer
 customersRouter.get('/:id', authorize('customers:view'), getById);
 
 // ─── Create Customer ──────────────────────────────────────────────────────────
-customersRouter.post('/', authorize('customers:create'), checkCustomerLimit, validate(createCustomerSchema), create);
+customersRouter.post('/', authorize('customers:create'), checkTrialExpiry, checkCustomerLimit, validate(createCustomerSchema), create);
 
 // ─── Update Customer ──────────────────────────────────────────────────────────
 customersRouter.patch('/:id', authorize('customers:edit'), validate(updateCustomerSchema), update);

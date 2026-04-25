@@ -86,6 +86,42 @@ function buildChecker(
 }
 
 /**
+ * Middleware: reject with 402 if the org is on the FREE plan and the 14-day
+ * trial has expired. Apply before any mutation route on the FREE plan.
+ */
+export async function checkTrialExpiry(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): Promise<void> {
+  const orgDbId = req.organizationDbId;
+  if (!orgDbId) return next(new AppError(500, 'Organisation context missing.', 'NO_ORG'));
+
+  try {
+    const org = await prisma.organization.findUnique({
+      where: { id: orgDbId },
+      select: { plan: true, trialEndsAt: true },
+    });
+    if (!org) return next(new AppError(404, 'Organisation not found.', 'ORG_NOT_FOUND'));
+
+    if (org.plan === 'FREE' && org.trialEndsAt && org.trialEndsAt < new Date()) {
+      return next(
+        new AppError(
+          402,
+          'Your 14-day free trial has expired. Please upgrade your plan to continue.',
+          'TRIAL_EXPIRED',
+        ),
+      );
+    }
+
+    next();
+  } catch (error) {
+    logger.error('Failed to check trial expiry', { error, orgDbId });
+    next(new AppError(500, 'Failed to enforce trial limits.', 'TRIAL_CHECK_ERROR'));
+  }
+}
+
+/**
  * Middleware: reject with 402 if the org has reached its user seat limit.
  * Apply before the "create user / accept invite" handler.
  */

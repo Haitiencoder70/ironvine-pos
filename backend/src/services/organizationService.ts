@@ -103,6 +103,10 @@ export async function createOrganization(input: CreateOrganizationInput): Promis
   }
 
   const { organization, owner } = await prisma.$transaction(async (tx) => {
+    const trialEndsAt = plan === 'FREE'
+      ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+      : null;
+
     const org = await tx.organization.create({
       data: {
         clerkOrgId,
@@ -110,6 +114,7 @@ export async function createOrganization(input: CreateOrganizationInput): Promis
         slug,
         subdomain: slug,
         plan,
+        ...(trialEndsAt && { trialEndsAt }),
       },
     });
 
