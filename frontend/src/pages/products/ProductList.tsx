@@ -74,11 +74,14 @@ function ProductCard({
     >
       {/* Card Header */}
       <div className="flex items-start gap-3 p-4 pb-3">
-        <div
-          className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+        <div className="flex-shrink-0 w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center"
           style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)' }}
         >
-          👕
+          {product.primaryImage ? (
+            <img src={product.primaryImage} alt={product.name} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-xl">👕</span>
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">

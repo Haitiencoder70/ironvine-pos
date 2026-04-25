@@ -173,7 +173,7 @@ export async function getProducts(
       : {}),
   };
 
-  return prisma.product.findMany({
+  const products = await prisma.product.findMany({
     where,
     orderBy: [{ category: { displayOrder: 'asc' } }, { name: 'asc' }],
     include: {
@@ -181,6 +181,15 @@ export async function getProducts(
       addOns: { where: { isActive: true } },
     },
   });
+
+  const productIds = products.map((p) => p.id);
+  const primaryImages = await prisma.image.findMany({
+    where: { organizationId, entityType: 'product', entityId: { in: productIds }, isPrimary: true },
+    select: { entityId: true, url: true, thumbnailUrl: true },
+  });
+  const imageMap = new Map(primaryImages.map((img) => [img.entityId, img.thumbnailUrl ?? img.url]));
+
+  return products.map((p) => ({ ...p, primaryImage: imageMap.get(p.id) ?? null }));
 }
 
 export async function getProductById(organizationId: string, productId: string) {

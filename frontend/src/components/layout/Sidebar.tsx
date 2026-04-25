@@ -73,7 +73,7 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JSX.Element {
   const { setSidebarOpen } = useUiStore();
-  const { user } = useAuthStore();
+  const { user, organization } = useAuthStore();
   const { signOut } = useClerk();
   const { canAny } = usePermissions();
   const location = useLocation();
@@ -120,15 +120,26 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
         collapsed ? 'px-0 justify-center' : 'px-4'
       )}>
         {/* Logo mark */}
-        <div
-          className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-[11px] tracking-widest"
-          style={{
-            background: 'linear-gradient(145deg, #2563eb 0%, #1d4ed8 50%, #3730a3 100%)',
-            boxShadow: '0 0 20px rgba(59,130,246,0.45), 0 0 40px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.25)',
-          }}
-        >
-          IV
-        </div>
+        {organization?.logoUrl ? (
+          <img
+            src={organization.logoUrl}
+            alt={organization.name}
+            className={clsx(
+              'flex-shrink-0 object-contain rounded-lg bg-white',
+              collapsed ? 'w-8 h-8' : 'w-8 h-8'
+            )}
+          />
+        ) : (
+          <div
+            className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-[11px] tracking-widest"
+            style={{
+              background: 'linear-gradient(145deg, #2563eb 0%, #1d4ed8 50%, #3730a3 100%)',
+              boxShadow: '0 0 20px rgba(59,130,246,0.45), 0 0 40px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.25)',
+            }}
+          >
+            {organization?.name?.[0]?.toUpperCase() ?? 'IV'}
+          </div>
+        )}
 
         <AnimatePresence initial={false}>
           {!collapsed && (
@@ -139,19 +150,29 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
               transition={{ duration: 0.22 }}
               className="overflow-hidden ml-3 flex-1"
             >
-              <div className="flex items-baseline gap-1.5 whitespace-nowrap">
-                <span className="font-bold text-white text-[15px] tracking-tight">IronVine</span>
-                <span
-                  className="font-light text-[13px] tracking-tight"
-                  style={{
-                    background: 'linear-gradient(90deg, #60a5fa, #818cf8)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  POS
-                </span>
-              </div>
+              {organization?.logoUrl ? (
+                <img
+                  src={organization.logoUrl}
+                  alt={organization.name}
+                  className="h-7 max-w-[160px] object-contain object-left"
+                />
+              ) : (
+                <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                  <span className="font-bold text-white text-[15px] tracking-tight">
+                    {organization?.name ?? 'IronVine'}
+                  </span>
+                  <span
+                    className="font-light text-[13px] tracking-tight"
+                    style={{
+                      background: 'linear-gradient(90deg, #60a5fa, #818cf8)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
+                  >
+                    POS
+                  </span>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
