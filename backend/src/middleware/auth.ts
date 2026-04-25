@@ -98,6 +98,7 @@ export async function requireAuth(
               role:                role as 'OWNER' | 'MANAGER' | 'STAFF',
               isActive:            true,
               isOrganizationOwner: auth.orgRole === 'org:admin',
+              inviteAccepted:      true,
               organizationId:      orgDbId,
             },
           });
@@ -113,13 +114,16 @@ export async function requireAuth(
     }
   }
 
-  if (!auth.orgId) {
+  // If the tenant was resolved via subdomain, auth.orgId may be absent from
+  // the Clerk JWT (user hasn't set an active org in their session yet).
+  // The subdomain check already verified membership so this is safe to allow.
+  if (!auth.orgId && !req.organizationDbId) {
     return next(new AppError(401, 'No organisation context found.', 'NO_ORG_CONTEXT'));
   }
 
   (req as AuthenticatedRequest).auth = {
     userId:  auth.userId,
-    orgId:   auth.orgId,
+    orgId:   auth.orgId ?? '',
     orgRole: auth.orgRole ?? '',
   };
 
