@@ -716,7 +716,7 @@ export function NewOrderPage(): JSX.Element {
 
       {/* Step Content */}
       <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div>
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
@@ -768,18 +768,19 @@ export function NewOrderPage(): JSX.Element {
             ) : (
               <TouchButton
                 id="new-order-submit"
-                type="submit"
+                type="button"
                 variant="success"
                 size="lg"
                 loading={createOrder.isPending}
                 disabled={createOrder.isPending || !can('orders:create')}
                 icon={<CheckCircleIcon className="h-5 w-5" />}
+                onClick={handleSubmit(onSubmit)}
               >
                 {createOrder.isPending ? 'Creating Order…' : 'Create Order'}
               </TouchButton>
             )}
           </div>
-        </form>
+        </div>
       </FormProvider>
 
       {/* Unsaved changes indicator */}
