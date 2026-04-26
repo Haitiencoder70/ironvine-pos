@@ -52,10 +52,15 @@ export async function requireAuth(
     return next(new AppError(401, 'Authentication required.', 'UNAUTHENTICATED'));
   }
 
-  // Skip orgId check when the tenant was already resolved via subdomain/header.
-  // injectTenant already verified the org exists; orgId in the JWT is optional
-  // in that case (user may not have an active org set in their Clerk session).
-  if (!auth.orgId && !req.organizationDbId) {
+  // Skip the orgId requirement when the request carries a subdomain hint.
+  // injectTenant (which runs after this) will resolve the org from the
+  // X-Organization-Slug header or the request hostname, so a missing orgId
+  // in the Clerk JWT is acceptable in that case.
+  const subdomainHint =
+    (req.headers['x-organization-slug'] as string | undefined) ||
+    req.hostname.split('.')[0];
+
+  if (!auth.orgId && !req.organizationDbId && !subdomainHint) {
     return next(new AppError(403, 'Organisation context required.', 'NO_ORG_CONTEXT'));
   }
 
