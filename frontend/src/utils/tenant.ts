@@ -30,7 +30,7 @@ export function getCurrentSubdomain(): string | null {
   if (hostname.endsWith(`.${APP_DOMAIN}`)) {
     const sub = hostname.slice(0, hostname.length - APP_DOMAIN.length - 1);
     // Reject known non-org subdomains
-    if (['www', 'app', 'api', 'staging', 'mail', 'pos'].includes(sub)) return null;
+    if (['www', 'app', 'api', 'staging', 'mail'].includes(sub)) return null;
     return sub || null;
   }
 
