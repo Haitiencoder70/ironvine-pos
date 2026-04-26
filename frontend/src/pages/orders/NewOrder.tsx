@@ -21,11 +21,13 @@ import { CustomerSearch } from '../../components/customers/CustomerSearch';
 import { OrderItemsEditor } from '../../components/orders/OrderItemsEditor';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { useQuery } from '@tanstack/react-query';
 import { useCreateOrder } from '../../hooks/useOrders';
 import { useCustomer } from '../../hooks/useCustomers';
 import { useOfflineStore } from '../../store/offlineStore';
 import { usePlanLimits } from '../../hooks/usePlanLimits';
 import { usePermissions } from '../../hooks/usePermissions';
+import { settingsApi } from '../../services/api';
 import type { JSX } from 'react';
 import type { Customer, OrderPriority, PrintLocation, PrintMethod } from '../../types';
 
@@ -88,8 +90,6 @@ const STEPS = [
   { id: 2, label: 'Items', icon: ListBulletIcon },
   { id: 3, label: 'Review', icon: CheckCircleIcon },
 ] as const;
-
-const TAX_RATE = 0.0825;
 
 const PRIORITY_OPTIONS: { value: OrderPriority; label: string; color: string }[] = [
   { value: 'NORMAL', label: 'Normal', color: 'border-gray-200 bg-white text-gray-700' },
@@ -354,14 +354,15 @@ function Step2Items() {
 interface Step3ReviewProps {
   selectedCustomer: Customer | null;
   formValues: NewOrderFormValues;
+  taxRate: number;
 }
 
-function Step3Review({ selectedCustomer, formValues }: Step3ReviewProps) {
+function Step3Review({ selectedCustomer, formValues, taxRate }: Step3ReviewProps) {
   const subtotal = formValues.items.reduce(
     (sum, item) => sum + (item._configured?.lineTotal ?? (item.quantity ?? 0) * (item.unitPrice ?? 0)),
     0
   );
-  const tax = subtotal * TAX_RATE;
+  const tax = subtotal * taxRate;
   const total = subtotal + tax;
 
   return (
@@ -471,7 +472,7 @@ function Step3Review({ selectedCustomer, formValues }: Step3ReviewProps) {
           <span>{fmt(subtotal)}</span>
         </div>
         <div className="flex justify-between text-sm text-gray-600">
-          <span>Tax (8.25%)</span>
+          <span>Tax ({(taxRate * 100).toFixed(2).replace(/\.00$/, '')}%)</span>
           <span>{fmt(tax)}</span>
         </div>
         <div className="border-t border-gray-200 pt-2 flex justify-between text-base font-bold text-gray-900">
@@ -498,6 +499,12 @@ export function NewOrderPage(): JSX.Element {
   const { can } = usePermissions();
 
   const { data: preselectedCustomerData } = useCustomer(preselectedCustomerId);
+  const { data: orgSettings } = useQuery({
+    queryKey: ['settings', 'org'],
+    queryFn: () => settingsApi.getOrg(),
+    staleTime: 5 * 60 * 1000,
+  });
+  const orgTaxRate = orgSettings?.data?.taxRate ?? 0;
 
   const methods = useForm<NewOrderFormValues>({
     resolver: zodResolver(newOrderSchema),
@@ -536,6 +543,7 @@ export function NewOrderPage(): JSX.Element {
     watch,
     setValue,
     trigger,
+    reset,
     formState: { isDirty },
   } = methods;
 
@@ -670,6 +678,7 @@ export function NewOrderPage(): JSX.Element {
 
       const result = await createOrder.mutateAsync(payload);
       localStorage.removeItem(LS_KEY);
+      reset();
 
       confetti({
         particleCount: 100,
@@ -734,7 +743,7 @@ export function NewOrderPage(): JSX.Element {
               )}
               {currentStep === 2 && <Step2Items />}
               {currentStep === 3 && (
-                <Step3Review selectedCustomer={selectedCustomer} formValues={formValues} />
+                <Step3Review selectedCustomer={selectedCustomer} formValues={formValues} taxRate={orgTaxRate} />
               )}
             </motion.div>
           </AnimatePresence>

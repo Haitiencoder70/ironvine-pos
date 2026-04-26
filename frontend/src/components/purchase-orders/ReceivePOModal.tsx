@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -69,6 +69,26 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
     control,
     name: 'items',
   });
+
+  // Re-populate form whenever the modal opens or PO data changes.
+  // defaultValues only runs once on mount; if po loads after mount the form
+  // starts with items:[] and onSubmit silently returns early.
+  useEffect(() => {
+    if (open && po) {
+      reset({
+        notes: '',
+        items: po.items.map(item => ({
+          purchaseOrderItemId: item.id,
+          inventoryItemId: item.inventoryItemId,
+          description: item.description,
+          ordered: item.quantity,
+          received: item.quantityRecv,
+          quantityReceived: Math.max(0, item.quantity - item.quantityRecv),
+          notes: '',
+        })),
+      });
+    }
+  }, [open, po, reset]);
 
   const onSubmit = async (data: ReceivePOValues) => {
     if (!po) return;

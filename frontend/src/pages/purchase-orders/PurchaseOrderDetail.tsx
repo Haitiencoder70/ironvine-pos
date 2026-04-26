@@ -261,7 +261,7 @@ export function PurchaseOrderDetailPage(): JSX.Element {
                             </span>
                           </td>
                           <td className="px-4 py-3 text-right text-gray-500 font-mono">{fmt(item.unitCost)}</td>
-                          <td className="px-4 py-3 text-right text-gray-900 font-bold font-mono">{fmt(item.totalCost)}</td>
+                          <td className="px-4 py-3 text-right text-gray-900 font-bold font-mono">{fmt((item.totalCost ?? 0) || item.unitCost * item.quantity)}</td>
                         </tr>
                       );
                     })}
