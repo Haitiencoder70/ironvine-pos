@@ -100,14 +100,44 @@ export async function injectTenant(
       }
 
       if (!org) {
-        logger.warn('Tenant not found for subdomain', { subdomain, hostname: req.hostname });
-        return next(
-          new AppError(
-            404,
-            `No organisation found for subdomain "${subdomain}". ` +
-              'Please check the URL or contact support.',
-            'TENANT_NOT_FOUND',
-          ),
+        // Subdomain not matched — fall back to Clerk orgId and stamp the
+        // subdomain onto the org so future requests resolve via Path 1.
+        if (!authReq.auth?.orgId) {
+          logger.warn('Tenant not found for subdomain and no Clerk orgId', { subdomain, hostname: req.hostname });
+          return next(
+            new AppError(
+              404,
+              `No organisation found for subdomain "${subdomain}". ` +
+                'Please check the URL or contact support.',
+              'TENANT_NOT_FOUND',
+            ),
+          );
+        }
+
+        const fallbackOrg = await prisma.organization.upsert({
+          where:  { clerkOrgId: authReq.auth.orgId },
+          update: { subdomain },
+          create: {
+            clerkOrgId: authReq.auth.orgId,
+            name:       authReq.auth.orgId,
+            slug:       authReq.auth.orgId,
+            subdomain,
+            plan:       'FREE',
+          },
+          select: { id: true, clerkOrgId: true },
+        });
+
+        logger.info('Stamped subdomain onto org via Clerk fallback', {
+          subdomain,
+          orgId: fallbackOrg.id,
+          clerkOrgId: authReq.auth.orgId,
+        });
+
+        req.organizationId   = fallbackOrg.clerkOrgId ?? authReq.auth.orgId;
+        req.organizationDbId = fallbackOrg.id;
+        return runWithTenantContext(
+          { organizationId: req.organizationId!, organizationDbId: req.organizationDbId! },
+          next,
         );
       }
 
