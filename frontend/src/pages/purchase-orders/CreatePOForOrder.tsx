@@ -205,9 +205,11 @@ export function CreatePOPage(): JSX.Element {
   useEffect(() => {
     if (materialPool.length === 0) return;
 
+    // null inventoryItemId (from Prisma nullable field) must become undefined
+    // so Zod's z.string().optional() doesn't reject it on submit.
     const toFormItems = (items: PoolItem[]) =>
       items.map(item => ({
-        inventoryItemId: item.inventoryItemId,
+        inventoryItemId: item.inventoryItemId ?? undefined,
         description: item.description,
         quantity: item.quantity,
         unitCost: item.unitCost,
@@ -220,7 +222,6 @@ export function CreatePOPage(): JSX.Element {
 
     const vendor = vendors.find(v => v.id === selectedVendorId);
     if (!vendor || vendor.categories.length === 0) {
-      // Vendor has no categories — show everything
       setValue('items', toFormItems(materialPool));
       return;
     }
@@ -242,6 +243,12 @@ export function CreatePOPage(): JSX.Element {
       item => item.materialCategory && !inventoryCats.includes(item.materialCategory)
     );
   }, [selectedVendorId, vendors, materialPool]);
+
+  const selectedVendor = useMemo(
+    () => vendors.find(v => v.id === selectedVendorId),
+    [selectedVendorId, vendors],
+  );
+  const vendorHasNoCategories = !!selectedVendorId && !!selectedVendor && selectedVendor.categories.length === 0;
 
   const { subtotal } = useMemo(
     () =>
@@ -377,6 +384,21 @@ export function CreatePOPage(): JSX.Element {
                 </ul>
                 <p className="text-xs text-amber-600 mt-2">
                   After saving this PO, come back and create a separate PO for these items.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* No-category vendor warning */}
+          {vendorHasNoCategories && (
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 flex gap-3">
+              <ExclamationTriangleIcon className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-blue-800">
+                  {selectedVendor!.name} has no supply categories configured — showing all materials
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  To auto-filter materials by vendor, go to Vendors and set what this vendor supplies (e.g. Blank Garments, DTF Transfers).
                 </p>
               </div>
             </div>
