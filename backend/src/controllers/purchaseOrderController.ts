@@ -10,6 +10,7 @@ import {
   updatePOStatus,
 } from '../services/purchaseOrderService';
 import { PurchaseOrderStatus } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 
 export const getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -61,15 +62,23 @@ export const receiveItems = async (req: Request, res: Response, next: NextFuncti
   try {
     const authReq = req as AuthenticatedRequest;
     const orgDbId = authReq.organizationDbId!;
+    const purchaseOrderId = authReq.params['id'] as string;
+
     const result = await receivePOItems({
       organizationId: orgDbId,
-      purchaseOrderId: authReq.params['id'] as string,
+      purchaseOrderId,
       receivedBy: (authReq.body.receivedBy as string | undefined) ?? authReq.auth.userId,
       notes: authReq.body.notes,
       items: authReq.body.items,
     });
 
-    res.json({ data: result });
+    // Include linkedOrderId so the frontend can invalidate the linked order's cache
+    const po = await prisma.purchaseOrder.findUnique({
+      where: { id: purchaseOrderId },
+      select: { linkedOrderId: true },
+    });
+
+    res.json({ data: { ...result, linkedOrderId: po?.linkedOrderId ?? null } });
   } catch (err) {
     next(err);
   }

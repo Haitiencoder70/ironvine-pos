@@ -112,6 +112,8 @@ export interface OrderItem {
   printLocations: PrintLocation[];
   description?: string;
   requiredMaterials: RequiredMaterial[];
+  /** Raw JSON attributes stored at order creation (brand, color, sizes breakdown, printMethod, etc.) */
+  attributes?: Record<string, unknown>;
 }
 
 export interface RequiredMaterial {

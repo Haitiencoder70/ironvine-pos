@@ -657,6 +657,13 @@ export function NewOrderPage(): JSX.Element {
             .map(normalisePrintLocation)
             .filter((l): l is PrintLocation => l !== null),
           description: item.description || undefined,
+          requiredMaterials: item.requiredMaterials?.length
+            ? item.requiredMaterials.map((m) => ({
+                description: m.description,
+                quantityRequired: m.quantity,
+                quantityUnit: 'units',
+              }))
+            : undefined,
         })),
       };
 

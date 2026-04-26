@@ -87,25 +87,61 @@ export function CreatePOPage(): JSX.Element {
 
   // Pre-fill from order if provided
   useEffect(() => {
-    if (linkedOrderId && orderData?.data) {
-      const order = orderData.data;
-      setValue('linkedOrderId', order.id);
-      
-      // Auto-extract material requirements
-      const autoItems = order.items.flatMap(item => 
-        item.requiredMaterials.map(rm => ({
-          inventoryItemId: rm.inventoryItemId,
-          description: `${rm.description} (For: ${item.productType} ${item.size || ''} ${item.color || ''})`,
-          quantity: rm.quantityRequired,
-          unitCost: 0, // Admin must fill
-        }))
-      );
+    if (!linkedOrderId || !orderData?.data || fields.length > 0) return;
 
-      // Consolidate identical items by inventoryItemId where possible, or just raw push for manual edit.
-      // For simplicity, we just push raw items and let the user override/consolidate visually.
-      if (fields.length === 0 && autoItems.length > 0) {
-        setValue('items', autoItems);
+    const order = orderData.data;
+    setValue('linkedOrderId', order.id);
+
+    // Strategy 1: use server-side requiredMaterials if they were saved at order creation
+    const fromRequired = order.items.flatMap(item =>
+      item.requiredMaterials.map(rm => ({
+        inventoryItemId: rm.inventoryItemId,
+        description: rm.description,
+        quantity: rm.quantityRequired,
+        unitCost: 0,
+      }))
+    );
+
+    if (fromRequired.length > 0) {
+      setValue('items', fromRequired);
+      return;
+    }
+
+    // Strategy 2 (fallback): derive one PO line per order item from stored attributes.
+    // attributes shape: { brand, color, sizes: [{size, qty}], printMethod, ... }
+    const fromAttributes = order.items.flatMap(item => {
+      const attrs = item.attributes ?? {};
+      const brand = typeof attrs['brand'] === 'string' ? attrs['brand'] : '';
+      const color = typeof attrs['color'] === 'string' ? attrs['color'] : '';
+      const sizes = Array.isArray(attrs['sizes'])
+        ? (attrs['sizes'] as { size: string; qty: number }[])
+        : [];
+
+      const productLabel = item.productType.replace(/_/g, ' ');
+
+      if (sizes.length > 1) {
+        // One PO line per size so the vendor gets per-size quantities
+        return sizes
+          .filter(s => s.qty > 0)
+          .map(s => ({
+            description: [brand, color, productLabel, s.size].filter(Boolean).join(' '),
+            quantity: s.qty,
+            unitCost: 0,
+          }));
       }
+
+      // Single size or no breakdown: one line for the whole item
+      const sizeLabel = sizes[0]?.size ?? (typeof attrs['size'] === 'string' ? attrs['size'] : '');
+      return [{
+        description: [brand, color, productLabel, sizeLabel].filter(Boolean).join(' ') ||
+          `${item.quantity}× ${productLabel}`,
+        quantity: item.quantity,
+        unitCost: 0,
+      }];
+    });
+
+    if (fromAttributes.length > 0) {
+      setValue('items', fromAttributes);
     }
   }, [linkedOrderId, orderData, setValue, fields.length]);
 
