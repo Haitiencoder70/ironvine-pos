@@ -35,6 +35,9 @@ export const authorize = (...permissions: Permission[]) => {
       if (!user) {
         // JIT provisioning: requireAuth runs before injectTenant so orgDbId is
         // unavailable there. authorize() is the first place all context exists.
+        // Uses upsert on clerkUserId (globally unique) so that a user who already
+        // exists in another org (e.g. after an org migration) gets their org updated
+        // rather than hitting a unique constraint violation.
         try {
           const clerk = createClerkClient({
             secretKey: env.CLERK_SECRET_KEY,
@@ -45,19 +48,21 @@ export const authorize = (...permissions: Permission[]) => {
           const role: UserRole = orgRole === 'org:admin' ? 'OWNER'
             : orgRole === 'org:manager' ? 'MANAGER'
             : 'STAFF';
-          user = await prisma.user.create({
-            data: {
-              clerkUserId,
-              email:               clerkUser.emailAddresses[0]?.emailAddress ?? `${clerkUserId}@unknown.com`,
-              firstName:           clerkUser.firstName ?? '',
-              lastName:            clerkUser.lastName ?? '',
-              avatarUrl:           clerkUser.imageUrl ?? null,
-              role,
-              isActive:            true,
-              isOrganizationOwner: orgRole === 'org:admin',
-              inviteAccepted:      true,
-              organizationId:      organizationDbId,
-            },
+          const userData = {
+            email:               clerkUser.emailAddresses[0]?.emailAddress ?? `${clerkUserId}@unknown.com`,
+            firstName:           clerkUser.firstName ?? '',
+            lastName:            clerkUser.lastName ?? '',
+            avatarUrl:           clerkUser.imageUrl ?? null,
+            role,
+            isActive:            true,
+            isOrganizationOwner: orgRole === 'org:admin',
+            inviteAccepted:      true,
+            organizationId:      organizationDbId,
+          };
+          user = await prisma.user.upsert({
+            where:  { clerkUserId },
+            update: { organizationId: organizationDbId, isActive: true },
+            create: { clerkUserId, ...userData },
             select: { id: true, role: true, customPermissions: true },
           });
           logger.info('Auto-provisioned user via authorize JIT', { clerkUserId, organizationDbId });
