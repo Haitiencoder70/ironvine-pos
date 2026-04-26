@@ -16,6 +16,18 @@ import {
 import { TouchButton } from '../ui/TouchButton';
 import type { JSX } from 'react';
 
+// ─── Print method enum values (must match Prisma PrintMethod enum) ────────────
+
+const PRINT_METHOD_OPTIONS: { value: string; label: string }[] = [
+  { value: 'DTF', label: 'DTF' },
+  { value: 'HTV', label: 'HTV' },
+  { value: 'SCREEN_PRINT', label: 'Screen Print' },
+  { value: 'EMBROIDERY', label: 'Embroidery' },
+  { value: 'SUBLIMATION', label: 'Sublimation' },
+  { value: 'DTG', label: 'DTG' },
+  { value: 'NONE', label: 'None' },
+];
+
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
 export interface SizeQty {
@@ -97,7 +109,7 @@ function CustomItemForm({ onBack, onAdd }: CustomItemFormProps): JSX.Element {
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [unitPrice, setUnitPrice] = useState(0);
-  const [printMethod, setPrintMethod] = useState('DTF');
+  const [printMethod, setPrintMethod] = useState('DTF'); // enum value (e.g. SCREEN_PRINT)
   const [itemNotes, setItemNotes] = useState('');
 
   const isValid = description.trim().length > 0 && quantity >= 1 && unitPrice >= 0;
@@ -201,19 +213,19 @@ function CustomItemForm({ onBack, onAdd }: CustomItemFormProps): JSX.Element {
         <div>
           <label className={labelCls}>Print Method</label>
           <div className="flex flex-wrap gap-2">
-            {['DTF', 'HTV', 'Screen Print', 'Embroidery', 'None'].map(m => (
+            {PRINT_METHOD_OPTIONS.map(({ value, label }) => (
               <button
-                key={m}
+                key={value}
                 type="button"
-                onClick={() => setPrintMethod(m)}
+                onClick={() => setPrintMethod(value)}
                 className={clsx(
                   'px-4 py-2 rounded-xl text-sm font-semibold border min-h-[44px] transition-all',
-                  printMethod === m
+                  printMethod === value
                     ? 'bg-blue-600 text-white border-blue-500 shadow-[0_0_16px_rgba(59,130,246,0.35)]'
                     : 'bg-white/5 text-white/60 border-white/10 hover:border-white/25 hover:text-white/80'
                 )}
               >
-                {m}
+                {label}
               </button>
             ))}
           </div>

@@ -133,7 +133,7 @@ export interface Order {
   customerId: string;
   customer?: Customer;
   subtotal: number;
-  tax: number;
+  taxAmount: number;
   discount: number;
   total: number;
   dueDate?: string;
@@ -142,6 +142,9 @@ export interface Order {
   designNotes?: string;
   designFiles: string[];
   items: OrderItem[];
+  statusHistory?: { id: string; fromStatus: string | null; toStatus: string; changedBy: string; notes?: string; createdAt: string }[];
+  purchaseOrders?: PurchaseOrder[];
+  shipments?: Shipment[];
   designApproved: boolean;
   designApprovedAt: string | null;
   designApprovedBy: string | null;
@@ -257,7 +260,7 @@ export interface WorkflowStep {
 export interface OrderWorkflow {
   steps: WorkflowStep[];
   currentIndex: number;
-  canAdvance: boolean;
+  canProgress: boolean;
   nextStatus: OrderStatus | null;
 }
 

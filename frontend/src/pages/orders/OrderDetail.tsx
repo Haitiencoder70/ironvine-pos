@@ -765,7 +765,7 @@ export function OrderDetailPage(): JSX.Element {
                 )}
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Tax</span>
-                  <span>{fmt(order.tax)}</span>
+                  <span>{fmt(order.taxAmount)}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold text-gray-900">
                   <span>Total</span>

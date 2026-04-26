@@ -119,13 +119,13 @@ export function useCreateOrder(): UseMutationResult<ApiResponse<Order>, Error, u
 
   return useMutation({
     mutationFn: (data: unknown) => orderApi.create(data),
-    onSuccess: (res) => {
+    onSuccess: () => {
+      // Invalidate list so new order appears immediately.
+      // Success toast is shown by the calling page (NewOrder.tsx) with the order number.
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      toast.success(`Order ${res.data.orderNumber} created`);
     },
-    onError: () => {
-      toast.error('Failed to create order. Please try again.');
-    },
+    // onError: intentionally omitted — the API interceptor in lib/api.ts already
+    // shows the appropriate error toast (validation, auth, network, etc.).
   });
 }
 

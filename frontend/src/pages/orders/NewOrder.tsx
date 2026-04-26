@@ -115,6 +115,33 @@ function fmt(n: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
 }
 
+/**
+ * Normalise a print-location string to its Prisma enum value.
+ * Products store free-text labels like "Front", "Back", "Left Sleeve" in
+ * includedPrintLocations — these must be converted to FRONT / BACK / LEFT_SLEEVE
+ * before the backend Zod validator sees them.
+ */
+const PRINT_LOCATION_MAP: Record<string, PrintLocation> = {
+  front: 'FRONT',
+  back: 'BACK',
+  'left sleeve': 'LEFT_SLEEVE',
+  'left_sleeve': 'LEFT_SLEEVE',
+  'right sleeve': 'RIGHT_SLEEVE',
+  'right_sleeve': 'RIGHT_SLEEVE',
+  'full print': 'FULL_PRINT',
+  'full_print': 'FULL_PRINT',
+  // Catalog uses "Front Left Chest" — map to FRONT as closest match
+  'front left chest': 'FRONT',
+  'left chest': 'FRONT',
+};
+
+function normalisePrintLocation(raw: string): PrintLocation | null {
+  // Already a valid enum value — pass through
+  const valid: PrintLocation[] = ['FRONT', 'BACK', 'LEFT_SLEEVE', 'RIGHT_SLEEVE', 'FULL_PRINT'];
+  if (valid.includes(raw as PrintLocation)) return raw as PrintLocation;
+  return PRINT_LOCATION_MAP[raw.toLowerCase().trim()] ?? null;
+}
+
 const LS_KEY = 'new-order-draft';
 
 // ─── Step Indicator ───────────────────────────────────────────────────────────
@@ -626,7 +653,9 @@ export function NewOrderPage(): JSX.Element {
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           printMethod: (item.printMethod as PrintMethod) || undefined,
-          printLocations: item.printLocations as PrintLocation[],
+          printLocations: item.printLocations
+            .map(normalisePrintLocation)
+            .filter((l): l is PrintLocation => l !== null),
           description: item.description || undefined,
         })),
       };
@@ -644,7 +673,8 @@ export function NewOrderPage(): JSX.Element {
       toast.success(`Order ${result.data.orderNumber} created!`);
       void navigate(`/orders/${result.data.id}`, { replace: true });
     } catch {
-      toast.error('Failed to create order. Please try again.');
+      // Error toast is already shown by the API interceptor (validation errors)
+      // and by useCreateOrder's onError handler. No duplicate toast needed here.
     }
   };
 
