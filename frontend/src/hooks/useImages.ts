@@ -1,16 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { imagesApi } from '../services/api';
+import { useIsReady } from './useIsReady';
 import type { Image } from '../types';
 
 export function useEntityImages(entityType: string, entityId: string | undefined) {
   const qc = useQueryClient();
+  const isReady = useIsReady();
   const key = ['images', entityType, entityId];
 
   const query = useQuery({
     queryKey: key,
     queryFn: () => imagesApi.getForEntity(entityType, entityId!),
     select: (r) => r.data,
-    enabled: !!entityId,
+    enabled: isReady && !!entityId,
   });
 
   const deleteMutation = useMutation({

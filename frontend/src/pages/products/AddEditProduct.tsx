@@ -398,7 +398,7 @@ export function AddEditProductPage(): JSX.Element {
                 {...register('description')}
                 placeholder="What is this product? Include key details..."
                 rows={3}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-base bg-white text-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -543,7 +543,7 @@ export function AddEditProductPage(): JSX.Element {
                         <td className="px-4 py-2">
                           <select
                             {...register(`sizeUpcharges.${i}.size`)}
-                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                           >
                             <option value="">Size...</option>
                             {SIZES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -688,7 +688,7 @@ export function AddEditProductPage(): JSX.Element {
                         type="text"
                         placeholder="e.g. Blank T-Shirt"
                         {...register(`materialCosts.${i}.material`)}
-                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </td>
                     <td className="px-4 py-2">
@@ -697,7 +697,7 @@ export function AddEditProductPage(): JSX.Element {
                         step="0.01"
                         min="0"
                         {...register(`materialCosts.${i}.qtyPerUnit`, { valueAsNumber: true })}
-                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </td>
                     <td className="px-4 py-2">
@@ -706,7 +706,7 @@ export function AddEditProductPage(): JSX.Element {
                         step="0.01"
                         min="0"
                         {...register(`materialCosts.${i}.estimatedCost`, { valueAsNumber: true })}
-                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </td>
                     <td className="px-4 py-2 text-center">
@@ -778,7 +778,7 @@ export function AddEditProductPage(): JSX.Element {
                           type="text"
                           placeholder="e.g. Rush Order"
                           {...register(`addOns.${i}.name`)}
-                          className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -787,7 +787,7 @@ export function AddEditProductPage(): JSX.Element {
                           step="0.01"
                           min="0"
                           {...register(`addOns.${i}.price`, { valueAsNumber: true })}
-                          className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </td>
                       <td className="px-4 py-2 text-center">
@@ -873,7 +873,7 @@ export function AddEditProductPage(): JSX.Element {
                 {...register('productionNotes')}
                 placeholder="Press settings, special instructions, warnings..."
                 rows={3}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-base bg-white text-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
