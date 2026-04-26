@@ -38,6 +38,7 @@ const STATUS_TABS: StatusTab[] = [
   { label: 'Ready to Ship', value: 'READY_TO_SHIP', colorClass: 'text-emerald-600' },
   { label: 'Shipped', value: 'SHIPPED', colorClass: 'text-cyan-600' },
   { label: 'Completed', value: 'COMPLETED', colorClass: 'text-green-600' },
+  { label: 'Cancelled', value: 'CANCELLED', colorClass: 'text-red-600' },
 ];
 
 const PAGE_SIZE = 20;
@@ -56,6 +57,7 @@ const DEFAULT_FILTERS: OrderListParams = {
   limit: PAGE_SIZE,
   search: '',
   status: '' as OrderStatus | '',
+  excludeCancelled: true,
   priority: '',
   dateFrom: '',
   dateTo: '',
@@ -73,7 +75,12 @@ function filtersReducer(
     case 'CLEAR':
       return { ...DEFAULT_FILTERS };
     case 'SET_TAB':
-      return { ...state, status: action.status, page: 1 };
+      return {
+        ...state,
+        status: action.status,
+        excludeCancelled: action.status === '',
+        page: 1,
+      };
     case 'SET_PAGE':
       return { ...state, page: action.page };
     case 'SET_SORT':

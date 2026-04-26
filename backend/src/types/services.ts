@@ -70,6 +70,7 @@ export interface UpdateOrderStatusInput {
 export interface GetOrdersInput extends PaginationInput {
   organizationId: string;
   status?: OrderStatus | OrderStatus[];
+  excludeCancelled?: boolean;
   customerId?: string;
   priority?: OrderPriority;
   search?: string;

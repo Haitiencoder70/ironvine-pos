@@ -35,6 +35,7 @@ export interface OrderListParams {
   limit?: number;
   search?: string;
   status?: OrderStatus | '';
+  excludeCancelled?: boolean;
   priority?: string;
   dateFrom?: string;
   dateTo?: string;

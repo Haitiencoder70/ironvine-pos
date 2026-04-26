@@ -288,6 +288,7 @@ export async function getOrders(input: GetOrdersInput): Promise<PaginatedResult<
   const {
     organizationId,
     status,
+    excludeCancelled,
     customerId,
     priority,
     search,
@@ -305,6 +306,8 @@ export async function getOrders(input: GetOrdersInput): Promise<PaginatedResult<
     organizationId,
     ...(status
       ? { status: Array.isArray(status) ? { in: status } : status }
+      : excludeCancelled
+      ? { status: { not: 'CANCELLED' } }
       : {}),
     ...(customerId ? { customerId } : {}),
     ...(priority ? { priority } : {}),

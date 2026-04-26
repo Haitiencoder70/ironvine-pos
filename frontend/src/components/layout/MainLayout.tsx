@@ -10,6 +10,7 @@ import { OfflineBanner } from '../ui/OfflineBanner';
 import { PlanLimitBanner } from '../PlanLimitBanner';
 import { TrialBanner } from '../TrialBanner';
 import { UpgradeModal } from '../UpgradeModal';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useUiStore } from '../../store/uiStore';
 import { useSwipeBack } from '../../hooks/useSwipeBack';
 import { useQueryClient } from '@tanstack/react-query';
@@ -110,6 +111,9 @@ export function MainLayout(): React.JSX.Element {
           onClose={() => { setShowUpgrade(false); setUpgradeMessage(undefined); }}
         />
       )}
+
+      {/* Global confirm dialog — required for useConfirm() hook to work */}
+      <ConfirmDialog />
     </div>
   );
 }

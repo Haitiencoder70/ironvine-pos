@@ -23,6 +23,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction): P
     const result = await getOrders({
       organizationId: orgDbId,
       status: query['status'] as OrderStatus | undefined,
+      excludeCancelled: query['excludeCancelled'] === 'true',
       customerId: query['customerId'] as string | undefined,
       priority: query['priority'] as OrderPriority | undefined,
       search: query['search'] as string | undefined,
