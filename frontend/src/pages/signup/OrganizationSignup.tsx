@@ -175,8 +175,10 @@ export function OrganizationSignup(): React.JSX.Element {
       if (result.checkoutUrl) {
         window.location.href = result.checkoutUrl;
       } else {
-        // Redirect to the org's subdomain. In local dev, show instructions.
-        const appUrl = `http://${form.slug}.localhost:5173/dashboard`;
+        const domain = import.meta.env.VITE_APP_DOMAIN;
+        const appUrl = domain
+          ? `https://${form.slug}.${domain}/dashboard`
+          : `http://${form.slug}.localhost:5173/dashboard`;
         window.location.href = appUrl;
       }
     } catch (err: unknown) {
