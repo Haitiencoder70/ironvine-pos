@@ -6,6 +6,7 @@ export const requiredMaterialSchema = z.object({
   description: z.string().min(1).max(500),
   quantityRequired: z.number().positive(),
   quantityUnit: z.string().max(50).optional(),
+  materialCategory: z.string().max(50).optional(),
 });
 
 export const createOrderItemSchema = z.object({

@@ -53,10 +53,20 @@ const sizeUpchargeSchema = z.object({
 
 const materialCostSchema = z.object({
   id:            z.string(),
+  category:      z.string().min(1, 'Select a category'),
   material:      z.string().min(1, 'Material name required'),
   qtyPerUnit:    z.number().min(0),
   estimatedCost: z.number().min(0),
 });
+
+const MATERIAL_CATEGORIES = [
+  { value: 'BLANK_GARMENT', label: 'Blank Garments' },
+  { value: 'DTF_TRANSFER',  label: 'DTF Transfers' },
+  { value: 'HTV_VINYL',     label: 'HTV Vinyl' },
+  { value: 'INK',           label: 'Ink' },
+  { value: 'PACKAGING',     label: 'Packaging' },
+  { value: 'SUPPLIES',      label: 'Supplies' },
+];
 
 const addOnSchema = z.object({
   id:       z.string(),
@@ -241,6 +251,7 @@ export function AddEditProductPage(): JSX.Element {
                                     })),
         materialCosts:              (product.materialTemplates ?? []).map(m => ({
                                       id: m.id,
+                                      category: (m.materialCategory as string) ?? '',
                                       material: m.description,
                                       qtyPerUnit: Number(m.quantityPerUnit),
                                       estimatedCost: Number(m.estimatedCostPerUnit),
@@ -289,6 +300,7 @@ export function AddEditProductPage(): JSX.Element {
       sizeUpcharges:              Object.fromEntries(data.sizeUpcharges.map(u => [u.size, u.upcharge])),
       materialTemplates:          data.materialCosts.map(m => ({
                                     id: m.id,
+                                    materialCategory: m.category,
                                     description: m.material,
                                     quantityPerUnit: m.qtyPerUnit,
                                     estimatedCostPerUnit: m.estimatedCost,
@@ -650,6 +662,7 @@ export function AddEditProductPage(): JSX.Element {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
                 <tr>
+                  <th className="text-left px-4 py-3 font-semibold w-40">Category</th>
                   <th className="text-left px-4 py-3 font-semibold">Material</th>
                   <th className="text-left px-4 py-3 font-semibold w-28">Qty/Unit</th>
                   <th className="text-left px-4 py-3 font-semibold w-32">Est. Cost ($)</th>
@@ -659,6 +672,17 @@ export function AddEditProductPage(): JSX.Element {
               <tbody className="divide-y divide-gray-100">
                 {materialArray.fields.map((field, i) => (
                   <tr key={field.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2">
+                      <select
+                        {...register(`materialCosts.${i}.category`)}
+                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      >
+                        <option value="">Category...</option>
+                        {MATERIAL_CATEGORIES.map(c => (
+                          <option key={c.value} value={c.value}>{c.label}</option>
+                        ))}
+                      </select>
+                    </td>
                     <td className="px-4 py-2">
                       <input
                         type="text"
@@ -698,7 +722,7 @@ export function AddEditProductPage(): JSX.Element {
                 ))}
                 {materialArray.fields.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="text-center text-gray-400 py-4 text-sm italic">
+                    <td colSpan={5} className="text-center text-gray-400 py-4 text-sm italic">
                       No materials added — profit tracking unavailable
                     </td>
                   </tr>
@@ -724,7 +748,7 @@ export function AddEditProductPage(): JSX.Element {
 
           <button
             type="button"
-            onClick={() => materialArray.append({ id: generateId(), material: '', qtyPerUnit: 1, estimatedCost: 0 })}
+            onClick={() => materialArray.append({ id: generateId(), category: '', material: '', qtyPerUnit: 1, estimatedCost: 0 })}
             className="mt-4 flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-semibold min-h-[44px] px-3 rounded-lg hover:bg-blue-50 transition-colors"
           >
             <PlusIcon className="h-4 w-4" /> Add Material

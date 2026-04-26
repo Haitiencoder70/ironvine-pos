@@ -122,6 +122,8 @@ export interface RequiredMaterial {
   description: string;
   quantityRequired: number;
   quantityUnit: string;
+  inventoryItem?: { id: string; name: string; category: string };
+  attributes?: Record<string, unknown>;
 }
 
 /**

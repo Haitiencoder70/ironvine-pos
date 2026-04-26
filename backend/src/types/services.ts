@@ -29,6 +29,7 @@ export interface RequiredMaterialInput {
   description: string;
   quantityRequired: number;
   quantityUnit?: string;
+  materialCategory?: string;
 }
 
 export interface CreateOrderItemInput {
