@@ -10,7 +10,10 @@ export function setUpgradeModalHandler(fn: (message?: string) => void): void {
   onPlanLimitExceeded = fn;
 }
 
-const BASE_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? 'http://localhost:3001';
+// In production (monolith), use the current origin so every tenant subdomain
+// calls its own host. In local dev, VITE_API_URL points to localhost:3001
+// since the frontend and backend run on different ports.
+const BASE_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? window.location.origin;
 
 // If BASE_URL already contains /api (e.g. monolith deploy), use it exactly.
 // Otherwise append /api for local development.
@@ -139,7 +142,7 @@ api.interceptors.response.use(
           // routing (ProtectedRoute / InviteAcceptPage) already handles them.
           const onAuthPage = /^\/(sign-in|sign-up|signup|invite)/.test(window.location.pathname);
           if (!onAuthPage) {
-            toast.error(`Auth Error: ${data.code} - ${data.error}`, { id: 'api-auth', duration: 8000 });
+            toast.error(`Error ${error.response.status}: ${data.error ?? data.code}`, { id: 'api-auth', duration: 8000 });
           }
         } else if (error.response.status === 409) {
           toast.error(data.error || 'A record with this information already exists.', { id: 'api-conflict' });
