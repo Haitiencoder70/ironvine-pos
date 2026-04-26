@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import { createClerkClient } from '@clerk/express';
 import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types';
 import { hasPermission, Permission } from '../config/permissions';
 import { UserRole } from '@prisma/client';
+import { env } from '../config/env';
+import { logger } from '../lib/logger';
 
 export const authorize = (...permissions: Permission[]) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -17,7 +20,7 @@ export const authorize = (...permissions: Permission[]) => {
     }
 
     try {
-      const user = await prisma.user.findFirst({
+      let user = await prisma.user.findFirst({
         where: {
           clerkUserId,
           organizationId: organizationDbId,
@@ -30,14 +33,46 @@ export const authorize = (...permissions: Permission[]) => {
       });
 
       if (!user) {
-        res.status(403).json({ error: 'Forbidden', code: 'USER_NOT_FOUND' });
-        return;
+        // JIT provisioning: requireAuth runs before injectTenant so orgDbId is
+        // unavailable there. authorize() is the first place all context exists.
+        try {
+          const clerk = createClerkClient({
+            secretKey: env.CLERK_SECRET_KEY,
+            publishableKey: env.CLERK_PUBLISHABLE_KEY,
+          });
+          const clerkUser = await clerk.users.getUser(clerkUserId);
+          const orgRole = authReq.auth?.orgRole;
+          const role: UserRole = orgRole === 'org:admin' ? 'OWNER'
+            : orgRole === 'org:manager' ? 'MANAGER'
+            : 'STAFF';
+          user = await prisma.user.create({
+            data: {
+              clerkUserId,
+              email:               clerkUser.emailAddresses[0]?.emailAddress ?? `${clerkUserId}@unknown.com`,
+              firstName:           clerkUser.firstName ?? '',
+              lastName:            clerkUser.lastName ?? '',
+              avatarUrl:           clerkUser.imageUrl ?? null,
+              role,
+              isActive:            true,
+              isOrganizationOwner: orgRole === 'org:admin',
+              inviteAccepted:      true,
+              organizationId:      organizationDbId,
+            },
+            select: { id: true, role: true, customPermissions: true },
+          });
+          logger.info('Auto-provisioned user via authorize JIT', { clerkUserId, organizationDbId });
+        } catch (provisionErr) {
+          logger.error('JIT user provisioning failed in authorize', { provisionErr, clerkUserId, organizationDbId });
+          res.status(403).json({ error: 'Forbidden', code: 'USER_NOT_FOUND' });
+          return;
+        }
       }
 
-      const customPerms = user.customPermissions as Record<string, boolean> | null;
+      // user is guaranteed non-null here: either found above or JIT-created (catch returns early)
+      const customPerms = user!.customPermissions as Record<string, boolean> | null;
 
       const allowed = permissions.some((permission) =>
-        hasPermission(user.role as UserRole, customPerms, permission),
+        hasPermission(user!.role as UserRole, customPerms, permission),
       );
 
       if (!allowed) {
@@ -46,12 +81,12 @@ export const authorize = (...permissions: Permission[]) => {
             action: 'PERMISSION_DENIED',
             entityType: 'permission',
             entityId: permissions.join(','),
-            description: `Access denied to ${permissions.join(', ')} for role ${user.role}`,
-            performedBy: user.id,
+            description: `Access denied to ${permissions.join(', ')} for role ${user!.role}`,
+            performedBy: user!.id,
             ipAddress: req.ip ?? req.socket.remoteAddress,
             metadata: {
               permissions,
-              role: user.role,
+              role: user!.role,
               path: req.path,
               method: req.method,
             },
@@ -63,8 +98,8 @@ export const authorize = (...permissions: Permission[]) => {
       }
 
       authReq.dbUser = {
-        id: user.id,
-        role: user.role as UserRole,
+        id: user!.id,
+        role: user!.role as UserRole,
         customPermissions: customPerms,
       };
 
