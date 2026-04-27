@@ -29,8 +29,8 @@ export function getCurrentSubdomain(): string | null {
   // Production / staging — strip the root domain
   if (hostname.endsWith(`.${APP_DOMAIN}`)) {
     const sub = hostname.slice(0, hostname.length - APP_DOMAIN.length - 1);
-    // Reject known non-org subdomains
-    if (['www', 'app', 'api', 'staging', 'mail'].includes(sub)) return null;
+    // Reject known non-org subdomains (incl. 'pos' which is the app's own deployment subdomain)
+    if (['www', 'app', 'api', 'staging', 'mail', 'pos'].includes(sub)) return null;
     return sub || null;
   }
 
