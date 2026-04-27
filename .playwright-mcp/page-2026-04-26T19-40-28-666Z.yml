@@ -1,0 +1,193 @@
+- generic [ref=e3]:
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: G
+      - generic [ref=e9]:
+        - generic [ref=e10]: GP's Organization
+        - generic [ref=e11]: POS
+    - navigation [ref=e12]:
+      - link "Dashboard" [ref=e15] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e17]
+        - generic [ref=e19]: Dashboard
+      - generic [ref=e21]:
+        - generic [ref=e22]: Operations
+        - generic [ref=e23]:
+          - link "Products" [ref=e24] [cursor=pointer]:
+            - /url: /products
+            - img [ref=e26]
+            - generic [ref=e29]: Products
+          - link "Orders" [ref=e30] [cursor=pointer]:
+            - /url: /orders
+            - img [ref=e32]
+            - generic [ref=e34]: Orders
+          - link "POS Terminal" [ref=e35] [cursor=pointer]:
+            - /url: /pos
+            - img [ref=e37]
+            - generic [ref=e39]: POS Terminal
+          - link "Inventory" [ref=e40] [cursor=pointer]:
+            - /url: /inventory
+            - img [ref=e42]
+            - generic [ref=e44]: Inventory
+          - link "Purchase Orders" [ref=e45] [cursor=pointer]:
+            - /url: /purchase-orders
+            - img [ref=e47]
+            - generic [ref=e49]: Purchase Orders
+          - link "Shipments" [ref=e50] [cursor=pointer]:
+            - /url: /shipments
+            - img [ref=e52]
+            - generic [ref=e54]: Shipments
+      - generic [ref=e56]:
+        - generic [ref=e57]: Management
+        - generic [ref=e58]:
+          - link "Customers" [ref=e59] [cursor=pointer]:
+            - /url: /customers
+            - img [ref=e61]
+            - generic [ref=e63]: Customers
+          - link "Vendors" [ref=e64] [cursor=pointer]:
+            - /url: /vendors
+            - img [ref=e66]
+            - generic [ref=e68]: Vendors
+          - link "Reports" [ref=e69] [cursor=pointer]:
+            - /url: /reports
+            - img [ref=e71]
+            - generic [ref=e73]: Reports
+      - link "Settings" [ref=e76] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e78]
+        - generic [ref=e81]: Settings
+    - generic [ref=e83]:
+      - generic [ref=e84]: G
+      - generic [ref=e85]:
+        - paragraph [ref=e86]: GP Pi
+        - paragraph [ref=e87]: Owner
+      - button "Sign out" [ref=e88] [cursor=pointer]:
+        - img [ref=e89]
+    - button "Collapse sidebar" [ref=e92] [cursor=pointer]:
+      - generic [ref=e93]:
+        - img [ref=e94]
+        - generic [ref=e96]: Collapse
+  - generic [ref=e97]:
+    - banner [ref=e98]:
+      - generic [ref=e99]:
+        - heading [level=1]
+        - paragraph [ref=e100]: GP's Organization
+      - button "Create new order" [ref=e101] [cursor=pointer]:
+        - img [ref=e102]
+        - generic [ref=e104]: New Order
+      - button "Open organization switcher" [ref=e106] [cursor=pointer]:
+        - generic [ref=e107]:
+          - img "GP's Organization's logo" [ref=e110]
+          - generic "GP's Organization" [ref=e113]
+        - img [ref=e114]
+      - button "Open user menu" [ref=e117] [cursor=pointer]:
+        - img "GP Pi's logo" [ref=e120]
+    - generic [ref=e122]:
+      - generic [ref=e123]: 🚫
+      - generic [ref=e124]: You've reached your limit of 1 team members.
+      - generic [ref=e125]:
+        - button "Upgrade" [ref=e126] [cursor=pointer]
+        - button "Dismiss" [ref=e127] [cursor=pointer]: ✕
+    - main [ref=e128]:
+      - generic [ref=e129]:
+        - generic [ref=e130]:
+          - button [ref=e131] [cursor=pointer]:
+            - img [ref=e132]
+          - generic [ref=e134]:
+            - heading "New Vendor" [level=1] [ref=e135]
+            - text: Procurement Setup
+        - generic [ref=e136]:
+          - generic [ref=e137]:
+            - heading "Basic Information" [level=2] [ref=e138]:
+              - img [ref=e139]
+              - text: Basic Information
+            - generic [ref=e141]:
+              - generic [ref=e143]:
+                - generic [ref=e144]: Company Name
+                - textbox "Company Name" [ref=e146]:
+                  - /placeholder: e.g. SanMar Corp
+                  - text: Test Supplier Co
+              - generic [ref=e148]:
+                - generic [ref=e149]: Vendor Code
+                - textbox "Vendor Code" [ref=e151]:
+                  - /placeholder: SMR-123
+                  - text: TSC-001
+              - generic [ref=e153]:
+                - generic [ref=e154]: Contact Person
+                - textbox "Contact Person" [ref=e156]:
+                  - /placeholder: John Doe
+                  - text: John Smith
+              - generic [ref=e158]:
+                - generic [ref=e159]: Phone Number
+                - textbox "Phone Number" [ref=e161]: 555-000-1234
+              - generic [ref=e163]:
+                - generic [ref=e164]: Email Address
+                - textbox "Email Address" [ref=e166]: orders@testsupplier.com
+              - generic [ref=e168]:
+                - generic [ref=e169]: Website
+                - textbox "Website" [ref=e171]:
+                  - /placeholder: https://...
+          - generic [ref=e172]:
+            - heading "Office / Fulfillment Address" [level=2] [ref=e173]:
+              - img [ref=e174]
+              - text: Office / Fulfillment Address
+            - generic [ref=e176]:
+              - generic [ref=e177]:
+                - generic [ref=e178]: Street Address
+                - textbox "Street Address" [ref=e180]
+              - generic [ref=e181]:
+                - generic [ref=e183]:
+                  - generic [ref=e184]: City
+                  - textbox "City" [ref=e186]
+                - generic [ref=e188]:
+                  - generic [ref=e189]: State/Prov
+                  - textbox "State/Prov" [ref=e191]
+                - generic [ref=e193]:
+                  - generic [ref=e194]: ZIP/Postal
+                  - textbox "ZIP/Postal" [ref=e196]
+          - generic [ref=e197]:
+            - heading "Products & Services Provided" [level=2] [ref=e198]
+            - paragraph [ref=e199]: Select all primary commodities procured from this entity.
+            - generic [ref=e200]:
+              - generic [ref=e201] [cursor=pointer]:
+                - checkbox "Blank Garments" [checked] [active] [ref=e202]
+                - generic [ref=e203]: Blank Garments
+              - generic [ref=e204] [cursor=pointer]:
+                - checkbox "DTF Transfers" [ref=e205]
+                - generic [ref=e206]: DTF Transfers
+              - generic [ref=e207] [cursor=pointer]:
+                - checkbox "HTV Vinyl" [ref=e208]
+                - generic [ref=e209]: HTV Vinyl
+              - generic [ref=e210] [cursor=pointer]:
+                - checkbox "Inks / Fluids" [ref=e211]
+                - generic [ref=e212]: Inks / Fluids
+              - generic [ref=e213] [cursor=pointer]:
+                - checkbox "General Supplies" [ref=e214]
+                - generic [ref=e215]: General Supplies
+            - generic [ref=e216]:
+              - generic [ref=e217]: Other Keywords (Comma separated)
+              - textbox "Other Keywords (Comma separated)" [ref=e219]:
+                - /placeholder: Acrylics, Mesh, Embroidery Thread
+          - generic [ref=e220]:
+            - heading "Business Terms" [level=2] [ref=e221]:
+              - img [ref=e222]
+              - text: Business Terms
+            - generic [ref=e224]:
+              - generic [ref=e225]:
+                - generic [ref=e226]: Payment Terms
+                - textbox "Payment Terms" [ref=e228]:
+                  - /placeholder: Net 30, Due on Receipt, etc.
+              - generic [ref=e229]:
+                - generic [ref=e230]: Internal Notes
+                - textbox "Internal Notes" [ref=e232]:
+                  - /placeholder: Only accept deliveries between 9am - 3pm...
+              - generic [ref=e233]:
+                - generic [ref=e234]:
+                  - paragraph [ref=e235]: Vendor Status
+                  - paragraph [ref=e236]: Determine if POs can be generated to this system.
+                - button "Vendor is Active" [ref=e237] [cursor=pointer]
+          - generic [ref=e239]:
+            - button "Cancel" [ref=e240] [cursor=pointer]
+            - button "Create Vendor" [ref=e241] [cursor=pointer]:
+              - img [ref=e242]
+              - text: Create Vendor

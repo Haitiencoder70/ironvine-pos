@@ -1,0 +1,165 @@
+- generic [ref=e3]:
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: G
+      - generic [ref=e9]:
+        - generic [ref=e10]: GP's Organization
+        - generic [ref=e11]: POS
+    - navigation [ref=e12]:
+      - link "Dashboard" [ref=e15] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e17]
+        - generic [ref=e19]: Dashboard
+      - generic [ref=e21]:
+        - generic [ref=e22]: Operations
+        - generic [ref=e23]:
+          - link "Products" [ref=e24] [cursor=pointer]:
+            - /url: /products
+            - img [ref=e26]
+            - generic [ref=e29]: Products
+          - link "Orders" [ref=e30] [cursor=pointer]:
+            - /url: /orders
+            - img [ref=e32]
+            - generic [ref=e34]: Orders
+          - link "POS Terminal" [ref=e35] [cursor=pointer]:
+            - /url: /pos
+            - img [ref=e37]
+            - generic [ref=e39]: POS Terminal
+          - link "Inventory" [ref=e40] [cursor=pointer]:
+            - /url: /inventory
+            - img [ref=e42]
+            - generic [ref=e44]: Inventory
+          - link "Purchase Orders" [ref=e45] [cursor=pointer]:
+            - /url: /purchase-orders
+            - img [ref=e47]
+            - generic [ref=e49]: Purchase Orders
+          - link "Shipments" [ref=e50] [cursor=pointer]:
+            - /url: /shipments
+            - img [ref=e52]
+            - generic [ref=e54]: Shipments
+      - generic [ref=e56]:
+        - generic [ref=e57]: Management
+        - generic [ref=e58]:
+          - link "Customers" [ref=e59] [cursor=pointer]:
+            - /url: /customers
+            - img [ref=e61]
+            - generic [ref=e63]: Customers
+          - link "Vendors" [ref=e64] [cursor=pointer]:
+            - /url: /vendors
+            - img [ref=e66]
+            - generic [ref=e68]: Vendors
+          - link "Reports" [ref=e69] [cursor=pointer]:
+            - /url: /reports
+            - img [ref=e71]
+            - generic [ref=e73]: Reports
+      - link "Settings" [ref=e76] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e78]
+        - generic [ref=e81]: Settings
+    - generic [ref=e83]:
+      - generic [ref=e84]: G
+      - generic [ref=e85]:
+        - paragraph [ref=e86]: GP Pi
+        - paragraph [ref=e87]: Owner
+      - button "Sign out" [ref=e88] [cursor=pointer]:
+        - img [ref=e89]
+    - button "Collapse sidebar" [ref=e92] [cursor=pointer]:
+      - generic [ref=e93]:
+        - img [ref=e94]
+        - generic [ref=e96]: Collapse
+  - generic [ref=e97]:
+    - banner [ref=e98]:
+      - generic [ref=e99]:
+        - heading "PO Detail" [level=1] [ref=e100]
+        - paragraph [ref=e101]: GP's Organization
+      - button "Create new order" [ref=e102] [cursor=pointer]:
+        - img [ref=e103]
+        - generic [ref=e105]: New Order
+      - button "Open organization switcher" [ref=e107] [cursor=pointer]:
+        - generic [ref=e108]:
+          - img "GP's Organization's logo" [ref=e111]
+          - generic "GP's Organization" [ref=e114]
+        - img [ref=e115]
+      - button "Open user menu" [ref=e118] [cursor=pointer]:
+        - img "GP Pi's logo" [ref=e121]
+    - generic [ref=e123]:
+      - generic [ref=e124]: 🚫
+      - generic [ref=e125]: You've reached your limit of 1 team members.
+      - generic [ref=e126]:
+        - button "Upgrade" [ref=e127] [cursor=pointer]
+        - button "Dismiss" [ref=e128] [cursor=pointer]: ✕
+    - main [ref=e129]:
+      - generic [ref=e208]:
+        - generic [ref=e209]:
+          - generic [ref=e210]:
+            - button [ref=e211] [cursor=pointer]:
+              - img [ref=e212]
+            - generic [ref=e214]:
+              - heading "PO-202604-0001" [level=1] [ref=e215]
+              - generic [ref=e216]: Sent to Vendor
+          - generic [ref=e217]:
+            - button "Receive Items" [active] [ref=e309] [cursor=pointer]
+            - button "Print" [ref=e221] [cursor=pointer]:
+              - img [ref=e222]
+              - text: Print
+        - generic [ref=e224]:
+          - generic [ref=e225]:
+            - generic [ref=e226]:
+              - heading "Vendor & Order Details" [level=2] [ref=e227]:
+                - img [ref=e228]
+                - text: Vendor & Order Details
+              - generic [ref=e230]:
+                - generic [ref=e231]:
+                  - heading "Test Supplier Co" [level=3] [ref=e232]
+                  - paragraph [ref=e233]: "Attn: John Smith"
+                  - generic [ref=e234]:
+                    - paragraph [ref=e235]:
+                      - img [ref=e236]
+                      - text: 555-000-1234
+                    - paragraph [ref=e238]:
+                      - img [ref=e239]
+                      - text: orders@testsupplier.com
+                - generic [ref=e241]:
+                  - generic [ref=e242]:
+                    - generic [ref=e243]: "Order Date:"
+                    - generic [ref=e244]: Apr 26, 2026
+                  - generic [ref=e245]:
+                    - generic [ref=e246]: "Linked Customer Job:"
+                    - generic [ref=e247] [cursor=pointer]: View Order Profile
+            - generic [ref=e248]:
+              - generic [ref=e249]:
+                - heading "Line Items" [level=2] [ref=e250]:
+                  - img [ref=e251]
+                  - text: Line Items
+                - generic [ref=e253]:
+                  - paragraph [ref=e254]: Fulfillment Progress
+                  - generic [ref=e257]: 0/10
+              - table [ref=e259]:
+                - rowgroup [ref=e260]:
+                  - row "Description Ordered Received Unit Cost Total" [ref=e261]:
+                    - columnheader "Description" [ref=e262]
+                    - columnheader "Ordered" [ref=e263]
+                    - columnheader "Received" [ref=e264]
+                    - columnheader "Unit Cost" [ref=e265]
+                    - columnheader "Total" [ref=e266]
+                - rowgroup [ref=e267]:
+                  - row "Blank Black T-Shirts XL 10 0 $5.00 $NaN" [ref=e268]:
+                    - cell "Blank Black T-Shirts XL" [ref=e269]
+                    - cell "10" [ref=e270]
+                    - cell "0" [ref=e271]
+                    - cell "$5.00" [ref=e272]
+                    - cell "$NaN" [ref=e273]
+          - generic [ref=e275]:
+            - heading "Totals" [level=2] [ref=e276]:
+              - img [ref=e277]
+              - text: Totals
+            - generic [ref=e279]:
+              - generic [ref=e280]:
+                - generic [ref=e281]: Subtotal
+                - generic [ref=e282]: $50.00
+              - generic [ref=e283]:
+                - generic [ref=e284]: Estimated Tax
+                - generic [ref=e285]: $0.00
+              - generic [ref=e286]:
+                - generic [ref=e287]: Total
+                - generic [ref=e288]: $50.00

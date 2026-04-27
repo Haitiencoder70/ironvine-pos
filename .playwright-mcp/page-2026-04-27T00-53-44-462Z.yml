@@ -1,0 +1,279 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - complementary [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: G
+        - generic [ref=e9]:
+          - generic [ref=e10]: GP's Organization
+          - generic [ref=e11]: POS
+      - navigation [ref=e12]:
+        - link "Dashboard" [ref=e15] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e17]
+          - generic [ref=e19]: Dashboard
+        - generic [ref=e21]:
+          - generic [ref=e22]: Operations
+          - generic [ref=e23]:
+            - link "Products" [ref=e24] [cursor=pointer]:
+              - /url: /products
+              - img [ref=e26]
+              - generic [ref=e29]: Products
+            - link "Orders" [ref=e30] [cursor=pointer]:
+              - /url: /orders
+              - img [ref=e32]
+              - generic [ref=e34]: Orders
+            - link "POS Terminal" [ref=e35] [cursor=pointer]:
+              - /url: /pos
+              - img [ref=e37]
+              - generic [ref=e39]: POS Terminal
+            - link "Inventory" [ref=e40] [cursor=pointer]:
+              - /url: /inventory
+              - img [ref=e42]
+              - generic [ref=e44]: Inventory
+            - link "Purchase Orders" [ref=e45] [cursor=pointer]:
+              - /url: /purchase-orders
+              - img [ref=e47]
+              - generic [ref=e49]: Purchase Orders
+            - link "Shipments" [ref=e50] [cursor=pointer]:
+              - /url: /shipments
+              - img [ref=e52]
+              - generic [ref=e54]: Shipments
+        - generic [ref=e56]:
+          - generic [ref=e57]: Management
+          - generic [ref=e58]:
+            - link "Customers" [ref=e59] [cursor=pointer]:
+              - /url: /customers
+              - img [ref=e61]
+              - generic [ref=e63]: Customers
+            - link "Vendors" [ref=e64] [cursor=pointer]:
+              - /url: /vendors
+              - img [ref=e66]
+              - generic [ref=e68]: Vendors
+            - link "Reports" [ref=e69] [cursor=pointer]:
+              - /url: /reports
+              - img [ref=e71]
+              - generic [ref=e73]: Reports
+        - link "Settings" [ref=e76] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e78]
+          - generic [ref=e81]: Settings
+      - generic [ref=e83]:
+        - generic [ref=e84]: G
+        - generic [ref=e85]:
+          - paragraph [ref=e86]: GP Pi
+          - paragraph [ref=e87]: Owner
+        - button "Sign out" [ref=e88] [cursor=pointer]:
+          - img [ref=e89]
+      - button "Collapse sidebar" [ref=e92] [cursor=pointer]:
+        - generic [ref=e93]:
+          - img [ref=e94]
+          - generic [ref=e96]: Collapse
+    - generic [ref=e97]:
+      - banner [ref=e98]:
+        - generic [ref=e99]:
+          - heading "Order Detail" [level=1] [ref=e100]
+          - paragraph [ref=e101]: GP's Organization
+        - button "Create new order" [ref=e102] [cursor=pointer]:
+          - img [ref=e103]
+          - generic [ref=e105]: New Order
+        - button "Open organization switcher" [ref=e107] [cursor=pointer]:
+          - generic [ref=e108]:
+            - img "GP's Organization's logo" [ref=e111]
+            - generic "GP's Organization" [ref=e114]
+          - img [ref=e115]
+        - button "Open user menu" [ref=e118] [cursor=pointer]:
+          - img "GP Pi's logo" [ref=e121]
+      - generic [ref=e123]:
+        - generic [ref=e124]: 🚫
+        - generic [ref=e125]: You've reached your limit of 1 team members.
+        - generic [ref=e126]:
+          - button "Upgrade" [ref=e127] [cursor=pointer]
+          - button "Dismiss" [ref=e128] [cursor=pointer]: ✕
+      - main [ref=e129]:
+        - generic [ref=e130]:
+          - generic [ref=e131]:
+            - button "Orders" [ref=e132] [cursor=pointer]:
+              - img [ref=e133]
+              - text: Orders
+            - generic [ref=e135]:
+              - heading "ORD-202604-0001" [level=1] [ref=e136]
+              - generic [ref=e137]: IN PRODUCTION
+              - generic [ref=e138]: Normal
+            - button "Order actions" [ref=e140] [cursor=pointer]:
+              - img [ref=e141]
+          - generic [ref=e143]:
+            - generic [ref=e144]:
+              - generic [ref=e145]:
+                - generic [ref=e146]:
+                  - heading "Customer" [level=2] [ref=e147]:
+                    - img [ref=e148]
+                    - text: Customer
+                  - link "View Profile" [ref=e150] [cursor=pointer]:
+                    - /url: /customers/cmog64b8i0001am4u3htvnc1c
+                - generic [ref=e152]:
+                  - generic [ref=e153]:
+                    - generic [ref=e154]: TC
+                    - paragraph [ref=e156]: Test Customer
+                  - paragraph [ref=e157]:
+                    - img [ref=e158]
+                    - link "555-123-4567" [ref=e160] [cursor=pointer]:
+                      - /url: tel:555-123-4567
+                  - paragraph [ref=e161]:
+                    - img [ref=e162]
+                    - link "test@example.com" [ref=e164] [cursor=pointer]:
+                      - /url: mailto:test@example.com
+              - generic [ref=e166]:
+                - heading "Order Items (1)" [level=2] [ref=e168]:
+                  - img [ref=e169]
+                  - text: Order Items (1)
+                - button "#1 Other 10 × $25.00 · DTF $250.00 ▼ Materials" [ref=e173] [cursor=pointer]:
+                  - generic [ref=e174]: "#1"
+                  - generic [ref=e175]:
+                    - paragraph [ref=e176]: Other
+                    - paragraph [ref=e177]: 10 × $25.00 · DTF
+                  - generic [ref=e178]:
+                    - paragraph [ref=e179]: $250.00
+                    - text: ▼ Materials
+                - button "Record Material Usage" [ref=e352] [cursor=pointer]
+              - generic [ref=e180]:
+                - heading "Design Mockups" [level=2] [ref=e182]:
+                  - img [ref=e183]
+                  - text: Design Mockups
+                - generic [ref=e185]:
+                  - button "Add image" [ref=e187] [cursor=pointer]:
+                    - generic [ref=e188]: +
+                    - generic [ref=e189]: Add
+                  - generic [ref=e190]:
+                    - button "Upload image — tap or drag here" [ref=e191] [cursor=pointer]:
+                      - generic [ref=e192]: 📷
+                      - generic [ref=e193]:
+                        - paragraph [ref=e194]: Tap to upload image
+                        - paragraph [ref=e195]: or drag & drop here
+                      - paragraph [ref=e196]: JPG, PNG, WebP up to 10 MB
+                    - generic [ref=e197]:
+                      - button "Take Photo" [ref=e198] [cursor=pointer]:
+                        - generic [ref=e199]: 📷
+                        - text: Take Photo
+                      - button "Choose File" [ref=e200] [cursor=pointer]:
+                        - generic [ref=e201]: 📁
+                        - text: Choose File
+                    - button "Choose File" [ref=e202]
+                  - generic [ref=e203]:
+                    - generic [ref=e204]:
+                      - img [ref=e205]
+                      - paragraph [ref=e208]: Awaiting Design Approval
+                    - generic [ref=e209]:
+                      - button "Request Approval" [ref=e210] [cursor=pointer]
+                      - button "Approve Design" [ref=e211] [cursor=pointer]
+              - generic [ref=e212]:
+                - heading "Production Photos" [level=2] [ref=e214]:
+                  - img [ref=e215]
+                  - text: Production Photos
+                - generic [ref=e218]:
+                  - paragraph [ref=e219]: Photos taken during production for quality assurance.
+                  - button "Add image" [ref=e221] [cursor=pointer]:
+                    - generic [ref=e222]: +
+                    - generic [ref=e223]: Add
+                  - generic [ref=e224]:
+                    - button "Upload image — tap or drag here" [ref=e225] [cursor=pointer]:
+                      - generic [ref=e226]: 📷
+                      - generic [ref=e227]:
+                        - paragraph [ref=e228]: Tap to upload image
+                        - paragraph [ref=e229]: or drag & drop here
+                      - paragraph [ref=e230]: JPG, PNG, WebP up to 10 MB
+                    - generic [ref=e231]:
+                      - button "Take Photo" [ref=e232] [cursor=pointer]:
+                        - generic [ref=e233]: 📷
+                        - text: Take Photo
+                      - button "Choose File" [ref=e234] [cursor=pointer]:
+                        - generic [ref=e235]: 📁
+                        - text: Choose File
+                    - button "Choose File" [ref=e236]
+              - generic [ref=e237]:
+                - heading "Order Totals" [level=2] [ref=e239]:
+                  - img [ref=e240]
+                  - text: Order Totals
+                - generic [ref=e242]:
+                  - generic [ref=e243]:
+                    - generic [ref=e244]: Subtotal
+                    - generic [ref=e245]: $250.00
+                  - generic [ref=e246]:
+                    - generic [ref=e247]: Tax
+                    - generic [ref=e248]: $0.00
+                  - generic [ref=e249]:
+                    - generic [ref=e250]: Total
+                    - generic [ref=e251]: $250.00
+            - generic [ref=e252]:
+              - generic [ref=e253]:
+                - heading "Order Progress" [level=2] [ref=e255]:
+                  - img [ref=e256]
+                  - text: Order Progress
+                - generic [ref=e258]:
+                  - button "Send to Quality Check" [ref=e353] [cursor=pointer]
+                  - list [ref=e262]:
+                    - listitem [ref=e263]:
+                      - img [ref=e265]
+                      - generic [ref=e267]:
+                        - paragraph [ref=e268]: Quote Created
+                        - paragraph [ref=e269]: Initial order quote
+                    - listitem [ref=e270]:
+                      - img [ref=e272]
+                      - generic [ref=e274]:
+                        - paragraph [ref=e275]: Sent for Approval
+                        - paragraph [ref=e276]: Awaiting customer approval
+                    - listitem [ref=e277]:
+                      - img [ref=e279]
+                      - generic [ref=e281]:
+                        - paragraph [ref=e282]: Customer Approved
+                        - paragraph [ref=e283]: Order confirmed
+                    - listitem [ref=e284]:
+                      - img [ref=e286]
+                      - generic [ref=e288]:
+                        - paragraph [ref=e289]: Materials Ordered
+                        - paragraph [ref=e290]: Purchase order sent to vendor
+                    - listitem [ref=e291]:
+                      - img [ref=e354]
+                      - generic [ref=e294]:
+                        - paragraph [ref=e295]: Materials Received
+                        - paragraph [ref=e296]: Inventory updated
+                    - listitem [ref=e297]:
+                      - generic [ref=e301]:
+                        - paragraph [ref=e302]: In ProductionCurrent
+                        - paragraph [ref=e303]: Printing & processing
+                    - listitem [ref=e304]:
+                      - img [ref=e306]
+                      - generic [ref=e308]:
+                        - paragraph [ref=e309]: Quality Check
+                        - paragraph [ref=e310]: Final inspection
+                    - listitem [ref=e311]:
+                      - img [ref=e313]
+                      - generic [ref=e315]:
+                        - paragraph [ref=e316]: Ready to Ship
+                        - paragraph [ref=e317]: Packed and labelled
+                    - listitem [ref=e318]:
+                      - img [ref=e320]
+                      - generic [ref=e322]:
+                        - paragraph [ref=e323]: Shipped
+                        - paragraph [ref=e324]: In transit
+                    - listitem [ref=e325]:
+                      - img [ref=e327]
+                      - generic [ref=e329]:
+                        - paragraph [ref=e330]: Delivered
+                        - paragraph [ref=e331]: Customer received
+                    - listitem [ref=e332]:
+                      - img [ref=e334]
+                      - generic [ref=e336]:
+                        - paragraph [ref=e337]: Completed
+                        - paragraph [ref=e338]: Order closed
+              - generic [ref=e339]:
+                - heading "Details" [level=2] [ref=e341]:
+                  - img [ref=e342]
+                  - text: Details
+                - generic [ref=e344]:
+                  - generic [ref=e345]:
+                    - term [ref=e346]: Created
+                    - definition [ref=e347]: Apr 26, 2026
+                  - generic [ref=e348]:
+                    - term [ref=e349]: Last Updated
+                    - definition [ref=e350]: Apr 26, 8:53 PM
+  - status [ref=e362]: Order moved to IN PRODUCTION

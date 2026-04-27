@@ -1,0 +1,169 @@
+- generic [ref=e3]:
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: G
+      - generic [ref=e9]:
+        - generic [ref=e10]: GP's Organization
+        - generic [ref=e11]: POS
+    - navigation [ref=e12]:
+      - link "Dashboard" [ref=e15] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e17]
+        - generic [ref=e19]: Dashboard
+      - generic [ref=e21]:
+        - generic [ref=e22]: Operations
+        - generic [ref=e23]:
+          - link "Products" [ref=e24] [cursor=pointer]:
+            - /url: /products
+            - img [ref=e26]
+            - generic [ref=e29]: Products
+          - link "Orders" [ref=e30] [cursor=pointer]:
+            - /url: /orders
+            - img [ref=e32]
+            - generic [ref=e34]: Orders
+          - link "POS Terminal" [ref=e35] [cursor=pointer]:
+            - /url: /pos
+            - img [ref=e37]
+            - generic [ref=e39]: POS Terminal
+          - link "Inventory" [ref=e40] [cursor=pointer]:
+            - /url: /inventory
+            - img [ref=e42]
+            - generic [ref=e44]: Inventory
+          - link "Purchase Orders" [ref=e45] [cursor=pointer]:
+            - /url: /purchase-orders
+            - img [ref=e47]
+            - generic [ref=e49]: Purchase Orders
+          - link "Shipments" [ref=e50] [cursor=pointer]:
+            - /url: /shipments
+            - img [ref=e52]
+            - generic [ref=e54]: Shipments
+      - generic [ref=e56]:
+        - generic [ref=e57]: Management
+        - generic [ref=e58]:
+          - link "Customers" [ref=e59] [cursor=pointer]:
+            - /url: /customers
+            - img [ref=e61]
+            - generic [ref=e63]: Customers
+          - link "Vendors" [ref=e64] [cursor=pointer]:
+            - /url: /vendors
+            - img [ref=e66]
+            - generic [ref=e68]: Vendors
+          - link "Reports" [ref=e69] [cursor=pointer]:
+            - /url: /reports
+            - img [ref=e71]
+            - generic [ref=e73]: Reports
+      - link "Settings" [ref=e76] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e78]
+        - generic [ref=e81]: Settings
+    - generic [ref=e83]:
+      - generic [ref=e84]: G
+      - generic [ref=e85]:
+        - paragraph [ref=e86]: GP Pi
+        - paragraph [ref=e87]: Owner
+      - button "Sign out" [ref=e88] [cursor=pointer]:
+        - img [ref=e89]
+    - button "Collapse sidebar" [ref=e92] [cursor=pointer]:
+      - generic [ref=e93]:
+        - img [ref=e94]
+        - generic [ref=e96]: Collapse
+  - generic [ref=e97]:
+    - banner [ref=e98]:
+      - generic [ref=e99]:
+        - heading "Dashboard" [level=1] [ref=e100]
+        - paragraph [ref=e101]: GP's Organization
+      - button "Create new order" [ref=e102] [cursor=pointer]:
+        - img [ref=e103]
+        - generic [ref=e105]: New Order
+      - button "Open organization switcher" [ref=e107] [cursor=pointer]:
+        - generic [ref=e108]:
+          - img "GP's Organization's logo" [ref=e111]
+          - generic "GP's Organization" [ref=e114]
+        - img [ref=e115]
+      - button "Open user menu" [ref=e118] [cursor=pointer]:
+        - img "GP Pi's logo" [ref=e121]
+    - main [ref=e129]:
+      - generic [ref=e130]:
+        - generic [ref=e131]:
+          - paragraph [ref=e132]: Sunday, April 26
+          - heading "Dashboard" [level=1] [ref=e133]
+        - generic [ref=e135]:
+          - button "0 Orders Today" [ref=e136] [cursor=pointer]:
+            - img [ref=e138]
+            - generic [ref=e140]:
+              - paragraph [ref=e141]: "0"
+              - paragraph [ref=e142]: Orders Today
+          - button "0 In Production" [ref=e143] [cursor=pointer]:
+            - img [ref=e145]
+            - generic [ref=e147]:
+              - paragraph [ref=e148]: "0"
+              - paragraph [ref=e149]: In Production
+          - button "0 Ready to Ship" [ref=e150] [cursor=pointer]:
+            - img [ref=e152]
+            - generic [ref=e154]:
+              - paragraph [ref=e155]: "0"
+              - paragraph [ref=e156]: Ready to Ship
+          - button "$0 Revenue Today" [ref=e157] [cursor=pointer]:
+            - img [ref=e159]
+            - generic [ref=e161]:
+              - paragraph [ref=e162]: $0
+              - paragraph [ref=e163]: Revenue Today
+        - generic [ref=e164]:
+          - generic [ref=e165]:
+            - generic [ref=e166]:
+              - heading "Recent Orders" [level=2] [ref=e167]
+              - link "View All" [ref=e168] [cursor=pointer]:
+                - /url: /orders
+                - text: View All
+                - img [ref=e169]
+            - generic [ref=e171]:
+              - img [ref=e173]
+              - paragraph [ref=e175]: No orders yet today
+              - paragraph [ref=e176]: Orders will appear here as they come in
+          - generic [ref=e177]:
+            - generic [ref=e178]:
+              - img [ref=e180]
+              - heading "Low Stock Alerts" [level=2] [ref=e182]
+            - generic [ref=e183]:
+              - img [ref=e185]
+              - paragraph [ref=e187]: All stock levels healthy
+              - paragraph [ref=e188]: No items below reorder point
+        - generic [ref=e190]:
+          - heading "💰 Profit Overview (This Month)" [level=2] [ref=e191]
+          - generic [ref=e192]:
+            - generic [ref=e193]:
+              - paragraph [ref=e194]: Revenue
+              - paragraph [ref=e195]: $0
+              - generic [ref=e196]: —
+            - generic [ref=e197]:
+              - paragraph [ref=e198]: Costs
+              - paragraph [ref=e199]: $0
+              - generic [ref=e200]: —
+            - generic [ref=e201]:
+              - paragraph [ref=e202]: Profit
+              - paragraph [ref=e203]: $0
+              - generic [ref=e204]: —
+            - generic [ref=e205]:
+              - paragraph [ref=e206]: Margin
+              - paragraph [ref=e207]: 0.0%
+              - generic [ref=e208]:
+                - img [ref=e209]
+                - text: +0.0 pts
+        - generic [ref=e212]:
+          - heading "🏆 Top Products (This Month)" [level=2] [ref=e213]
+          - paragraph [ref=e214]: No order data for this period.
+        - generic [ref=e216]:
+          - paragraph [ref=e217]: Quick Actions
+          - generic [ref=e218]:
+            - button "New Order" [ref=e219] [cursor=pointer]:
+              - img [ref=e221]
+              - generic [ref=e223]: New Order
+            - button "Add Customer" [ref=e224] [cursor=pointer]:
+              - img [ref=e226]
+              - generic [ref=e228]: Add Customer
+            - button "Create PO" [ref=e229] [cursor=pointer]:
+              - img [ref=e231]
+              - generic [ref=e233]: Create PO
+            - button "Check Inventory" [ref=e234] [cursor=pointer]:
+              - img [ref=e236]
+              - generic [ref=e238]: Check Inventory

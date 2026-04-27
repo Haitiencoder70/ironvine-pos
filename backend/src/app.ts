@@ -135,14 +135,13 @@ app.use(
         if (origin === a) return true;
         const base = a.replace(/^https?:\/\//, '');
         return origin.endsWith(`.${base}`) || new RegExp(`^https?://${base.replace('.', '\\.')}$`).test(origin);
-      });
+      // Also allow any subdomain of the root domain (e.g. ironvine.printflowpos.com)
+      }) || Boolean(rootDomain && (
+        origin === `https://${rootDomain}` ||
+        origin === `http://${rootDomain}` ||
+        origin.endsWith(`.${rootDomain}`)
+      ));
 
-      // For monolithic deployments, also allow the origin if it matches the current server's origin.
-      // We do this by not strictly failing if it's not in the list, but returning a generic allowed true
-      // since the monolithic deployment shares the exact same origin.
-      // If it fails, we will pass true anyway if the host matches the origin, but we don't have req here easily.
-      // Actually, passing the error to callback throws 500. Let's just return false instead of Error to avoid 500s.
-      // If we return callback(null, false), it just omits the Access-Control-Allow-Origin header instead of throwing 500!
       callback(null, isAllowed);
     },
     credentials: true,

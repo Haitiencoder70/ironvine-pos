@@ -1,0 +1,141 @@
+- generic [ref=e3]:
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: G
+      - generic [ref=e9]:
+        - generic [ref=e10]: GP's Organization
+        - generic [ref=e11]: POS
+    - navigation [ref=e12]:
+      - link "Dashboard" [ref=e15] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e17]
+        - generic [ref=e19]: Dashboard
+      - generic [ref=e21]:
+        - generic [ref=e22]: Operations
+        - generic [ref=e23]:
+          - link "Products" [ref=e24] [cursor=pointer]:
+            - /url: /products
+            - img [ref=e26]
+            - generic [ref=e29]: Products
+          - link "Orders" [ref=e30] [cursor=pointer]:
+            - /url: /orders
+            - img [ref=e32]
+            - generic [ref=e34]: Orders
+          - link "POS Terminal" [ref=e35] [cursor=pointer]:
+            - /url: /pos
+            - img [ref=e37]
+            - generic [ref=e39]: POS Terminal
+          - link "Inventory" [ref=e40] [cursor=pointer]:
+            - /url: /inventory
+            - img [ref=e42]
+            - generic [ref=e44]: Inventory
+          - link "Purchase Orders" [ref=e45] [cursor=pointer]:
+            - /url: /purchase-orders
+            - img [ref=e47]
+            - generic [ref=e49]: Purchase Orders
+          - link "Shipments" [ref=e50] [cursor=pointer]:
+            - /url: /shipments
+            - img [ref=e52]
+            - generic [ref=e54]: Shipments
+      - generic [ref=e56]:
+        - generic [ref=e57]: Management
+        - generic [ref=e58]:
+          - link "Customers" [ref=e59] [cursor=pointer]:
+            - /url: /customers
+            - img [ref=e61]
+            - generic [ref=e63]: Customers
+          - link "Vendors" [ref=e64] [cursor=pointer]:
+            - /url: /vendors
+            - img [ref=e66]
+            - generic [ref=e68]: Vendors
+          - link "Reports" [ref=e69] [cursor=pointer]:
+            - /url: /reports
+            - img [ref=e71]
+            - generic [ref=e73]: Reports
+      - link "Settings" [ref=e76] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e78]
+        - generic [ref=e81]: Settings
+    - generic [ref=e83]:
+      - generic [ref=e84]: G
+      - generic [ref=e85]:
+        - paragraph [ref=e86]: GP Pi
+        - paragraph [ref=e87]: Owner
+      - button "Sign out" [ref=e88] [cursor=pointer]:
+        - img [ref=e89]
+    - button "Collapse sidebar" [ref=e92] [cursor=pointer]:
+      - generic [ref=e93]:
+        - img [ref=e94]
+        - generic [ref=e96]: Collapse
+  - generic [ref=e97]:
+    - banner [ref=e98]:
+      - generic [ref=e99]:
+        - heading "PO Detail" [level=1] [ref=e649]
+        - paragraph [ref=e101]: GP's Organization
+      - button "Create new order" [ref=e102] [cursor=pointer]:
+        - img [ref=e103]
+        - generic [ref=e105]: New Order
+      - button "Open organization switcher" [ref=e107] [cursor=pointer]:
+        - generic [ref=e108]:
+          - img "GP's Organization's logo" [ref=e111]
+          - generic "GP's Organization" [ref=e114]
+        - img [ref=e115]
+      - button "Open user menu" [ref=e118] [cursor=pointer]:
+        - img "GP Pi's logo" [ref=e121]
+    - generic [ref=e123]:
+      - generic [ref=e124]: 🚫
+      - generic [ref=e125]: You've reached your limit of 1 team members.
+      - generic [ref=e126]:
+        - button "Upgrade" [ref=e127] [cursor=pointer]
+        - button "Dismiss" [ref=e128] [cursor=pointer]: ✕
+    - main [ref=e129]:
+      - generic [ref=e650]:
+        - generic [ref=e651]:
+          - button [ref=e652] [cursor=pointer]:
+            - img [ref=e653]
+          - generic [ref=e655]:
+            - heading "Create Purchase Order" [level=1] [ref=e656]
+            - paragraph [ref=e657]:
+              - img [ref=e658]
+              - text: "Ordering for Job: ORD-202604-0001"
+        - generic [ref=e660]:
+          - generic [ref=e661]:
+            - heading "Vendor & Fulfillment" [level=2] [ref=e662]:
+              - img [ref=e663]
+              - text: Vendor & Fulfillment
+            - generic [ref=e665]:
+              - generic [ref=e666]:
+                - generic [ref=e667]: Select Vendor *
+                - combobox [ref=e669] [cursor=pointer]:
+                  - option "Select a vendor..." [disabled] [selected]
+              - generic [ref=e670]:
+                - generic [ref=e671]: Expected Delivery
+                - textbox [ref=e672]
+              - generic [ref=e673]:
+                - generic [ref=e674]: Vendor Notes (Optional)
+                - textbox "Please pack by sizes..." [ref=e675]
+          - generic [ref=e676]:
+            - heading "Line Items" [level=2] [ref=e678]:
+              - img [ref=e679]
+              - text: Line Items
+            - generic [ref=e681]:
+              - paragraph [ref=e683]: No items added to this PO yet.
+              - generic [ref=e684]:
+                - button "Add Catalog Item" [ref=e685] [cursor=pointer]:
+                  - img [ref=e686]
+                  - text: Add Catalog Item
+                - button "Add Custom Item" [ref=e688] [cursor=pointer]:
+                  - img [ref=e689]
+                  - text: Add Custom Item
+          - generic [ref=e692]:
+            - generic [ref=e693]:
+              - generic [ref=e694]: Subtotal
+              - generic [ref=e695]: $0.00
+            - generic [ref=e696]:
+              - generic [ref=e697]: Estimated Total
+              - generic [ref=e698]: $0.00
+          - generic [ref=e700]:
+            - button "Cancel" [ref=e701] [cursor=pointer]
+            - button "Save Draft PO" [ref=e702] [cursor=pointer]:
+              - img [ref=e703]
+              - text: Save Draft PO
