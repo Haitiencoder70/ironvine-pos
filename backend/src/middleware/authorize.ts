@@ -59,12 +59,24 @@ export const authorize = (...permissions: Permission[]) => {
             inviteAccepted:      true,
             organizationId:      organizationDbId,
           };
-          user = await prisma.user.upsert({
-            where:  { clerkUserId },
-            update: { organizationId: organizationDbId, isActive: true },
-            create: { clerkUserId, ...userData },
-            select: { id: true, role: true, customPermissions: true },
-          });
+          // Cannot use upsert here: tenantIsolationExtension injects organizationId
+          // into the upsert.where, making it { clerkUserId, organizationId } which
+          // is not a unique constraint → Prisma throws. Use create + findUnique fallback.
+          try {
+            user = await prisma.user.create({
+              data:   { clerkUserId, ...userData },
+              select: { id: true, role: true, customPermissions: true },
+            });
+          } catch {
+            // clerkUserId already exists (race condition or prior partial provisioning).
+            // findUnique is a no-op in tenantIsolationExtension so it bypasses the org filter.
+            const existing = await prisma.user.findUnique({
+              where:  { clerkUserId },
+              select: { id: true, role: true, customPermissions: true },
+            });
+            if (!existing) throw new Error('User vanished after create conflict');
+            user = existing;
+          }
           logger.info('Auto-provisioned user via authorize JIT', { clerkUserId, organizationDbId });
         } catch (provisionErr) {
           logger.error('JIT user provisioning failed in authorize', { provisionErr, clerkUserId, organizationDbId });
