@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { organizationApi } from '../../services/organizationApi';
 
+const APP_DOMAIN = (import.meta.env['VITE_APP_DOMAIN'] as string | undefined) ?? 'printflowpos.com';
+
 interface SubdomainCheckerProps {
   value: string;
   onChange: (value: string) => void;
@@ -67,7 +69,7 @@ export function SubdomainChecker({ value, onChange, error }: SubdomainCheckerPro
           className="flex-1 min-h-[44px] px-3 text-sm outline-none bg-transparent"
         />
         <span className="px-3 text-sm text-gray-400 bg-gray-50 border-l border-gray-300 h-full flex items-center whitespace-nowrap">
-          .yourapp.com
+          .{APP_DOMAIN}
         </span>
       </div>
       <div className="flex items-center justify-between flex-wrap gap-1">
