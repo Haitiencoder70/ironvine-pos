@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth, RedirectToSignIn } from '@clerk/clerk-react';
+import { getAppUrl } from '../../utils/tenant';
 import { z } from 'zod';
 import { PlanCard } from '../../components/signup/PlanCard';
 import { SubdomainChecker } from '../../components/signup/SubdomainChecker';
@@ -106,7 +107,6 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export function OrganizationSignup(): React.JSX.Element {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { isLoaded, isSignedIn } = useAuth();
   const [step, setStep] = useState(1);
@@ -116,6 +116,21 @@ export function OrganizationSignup(): React.JSX.Element {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [checkingExistingOrg, setCheckingExistingOrg] = useState(true);
+
+  // If the user already has an org, send them straight to their dashboard.
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) { setCheckingExistingOrg(false); return; }
+    organizationApi.findMine()
+      .then((org) => {
+        if (org?.subdomain) {
+          window.location.href = `${getAppUrl(org.subdomain)}/dashboard`;
+        } else {
+          setCheckingExistingOrg(false);
+        }
+      })
+      .catch(() => setCheckingExistingOrg(false));
+  }, [isLoaded, isSignedIn]);
 
   // Detect if we're in the middle of a Clerk SSO callback — the URL will contain
   // '__clerk_status' or 'rotating_token_nonce' query params while Clerk is
@@ -189,8 +204,8 @@ export function OrganizationSignup(): React.JSX.Element {
     }
   }
 
-  // While Clerk is loading, show a spinner — never redirect during this time
-  if (!isLoaded || isSsoCallback) {
+  // While Clerk is loading or we're checking for an existing org, show a spinner
+  if (!isLoaded || isSsoCallback || checkingExistingOrg) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="h-8 w-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
@@ -335,12 +350,6 @@ export function OrganizationSignup(): React.JSX.Element {
             )}
           </div>
 
-          <p className="text-center text-xs text-gray-400">
-            Already have an account?{' '}
-            <button onClick={() => navigate('/sign-in')} className="text-blue-600 hover:underline">
-              Sign in
-            </button>
-          </p>
         </div>
       </div>
     </div>

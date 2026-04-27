@@ -29,6 +29,9 @@ export interface OrgUsage {
 }
 
 export const organizationApi = {
+  findMine: () =>
+    api.get<{ data: { slug: string; subdomain: string; name: string } | null }>('/organizations/mine').then((r) => r.data.data),
+
   checkSlugAvailability: (slug: string) =>
     api.get<SlugAvailability>(`/organizations/slug-check`, { params: { slug } }).then((r) => r.data),
 

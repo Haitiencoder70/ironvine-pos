@@ -366,6 +366,29 @@ export const checkSlugAvailability = async (req: Request, res: Response, next: N
   }
 };
 
+// ─── findMine ─────────────────────────────────────────────────────────────────
+// Requires Clerk auth but NO tenant context.
+// Returns the org the signed-in user belongs to, or null.
+// Used by the signup page to redirect returning users to their subdomain.
+
+export const findMine = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const auth = getAuth(req);
+    if (!auth.userId) {
+      return next(new AppError(401, 'Authentication required.', 'UNAUTHENTICATED'));
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { clerkUserId: auth.userId, isActive: true },
+      select: { organization: { select: { slug: true, subdomain: true, name: true } } },
+    });
+
+    res.json({ data: user?.organization ?? null });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ─── createOrganization ───────────────────────────────────────────────────────
 // Requires Clerk auth but NO tenant context — creates the org for the first time.
 
