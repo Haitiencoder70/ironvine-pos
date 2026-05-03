@@ -1,0 +1,26 @@
+app = "ironvine-pos"
+
+[build]
+  [build.args]
+    VITE_API_URL = "https://pos.printflowpos.com"
+    VITE_SOCKET_URL = "https://pos.printflowpos.com"
+    VITE_APP_DOMAIN = "printflowpos.com"
+    # VITE_CLERK_PUBLISHABLE_KEY is passed as a secret build arg via fly deploy --build-secret
+
+[env]
+  PORT = "3001"
+  NODE_ENV = "production"
+  FRONTEND_URL = "https://pos.printflowpos.com"
+  CORS_ORIGINS = "https://pos.printflowpos.com"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

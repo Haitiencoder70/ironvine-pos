@@ -76,7 +76,7 @@ model Organization {
 
 model User {
   id                  String       @id @default(cuid())
-  clerkUserId         String       @unique
+  clerkUserId         String
   email               String
   firstName           String
   lastName            String
@@ -93,6 +93,7 @@ model User {
   updatedAt           DateTime     @updatedAt
   organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  @@unique([clerkUserId, organizationId])
   @@unique([email, organizationId])
   @@index([organizationId])
   @@map("users")

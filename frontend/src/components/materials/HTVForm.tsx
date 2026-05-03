@@ -55,7 +55,7 @@ export function HTVForm({ onAdd, onCancel, defaultValues }: HTVFormProps) {
 
   const description = generateHTVDescription(brand, productLine, color, size, quantity);
 
-  const onSubmit = (_data: HTVFormValues): void => {
+  const onSubmit = (): void => {
     onAdd({
       category: 'HTV_VINYL',
       description,

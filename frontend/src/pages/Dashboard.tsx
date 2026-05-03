@@ -13,7 +13,6 @@ import { LowStockAlerts } from './dashboard/LowStockAlerts';
 import { QuickActions } from './dashboard/QuickActions';
 import { ProfitOverview } from './dashboard/ProfitOverview';
 import { TopProducts } from './dashboard/TopProducts';
-import type { Order, InventoryItem } from '../types';
 
 const containerVariants = {
   hidden: {},
@@ -67,12 +66,12 @@ export function DashboardPage(): JSX.Element {
 
   useEffect(() => {
     const unsubOrders = subscribeToOrders({
-      onCreated: (_order: Order) => {
+      onCreated: () => {
         void queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
         void queryClient.invalidateQueries({ queryKey: ['dashboard', 'recent-orders'] });
         toast.success('New order received', { id: 'order-created' });
       },
-      onStatusChanged: (_order: Order) => {
+      onStatusChanged: () => {
         void queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
         void queryClient.invalidateQueries({ queryKey: ['dashboard', 'recent-orders'] });
         toast('Order status updated', { icon: '📋', id: 'order-status' });
@@ -80,11 +79,11 @@ export function DashboardPage(): JSX.Element {
     });
 
     const unsubInventory = subscribeToInventory({
-      onLowStock: (_item: InventoryItem) => {
+      onLowStock: () => {
         void queryClient.invalidateQueries({ queryKey: ['dashboard', 'low-stock'] });
         toast('Low stock alert', { icon: '⚠️', id: 'low-stock', style: { background: '#fffbeb', color: '#92400e' } });
       },
-      onAdjusted: (_item: InventoryItem) => {
+      onAdjusted: () => {
         void queryClient.invalidateQueries({ queryKey: ['dashboard', 'low-stock'] });
       },
     });

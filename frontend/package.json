@@ -14,7 +14,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.18.0",
+    "@clerk/clerk-react": "^5.61.3",
     "@codemirror/lang-css": "^6.3.1",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
@@ -24,7 +24,7 @@
     "@tanstack/react-virtual": "^3.13.24",
     "@types/canvas-confetti": "^1.9.0",
     "@uiw/react-codemirror": "^4.25.9",
-    "axios": "^1.7.0",
+    "axios": "^1.16.0",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

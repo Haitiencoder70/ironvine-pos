@@ -8,7 +8,8 @@ import { logger } from '../lib/logger';
 const DB_NAME = 'ironvine-pos-offline';
 const STORE_NAME = 'mutation-queue';
 const DB_VERSION = 1;
-const BASE_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? 'http://localhost:3001';
+const API_ORIGIN = (import.meta.env['VITE_API_URL'] as string | undefined) ?? window.location.origin;
+const BASE_URL = API_ORIGIN.endsWith('/api') ? API_ORIGIN : `${API_ORIGIN}/api`;
 const MAX_RETRY_COUNT = 5;
 
 export interface QueuedMutation {

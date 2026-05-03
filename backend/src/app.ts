@@ -147,8 +147,6 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.json({ limit: '10mb' }));
-app.use(sanitizeInput);
 // Global rate limiter — coarse guard before auth resolves
 app.use(
   rateLimit({
@@ -181,12 +179,18 @@ const orgRateLimiter = rateLimit({
 app.use('/health', healthRouter);
 app.use('/api/health', healthRouter);
 
+// Stripe webhook must be mounted before express.json so Stripe receives the
+// exact raw request body for signature verification.
+app.use('/api/billing', billingWebhookRouter);
+
+app.use(express.json({ limit: '10mb' }));
+app.use(sanitizeInput);
+
 // ─── Public Routes ────────────────────────────────────────────────────────
 // Order tracking is unauthenticated (customers use a share link).
 app.use('/api/tracking', trackingRouter);
 
 // ─── Stripe webhook (before clerkAuth — raw body, no Clerk JWT) ──────────
-app.use('/api/billing', billingWebhookRouter);
 
 // ─── Public org invite endpoints (no auth — accept-invite page) ───────────
 app.use('/api/organization', publicInviteRouter);

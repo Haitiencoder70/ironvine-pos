@@ -26,7 +26,11 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
   const toggleAddOn = (id: string) => {
     setSelectedAddOns(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };

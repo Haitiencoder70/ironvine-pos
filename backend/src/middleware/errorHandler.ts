@@ -20,6 +20,8 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ): void {
+  void _next;
+
   // ── Zod validation errors ──────────────────────────────────────────────────
   if (err instanceof ZodError) {
     res.status(400).json({

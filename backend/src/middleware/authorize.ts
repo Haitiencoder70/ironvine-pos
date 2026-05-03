@@ -33,11 +33,14 @@ export const authorize = (...permissions: Permission[]) => {
       });
 
       if (!user) {
-        // JIT provisioning: requireAuth runs before injectTenant so orgDbId is
-        // unavailable there. authorize() is the first place all context exists.
-        // Uses upsert on clerkUserId (globally unique) so that a user who already
-        // exists in another org (e.g. after an org migration) gets their org updated
-        // rather than hitting a unique constraint violation.
+        const clerkOrgId = authReq.auth?.orgId;
+        if (!clerkOrgId || req.organizationId !== clerkOrgId) {
+          res.status(403).json({ error: 'Forbidden', code: 'ORG_MEMBERSHIP_REQUIRED' });
+          return;
+        }
+
+        // JIT provisioning is allowed only after injectTenant proves the
+        // requested tenant matches the Clerk org in the session token.
         try {
           const clerk = createClerkClient({
             secretKey: env.CLERK_SECRET_KEY,
@@ -68,10 +71,9 @@ export const authorize = (...permissions: Permission[]) => {
               select: { id: true, role: true, customPermissions: true },
             });
           } catch {
-            // clerkUserId already exists (race condition or prior partial provisioning).
-            // findUnique is a no-op in tenantIsolationExtension so it bypasses the org filter.
-            const existing = await prisma.user.findUnique({
-              where:  { clerkUserId },
+            // Race condition: another request created this org membership first.
+            const existing = await prisma.user.findFirst({
+              where:  { clerkUserId, organizationId: organizationDbId },
               select: { id: true, role: true, customPermissions: true },
             });
             if (!existing) throw new Error('User vanished after create conflict');
@@ -121,7 +123,7 @@ export const authorize = (...permissions: Permission[]) => {
       };
 
       next();
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Internal server error', code: 'AUTHORIZE_ERROR' });
     }
   };

@@ -127,7 +127,6 @@ const CATEGORY_LABELS: Record<MaterialCategory, string> = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function MaterialSelector({
-  context: _context,
   defaultCategory,
   defaultValues,
   onAddItem,

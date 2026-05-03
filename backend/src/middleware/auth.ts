@@ -1,8 +1,7 @@
-import { clerkMiddleware, getAuth, createClerkClient } from '@clerk/express';
+import { clerkMiddleware, getAuth } from '@clerk/express';
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types';
 import { AppError } from './errorHandler';
-import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { env } from '../config/env';
 
@@ -35,11 +34,11 @@ export const clerkAuth = (req: Request, res: Response, next: NextFunction): void
 };
 
 /**
- * Verify the request carries a valid Clerk session and that the authenticated
- * user is a member of the organisation resolved by `injectTenant`.
+ * Verify the request carries a valid Clerk session with an active org context.
  *
- * Must run AFTER `clerkAuth` (which populates `getAuth(req)`) and
- * AFTER `injectTenant` (which populates `req.organizationDbId`).
+ * Must run AFTER `clerkAuth` (which populates `getAuth(req)`).
+ * Tenant matching and DB user provisioning happen later, after `injectTenant`
+ * resolves the requested tenant.
  */
 export async function requireAuth(
   req: Request,
@@ -52,83 +51,13 @@ export async function requireAuth(
     return next(new AppError(401, 'Authentication required.', 'UNAUTHENTICATED'));
   }
 
-  // Skip the orgId requirement when the request carries a subdomain hint.
-  // injectTenant (which runs after this) will resolve the org from the
-  // X-Organization-Slug header or the request hostname, so a missing orgId
-  // in the Clerk JWT is acceptable in that case.
-  const subdomainHint =
-    (req.headers['x-organization-slug'] as string | undefined) ||
-    req.hostname.split('.')[0];
-
-  if (!auth.orgId && !req.organizationDbId && !subdomainHint) {
+  if (!auth.orgId) {
     return next(new AppError(403, 'Organisation context required.', 'NO_ORG_CONTEXT'));
-  }
-
-  // ── Cross-check: user must belong to the resolved tenant ──────────────────
-  // `req.organizationDbId` is set by injectTenant. When the tenant is resolved
-  // via subdomain, this is the canonical check that prevents a user from one
-  // Clerk org from accessing another org's subdomain.
-  const orgDbId = req.organizationDbId;
-
-  if (orgDbId) {
-    try {
-      const membership = await prisma.user.findFirst({
-        where: {
-          clerkUserId:    auth.userId,
-          organizationId: orgDbId,
-          isActive:       true,
-        },
-        select: { id: true, role: true },
-      });
-
-      if (!membership) {
-        // Just-in-time provisioning: create the user row on first authenticated
-        // request if they have a valid Clerk session but no DB record yet.
-        try {
-          const clerk = createClerkClient({ 
-            secretKey: env.CLERK_SECRET_KEY,
-            publishableKey: env.CLERK_PUBLISHABLE_KEY 
-          });
-          const clerkUser = await clerk.users.getUser(auth.userId);
-          const role = auth.orgRole === 'org:admin' ? 'OWNER'
-            : auth.orgRole === 'org:manager' ? 'MANAGER'
-            : 'STAFF';
-          await prisma.user.create({
-            data: {
-              clerkUserId:         auth.userId,
-              email:               clerkUser.emailAddresses[0]?.emailAddress ?? `${auth.userId}@unknown.com`,
-              firstName:           clerkUser.firstName ?? '',
-              lastName:            clerkUser.lastName ?? '',
-              avatarUrl:           clerkUser.imageUrl ?? null,
-              role:                role as 'OWNER' | 'MANAGER' | 'STAFF',
-              isActive:            true,
-              isOrganizationOwner: auth.orgRole === 'org:admin',
-              inviteAccepted:      true,
-              organizationId:      orgDbId,
-            },
-          });
-          logger.info('Auto-provisioned user on first login', { userId: auth.userId, orgDbId });
-        } catch (provisionErr) {
-          logger.error('Failed to auto-provision user', { provisionErr });
-          return next(new AppError(403, 'You are not a member of this organisation.', 'NOT_ORG_MEMBER'));
-        }
-      }
-    } catch (error) {
-      logger.error('Failed to verify org membership', { error });
-      return next(new AppError(500, 'Failed to verify organisation membership.', 'MEMBERSHIP_CHECK_ERROR'));
-    }
-  }
-
-  // If the tenant was resolved via subdomain, auth.orgId may be absent from
-  // the Clerk JWT (user hasn't set an active org in their session yet).
-  // The subdomain check already verified membership so this is safe to allow.
-  if (!auth.orgId && !req.organizationDbId) {
-    return next(new AppError(401, 'No organisation context found.', 'NO_ORG_CONTEXT'));
   }
 
   (req as AuthenticatedRequest).auth = {
     userId:  auth.userId,
-    orgId:   auth.orgId ?? '',
+    orgId:   auth.orgId,
     orgRole: auth.orgRole ?? '',
   };
 

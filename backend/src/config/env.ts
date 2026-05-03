@@ -6,12 +6,12 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   CLERK_SECRET_KEY: z.string().min(1, 'CLERK_SECRET_KEY is required').transform(s => s.replace(/^"|"$/g, '').trim()),
   CLERK_PUBLISHABLE_KEY: z.string().min(1, 'CLERK_PUBLISHABLE_KEY is required').transform(s => s.replace(/^"|"$/g, '').trim()),
-  STRIPE_SECRET_KEY: z.string().optional(),
-  STRIPE_WEBHOOK_SECRET: z.string().optional(),
-  STRIPE_PRICE_STARTER: z.string().optional(),
-  STRIPE_PRICE_PRO: z.string().optional(),
-  STRIPE_PRICE_ENTERPRISE: z.string().optional(),
-  RESEND_API_KEY: z.string().optional(),
+  STRIPE_SECRET_KEY: z.string().min(1).optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+  STRIPE_PRICE_STARTER: z.string().min(1).optional(),
+  STRIPE_PRICE_PRO: z.string().min(1).optional(),
+  STRIPE_PRICE_ENTERPRISE: z.string().min(1).optional(),
+  RESEND_API_KEY: z.string().min(1).optional(),
   S3_BUCKET: z.string().min(1).optional(),
   S3_REGION: z.string().min(1).default('us-east-1'),
   S3_ACCESS_KEY: z.string().min(1).optional(),
@@ -20,6 +20,32 @@ const envSchema = z.object({
   S3_PUBLIC_URL: z.string().url().optional(),
   FRONTEND_URL: z.string().url().default('http://localhost:5173'),
   CORS_ORIGINS: z.string().default('http://localhost:5173,https://pos.printflowpos.com'),
+}).superRefine((value, ctx) => {
+  if (value.NODE_ENV !== 'production') return;
+
+  const requiredInProduction: Array<keyof typeof value> = [
+    'STRIPE_SECRET_KEY',
+    'STRIPE_WEBHOOK_SECRET',
+    'STRIPE_PRICE_STARTER',
+    'STRIPE_PRICE_PRO',
+    'RESEND_API_KEY',
+    'S3_BUCKET',
+    'S3_ACCESS_KEY',
+    'S3_SECRET_KEY',
+    'S3_ENDPOINT',
+    'S3_PUBLIC_URL',
+  ];
+
+  for (const key of requiredInProduction) {
+    const current = value[key];
+    if (typeof current !== 'string' || current.trim().length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [key],
+        message: `${key} is required in production`,
+      });
+    }
+  }
 });
 
 function parseEnv(): z.infer<typeof envSchema> {

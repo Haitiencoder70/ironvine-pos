@@ -70,7 +70,7 @@ export function GarmentForm({ onAdd, onCancel, defaultValues }: GarmentFormProps
     totalQty
   );
 
-  const onSubmit = (_data: GarmentFormValues): void => {
+  const onSubmit = (): void => {
     onAdd({
       category: 'BLANK_GARMENT',
       description,

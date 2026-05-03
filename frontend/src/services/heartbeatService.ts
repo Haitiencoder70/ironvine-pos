@@ -30,7 +30,7 @@ export const heartbeatService = {
       }
 
       return reachable;
-    } catch (error) {
+    } catch {
       useOfflineStore.getState().setBackendReachable(false);
       return false;
     }

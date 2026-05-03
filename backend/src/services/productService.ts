@@ -337,9 +337,13 @@ export async function duplicateProduct(organizationId: string, productId: string
       isActive: true,
       isFeatured: false,
       materialTemplates: {
-        create: source.materialTemplates.map(({ id: _id, createdAt: _c, updatedAt: _u, productId: _p, ...t }) => ({
-          ...t,
-        })),
+        create: source.materialTemplates.map(({ id, createdAt, updatedAt, productId, ...template }) => {
+          void id;
+          void createdAt;
+          void updatedAt;
+          void productId;
+          return { ...template };
+        }),
       },
     },
     include: {

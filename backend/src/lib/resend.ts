@@ -3,7 +3,7 @@ import { env } from '../config/env';
 
 // Resend throws on empty string — use a placeholder so the server starts
 // without email configured. Sending emails will fail gracefully at runtime.
-export const resend = new Resend(env.RESEND_API_KEY || 're_placeholder_key');
+export const resend = new Resend(env.RESEND_API_KEY ?? 're_development_placeholder_key');
 
 export const DEFAULT_FROM_ADDRESS = 'Ironvine POS <noreply@printflowpos.com>';
 export const FROM_ADDRESS = DEFAULT_FROM_ADDRESS; // backwards-compat alias

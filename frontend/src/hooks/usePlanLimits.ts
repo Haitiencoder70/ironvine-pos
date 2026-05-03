@@ -59,7 +59,7 @@ export function usePlanLimits() {
   const canAddInventory   = useCallback((fireModal = true) => check('inventoryItems', 'Inventory Items',  fireModal), [check]);
 
   /** Check a file upload against a hypothetical storage limit (future). */
-  const canUploadFile = useCallback((_fileSizeBytes: number): LimitCheck => {
+  const canUploadFile = useCallback((): LimitCheck => {
     // Storage tracking is not yet in the billing usage API — always allow for now
     return { allowed: true, message: 'Storage: unlimited' };
   }, []);

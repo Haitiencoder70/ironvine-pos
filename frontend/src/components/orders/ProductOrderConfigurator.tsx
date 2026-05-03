@@ -746,7 +746,11 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
                     checked={checked}
                     onChange={() => setSelectedAddOnIds(prev => {
                       const next = new Set(prev);
-                      next.has(ao.id) ? next.delete(ao.id) : next.add(ao.id);
+                      if (next.has(ao.id)) {
+                        next.delete(ao.id);
+                      } else {
+                        next.add(ao.id);
+                      }
                       return next;
                     })}
                     className="h-4 w-4 rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500/50 accent-blue-500"

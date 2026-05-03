@@ -19,6 +19,11 @@ build/
 logs/
 *.log
 npm-debug.log*
+.npm-cache/
+.npm-cache-backend/
+.npm-cache-frontend/
+.npm-cache-root/
+.depwork/
 
 # OS
 .DS_Store

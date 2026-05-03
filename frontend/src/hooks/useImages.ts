@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { imagesApi } from '../services/api';
 import { useIsReady } from './useIsReady';
-import type { Image } from '../types';
 
 export function useEntityImages(entityType: string, entityId: string | undefined) {
   const qc = useQueryClient();
@@ -30,7 +29,7 @@ export function useEntityImages(entityType: string, entityId: string | undefined
     onSuccess: () => void qc.invalidateQueries({ queryKey: key }),
   });
 
-  function onUploaded(_newImages: Image[]) {
+  function onUploaded() {
     void qc.invalidateQueries({ queryKey: key });
   }
 

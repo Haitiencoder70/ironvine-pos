@@ -39,7 +39,7 @@ interface ProductGridProps {
   onOpenConfigurator: () => void;
 }
 
-export function ProductGrid({ onAddToCart, onOpenConfigurator: _onOpenConfigurator }: ProductGridProps): React.JSX.Element {
+export function ProductGrid({ onAddToCart }: ProductGridProps): React.JSX.Element {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [tappedId, setTappedId] = useState<string | null>(null);

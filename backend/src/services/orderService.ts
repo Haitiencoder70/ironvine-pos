@@ -178,25 +178,39 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
 export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<Order> {
   const { organizationId, orderId, newStatus, notes, performedBy } = input;
 
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    select: { id: true, organizationId: true, status: true, orderNumber: true, customer: { select: { email: true, phone: true } } },
-  });
+  const { order: updated, prevStatus, prevOrderNumber, prevCustomer } = await prisma.$transaction(async (tx) => {
+    // Lock the row so two concurrent requests cannot both pass transition validation
+    const [locked] = await tx.$queryRaw<Array<{
+      id: string;
+      organizationId: string;
+      status: string;
+      orderNumber: string;
+    }>>`
+      SELECT id, "organizationId", status::text, "orderNumber"
+      FROM orders
+      WHERE id = ${orderId}
+      FOR UPDATE
+    `;
 
-  if (!order || order.organizationId !== organizationId) {
-    throw new AppError(404, 'Order not found', 'ORDER_NOT_FOUND');
-  }
+    if (!locked || locked.organizationId !== organizationId) {
+      throw new AppError(404, 'Order not found', 'ORDER_NOT_FOUND');
+    }
 
-  const allowedNext = VALID_TRANSITIONS[order.status] ?? [];
-  if (!allowedNext.includes(newStatus)) {
-    throw new AppError(
-      400,
-      `Cannot transition order from ${order.status} to ${newStatus}`,
-      'INVALID_STATUS_TRANSITION',
-    );
-  }
+    const currentStatus = locked.status as OrderStatus;
+    const allowedNext = VALID_TRANSITIONS[currentStatus] ?? [];
+    if (!allowedNext.includes(newStatus)) {
+      throw new AppError(
+        400,
+        `Cannot transition order from ${currentStatus} to ${newStatus}`,
+        'INVALID_STATUS_TRANSITION',
+      );
+    }
 
-  const updated = await prisma.$transaction(async (tx) => {
+    const withCustomer = await tx.order.findUnique({
+      where: { id: orderId },
+      select: { customer: { select: { email: true, phone: true } } },
+    });
+
     const result = await tx.order.update({
       where: { id: orderId },
       data: { status: newStatus },
@@ -205,7 +219,7 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
     await tx.orderStatusHistory.create({
       data: {
         orderId,
-        fromStatus: order.status,
+        fromStatus: currentStatus,
         toStatus: newStatus,
         changedBy: performedBy,
         notes,
@@ -218,9 +232,9 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
         action: 'STATUS_CHANGED',
         entityType: 'Order',
         entityId: orderId,
-        entityLabel: order.orderNumber,
-        description: `Status changed from ${order.status} to ${newStatus}`,
-        metadata: { from: order.status, to: newStatus },
+        entityLabel: locked.orderNumber,
+        description: `Status changed from ${currentStatus} to ${newStatus}`,
+        metadata: { from: currentStatus, to: newStatus },
         performedBy,
         organizationId,
       },
@@ -263,18 +277,22 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
       }
     }
 
-    return result;
+    return {
+      order: result,
+      prevStatus: currentStatus,
+      prevOrderNumber: locked.orderNumber,
+      prevCustomer: (withCustomer?.customer ?? null) as { email: string | null; phone: string | null } | null,
+    };
   });
 
-  logger.info('Order status updated', { orderId, from: order.status, to: newStatus });
+  logger.info('Order status updated', { orderId, from: prevStatus, to: newStatus });
   emitToOrg(getCurrentOrganizationId(), 'order:status-changed', updated);
 
-  // Send notifications sequentially after commit to ensure integrity
-  if (order.customer?.email) {
-    void sendOrderStatusEmail(organizationId, order.customer.email, order.orderNumber, newStatus);
+  if (prevCustomer?.email) {
+    void sendOrderStatusEmail(organizationId, prevCustomer.email, prevOrderNumber, newStatus);
   }
-  if (newStatus === 'READY_TO_SHIP' && order.customer?.phone) {
-    void sendOrderReadySMS(organizationId, order.customer.phone, order.orderNumber);
+  if (newStatus === 'READY_TO_SHIP' && prevCustomer?.phone) {
+    void sendOrderReadySMS(organizationId, prevCustomer.phone, prevOrderNumber);
   }
 
   return updated;

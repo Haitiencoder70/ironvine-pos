@@ -1,6 +1,5 @@
 import { testPrisma } from './db';
 import type { Organization, User } from '@prisma/client';
-// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
 const { faker } = require('@faker-js/faker') as {
   faker: {
     internet: { domainWord(): string; email(): string };

@@ -157,7 +157,7 @@ function BrandingTab({ settings, plan }: { settings: OrgSettings; plan: string }
     if (!file) return;
     const id = toast.loading('Uploading logo…');
     settingsApi.uploadLogo(file)
-      .then((_res) => {
+      .then(() => {
         void qc.invalidateQueries({ queryKey: ['settings', 'org'] });
         toast.success('Logo updated', { id });
       })

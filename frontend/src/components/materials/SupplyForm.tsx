@@ -59,7 +59,7 @@ export function SupplyForm({ onAdd, onCancel, defaultValues }: SupplyFormProps) 
     ? generateSupplyDescription(selectedItem, selectedVariant, quantity, { color, type })
     : '';
 
-  const onSubmit = (_data: SupplyFormValues): void => {
+  const onSubmit = (): void => {
     onAdd({
       category: 'SUPPLIES',
       description,

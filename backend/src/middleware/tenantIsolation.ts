@@ -32,6 +32,8 @@ function applyTenantIsolation(
     case 'findMany':
     case 'findFirst':
     case 'findFirstOrThrow':
+    case 'findUnique':
+    case 'findUniqueOrThrow':
     case 'count':
     case 'aggregate':
     case 'groupBy': {

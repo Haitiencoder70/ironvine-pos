@@ -158,6 +158,26 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
     const localInventory: { inventoryItemId: string; quantityAdded: number }[] = [];
     let localOrderUpdated = false;
 
+    // Lock the PO row so concurrent receives cannot race on stale item quantities
+    await tx.$queryRaw`SELECT id FROM purchase_orders WHERE id = ${purchaseOrderId} FOR UPDATE`;
+
+    const freshPO = await tx.purchaseOrder.findUnique({
+      where: { id: purchaseOrderId },
+      include: { items: true },
+    });
+
+    if (!freshPO) {
+      throw new AppError(404, 'Purchase order not found', 'PO_NOT_FOUND');
+    }
+
+    if (freshPO.status === 'CANCELLED') {
+      throw new AppError(400, 'Cannot receive items for a cancelled purchase order', 'PO_CANCELLED');
+    }
+
+    if (freshPO.status === 'RECEIVED') {
+      throw new AppError(400, 'All items already received for this purchase order', 'PO_ALREADY_RECEIVED');
+    }
+
     // Create the receiving event
     const receiving = await tx.pOReceiving.create({
       data: {
@@ -185,7 +205,7 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
       // A fully-rejected PO will stay at its current status — staff must manually mark it CANCELLED.
       if (item.quantityReceived <= 0 || item.isAccepted === false) continue;
 
-      const poItem = po.items.find((i) => i.id === item.purchaseOrderItemId);
+      const poItem = freshPO.items.find((i) => i.id === item.purchaseOrderItemId);
       if (!poItem) {
         throw new AppError(404, `PO item ${item.purchaseOrderItemId} not found`, 'PO_ITEM_NOT_FOUND');
       }
@@ -228,7 +248,7 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
 
     const allReceived = updatedPOItems.every((i) => i.quantityRecv >= i.quantity);
     const anyReceived = updatedPOItems.some((i) => i.quantityRecv > 0);
-    const newPOStatus = allReceived ? 'RECEIVED' : anyReceived ? 'PARTIALLY_RECEIVED' : po.status;
+    const newPOStatus = allReceived ? 'RECEIVED' : anyReceived ? 'PARTIALLY_RECEIVED' : freshPO.status;
 
     await tx.purchaseOrder.update({
       where: { id: purchaseOrderId },
@@ -243,7 +263,7 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
         action: 'RECEIVED',
         entityType: 'PurchaseOrder',
         entityId: purchaseOrderId,
-        entityLabel: po.poNumber,
+        entityLabel: freshPO.poNumber,
         description: `Received ${items.length} line(s). PO status: ${newPOStatus}`,
         performedBy: receivedBy,
         organizationId,
@@ -253,25 +273,25 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
     // Note: order advances to MATERIALS_RECEIVED only when THIS PO is fully received.
     // For multi-PO orders, staff must manually advance if only one PO is received.
     // If linked to a customer order and all items received, advance order to MATERIALS_RECEIVED
-    if (po.linkedOrderId && allReceived) {
+    if (freshPO.linkedOrderId && allReceived) {
       const linkedOrder = await tx.order.findUnique({
-        where: { id: po.linkedOrderId },
+        where: { id: freshPO.linkedOrderId },
         select: { status: true, orderNumber: true },
       });
 
       if (linkedOrder?.status === 'MATERIALS_ORDERED') {
         await tx.order.update({
-          where: { id: po.linkedOrderId },
+          where: { id: freshPO.linkedOrderId! },
           data: { status: 'MATERIALS_RECEIVED' },
         });
 
         await tx.orderStatusHistory.create({
           data: {
-            orderId: po.linkedOrderId,
+            orderId: freshPO.linkedOrderId,
             fromStatus: 'MATERIALS_ORDERED',
             toStatus: 'MATERIALS_RECEIVED',
             changedBy: receivedBy,
-            notes: `PO ${po.poNumber} fully received`,
+            notes: `PO ${freshPO.poNumber} fully received`,
             organizationId,
           },
         });

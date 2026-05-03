@@ -90,10 +90,18 @@ export async function adjustStock(input: AdjustStockInput): Promise<InventoryIte
     input;
 
   return prisma.$transaction(async (tx) => {
-    const item = await tx.inventoryItem.findUnique({
-      where: { id: inventoryItemId },
-      select: { id: true, organizationId: true, quantityOnHand: true, quantityReserved: true, name: true },
-    });
+    const [item] = await tx.$queryRaw<Array<{
+      id: string;
+      organizationId: string;
+      quantityOnHand: number;
+      quantityReserved: number;
+      name: string;
+    }>>`
+      SELECT id, "organizationId", "quantityOnHand", "quantityReserved", name
+      FROM inventory_items
+      WHERE id = ${inventoryItemId}
+      FOR UPDATE
+    `;
 
     if (!item) {
       throw new AppError(404, 'Inventory item not found', 'INVENTORY_NOT_FOUND');
@@ -224,15 +232,17 @@ export async function unreserveMaterials(input: ReserveMaterialsInput): Promise<
   }
 
   return prisma.$transaction(async (tx) => {
-    const item = await tx.inventoryItem.findUnique({
-      where: { id: inventoryItemId },
-      select: {
-        id: true,
-        organizationId: true,
-        quantityReserved: true,
-        name: true,
-      },
-    });
+    const [item] = await tx.$queryRaw<Array<{
+      id: string;
+      organizationId: string;
+      quantityReserved: number;
+      name: string;
+    }>>`
+      SELECT id, "organizationId", "quantityReserved", name
+      FROM inventory_items
+      WHERE id = ${inventoryItemId}
+      FOR UPDATE
+    `;
 
     if (!item) {
       throw new AppError(404, 'Inventory item not found', 'INVENTORY_NOT_FOUND');
