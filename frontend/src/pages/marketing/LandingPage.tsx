@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@clerk/clerk-react';
 import {
   ArrowRightIcon,
   CheckCircleIcon,
@@ -41,6 +42,9 @@ const OPERATIONS = [
 
 export function LandingPage(): React.JSX.Element {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
+  const accountCtaLabel = isSignedIn ? 'Go to dashboard' : 'Start free';
+  const accountCtaPath = isSignedIn ? '/signup' : '/signup';
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -63,17 +67,17 @@ export function LandingPage(): React.JSX.Element {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/sign-in')}
+              onClick={() => navigate(isSignedIn ? accountCtaPath : '/sign-in')}
               className="min-h-[44px] rounded-xl px-4 text-sm font-medium text-gray-200 hover:bg-white/10"
             >
-              Sign in
+              {isSignedIn ? 'Dashboard' : 'Sign in'}
             </button>
             <button
               type="button"
-              onClick={() => navigate('/signup')}
+              onClick={() => navigate(accountCtaPath)}
               className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
             >
-              Start free
+              {accountCtaLabel}
               <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
             </button>
           </nav>
@@ -104,10 +108,10 @@ export function LandingPage(): React.JSX.Element {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
-                  onClick={() => navigate('/signup')}
+                  onClick={() => navigate(accountCtaPath)}
                   className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 text-base font-semibold text-white shadow-lg shadow-blue-950/30 hover:bg-blue-700"
                 >
-                  Create workspace
+                  {isSignedIn ? 'Go to dashboard' : 'Create workspace'}
                   <ArrowRightIcon className="h-5 w-5" aria-hidden="true" />
                 </button>
                 <button

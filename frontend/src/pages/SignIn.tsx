@@ -8,7 +8,12 @@ export function SignInPage(): JSX.Element {
         routing="path"
         path="/sign-in"
         fallbackRedirectUrl="/signup"
+        signUpUrl="/signup"
         appearance={{
+          layout: {
+            logoImageUrl: '/icon.svg',
+            logoLinkUrl: '/',
+          },
           elements: {
             formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 min-h-[44px]',
             card: 'shadow-lg rounded-2xl',

@@ -69,7 +69,29 @@ if (!rootElement) throw new Error('Root element not found');
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      appearance={{
+        layout: {
+          logoImageUrl: '/icon.svg',
+          logoLinkUrl: '/',
+        },
+      }}
+      localization={{
+        signIn: {
+          start: {
+            title: 'Sign in to PrintFlow POS',
+            subtitle: 'Welcome back. Sign in to continue.',
+          },
+        },
+        signUp: {
+          start: {
+            title: 'Create your PrintFlow POS account',
+            subtitle: 'Start your 14-day Free trial.',
+          },
+        },
+      }}
+    >
       <QueryClientProvider client={queryClient}>
         <TokenSync />
         <AuthSync />

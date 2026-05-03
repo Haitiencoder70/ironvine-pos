@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@clerk/clerk-react';
 import { PlanCard } from '../../components/signup/PlanCard';
 
 const PLANS = [
@@ -82,7 +83,8 @@ const FAQS = [
   },
 ];
 
-function getPricingCtaLabel(planKey: (typeof PLANS)[number]['key']): string {
+function getPricingCtaLabel(planKey: (typeof PLANS)[number]['key'], isSignedIn: boolean | undefined): string {
+  if (isSignedIn && planKey !== 'ENTERPRISE') return 'Go to dashboard';
   if (planKey === 'FREE') return 'Start Free';
   if (planKey === 'STARTER') return 'Choose Starter';
   if (planKey === 'PRO') return 'Choose Pro';
@@ -91,6 +93,7 @@ function getPricingCtaLabel(planKey: (typeof PLANS)[number]['key']): string {
 
 export function PricingPage(): React.JSX.Element {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
   const [cycle, setCycle] = useState<'monthly' | 'yearly'>('monthly');
 
   function handleSelect(planKey: string) {
@@ -107,10 +110,10 @@ export function PricingPage(): React.JSX.Element {
       <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
         <span className="text-lg font-bold text-gray-900">PrintFlow POS</span>
         <button
-          onClick={() => navigate('/sign-in')}
+          onClick={() => navigate(isSignedIn ? '/signup' : '/sign-in')}
           className="min-h-[44px] px-4 text-sm text-gray-600 hover:text-gray-900"
         >
-          Sign in
+          {isSignedIn ? 'Go to dashboard' : 'Sign in'}
         </button>
       </div>
 
@@ -150,7 +153,7 @@ export function PricingPage(): React.JSX.Element {
               popular={'popular' in plan ? plan.popular : false}
               billingCycle={cycle}
               ctaLabel={
-                getPricingCtaLabel(plan.key)
+                getPricingCtaLabel(plan.key, isSignedIn)
               }
               onSelect={() => handleSelect(plan.key)}
             />
