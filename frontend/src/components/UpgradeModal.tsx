@@ -125,7 +125,7 @@ export function UpgradeModal({ onClose, message }: UpgradeModalProps): React.JSX
               </button>
             ))}
             <a
-              href="mailto:sales@yourapp.com"
+              href="mailto:sales@printflowpos.com"
               className="w-full min-h-[48px] px-4 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
             >
               <span className="text-sm font-medium text-gray-700">{PLAN_LABELS.ENTERPRISE}</span>

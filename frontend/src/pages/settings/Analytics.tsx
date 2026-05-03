@@ -112,7 +112,7 @@ export function AnalyticsPage() {
         <BarChart2 className="text-blue-600" size={22} />
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Usage Analytics</h2>
-          <p className="text-sm text-gray-500">{month} — activity tracked since you started using Ironvine</p>
+          <p className="text-sm text-gray-500">{month} - activity tracked since you started using PrintFlow POS</p>
         </div>
       </div>
 

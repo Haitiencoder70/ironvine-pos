@@ -45,7 +45,7 @@ export function UpgradePlanModal({ onClose }: UpgradePlanModalProps): React.JSX.
 
   function handleUpgrade(plan: PaidPlan) {
     if (plan === 'ENTERPRISE') {
-      window.location.href = 'mailto:sales@yourapp.com';
+      window.location.href = 'mailto:sales@printflowpos.com';
       return;
     }
     checkout.mutate(plan, { onSuccess: onClose });

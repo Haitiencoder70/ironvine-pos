@@ -180,7 +180,7 @@ export function BillingTab() {
                   </div>
                 ) : isEnterprise ? (
                   <a
-                    href="mailto:sales@yourapp.com"
+                    href="mailto:sales@printflowpos.com"
                     className="min-h-[44px] flex items-center justify-center text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100"
                   >
                     Contact Sales

@@ -31,8 +31,8 @@ const PLANS = [
     ],
   },
   {
-    key: 'PROFESSIONAL' as const,
-    name: 'Professional',
+    key: 'PRO' as const,
+    name: 'Pro',
     price: 79 as const,
     popular: true,
     features: [
@@ -52,7 +52,7 @@ const PLANS = [
     name: 'Enterprise',
     price: 'Custom' as const,
     features: [
-      'Everything in Professional',
+      'Everything in Pro',
       'Unlimited users',
       'White-label',
       'Custom domain',
@@ -71,7 +71,7 @@ const FAQS = [
   },
   {
     q: 'Is there a free trial?',
-    a: 'Paid plans include a 14-day free trial — no credit card required to start.',
+    a: 'Paid plans include a 14-day free trial - no credit card required to start.',
   },
   {
     q: 'What happens when I hit a limit?',
@@ -89,7 +89,7 @@ export function PricingPage(): React.JSX.Element {
 
   function handleSelect(planKey: string) {
     if (planKey === 'ENTERPRISE') {
-      window.location.href = 'mailto:sales@yourapp.com';
+      window.location.href = 'mailto:sales@printflowpos.com';
       return;
     }
     navigate(`/signup?plan=${planKey}`);
@@ -99,7 +99,7 @@ export function PricingPage(): React.JSX.Element {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-        <span className="text-lg font-bold text-gray-900">YourApp</span>
+        <span className="text-lg font-bold text-gray-900">PrintFlow POS</span>
         <button
           onClick={() => navigate('/sign-in')}
           className="min-h-[44px] px-4 text-sm text-gray-600 hover:text-gray-900"
@@ -175,7 +175,7 @@ export function PricingPage(): React.JSX.Element {
         <div className="mt-12 text-center">
           <p className="text-sm text-gray-500">Enterprise or custom needs?</p>
           <a
-            href="mailto:sales@yourapp.com"
+            href="mailto:sales@printflowpos.com"
             className="mt-2 inline-block min-h-[44px] px-6 py-3 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800"
           >
             Contact Sales

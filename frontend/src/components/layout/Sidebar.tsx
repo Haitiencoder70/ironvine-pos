@@ -137,7 +137,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
               boxShadow: '0 0 20px rgba(59,130,246,0.45), 0 0 40px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.25)',
             }}
           >
-            {organization?.name?.[0]?.toUpperCase() ?? 'IV'}
+            {organization?.name?.[0]?.toUpperCase() ?? 'PF'}
           </div>
         )}
 
@@ -159,7 +159,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
               ) : (
                 <div className="flex items-baseline gap-1.5 whitespace-nowrap">
                   <span className="font-bold text-white text-[15px] tracking-tight">
-                    {organization?.name ?? 'IronVine'}
+                    {organization?.name ?? 'PrintFlow'}
                   </span>
                   <span
                     className="font-light text-[13px] tracking-tight"

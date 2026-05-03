@@ -7,7 +7,7 @@ export interface OrgCreatePayload {
   ownerFirstName?: string;
   ownerLastName?: string;
   ownerEmail?: string;
-  plan: 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';
+  plan: 'FREE' | 'STARTER' | 'PRO' | 'ENTERPRISE';
 }
 
 export interface SlugAvailability {

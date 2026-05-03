@@ -17,7 +17,7 @@ const step1Schema = z.object({
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type PlanKey = 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';
+type PlanKey = 'FREE' | 'STARTER' | 'PRO' | 'ENTERPRISE';
 
 interface FormState {
   // Step 1
@@ -52,8 +52,8 @@ const PLANS = [
     features: ['3 users', '500 orders/month', 'Custom branding', 'Advanced reports', '14-day free trial'],
   },
   {
-    key: 'PROFESSIONAL' as const,
-    name: 'Professional',
+    key: 'PRO' as const,
+    name: 'Pro',
     price: 79 as const,
     popular: true,
     features: ['10 users', 'Unlimited orders', 'API access', 'Phone support', '14-day free trial'],
@@ -67,6 +67,12 @@ const PLANS = [
 ] as const;
 
 // ─── Step indicators ─────────────────────────────────────────────────────────
+
+const PLAN_KEYS: PlanKey[] = ['FREE', 'STARTER', 'PRO', 'ENTERPRISE'];
+
+function normalizePlan(plan: string | null): PlanKey {
+  return PLAN_KEYS.includes(plan as PlanKey) ? (plan as PlanKey) : 'FREE';
+}
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
   return (
@@ -112,7 +118,7 @@ export function OrganizationSignup(): React.JSX.Element {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>({
     ...INITIAL,
-    plan: (searchParams.get('plan') as PlanKey) ?? 'FREE',
+    plan: normalizePlan(searchParams.get('plan')),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -228,7 +234,7 @@ export function OrganizationSignup(): React.JSX.Element {
       <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="text-center mb-8">
-          <span className="text-2xl font-bold text-gray-900">YourApp</span>
+          <span className="text-2xl font-bold text-gray-900">PrintFlow POS</span>
           <p className="text-sm text-gray-500 mt-1">Create your organization</p>
         </div>
 
@@ -263,7 +269,7 @@ export function OrganizationSignup(): React.JSX.Element {
                   onChange={(e) => set('industry', e.target.value)}
                   className="w-full min-h-[44px] px-3 text-sm rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
-                  <option value="">Select industry…</option>
+                  <option value="">Select industry...</option>
                   {INDUSTRIES.map((ind) => (
                     <option key={ind} value={ind}>{ind}</option>
                   ))}
@@ -342,7 +348,7 @@ export function OrganizationSignup(): React.JSX.Element {
                 className="min-h-[44px] flex-1 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
               >
                 {submitting
-                  ? 'Setting up…'
+                  ? 'Setting up...'
                   : form.plan === 'FREE'
                   ? 'Create Organization'
                   : 'Continue to Payment'}
