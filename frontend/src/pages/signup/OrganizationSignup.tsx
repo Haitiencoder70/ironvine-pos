@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAuth, RedirectToSignIn } from '@clerk/clerk-react';
+import { SignUp, useAuth } from '@clerk/clerk-react';
 import { getAppUrl } from '../../utils/tenant';
 import { z } from 'zod';
 import { PlanCard } from '../../components/signup/PlanCard';
@@ -41,7 +41,7 @@ const INDUSTRIES = [
 const PLANS = [
   {
     key: 'FREE' as const,
-    name: 'Free',
+    name: 'Free Trial',
     price: 0 as const,
     features: ['14-day free trial', '1 user', '50 orders/month', '100 customers', '200 inventory items', 'Email support'],
   },
@@ -76,7 +76,7 @@ function normalizePlan(plan: string | null): PlanKey {
 
 function getPlanSelectLabel(planKey: PlanKey, selected: boolean): string {
   if (selected) return 'Selected';
-  if (planKey === 'FREE') return 'Start Free';
+  if (planKey === 'FREE') return 'Start Free Trial';
   if (planKey === 'STARTER') return 'Select Starter';
   if (planKey === 'PRO') return 'Select Pro';
   return 'Contact Sales';
@@ -227,11 +227,29 @@ export function OrganizationSignup(): React.JSX.Element {
     );
   }
 
-  // Once Clerk has loaded and confirmed the user is NOT signed in,
-  // use Clerk's own redirect (full page, not React Router push) to avoid
-  // the double-encoded redirect_url loop that navigate() creates.
+  // Signed-out users should see the actual sign-up widget. After account
+  // creation Clerk returns here, then the organization setup wizard renders.
   if (!isSignedIn) {
-    return <RedirectToSignIn redirectUrl={'/signup' + window.location.search} />;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <SignUp
+          routing="path"
+          path="/signup"
+          signInUrl="/sign-in"
+          fallbackRedirectUrl="/signup"
+          appearance={{
+            layout: {
+              logoImageUrl: '/printflow-logo-horizontal.svg',
+              logoLinkUrl: '/',
+            },
+            elements: {
+              formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 min-h-[44px]',
+              card: 'shadow-lg rounded-2xl',
+            },
+          }}
+        />
+      </div>
+    );
   }
 
   const STEP_TITLES = ['Organization Details', 'Choose Plan', 'Payment'];

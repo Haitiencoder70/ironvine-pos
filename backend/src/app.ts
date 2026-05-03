@@ -88,6 +88,7 @@ app.use(helmet({
       scriptSrc: clerkScriptSrc,
       // Explicitly set script-src-elem to avoid browser CSP fallback warnings
       scriptSrcElem: clerkScriptSrc,
+      workerSrc: ["'self'", "blob:"],
       frameSrc: [
         "https://js.stripe.com",
         "https://clerk.dev",

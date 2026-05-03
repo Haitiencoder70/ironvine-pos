@@ -6,7 +6,7 @@ import { PlanCard } from '../../components/signup/PlanCard';
 const PLANS = [
   {
     key: 'FREE' as const,
-    name: 'Free',
+    name: 'Free Trial',
     price: 0 as const,
     features: [
       '14-day free trial',
@@ -85,7 +85,7 @@ const FAQS = [
 
 function getPricingCtaLabel(planKey: (typeof PLANS)[number]['key'], isSignedIn: boolean | undefined): string {
   if (isSignedIn && planKey !== 'ENTERPRISE') return 'Go to dashboard';
-  if (planKey === 'FREE') return 'Start Free';
+  if (planKey === 'FREE') return 'Start Free Trial';
   if (planKey === 'STARTER') return 'Choose Starter';
   if (planKey === 'PRO') return 'Choose Pro';
   return 'Contact Sales';
@@ -120,7 +120,7 @@ export function PricingPage(): React.JSX.Element {
       {/* Hero */}
       <div className="max-w-5xl mx-auto px-6 pt-14 pb-10 text-center">
         <h1 className="text-4xl font-bold text-gray-900">Simple, transparent pricing</h1>
-        <p className="mt-3 text-lg text-gray-500">Start free. Upgrade when you need more.</p>
+        <p className="mt-3 text-lg text-gray-500">Start with a 14-day free trial. Upgrade when you need more.</p>
 
         {/* Billing cycle toggle */}
         <div className="inline-flex items-center mt-8 bg-gray-100 rounded-xl p-1 gap-1">
