@@ -11,7 +11,7 @@ export function SignInPage(): JSX.Element {
         signUpUrl="/signup"
         appearance={{
           layout: {
-            logoImageUrl: '/icon.svg',
+            logoImageUrl: '/printflow-logo-horizontal.svg',
             logoLinkUrl: '/',
           },
           elements: {

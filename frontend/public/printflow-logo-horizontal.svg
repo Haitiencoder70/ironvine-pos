@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 220" role="img" aria-labelledby="title desc">
+  <title id="title">PrintFlow POS</title>
+  <desc id="desc">Horizontal PrintFlow POS logo with blue PF icon and dark wordmark.</desc>
+  <defs>
+    <linearGradient id="pf-bg" x1="22" y1="18" x2="182" y2="198" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="0.52" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="pf-mark" x1="62" y1="54" x2="146" y2="150" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#93C5FD"/>
+      <stop offset="0.45" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#DBEAFE"/>
+    </linearGradient>
+    <filter id="soft-shadow" x="-18%" y="-18%" width="136%" height="136%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0F172A" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <rect x="22" y="34" width="152" height="152" rx="34" fill="url(#pf-bg)" filter="url(#soft-shadow)"/>
+  <path fill="url(#pf-mark)" d="M56 70h68c22 0 39 16 39 37 0 22-17 38-39 38H94v36H56V70Zm38 30v10h27c5 0 9-1 12-4 3-2 4-6 4-10H94Z" opacity="0.96"/>
+  <path fill="url(#pf-mark)" d="M94 70h82v34h-51c-13 0-23-10-31-34Zm0 65h61v31H94v-31Z" opacity="0.72"/>
+  <path fill="#111827" d="M48 174c27-33 56-53 86-60 15-3 30-4 46-1-17 13-35 23-53 31-25 12-51 22-79 30Z"/>
+  <path fill="#0B1220" d="M48 174h37v-46H48v46Zm23-23v-23h14v18c-5 2-9 3-14 5Z" opacity="0.98"/>
+  <text x="214" y="134" fill="#2563EB" font-family="Inter, Plus Jakarta Sans, Arial, sans-serif" font-size="76" font-weight="800" letter-spacing="0">PrintFlow</text>
+  <text x="610" y="134" fill="#111827" font-family="Inter, Plus Jakarta Sans, Arial, sans-serif" font-size="76" font-weight="800" letter-spacing="0">POS</text>
+</svg>

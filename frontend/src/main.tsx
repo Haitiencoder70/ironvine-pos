@@ -73,7 +73,7 @@ ReactDOM.createRoot(rootElement).render(
       publishableKey={PUBLISHABLE_KEY}
       appearance={{
         layout: {
-          logoImageUrl: '/icon.svg',
+          logoImageUrl: '/printflow-logo-horizontal.svg',
           logoLinkUrl: '/',
         },
       }}

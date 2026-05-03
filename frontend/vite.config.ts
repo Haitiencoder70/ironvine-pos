@@ -8,11 +8,11 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'icon.svg'],
+      includeAssets: ['favicon.ico', 'printflow-icon.svg', 'printflow-logo-horizontal.svg'],
       manifest: {
-        name: 'T-Shirt Graphics POS',
-        short_name: 'TShirt POS',
-        description: 'Professional T-Shirt Printing POS System',
+        name: 'PrintFlow POS',
+        short_name: 'PrintFlow',
+        description: 'Production-ready POS for custom T-shirt printing shops',
         theme_color: '#2563eb',
         background_color: '#ffffff',
         display: 'standalone',
@@ -20,7 +20,7 @@ export default defineConfig({
         icons: [
           { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: '/printflow-icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
         ],
       },
       workbox: {

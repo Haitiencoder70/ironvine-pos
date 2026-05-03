@@ -55,7 +55,11 @@ export function LandingPage(): React.JSX.Element {
             onClick={() => navigate('/')}
             className="min-h-[44px] rounded-xl px-1 text-left text-lg font-bold text-white"
           >
-            PrintFlow POS
+            <img
+              src="/printflow-logo-horizontal-white.png"
+              alt="PrintFlow POS"
+              className="h-9 w-auto"
+            />
           </button>
           <nav className="flex items-center gap-2">
             <button
