@@ -24,10 +24,6 @@ const envSchema = z.object({
   if (value.NODE_ENV !== 'production') return;
 
   const requiredInProduction: Array<keyof typeof value> = [
-    'STRIPE_SECRET_KEY',
-    'STRIPE_WEBHOOK_SECRET',
-    'STRIPE_PRICE_STARTER',
-    'STRIPE_PRICE_PRO',
     'RESEND_API_KEY',
     'S3_BUCKET',
     'S3_ACCESS_KEY',
