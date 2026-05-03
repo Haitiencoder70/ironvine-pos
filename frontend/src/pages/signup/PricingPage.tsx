@@ -8,6 +8,7 @@ const PLANS = [
     name: 'Free',
     price: 0 as const,
     features: [
+      '14-day free trial',
       '1 user',
       '50 orders/month',
       '100 customers',
@@ -27,7 +28,6 @@ const PLANS = [
       'Custom branding',
       'Advanced reports',
       'Priority email support',
-      '14-day free trial',
     ],
   },
   {
@@ -44,7 +44,6 @@ const PLANS = [
       'Bulk operations',
       'Email automation',
       'Phone support',
-      '14-day free trial',
     ],
   },
   {
@@ -71,7 +70,7 @@ const FAQS = [
   },
   {
     q: 'Is there a free trial?',
-    a: 'Paid plans include a 14-day free trial - no credit card required to start.',
+    a: 'The Free plan is a 14-day trial. Starter and Pro are paid upgrades when you are ready.',
   },
   {
     q: 'What happens when I hit a limit?',
@@ -82,6 +81,13 @@ const FAQS = [
     a: 'Yes. Cancel from the billing portal. You retain access until the period ends.',
   },
 ];
+
+function getPricingCtaLabel(planKey: (typeof PLANS)[number]['key']): string {
+  if (planKey === 'FREE') return 'Start Free';
+  if (planKey === 'STARTER') return 'Choose Starter';
+  if (planKey === 'PRO') return 'Choose Pro';
+  return 'Contact Sales';
+}
 
 export function PricingPage(): React.JSX.Element {
   const navigate = useNavigate();
@@ -144,11 +150,7 @@ export function PricingPage(): React.JSX.Element {
               popular={'popular' in plan ? plan.popular : false}
               billingCycle={cycle}
               ctaLabel={
-                plan.key === 'FREE'
-                  ? 'Start Free'
-                  : plan.key === 'ENTERPRISE'
-                  ? 'Contact Sales'
-                  : 'Start Free Trial'
+                getPricingCtaLabel(plan.key)
               }
               onSelect={() => handleSelect(plan.key)}
             />

@@ -43,20 +43,20 @@ const PLANS = [
     key: 'FREE' as const,
     name: 'Free',
     price: 0 as const,
-    features: ['1 user', '50 orders/month', '100 customers', '200 inventory items', 'Email support'],
+    features: ['14-day free trial', '1 user', '50 orders/month', '100 customers', '200 inventory items', 'Email support'],
   },
   {
     key: 'STARTER' as const,
     name: 'Starter',
     price: 29 as const,
-    features: ['3 users', '500 orders/month', 'Custom branding', 'Advanced reports', '14-day free trial'],
+    features: ['3 users', '500 orders/month', 'Custom branding', 'Advanced reports', 'Priority email support'],
   },
   {
     key: 'PRO' as const,
     name: 'Pro',
     price: 79 as const,
     popular: true,
-    features: ['10 users', 'Unlimited orders', 'API access', 'Phone support', '14-day free trial'],
+    features: ['10 users', 'Unlimited orders', 'API access', 'Bulk operations', 'Phone support'],
   },
   {
     key: 'ENTERPRISE' as const,
@@ -72,6 +72,14 @@ const PLAN_KEYS: PlanKey[] = ['FREE', 'STARTER', 'PRO', 'ENTERPRISE'];
 
 function normalizePlan(plan: string | null): PlanKey {
   return PLAN_KEYS.includes(plan as PlanKey) ? (plan as PlanKey) : 'FREE';
+}
+
+function getPlanSelectLabel(planKey: PlanKey, selected: boolean): string {
+  if (selected) return 'Selected';
+  if (planKey === 'FREE') return 'Start Free';
+  if (planKey === 'STARTER') return 'Select Starter';
+  if (planKey === 'PRO') return 'Select Pro';
+  return 'Contact Sales';
 }
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
@@ -307,7 +315,7 @@ export function OrganizationSignup(): React.JSX.Element {
                     popular={'popular' in plan ? plan.popular : false}
                     selected={form.plan === plan.key}
                     billingCycle={form.cycle}
-                    ctaLabel={form.plan === plan.key ? 'Selected' : plan.key === 'FREE' ? 'Start Free' : 'Select'}
+                    ctaLabel={getPlanSelectLabel(plan.key, form.plan === plan.key)}
                     ctaVariant={form.plan === plan.key ? 'disabled' : 'primary'}
                     onSelect={() => set('plan', plan.key)}
                   />
