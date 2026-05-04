@@ -425,6 +425,16 @@ function clerkSignupError(err: unknown): AppError {
   return new AppError(502, 'Unable to create the Clerk organization. Please try again.', 'CLERK_ORG_ERROR');
 }
 
+function isClerkOrgSlugDisabledError(err: unknown): boolean {
+  if (!isClerkApiError(err)) return false;
+
+  return err.errors?.some((clerkError) => {
+    const code = clerkError.code?.toLowerCase() ?? '';
+    const message = `${clerkError.message ?? ''} ${clerkError.longMessage ?? ''}`.toLowerCase();
+    return code.includes('slug') || message.includes('does not have slugs enabled');
+  }) ?? false;
+}
+
 export const createOrganization = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const auth = getAuth(req);
@@ -482,13 +492,39 @@ export const createOrganization = async (req: Request, res: Response, next: Next
           publicMetadata: { plan: parsed.data.plan ?? 'FREE' },
         });
     } catch (err) {
-      logger.warn('Clerk organization create/update failed during signup', {
-        err,
-        userId: auth.userId,
-        orgId: auth.orgId,
-        slug,
-      });
-      return next(clerkSignupError(err));
+      if (isClerkOrgSlugDisabledError(err)) {
+        logger.warn('Clerk organization slugs are disabled; retrying signup without Clerk slug', {
+          userId: auth.userId,
+          orgId: auth.orgId,
+          slug,
+        });
+
+        try {
+          clerkOrg = auth.orgId
+            ? await clerkClient.organizations.updateOrganization(auth.orgId, { name })
+            : await clerkClient.organizations.createOrganization({
+              name,
+              createdBy: auth.userId,
+              publicMetadata: { plan: parsed.data.plan ?? 'FREE', printflowSlug: slug },
+            });
+        } catch (retryErr) {
+          logger.warn('Clerk organization create/update retry failed during signup', {
+            err: retryErr,
+            userId: auth.userId,
+            orgId: auth.orgId,
+            slug,
+          });
+          return next(clerkSignupError(retryErr));
+        }
+      } else {
+        logger.warn('Clerk organization create/update failed during signup', {
+          err,
+          userId: auth.userId,
+          orgId: auth.orgId,
+          slug,
+        });
+        return next(clerkSignupError(err));
+      }
     }
 
     const existingForClerkOrg = await prisma.organization.findUnique({
