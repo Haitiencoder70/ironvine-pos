@@ -34,35 +34,97 @@ type PoolItem = {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// Maps vendor display category strings (stored in Vendor.categories) to the
-// InventoryCategory enum values used on InventoryItem.category in the DB.
-const VENDOR_CAT_TO_INVENTORY: Record<string, string[]> = {
-  Garments:  ['BLANK_SHIRTS'],
-  DTF:       ['DTF_TRANSFERS'],
-  HTV:       ['VINYL'],
-  Inks:      ['INK'],
-  Supplies:  ['INK', 'PACKAGING', 'OTHER'],
-  Other:     ['OTHER', 'PACKAGING', 'EMBROIDERY_THREAD'],
-};
-
-// Normalizes MaterialSelector category values (used in ProductOrderConfigurator)
-// to InventoryCategory enum values (used in the DB and in VENDOR_CAT_TO_INVENTORY).
-const MATERIAL_CAT_NORMALIZE: Record<string, string> = {
-  BLANK_GARMENT: 'BLANK_SHIRTS',
-  DTF_TRANSFER:  'DTF_TRANSFERS',
-  HTV_VINYL:     'VINYL',
-  INK:           'INK',
-  PACKAGING:     'PACKAGING',
-  SUPPLIES:      'OTHER',
+const INVENTORY_CATEGORY_ALIASES: Record<string, string[]> = {
+  BLANK_SHIRTS: [
+    'BLANK_SHIRTS',
+    'BLANK_GARMENT',
+    'BLANK GARMENT',
+    'BLANK GARMENTS',
+    'GARMENT',
+    'GARMENTS',
+    'APPAREL',
+    'SHIRTS',
+    'T-SHIRTS',
+    'TSHIRTS',
+  ],
+  DTF_TRANSFERS: [
+    'DTF_TRANSFERS',
+    'DTF_TRANSFER',
+    'DTF TRANSFER',
+    'DTF TRANSFERS',
+    'DTF',
+    'GANG SHEET',
+    'GANG SHEETS',
+    'TRANSFERS',
+  ],
+  VINYL: ['VINYL', 'HTV', 'HTV_VINYL', 'HTV VINYL', 'HEAT TRANSFER VINYL'],
+  INK: ['INK', 'INKS', 'INKS / FLUIDS', 'FLUIDS', 'POWDER'],
+  PACKAGING: ['PACKAGING', 'PACKAGE', 'PACKING', 'BAGS', 'BOXES'],
+  EMBROIDERY_THREAD: ['EMBROIDERY_THREAD', 'EMBROIDERY THREAD', 'THREAD'],
+  OTHER: ['SUPPLIES', 'GENERAL SUPPLIES', 'OTHER'],
 };
 
 function normalizeMaterialCategory(cat: string | undefined): string | undefined {
   if (!cat) return undefined;
-  return MATERIAL_CAT_NORMALIZE[cat] ?? cat;
+  const normalized = cat.trim().replace(/[-\s]+/g, '_').toUpperCase();
+
+  for (const [inventoryCategory, aliases] of Object.entries(INVENTORY_CATEGORY_ALIASES)) {
+    if (aliases.some(alias => alias.replace(/[-\s]+/g, '_').toUpperCase() === normalized)) {
+      return inventoryCategory;
+    }
+  }
+
+  return normalized;
 }
 
 function expandVendorCategories(vendorCategories: string[]): string[] {
-  return vendorCategories.flatMap(cat => VENDOR_CAT_TO_INVENTORY[cat] ?? [cat]);
+  return Array.from(
+    new Set(
+      vendorCategories
+        .flatMap(cat => cat.split(','))
+        .flatMap(cat => {
+          const normalized = normalizeMaterialCategory(cat);
+          if (!normalized) return [];
+
+          const raw = cat.trim().replace(/[-\s]+/g, '_').toUpperCase();
+          if (raw === 'SUPPLIES' || raw === 'GENERAL_SUPPLIES') {
+            return ['INK', 'PACKAGING', 'OTHER'];
+          }
+          if (raw === 'OTHER') {
+            return ['OTHER', 'PACKAGING', 'EMBROIDERY_THREAD'];
+          }
+
+          return [normalized];
+        })
+        .filter((cat): cat is string => Boolean(cat))
+    )
+  );
+}
+
+function inferVendorCategories(vendor: { name: string; notes?: string | null; categories: string[] }): string[] {
+  const configured = expandVendorCategories(vendor.categories);
+  if (configured.length > 0) return configured;
+
+  const text = `${vendor.name} ${vendor.notes ?? ''}`.toLowerCase();
+  const inferred: string[] = [];
+
+  if (/(bella|canvas|sanmar|s&s|ss activewear|alphabroder|gildan|comfort colors|next level|hanes|apparel|garment|shirt|hoodie)/i.test(text)) {
+    inferred.push('BLANK_SHIRTS');
+  }
+  if (/(dtf|gang sheet|transfer)/i.test(text)) {
+    inferred.push('DTF_TRANSFERS');
+  }
+  if (/(htv|vinyl|siser)/i.test(text)) {
+    inferred.push('VINYL');
+  }
+  if (/(ink|powder|fluid)/i.test(text)) {
+    inferred.push('INK');
+  }
+  if (/(packaging|mailer|bag|box|label|hang tag)/i.test(text)) {
+    inferred.push('PACKAGING');
+  }
+
+  return Array.from(new Set(inferred));
 }
 
 // Infers InventoryCategory enum value from plain-text material description.
@@ -161,6 +223,7 @@ export function CreatePOPage(): JSX.Element {
         unitCost: 0,
         materialCategory: rm.inventoryItem?.category
           ?? normalizeMaterialCategory(rm.attributes?.materialCategory as string | undefined)
+          ?? normalizeMaterialCategory(rm.attributes?.category as string | undefined)
           ?? inferCategory(rm.description),
       }))
     );
@@ -221,14 +284,19 @@ export function CreatePOPage(): JSX.Element {
     }
 
     const vendor = vendors.find(v => v.id === selectedVendorId);
-    if (!vendor || vendor.categories.length === 0) {
-      setValue('items', toFormItems(materialPool));
+    if (!vendor) {
+      setValue('items', []);
       return;
     }
 
-    const inventoryCats = expandVendorCategories(vendor.categories);
+    const inventoryCats = inferVendorCategories(vendor);
+    if (inventoryCats.length === 0) {
+      setValue('items', []);
+      return;
+    }
+
     const matched = materialPool.filter(
-      item => !item.materialCategory || inventoryCats.includes(item.materialCategory)
+      item => item.materialCategory && inventoryCats.includes(item.materialCategory)
     );
     setValue('items', toFormItems(matched));
   }, [selectedVendorId, vendors, materialPool, setValue]);
@@ -237,8 +305,9 @@ export function CreatePOPage(): JSX.Element {
   const deferredItems = useMemo(() => {
     if (!selectedVendorId || materialPool.length === 0) return [];
     const vendor = vendors.find(v => v.id === selectedVendorId);
-    if (!vendor || vendor.categories.length === 0) return [];
-    const inventoryCats = expandVendorCategories(vendor.categories);
+    if (!vendor) return [];
+    const inventoryCats = inferVendorCategories(vendor);
+    if (inventoryCats.length === 0) return materialPool;
     return materialPool.filter(
       item => item.materialCategory && !inventoryCats.includes(item.materialCategory)
     );
@@ -248,7 +317,11 @@ export function CreatePOPage(): JSX.Element {
     () => vendors.find(v => v.id === selectedVendorId),
     [selectedVendorId, vendors],
   );
-  const vendorHasNoCategories = !!selectedVendorId && !!selectedVendor && selectedVendor.categories.length === 0;
+  const selectedVendorCategories = useMemo(
+    () => selectedVendor ? inferVendorCategories(selectedVendor) : [],
+    [selectedVendor],
+  );
+  const vendorHasNoCategories = !!selectedVendorId && !!selectedVendor && selectedVendorCategories.length === 0;
 
   const { subtotal } = useMemo(
     () =>
@@ -395,10 +468,10 @@ export function CreatePOPage(): JSX.Element {
               <ExclamationTriangleIcon className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-blue-800">
-                  {selectedVendor!.name} has no supply categories configured — showing all materials
+                  {selectedVendor!.name} has no supply categories configured
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
-                  To auto-filter materials by vendor, go to Vendors and set what this vendor supplies (e.g. Blank Garments, DTF Transfers).
+                  Go to Vendors and set what this vendor supplies, then this PO will load only that vendor's materials.
                 </p>
               </div>
             </div>
@@ -471,7 +544,9 @@ export function CreatePOPage(): JSX.Element {
                 <div className="p-6 border-2 border-dashed border-gray-200 rounded-xl text-center">
                   <p className="text-gray-500 text-sm">
                     {linkedOrderId
-                      ? 'Select a vendor above to load materials for this order.'
+                      ? selectedVendorId
+                        ? 'No matching materials for this vendor. Check the vendor supply categories or add a custom item.'
+                        : 'Select a vendor above to load materials for this order.'
                       : 'No items added to this PO yet.'}
                   </p>
                 </div>
