@@ -49,6 +49,110 @@ const createPOFormSchema = z.object({
 
 type CreatePOValues = z.infer<typeof createPOFormSchema>;
 
+type OrderMaterialItem = {
+  inventoryItemId?: string;
+  description: string;
+  quantity: number;
+  unitCost: number;
+  category?: string;
+};
+
+const INVENTORY_CATEGORY_ALIASES: Record<string, string[]> = {
+  BLANK_SHIRTS: [
+    'BLANK_SHIRTS',
+    'BLANK_GARMENT',
+    'BLANK GARMENT',
+    'BLANK GARMENTS',
+    'GARMENT',
+    'GARMENTS',
+    'APPAREL',
+    'SHIRTS',
+    'T-SHIRTS',
+    'TSHIRTS',
+  ],
+  DTF_TRANSFERS: [
+    'DTF_TRANSFERS',
+    'DTF_TRANSFER',
+    'DTF TRANSFER',
+    'DTF TRANSFERS',
+    'DTF',
+    'GANG SHEET',
+    'GANG SHEETS',
+    'TRANSFERS',
+  ],
+  VINYL: ['VINYL', 'HTV', 'HTV_VINYL', 'HTV VINYL', 'HEAT TRANSFER VINYL'],
+  INK: ['INK', 'INKS', 'INKS / FLUIDS', 'FLUIDS', 'POWDER'],
+  PACKAGING: ['PACKAGING', 'PACKAGE', 'PACKING', 'BAGS', 'BOXES'],
+  EMBROIDERY_THREAD: ['EMBROIDERY_THREAD', 'EMBROIDERY THREAD', 'THREAD'],
+  OTHER: ['SUPPLIES', 'GENERAL SUPPLIES', 'OTHER'],
+};
+
+function normalizeMaterialCategory(cat: string | undefined): string | undefined {
+  if (!cat) return undefined;
+  const normalized = cat.trim().replace(/[-\s]+/g, '_').toUpperCase();
+
+  for (const [inventoryCategory, aliases] of Object.entries(INVENTORY_CATEGORY_ALIASES)) {
+    if (aliases.some(alias => alias.replace(/[-\s]+/g, '_').toUpperCase() === normalized)) {
+      return inventoryCategory;
+    }
+  }
+
+  return normalized;
+}
+
+function expandVendorCategories(vendorCategories: string[]): string[] {
+  return Array.from(
+    new Set(
+      vendorCategories
+        .flatMap(cat => cat.split(','))
+        .flatMap(cat => {
+          const normalized = normalizeMaterialCategory(cat);
+          if (!normalized) return [];
+
+          const raw = cat.trim().replace(/[-\s]+/g, '_').toUpperCase();
+          if (raw === 'SUPPLIES' || raw === 'GENERAL_SUPPLIES') return ['INK', 'PACKAGING', 'OTHER'];
+          if (raw === 'OTHER') return ['OTHER', 'PACKAGING', 'EMBROIDERY_THREAD'];
+
+          return [normalized];
+        })
+        .filter((cat): cat is string => Boolean(cat))
+    )
+  );
+}
+
+function inferVendorCategories(vendor: { name: string; notes?: string | null; categories: string[] }): string[] {
+  const configured = expandVendorCategories(vendor.categories);
+  if (configured.length > 0) return configured;
+
+  const text = `${vendor.name} ${vendor.notes ?? ''}`.toLowerCase();
+  const inferred: string[] = [];
+
+  if (/(allday|bella|canvas|sanmar|s&s|ss activewear|alphabroder|gildan|comfort colors|next level|hanes|apparel|garment|shirt|hoodie)/i.test(text)) {
+    inferred.push('BLANK_SHIRTS');
+  }
+  if (/(dtf|gang sheet|transfer)/i.test(text)) inferred.push('DTF_TRANSFERS');
+  if (/(htv|vinyl|siser|perfectpress)/i.test(text)) inferred.push('VINYL');
+  if (/(ink|powder|fluid)/i.test(text)) inferred.push('INK');
+  if (/(packaging|mailer|bag|box|label|hang tag)/i.test(text)) inferred.push('PACKAGING');
+
+  return Array.from(new Set(inferred));
+}
+
+function inferMaterialCategory(description: string): string | undefined {
+  const d = description.toLowerCase();
+  if (d.includes('dtf') || d.includes('gang sheet') || d.includes('transfer')) return 'DTF_TRANSFERS';
+  if (d.includes('htv') || d.includes('vinyl')) return 'VINYL';
+  if (
+    d.includes('shirt') || d.includes('tee') || d.includes('hoodie') ||
+    d.includes('polo') || d.includes('sweatshirt') || d.includes('blank') ||
+    d.includes('gildan') || d.includes('bella') || d.includes('canvas') ||
+    d.includes('comfort colors') || d.includes('next level')
+  ) return 'BLANK_SHIRTS';
+  if (d.includes('ink') || d.includes('powder')) return 'INK';
+  if (d.includes('packaging') || d.includes('bag') || d.includes('box')) return 'PACKAGING';
+  return undefined;
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export function CreatePOPage(): JSX.Element {
@@ -88,26 +192,60 @@ export function CreatePOPage(): JSX.Element {
   });
 
   const watchedItems = watch('items');
+  const selectedVendorId = watch('vendorId');
+
+  const orderMaterials = useMemo<OrderMaterialItem[]>(() => {
+    if (!linkedOrderId || !orderData?.data) return [];
+
+    return orderData.data.items.flatMap(item =>
+      item.requiredMaterials?.map(rm => {
+        const category =
+          rm.inventoryItem?.category
+          ?? normalizeMaterialCategory(rm.attributes?.materialCategory as string | undefined)
+          ?? normalizeMaterialCategory(rm.attributes?.category as string | undefined)
+          ?? inferMaterialCategory(rm.description);
+
+        return {
+          inventoryItemId: rm.inventoryItemId ?? undefined,
+          description: rm.description,
+          quantity: Number(rm.quantityRequired),
+          unitCost: 0,
+          category,
+        };
+      }) || []
+    );
+  }, [linkedOrderId, orderData]);
 
   useEffect(() => {
-    if (linkedOrderId && orderData?.data) {
-      const order = orderData.data;
-      setValue('linkedOrderId', order.id);
+    if (!linkedOrderId || !orderData?.data) return;
+    setValue('linkedOrderId', orderData.data.id);
+  }, [linkedOrderId, orderData, setValue]);
 
-      const autoItems = order.items.flatMap(item =>
-        item.requiredMaterials?.map(rm => ({
-          inventoryItemId: rm.inventoryItemId,
-          description: rm.description,
-          quantity: rm.quantityRequired,
-          unitCost: 0,
-        })) || []
-      );
+  useEffect(() => {
+    if (!linkedOrderId) return;
 
-      if (fields.length === 0 && autoItems.length > 0) {
-        setValue('items', autoItems);
-      }
+    if (!selectedVendorId) {
+      setValue('items', []);
+      return;
     }
-  }, [linkedOrderId, orderData, setValue, fields.length]);
+
+    const vendor = vendors.find(v => v.id === selectedVendorId);
+    if (!vendor) {
+      setValue('items', []);
+      return;
+    }
+
+    const vendorCategories = inferVendorCategories(vendor);
+    if (vendorCategories.length === 0) {
+      setValue('items', []);
+      return;
+    }
+
+    setValue(
+      'items',
+      orderMaterials.filter(item => item.category && vendorCategories.includes(item.category)),
+    );
+  }, [linkedOrderId, selectedVendorId, vendors, orderMaterials, setValue]);
 
   const { subtotal } = useMemo(() => {
     return watchedItems.reduce((acc, curr) => {
