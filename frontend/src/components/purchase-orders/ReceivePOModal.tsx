@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -42,12 +42,15 @@ export interface ReceivePOModalProps {
 
 export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
   const receivePO = useReceivePurchaseOrder();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     control,
+    getValues,
     handleSubmit,
     register,
     reset,
+    setError,
     formState: { errors },
   } = useForm<ReceivePOValues>({
     resolver: zodResolver(receivePOSchema),
@@ -76,6 +79,7 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
   // starts with items:[] and onSubmit silently returns early.
   useEffect(() => {
     if (open && po) {
+      setSubmitError(null);
       reset({
         notes: '',
         items: po.items.map(item => ({
@@ -91,8 +95,9 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
     }
   }, [open, po, reset]);
 
-  const onSubmit = async (data: ReceivePOValues) => {
+  const receiveItems = async (data: ReceivePOValues) => {
     if (!po) return;
+    setSubmitError(null);
 
     // Filter out items where quantityReceived is 0
     const itemsToReceive = data.items
@@ -105,7 +110,12 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
         isAccepted: true, // Defaulting per instructions
       }));
 
-    if (itemsToReceive.length === 0) return;
+    if (itemsToReceive.length === 0) {
+      const message = 'Enter at least 1 item to receive.';
+      setSubmitError(message);
+      setError('items', { type: 'manual', message });
+      return;
+    }
 
     try {
       await receivePO.mutateAsync({
@@ -117,9 +127,14 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
       });
       reset();
       onClose();
-    } catch {
-      // toast handled
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Receipt failed. Please try again.';
+      setSubmitError(message);
     }
+  };
+
+  const onSubmit = async (data: ReceivePOValues) => {
+    await receiveItems(data);
   };
 
   const handleClose = useCallback(() => {
@@ -134,7 +149,8 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
   };
 
   const handleConfirmReceipt = (): void => {
-    void handleSubmit(onSubmit, onInvalid)();
+    const values = getValues();
+    void receiveItems(values);
   };
 
   if (!po) return null;
@@ -239,6 +255,9 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
           )}
           {errors.items?.message && (
             <p className="text-sm text-red-500 font-medium py-2">{errors.items.message}</p>
+          )}
+          {submitError && (
+            <p className="text-sm text-red-500 font-medium py-2">{submitError}</p>
           )}
         </div>
 
