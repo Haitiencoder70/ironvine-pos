@@ -9,6 +9,22 @@ import { cacheService } from '../services/cacheService';
 const ORG_CACHE_TTL = 300; // 5 minutes
 const RESERVED_SUBDOMAINS = new Set(['www', 'app', 'api', 'staging', 'mail', 'pos', 'clerk', 'accounts']);
 
+interface ResolvedOrg {
+  id: string;
+  clerkOrgId: string;
+  subdomain: string;
+  _count: {
+    orders: number;
+    customers: number;
+    inventoryItems: number;
+    products: number;
+  };
+}
+
+function dataWeight(org: ResolvedOrg): number {
+  return org._count.orders + org._count.customers + org._count.inventoryItems + org._count.products;
+}
+
 declare module 'express-serve-static-core' {
   interface Request {
     organizationId?: string;    // Clerk org ID (external)
@@ -146,6 +162,28 @@ export async function injectTenant(
       // clerkOrgId set. If it's null (e.g. migrated from another Clerk instance
       // or single-tenant mode), subdomain-based routing is sufficient.
       if (authReq.auth?.orgId && org.clerkOrgId && org.clerkOrgId !== authReq.auth.orgId) {
+        const localMembership = authReq.auth.userId
+          ? await prisma.user.findFirst({
+            where: { clerkUserId: authReq.auth.userId, organizationId: org.id, isActive: true },
+            select: { id: true },
+          })
+          : null;
+
+        if (localMembership) {
+          logger.warn('Allowing subdomain access through local membership despite Clerk org mismatch', {
+            subdomain,
+            dbClerkOrgId: org.clerkOrgId,
+            tokenOrgId: authReq.auth.orgId,
+            userId: authReq.auth.userId,
+          });
+          req.organizationId = authReq.auth.orgId;
+          req.organizationDbId = org.id;
+          return runWithTenantContext(
+            { organizationId: req.organizationId, organizationDbId: req.organizationDbId },
+            next,
+          );
+        }
+
         logger.warn('Clerk org mismatch for subdomain', {
           subdomain,
           dbClerkOrgId: org.clerkOrgId,
@@ -164,23 +202,75 @@ export async function injectTenant(
         return next(new AppError(403, 'Organisation context required.', 'NO_ORG_CONTEXT'));
       }
 
-      // Upsert: create the local DB row on first call if it doesn't exist yet.
-      // Clerk is the source of truth; we just need a row to hang tenant data from.
-      const org = await prisma.organization.upsert({
-        where:  { clerkOrgId: authReq.auth.orgId },
-        update: {},
-        create: {
-          clerkOrgId: authReq.auth.orgId,
-          name:       authReq.auth.orgId,   // placeholder; overwritten on Settings page
-          slug:       authReq.auth.orgId,
-          subdomain:  authReq.auth.orgId,
-          plan:       'FREE',
+      const exactClerkOrg = await prisma.organization.findUnique({
+        where: { clerkOrgId: authReq.auth.orgId },
+        select: {
+          id: true,
+          clerkOrgId: true,
+          subdomain: true,
+          _count: {
+            select: { orders: true, customers: true, inventoryItems: true, products: true },
+          },
         },
-        select: { id: true },
       });
 
-      req.organizationId   = authReq.auth.orgId;
-      req.organizationDbId = org.id;
+      const localMemberships = authReq.auth.userId
+        ? await prisma.user.findMany({
+          where: { clerkUserId: authReq.auth.userId, isActive: true },
+          select: {
+            organization: {
+              select: {
+                id: true,
+                clerkOrgId: true,
+                subdomain: true,
+                _count: {
+                  select: { orders: true, customers: true, inventoryItems: true, products: true },
+                },
+              },
+            },
+          },
+        })
+        : [];
+
+      const bestLocalOrg = localMemberships
+        .map((membership) => membership.organization)
+        .sort((a, b) => dataWeight(b) - dataWeight(a))[0];
+
+      const org =
+        bestLocalOrg && (!exactClerkOrg || dataWeight(bestLocalOrg) > dataWeight(exactClerkOrg))
+          ? bestLocalOrg
+          : exactClerkOrg;
+
+      if (org) {
+        if (org.clerkOrgId !== authReq.auth.orgId) {
+          logger.warn('Resolved central-domain request to existing local workspace with different Clerk org id', {
+            orgId: org.id,
+            subdomain: org.subdomain,
+            dbClerkOrgId: org.clerkOrgId,
+            tokenOrgId: authReq.auth.orgId,
+            userId: authReq.auth.userId,
+          });
+        }
+
+        req.organizationId = authReq.auth.orgId;
+        req.organizationDbId = org.id;
+      } else {
+        // Signup provisioning should normally create the local row first. This
+        // fallback exists for legacy Clerk orgs that reach the app before setup.
+        const created = await prisma.organization.create({
+          data: {
+            clerkOrgId: authReq.auth.orgId,
+            name:       authReq.auth.orgId,
+            slug:       authReq.auth.orgId,
+            subdomain:  authReq.auth.orgId,
+            plan:       'FREE',
+          },
+          select: { id: true },
+        });
+
+        req.organizationId = authReq.auth.orgId;
+        req.organizationDbId = created.id;
+      }
     }
 
     // Push into AsyncLocalStorage so services can call getCurrentOrganizationId()
