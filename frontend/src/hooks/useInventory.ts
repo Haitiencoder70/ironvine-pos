@@ -95,7 +95,7 @@ export function useLowStock(): UseQueryResult<ApiResponse<InventoryItem[]>> {
   });
 }
 
-export function useStockMovements(id: string): UseQueryResult<ApiResponse<StockMovement[]>> {
+export function useStockMovements(id: string): UseQueryResult<ApiResponse<PaginatedResult<StockMovement>>> {
   return useQuery({
     queryKey: inventoryKeys.movements(id),
     queryFn: () => inventoryApi.getStockMovements(id),

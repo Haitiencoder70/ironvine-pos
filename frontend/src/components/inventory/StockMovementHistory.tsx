@@ -40,7 +40,10 @@ export function StockMovementHistory({ inventoryItemId }: StockMovementHistoryPr
   const [filterType, setFilterType] = useState<StockMovement['type'] | 'ALL'>('ALL');
 
   const { data, isLoading, isError } = useStockMovements(inventoryItemId);
-  const movements = data?.data ?? [];
+  const movementPayload = data?.data;
+  const movements: StockMovement[] = Array.isArray(movementPayload)
+    ? movementPayload as StockMovement[]
+    : movementPayload?.data ?? [];
 
   const filteredMovements = useMemo(() => {
     if (filterType === 'ALL') return movements;

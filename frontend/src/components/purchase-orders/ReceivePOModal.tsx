@@ -46,6 +46,7 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
   const {
     control,
     handleSubmit,
+    register,
     reset,
     formState: { errors },
   } = useForm<ReceivePOValues>({
@@ -128,6 +129,10 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
     }
   }, [receivePO.isPending, reset, onClose]);
 
+  const onInvalid = (): void => {
+    // Validation errors render below the related controls.
+  };
+
   if (!po) return null;
 
   return (
@@ -144,7 +149,7 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
       size="xl"
       closeOnOverlayClick={!receivePO.isPending}
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-2">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6 pt-2">
 
         <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-xl border border-blue-200">
           <ExclamationTriangleIcon className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
@@ -228,6 +233,9 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
           {errors.items?.root && (
             <p className="text-sm text-red-500 font-medium py-2">{errors.items.root.message}</p>
           )}
+          {errors.items?.message && (
+            <p className="text-sm text-red-500 font-medium py-2">{errors.items.message}</p>
+          )}
         </div>
 
         {/* Global Notes */}
@@ -235,7 +243,8 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
           <TouchInput
             label="Receiving Notes (Optional)"
             placeholder="Boxes arrived slightly damaged..."
-            {...control.register('notes')}
+            error={errors.notes?.message}
+            {...register('notes')}
           />
         </div>
 

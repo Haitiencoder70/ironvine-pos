@@ -88,7 +88,7 @@ export const inventoryApi = {
   getLowStock: () =>
     api.get<ApiResponse<InventoryItem[]>>('/inventory/low-stock').then((r) => r.data),
   getStockMovements: (id: string) =>
-    api.get<ApiResponse<StockMovement[]>>(`/inventory/${id}/movements`).then((r) => r.data),
+    api.get<ApiResponse<PaginatedResult<StockMovement>>>(`/inventory/${id}/movements`).then((r) => r.data),
 };
 
 // ─── Customers ────────────────────────────────────────────────────────────────
