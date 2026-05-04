@@ -47,6 +47,16 @@ export function isMainDomain(): boolean {
 }
 
 /**
+ * True when the current host is the central app host used before wildcard
+ * tenant domains are enabled.
+ */
+export function isCentralAppDomain(): boolean {
+  const hostname = window.location.hostname;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') return false;
+  return hostname === `pos.${APP_DOMAIN}`;
+}
+
+/**
  * Build the full URL for an org's subdomain.
  * In development uses the "acme.localhost:5173" pattern.
  */

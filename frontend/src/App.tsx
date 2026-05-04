@@ -6,7 +6,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { TenantProvider } from '@/components/TenantProvider';
 import { UpgradeModal } from '@/components/UpgradeModal';
 import { setUpgradeModalHandler } from '@/lib/api';
-import { isMainDomain } from '@/utils/tenant';
+import { isCentralAppDomain, isMainDomain } from '@/utils/tenant';
 import { useBranding } from '@/hooks/useBranding';
 
 // Lazy-load every page bundle so only the current route's JS is downloaded
@@ -178,7 +178,7 @@ export function App(): React.JSX.Element {
     });
   }, []);
 
-  const router = isMainDomain() ? mainDomainRouter : appRouter;
+  const router = isMainDomain() && !isCentralAppDomain() ? mainDomainRouter : appRouter;
 
   return (
     <TenantProvider>
