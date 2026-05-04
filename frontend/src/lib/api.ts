@@ -27,9 +27,14 @@ export const api = axios.create({
 });
 
 let clerkToken: string | null = null;
+let clerkTokenProvider: (() => Promise<string | null>) | null = null;
 
 export function setApiToken(token: string | null): void {
   clerkToken = token;
+}
+
+export function setApiTokenProvider(provider: (() => Promise<string | null>) | null): void {
+  clerkTokenProvider = provider;
 }
 
 export function getApiToken(): string | null {
@@ -38,9 +43,11 @@ export function getApiToken(): string | null {
 
 // ── Interceptors ─────────────────────────────────────────────────────────────
 
-api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  if (clerkToken) {
-    config.headers['Authorization'] = `Bearer ${clerkToken}`;
+api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+  const token = clerkTokenProvider ? await clerkTokenProvider() : clerkToken;
+  if (token) {
+    clerkToken = token;
+    config.headers['Authorization'] = `Bearer ${token}`;
   }
   const subdomain = getCurrentSubdomain();
   if (subdomain) {

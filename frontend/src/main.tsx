@@ -18,7 +18,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'react-hot-toast';
 import { App } from './App';
 import { queryClient } from './lib/queryClient';
-import { setApiToken } from './lib/api';
+import { setApiToken, setApiTokenProvider } from './lib/api';
 import { AuthSync } from './components/auth/AuthSync';
 import { getCurrentSubdomain } from './utils/tenant';
 import { IntercomWidget } from './components/support/IntercomWidget';
@@ -42,6 +42,11 @@ function TokenSync(): null {
       heartbeatService.startHeartbeatLoop();
     }
   }, []);
+
+  React.useEffect(() => {
+    setApiTokenProvider(getToken);
+    return () => setApiTokenProvider(null);
+  }, [getToken]);
 
   React.useEffect(() => {
     const syncToken = async (): Promise<void> => {
