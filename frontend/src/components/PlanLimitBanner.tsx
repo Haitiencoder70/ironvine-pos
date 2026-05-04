@@ -18,11 +18,24 @@ export function PlanLimitBanner(): React.JSX.Element | null {
 
   // Find the worst-status limit that hasn't been dismissed
   const priority: LimitType[] = ['orders', 'customers', 'users', 'inventoryItems'];
+  const shouldShowLimit = (key: LimitType, status: 'critical' | 'warning'): boolean => {
+    if (dismissed === key || limitStatuses[key] !== status) return false;
+    if (key !== 'users') return true;
+
+    const { current, max } = billing.usage.users;
+    if (max === -1) return false;
+
+    // A Free workspace naturally has 1 owner out of 1 allowed user. Do not
+    // show a permanent red banner for the normal owner-only state; invite flows
+    // still block additional users through usePlanLimits.canAddUser().
+    return current > max;
+  };
+
   const critical = priority.find(
-    (k) => limitStatuses[k] === 'critical' && dismissed !== k,
+    (k) => shouldShowLimit(k, 'critical'),
   );
   const warning = priority.find(
-    (k) => limitStatuses[k] === 'warning' && dismissed !== k,
+    (k) => shouldShowLimit(k, 'warning'),
   );
 
   const active = critical ?? warning;

@@ -56,6 +56,17 @@ export function isCentralAppDomain(): boolean {
   return hostname === `pos.${APP_DOMAIN}`;
 }
 
+export function shouldUseCentralAppDomain(): boolean {
+  const hostname = window.location.hostname;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') return false;
+  if (TENANT_SUBDOMAINS_ENABLED) return false;
+  return hostname.endsWith(`.${APP_DOMAIN}`) && !isCentralAppDomain();
+}
+
+export function getCentralAppUrl(pathname = window.location.pathname): string {
+  return `${window.location.protocol}//pos.${APP_DOMAIN}${pathname}${window.location.search}${window.location.hash}`;
+}
+
 /**
  * Build the full URL for an org's subdomain.
  * In development uses the "acme.localhost:5173" pattern.

@@ -6,7 +6,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { TenantProvider } from '@/components/TenantProvider';
 import { UpgradeModal } from '@/components/UpgradeModal';
 import { setUpgradeModalHandler } from '@/lib/api';
-import { isCentralAppDomain, isMainDomain } from '@/utils/tenant';
+import { getCentralAppUrl, isCentralAppDomain, isMainDomain, shouldUseCentralAppDomain } from '@/utils/tenant';
 import { useBranding } from '@/hooks/useBranding';
 
 // Lazy-load every page bundle so only the current route's JS is downloaded
@@ -177,6 +177,16 @@ export function App(): React.JSX.Element {
       setShowUpgrade(true);
     });
   }, []);
+
+  useEffect(() => {
+    if (shouldUseCentralAppDomain()) {
+      window.location.replace(getCentralAppUrl());
+    }
+  }, []);
+
+  if (shouldUseCentralAppDomain()) {
+    return <PageFallback />;
+  }
 
   const router = isMainDomain() && !isCentralAppDomain() ? mainDomainRouter : appRouter;
 
