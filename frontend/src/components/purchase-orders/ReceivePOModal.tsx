@@ -133,6 +133,10 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
     // Validation errors render below the related controls.
   };
 
+  const handleConfirmReceipt = (): void => {
+    void handleSubmit(onSubmit, onInvalid)();
+  };
+
   if (!po) return null;
 
   return (
@@ -261,11 +265,12 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
             Cancel
           </TouchButton>
           <TouchButton
-            type="submit"
+            type="button"
             variant="success"
             size="lg"
             fullWidth
             loading={receivePO.isPending}
+            onClick={handleConfirmReceipt}
           >
             Confirm Receipt
           </TouchButton>
