@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useBlocker, useSearchParams } from 'react-router-dom';
 import { useForm, FormProvider, useFormContext, Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -494,6 +494,7 @@ export function NewOrderPage(): JSX.Element {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [customerError, setCustomerError] = useState('');
   const createOrder = useCreateOrder();
+  const hasSubmittedRef = useRef(false);
   const isOnline = useOfflineStore((s) => s.isOnline);
   const { canCreateOrder, billing } = usePlanLimits();
   const { can } = usePermissions();
@@ -570,7 +571,7 @@ export function NewOrderPage(): JSX.Element {
   // Navigation guard — warn before leaving with unsaved form
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname
+      !hasSubmittedRef.current && isDirty && currentLocation.pathname !== nextLocation.pathname
   );
 
   useEffect(() => {
@@ -677,6 +678,7 @@ export function NewOrderPage(): JSX.Element {
       };
 
       const result = await createOrder.mutateAsync(payload);
+      hasSubmittedRef.current = true;
       localStorage.removeItem(LS_KEY);
       reset();
 

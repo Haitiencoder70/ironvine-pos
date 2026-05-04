@@ -1,11 +1,66 @@
-import { Prisma, PurchaseOrder } from '@prisma/client';
+import { InventoryCategory, Prisma, PurchaseOrder } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
-import { generatePONumber } from '../utils/generators';
+import { generatePONumber, generateSKU } from '../utils/generators';
 import { receiveStock } from './inventoryService';
 import type { CreatePOInput, ReceivePOInput } from '../types/services';
+
+function inferInventoryCategory(description: string): InventoryCategory {
+  const d = description.toLowerCase();
+  if (d.includes('dtf') || d.includes('gang sheet') || d.includes('transfer')) return InventoryCategory.DTF_TRANSFERS;
+  if (d.includes('htv') || d.includes('vinyl')) return InventoryCategory.VINYL;
+  if (
+    d.includes('shirt') || d.includes('tee') || d.includes('hoodie') ||
+    d.includes('polo') || d.includes('sweatshirt') || d.includes('blank') ||
+    d.includes('gildan') || d.includes('bella') || d.includes('canvas') ||
+    d.includes('comfort colors') || d.includes('next level')
+  ) return InventoryCategory.BLANK_SHIRTS;
+  if (d.includes('ink') || d.includes('powder')) return InventoryCategory.INK;
+  if (d.includes('packaging') || d.includes('bag') || d.includes('box')) return InventoryCategory.PACKAGING;
+  if (d.includes('thread') || d.includes('embroidery')) return InventoryCategory.EMBROIDERY_THREAD;
+  return InventoryCategory.OTHER;
+}
+
+async function resolveInventoryItemForPOItem(
+  tx: Prisma.TransactionClient,
+  params: {
+    organizationId: string;
+    description: string;
+    unitCost: Decimal;
+  },
+): Promise<string> {
+  const category = inferInventoryCategory(params.description);
+  const existing = await tx.inventoryItem.findFirst({
+    where: {
+      organizationId: params.organizationId,
+      isActive: true,
+      name: params.description,
+      category,
+    },
+    select: { id: true },
+  });
+
+  if (existing) return existing.id;
+
+  const created = await tx.inventoryItem.create({
+    data: {
+      sku: generateSKU(category),
+      name: params.description,
+      category,
+      quantityOnHand: 0,
+      quantityReserved: 0,
+      reorderPoint: 0,
+      reorderQuantity: 0,
+      costPrice: params.unitCost,
+      organizationId: params.organizationId,
+    },
+    select: { id: true },
+  });
+
+  return created.id;
+}
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
@@ -226,18 +281,29 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
         data: { quantityRecv: { increment: item.quantityReceived } },
       });
 
-      // Add stock if linked to an inventory item
-      const inventoryItemId = item.inventoryItemId ?? poItem.inventoryItemId;
-      if (inventoryItemId) {
-        await receiveStock(tx as Prisma.TransactionClient, {
+      let inventoryItemId = item.inventoryItemId ?? poItem.inventoryItemId;
+      if (!inventoryItemId) {
+        inventoryItemId = await resolveInventoryItemForPOItem(tx as Prisma.TransactionClient, {
           organizationId,
-          inventoryItemId,
-          quantity: item.quantityReceived,
-          performedBy: receivedBy,
+          description: poItem.description,
+          unitCost: poItem.unitCost,
         });
 
-        localInventory.push({ inventoryItemId, quantityAdded: item.quantityReceived });
+        await tx.purchaseOrderItem.update({
+          where: { id: item.purchaseOrderItemId },
+          data: { inventoryItemId },
+        });
       }
+
+      await receiveStock(tx as Prisma.TransactionClient, {
+        organizationId,
+        inventoryItemId,
+        quantity: item.quantityReceived,
+        orderId: freshPO.linkedOrderId ?? undefined,
+        performedBy: receivedBy,
+      });
+
+      localInventory.push({ inventoryItemId, quantityAdded: item.quantityReceived });
     }
 
     // Determine new PO status
