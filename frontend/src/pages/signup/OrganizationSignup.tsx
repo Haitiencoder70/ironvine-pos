@@ -138,15 +138,16 @@ export function OrganizationSignup(): React.JSX.Element {
   useEffect(() => {
     if (!isLoaded || !isSignedIn) { setCheckingExistingOrg(false); return; }
     organizationApi.findMine()
-      .then((org) => {
+      .then(async (org) => {
         if (org?.subdomain) {
+          await setActive({ organization: org.clerkOrgId });
           window.location.href = `${getAppUrl(org.subdomain)}/dashboard`;
         } else {
           setCheckingExistingOrg(false);
         }
       })
       .catch(() => setCheckingExistingOrg(false));
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, setActive]);
 
   // Detect if we're in the middle of a Clerk SSO callback — the URL will contain
   // '__clerk_status' or 'rotating_token_nonce' query params while Clerk is
@@ -209,12 +210,8 @@ export function OrganizationSignup(): React.JSX.Element {
         if (result.clerkOrgId) {
           await setActive({ organization: result.clerkOrgId });
         }
-        const domain = import.meta.env.VITE_APP_DOMAIN;
         const subdomain = result.slug ?? form.slug;
-        const appUrl = domain
-          ? `https://${subdomain}.${domain}/dashboard`
-          : `http://${subdomain}.localhost:5173/dashboard`;
-        window.location.href = appUrl;
+        window.location.href = `${getAppUrl(subdomain)}/dashboard`;
       }
     } catch (err: unknown) {
       const msg = getApiError(err);

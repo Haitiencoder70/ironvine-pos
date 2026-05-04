@@ -382,7 +382,7 @@ export const findMine = async (req: Request, res: Response, next: NextFunction):
 
     const user = await prisma.user.findFirst({
       where: { clerkUserId: auth.userId, isActive: true },
-      select: { organization: { select: { slug: true, subdomain: true, name: true } } },
+      select: { organization: { select: { clerkOrgId: true, slug: true, subdomain: true, name: true } } },
     });
 
     res.json({ data: user?.organization ?? null });

@@ -7,6 +7,7 @@ import { runWithTenantContext } from '../utils/tenantContext';
 import { cacheService } from '../services/cacheService';
 
 const ORG_CACHE_TTL = 300; // 5 minutes
+const RESERVED_SUBDOMAINS = new Set(['www', 'app', 'api', 'staging', 'mail', 'pos', 'clerk', 'accounts']);
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -39,8 +40,8 @@ function extractSubdomain(hostname: string): string | null {
 
   const sub = parts[0]!;
 
-  // Ignore "www" as it's not a tenant subdomain
-  if (sub === 'www') return null;
+  // Ignore platform/service hostnames as they are not tenant subdomains.
+  if (RESERVED_SUBDOMAINS.has(sub)) return null;
 
   return sub;
 }

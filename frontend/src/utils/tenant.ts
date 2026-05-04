@@ -1,5 +1,6 @@
 const APP_DOMAIN = (import.meta.env['VITE_APP_DOMAIN'] as string | undefined) ?? 'yourapp.com';
 const VITE_API_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? 'http://localhost:3001';
+const TENANT_SUBDOMAINS_ENABLED = import.meta.env['VITE_ENABLE_TENANT_SUBDOMAINS'] === 'true';
 
 /**
  * Extract the subdomain from the current hostname.
@@ -55,6 +56,10 @@ export function getAppUrl(subdomain: string): string {
 
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return `${protocol}//${subdomain}.localhost${portSuffix}`;
+  }
+
+  if (!TENANT_SUBDOMAINS_ENABLED) {
+    return window.location.origin;
   }
 
   return `${protocol}//${subdomain}.${APP_DOMAIN}`;
