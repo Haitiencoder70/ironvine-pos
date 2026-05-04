@@ -13,6 +13,7 @@ import { LowStockAlerts } from './dashboard/LowStockAlerts';
 import { QuickActions } from './dashboard/QuickActions';
 import { ProfitOverview } from './dashboard/ProfitOverview';
 import { TopProducts } from './dashboard/TopProducts';
+import { useAuthStore } from '../store/authStore';
 
 const containerVariants = {
   hidden: {},
@@ -28,10 +29,12 @@ const sectionVariant = {
 
 export function DashboardPage(): JSX.Element {
   const queryClient = useQueryClient();
+  const isTokenReady = useAuthStore((s) => s.isTokenReady);
 
   const statsQuery = useQuery({
     queryKey: ['dashboard', 'stats'],
     queryFn: () => dashboardApi.getStats(),
+    enabled: isTokenReady,
     refetchInterval: 30_000,
     select: (res) => res.data,
   });
@@ -39,6 +42,7 @@ export function DashboardPage(): JSX.Element {
   const recentOrdersQuery = useQuery({
     queryKey: ['dashboard', 'recent-orders'],
     queryFn: () => dashboardApi.getRecentOrders(),
+    enabled: isTokenReady,
     refetchInterval: 30_000,
     select: (res) => res.data,
   });
@@ -46,6 +50,7 @@ export function DashboardPage(): JSX.Element {
   const lowStockQuery = useQuery({
     queryKey: ['dashboard', 'low-stock'],
     queryFn: () => dashboardApi.getLowStockAlerts(),
+    enabled: isTokenReady,
     refetchInterval: 30_000,
     select: (res) => res.data,
   });
@@ -53,6 +58,7 @@ export function DashboardPage(): JSX.Element {
   const profitStatsQuery = useQuery({
     queryKey: ['dashboard', 'profit-stats'],
     queryFn: () => dashboardApi.getProfitStats(),
+    enabled: isTokenReady,
     refetchInterval: 60_000,
     select: (res) => res.data,
   });
@@ -60,6 +66,7 @@ export function DashboardPage(): JSX.Element {
   const topProductsQuery = useQuery({
     queryKey: ['dashboard', 'top-products'],
     queryFn: () => dashboardApi.getTopProducts(),
+    enabled: isTokenReady,
     refetchInterval: 60_000,
     select: (res) => res.data,
   });

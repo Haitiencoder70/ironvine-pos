@@ -7,7 +7,8 @@ export function SignInPage(): JSX.Element {
       <SignIn
         routing="path"
         path="/sign-in"
-        fallbackRedirectUrl="/signup"
+        forceRedirectUrl="/dashboard"
+        fallbackRedirectUrl="/dashboard"
         signUpUrl="/signup"
         appearance={{
           layout: {
