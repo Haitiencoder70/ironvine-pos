@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SignUp, useAuth } from '@clerk/clerk-react';
+import { SignUp, useAuth, useClerk } from '@clerk/clerk-react';
 import { getAppUrl } from '../../utils/tenant';
 import { z } from 'zod';
 import { PlanCard } from '../../components/signup/PlanCard';
@@ -123,6 +123,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
 export function OrganizationSignup(): React.JSX.Element {
   const [searchParams] = useSearchParams();
   const { isLoaded, isSignedIn } = useAuth();
+  const { setActive } = useClerk();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>({
     ...INITIAL,
@@ -204,10 +205,14 @@ export function OrganizationSignup(): React.JSX.Element {
       if (result.checkoutUrl) {
         window.location.href = result.checkoutUrl;
       } else {
+        if (result.clerkOrgId) {
+          await setActive({ organization: result.clerkOrgId });
+        }
         const domain = import.meta.env.VITE_APP_DOMAIN;
+        const subdomain = result.slug ?? form.slug;
         const appUrl = domain
-          ? `https://${form.slug}.${domain}/dashboard`
-          : `http://${form.slug}.localhost:5173/dashboard`;
+          ? `https://${subdomain}.${domain}/dashboard`
+          : `http://${subdomain}.localhost:5173/dashboard`;
         window.location.href = appUrl;
       }
     } catch (err: unknown) {

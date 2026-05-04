@@ -63,7 +63,14 @@ const VALID_DOWNGRADES: Record<SubscriptionPlan, SubscriptionPlan[]> = {
 // ─── Email helpers ────────────────────────────────────────────────────────────
 
 async function sendWelcomeEmail(to: string, firstName: string, orgName: string, slug: string): Promise<void> {
-  const dashboardUrl = `${env.FRONTEND_URL}/dashboard`;
+  const rootDomain = (() => {
+    try {
+      return new URL(env.FRONTEND_URL).hostname.split('.').slice(-2).join('.');
+    } catch {
+      return 'printflowpos.com';
+    }
+  })();
+  const dashboardUrl = `https://${slug}.${rootDomain}/dashboard`;
   const html = `
 <!DOCTYPE html><html><head><style>
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f9fafb;margin:0;padding:40px 20px}
@@ -76,7 +83,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .f{text-align:center;padding:16px 40px;color:#9ca3af;font-size:13px;border-top:1px solid #f3f4f6}
 </style></head><body>
 <div class="c">
-  <div class="h"><h1>Welcome to Ironvine POS!</h1></div>
+  <div class="h"><h1>Welcome to PrintFlow POS!</h1></div>
   <div class="b">
     <p>Hi ${firstName},</p>
     <p>Your workspace <strong>${orgName}</strong> is ready. Here's how to get started:</p>
@@ -86,15 +93,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="step">⚙️ <strong>Step 4:</strong> Customise your settings (tax rate, branding, notifications).</div>
     <div style="text-align:center"><a href="${dashboardUrl}" class="btn">Go to Dashboard →</a></div>
   </div>
-  <div class="f">Ironvine POS · Your workspace: ${slug}.ironvine.com</div>
+  <div class="f">PrintFlow POS - Your workspace: ${slug}.${rootDomain}</div>
 </div>
 </body></html>`;
 
   try {
     await resend.emails.send({
-      from:    'welcome@ironvine.com',
+      from:    'PrintFlow POS <welcome@printflowpos.com>',
       to,
-      subject: `Your Ironvine POS workspace is ready — ${orgName}`,
+      subject: `Your PrintFlow POS workspace is ready - ${orgName}`,
       html,
     });
   } catch (err) {
@@ -104,8 +111,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 async function sendPlanChangeEmail(to: string, orgName: string, oldPlan: string, newPlan: string, isUpgrade: boolean): Promise<void> {
   const subject = isUpgrade
-    ? `You've upgraded to the ${newPlan} plan — ${orgName}`
-    : `Plan changed to ${newPlan} — ${orgName}`;
+    ? `You've upgraded to the ${newPlan} plan - ${orgName}`
+    : `Plan changed to ${newPlan} - ${orgName}`;
 
   const html = `
 <!DOCTYPE html><html><head><style>
@@ -128,14 +135,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <span class="badge" style="background:${isUpgrade ? '#dcfce7' : '#fee2e2'}">${newPlan}</span>
     </p>
     <p>Your new limits are now active. Visit the <a href="${env.FRONTEND_URL}/settings/billing">Billing page</a> to view your current usage.</p>
-    ${isUpgrade ? '<p>Thank you for supporting Ironvine POS! 🙏</p>' : ''}
+    ${isUpgrade ? '<p>Thank you for supporting PrintFlow POS.</p>' : ''}
   </div>
-  <div class="f">Ironvine POS Billing</div>
+  <div class="f">PrintFlow POS Billing</div>
 </div>
 </body></html>`;
 
   try {
-    await resend.emails.send({ from: 'billing@ironvine.com', to, subject, html });
+    await resend.emails.send({ from: 'PrintFlow POS Billing <billing@printflowpos.com>', to, subject, html });
   } catch (err) {
     logger.error('Failed to send plan change email', { err, to });
   }

@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { getAuth } from '@clerk/express';
+import { clerkClient, getAuth } from '@clerk/express';
 import { AuthenticatedRequest } from '../types';
 import { AppError } from '../middleware/errorHandler';
 import { prisma } from '../lib/prisma';
+import { provisionNewOrganization } from '../services/provisioningService';
 import {
   updateOrganization,
   getOrganizationUsage,
@@ -399,6 +400,7 @@ const createOrgSchema = z.object({
   ownerFirstName: z.string().max(80).optional().or(z.literal('')),
   ownerLastName:  z.string().max(80).optional().or(z.literal('')),
   ownerEmail:     z.string().email().optional().or(z.literal('')),
+  plan:           z.enum(['FREE', 'STARTER', 'PRO', 'ENTERPRISE']).optional(),
 });
 
 export const createOrganization = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -421,23 +423,41 @@ export const createOrganization = async (req: Request, res: Response, next: Next
       return next(new AppError(409, 'That slug is already taken.', 'SLUG_TAKEN'));
     }
 
-    // Use Clerk orgId from session if available, otherwise use userId as placeholder
-    const clerkOrgId = auth.orgId ?? `pending_${auth.userId}`;
+    const clerkUser = await clerkClient.users.getUser(auth.userId);
+    const ownerEmail =
+      parsed.data.ownerEmail ||
+      clerkUser.primaryEmailAddress?.emailAddress ||
+      clerkUser.emailAddresses[0]?.emailAddress;
 
-    const org = await prisma.organization.upsert({
-      where:  { clerkOrgId },
-      update: { name, slug, subdomain: slug },
-      create: {
-        clerkOrgId,
+    if (!ownerEmail) {
+      return next(new AppError(400, 'A verified owner email is required.', 'OWNER_EMAIL_REQUIRED'));
+    }
+
+    const clerkOrg = auth.orgId
+      ? await clerkClient.organizations.updateOrganization(auth.orgId, { name, slug })
+      : await clerkClient.organizations.createOrganization({
         name,
         slug,
-        subdomain: slug,
-        plan: 'FREE',
-      },
-      select: { id: true, slug: true },
+        createdBy: auth.userId,
+        publicMetadata: { plan: parsed.data.plan ?? 'FREE' },
+      });
+
+    const provisioned = await provisionNewOrganization({
+      clerkOrgId:       clerkOrg.id,
+      name,
+      slug,
+      ownerClerkUserId: auth.userId,
+      ownerEmail,
+      ownerFirstName:   parsed.data.ownerFirstName || clerkUser.firstName || '',
+      ownerLastName:    parsed.data.ownerLastName || clerkUser.lastName || '',
+      plan:             parsed.data.plan ?? 'FREE',
     });
 
-    res.status(201).json({ organizationId: org.id });
+    res.status(201).json({
+      organizationId: provisioned.organizationId,
+      clerkOrgId: clerkOrg.id,
+      slug,
+    });
   } catch (err) {
     next(err);
   }

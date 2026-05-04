@@ -36,7 +36,7 @@ export const organizationApi = {
     api.get<SlugAvailability>(`/organizations/slug-check`, { params: { slug } }).then((r) => r.data),
 
   createOrganization: (data: OrgCreatePayload) =>
-    api.post<{ organizationId: string; checkoutUrl?: string }>('/organizations', data).then((r) => r.data),
+    api.post<{ organizationId: string; clerkOrgId?: string; slug?: string; checkoutUrl?: string }>('/organizations', data).then((r) => r.data),
 
   getOrganization: () =>
     api.get<{ data: { id: string; name: string; slug: string; plan: string; logoUrl?: string | null; trialEndsAt?: string | null } }>('/organization/me').then((r) => r.data.data),

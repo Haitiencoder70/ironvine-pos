@@ -58,7 +58,7 @@ function emailWrapper(title: string, body: string, btnText?: string, btnUrl?: st
       ${btnText && btnUrl ? `<div class="btn-container"><a href="${btnUrl}" class="btn">${btnText}</a></div>` : ''}
     </div>
     <div class="footer">
-      Powered by Ironvine POS
+      Powered by PrintFlow POS
     </div>
   </div>
 </body>

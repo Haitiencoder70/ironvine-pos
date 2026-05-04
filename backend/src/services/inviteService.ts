@@ -51,12 +51,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="h"><h1>You've been invited!</h1></div>
   <div class="b">
     <p>Hi there,</p>
-    <p><strong>${inviterName}</strong> has invited you to join <strong>${orgName}</strong> on Ironvine POS as a <strong>${role}</strong>.</p>
+    <p><strong>${inviterName}</strong> has invited you to join <strong>${orgName}</strong> on PrintFlow POS as a <strong>${role}</strong>.</p>
     <p>Click the button below to accept your invitation. This link expires in ${INVITE_TTL_HOURS} hours.</p>
     <div style="text-align:center"><a href="${link}" class="btn">Accept Invitation</a></div>
     <p style="margin-top:28px;font-size:13px;color:#6b7280">If you weren't expecting this, you can safely ignore this email.</p>
   </div>
-  <div class="f">Powered by Ironvine POS</div>
+  <div class="f">Powered by PrintFlow POS</div>
 </div>
 </body></html>`;
 }
@@ -76,10 +76,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="h"><h1>Welcome to ${orgName}!</h1></div>
   <div class="b">
     <p>Hi ${firstName},</p>
-    <p>Your account is all set up. You can now log in and start using Ironvine POS.</p>
+    <p>Your account is all set up. You can now log in and start using PrintFlow POS.</p>
     <div style="text-align:center"><a href="${loginUrl}" class="btn">Go to Dashboard</a></div>
   </div>
-  <div class="f">Powered by Ironvine POS</div>
+  <div class="f">Powered by PrintFlow POS</div>
 </div>
 </body></html>`;
 }
@@ -98,9 +98,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="h"><h1>Invitation Cancelled</h1></div>
   <div class="b">
     <p>Hi,</p>
-    <p>Your invitation to join <strong>${orgName}</strong> on Ironvine POS has been cancelled. If you believe this is a mistake, please contact the organisation's owner.</p>
+    <p>Your invitation to join <strong>${orgName}</strong> on PrintFlow POS has been cancelled. If you believe this is a mistake, please contact the organisation's owner.</p>
   </div>
-  <div class="f">Powered by Ironvine POS</div>
+  <div class="f">Powered by PrintFlow POS</div>
 </div>
 </body></html>`;
 }
@@ -140,7 +140,7 @@ export async function inviteUser(input: InviteUserInput): Promise<{ invite: Orga
       await resend.emails.send({
         from:    getFromAddress(org),
         to:      email,
-        subject: `You've been invited to join ${org.name} on Ironvine POS`,
+        subject: `You've been invited to join ${org.name} on PrintFlow POS`,
         html:    inviteEmailHtml(org.name, inviterName, role, inviteLink),
       });
     } catch (err) {
@@ -187,7 +187,7 @@ export async function inviteUser(input: InviteUserInput): Promise<{ invite: Orga
     await resend.emails.send({
       from:    getFromAddress(org),
       to:      email,
-      subject: `You've been invited to join ${org.name} on Ironvine POS`,
+      subject: `You've been invited to join ${org.name} on PrintFlow POS`,
       html:    inviteEmailHtml(org.name, inviterName, role, inviteLink),
     });
   } catch (err) {

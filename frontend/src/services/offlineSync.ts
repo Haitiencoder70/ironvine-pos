@@ -5,7 +5,7 @@ import { getApiToken } from '../lib/api';
 import toast from 'react-hot-toast';
 import { logger } from '../lib/logger';
 
-const DB_NAME = 'ironvine-pos-offline';
+const DB_NAME = 'printflow-pos-offline';
 const STORE_NAME = 'mutation-queue';
 const DB_VERSION = 1;
 const API_ORIGIN = (import.meta.env['VITE_API_URL'] as string | undefined) ?? window.location.origin;
