@@ -48,3 +48,12 @@ frontend/public/workbox-*.js
 
 # Git worktrees
 .worktrees/
+
+# Local QA artifacts
+.playwright-mcp/
+/homepage*.png
+/pricing*.png
+/signin*.png
+/signup*.png
+/retest*.png
+/after-signin-click.png
