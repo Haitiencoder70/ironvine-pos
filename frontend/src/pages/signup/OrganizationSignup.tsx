@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { PlanCard } from '../../components/signup/PlanCard';
 import { SubdomainChecker } from '../../components/signup/SubdomainChecker';
 import { organizationApi } from '../../services/organizationApi';
+import { getApiError } from '../../lib/api';
 
 // ─── Zod schemas ─────────────────────────────────────────────────────────────
 
@@ -216,7 +217,7 @@ export function OrganizationSignup(): React.JSX.Element {
         window.location.href = appUrl;
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      const msg = getApiError(err);
       setErrors({ submit: msg });
     } finally {
       setSubmitting(false);
@@ -241,6 +242,7 @@ export function OrganizationSignup(): React.JSX.Element {
           routing="path"
           path="/signup"
           signInUrl="/sign-in"
+          forceRedirectUrl="/signup"
           fallbackRedirectUrl="/signup"
           appearance={{
             layout: {

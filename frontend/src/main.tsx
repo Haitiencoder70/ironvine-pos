@@ -71,6 +71,9 @@ ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ClerkProvider
       publishableKey={PUBLISHABLE_KEY}
+      signUpForceRedirectUrl="/signup"
+      signUpFallbackRedirectUrl="/signup"
+      signInFallbackRedirectUrl="/signup"
       appearance={{
         layout: {
           logoImageUrl: '/printflow-logo-horizontal.svg',

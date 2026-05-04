@@ -4,6 +4,7 @@ import { clerkClient, getAuth } from '@clerk/express';
 import { AuthenticatedRequest } from '../types';
 import { AppError } from '../middleware/errorHandler';
 import { prisma } from '../lib/prisma';
+import { logger } from '../lib/logger';
 import { provisionNewOrganization } from '../services/provisioningService';
 import {
   updateOrganization,
@@ -403,6 +404,27 @@ const createOrgSchema = z.object({
   plan:           z.enum(['FREE', 'STARTER', 'PRO', 'ENTERPRISE']).optional(),
 });
 
+type ClerkApiError = {
+  status?: number;
+  errors?: Array<{ code?: string; message?: string; longMessage?: string }>;
+};
+
+function isClerkApiError(err: unknown): err is ClerkApiError {
+  return typeof err === 'object' && err !== null && 'errors' in err;
+}
+
+function clerkSignupError(err: unknown): AppError {
+  if (isClerkApiError(err)) {
+    const first = err.errors?.[0];
+    const message = first?.longMessage ?? first?.message ?? 'Clerk could not create the organization.';
+    const code = first?.code ?? 'CLERK_ORG_ERROR';
+    const status = err.status === 409 || err.status === 422 ? 409 : 502;
+    return new AppError(status, message, code);
+  }
+
+  return new AppError(502, 'Unable to create the Clerk organization. Please try again.', 'CLERK_ORG_ERROR');
+}
+
 export const createOrganization = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const auth = getAuth(req);
@@ -416,6 +438,22 @@ export const createOrganization = async (req: Request, res: Response, next: Next
     }
 
     const { name, slug } = parsed.data;
+
+    const existingUserWorkspace = await prisma.user.findFirst({
+      where: { clerkUserId: auth.userId, isActive: true },
+      select: {
+        organization: { select: { id: true, clerkOrgId: true, slug: true } },
+      },
+    });
+
+    if (existingUserWorkspace) {
+      res.status(200).json({
+        organizationId: existingUserWorkspace.organization.id,
+        clerkOrgId: existingUserWorkspace.organization.clerkOrgId,
+        slug: existingUserWorkspace.organization.slug,
+      });
+      return;
+    }
 
     // Ensure slug is unique
     const existing = await prisma.organization.findUnique({ where: { slug }, select: { id: true } });
@@ -433,14 +471,51 @@ export const createOrganization = async (req: Request, res: Response, next: Next
       return next(new AppError(400, 'A verified owner email is required.', 'OWNER_EMAIL_REQUIRED'));
     }
 
-    const clerkOrg = auth.orgId
-      ? await clerkClient.organizations.updateOrganization(auth.orgId, { name, slug })
-      : await clerkClient.organizations.createOrganization({
-        name,
+    let clerkOrg: Awaited<ReturnType<typeof clerkClient.organizations.createOrganization>>;
+    try {
+      clerkOrg = auth.orgId
+        ? await clerkClient.organizations.updateOrganization(auth.orgId, { name, slug })
+        : await clerkClient.organizations.createOrganization({
+          name,
+          slug,
+          createdBy: auth.userId,
+          publicMetadata: { plan: parsed.data.plan ?? 'FREE' },
+        });
+    } catch (err) {
+      logger.warn('Clerk organization create/update failed during signup', {
+        err,
+        userId: auth.userId,
+        orgId: auth.orgId,
         slug,
-        createdBy: auth.userId,
-        publicMetadata: { plan: parsed.data.plan ?? 'FREE' },
       });
+      return next(clerkSignupError(err));
+    }
+
+    const existingForClerkOrg = await prisma.organization.findUnique({
+      where: { clerkOrgId: clerkOrg.id },
+      select: {
+        id: true,
+        slug: true,
+        users: {
+          where: { clerkUserId: auth.userId, isActive: true },
+          select: { id: true },
+          take: 1,
+        },
+      },
+    });
+
+    if (existingForClerkOrg) {
+      if (existingForClerkOrg.users.length === 0) {
+        return next(new AppError(409, 'This Clerk organization is already connected to another workspace.', 'ORG_EXISTS'));
+      }
+
+      res.status(200).json({
+        organizationId: existingForClerkOrg.id,
+        clerkOrgId: clerkOrg.id,
+        slug: existingForClerkOrg.slug,
+      });
+      return;
+    }
 
     const provisioned = await provisionNewOrganization({
       clerkOrgId:       clerkOrg.id,
