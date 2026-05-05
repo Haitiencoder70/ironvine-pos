@@ -205,55 +205,56 @@ export function LandingPage(): React.JSX.Element {
           </div>
         </section>
 
-        <section className="bg-white">
-          <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+        {/* PRODUCTION CONTROL */}
+        <div className="border-t border-[#1a1a1a]" />
+        <section className="px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-2 lg:items-center">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">Production control</p>
-              <h2 className="mt-3 text-3xl font-bold text-gray-900">Know what is waiting, moving, and ready.</h2>
-              <p className="mt-4 text-base leading-7 text-gray-600">
-                PrintFlow POS is shaped for apparel decorators who need clean handoffs between sales,
-                purchasing, production, and shipping without losing the customer promise.
+              <p className="mb-3 border-l-2 border-[#ff6b00] pl-3 text-[11px] font-semibold uppercase tracking-[4px] text-[#ff6b00]">
+                Production control
               </p>
-              <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                {OPERATIONS.map(({ label, Icon }) => (
-                  <div key={label} className="flex min-h-[64px] items-center gap-3 rounded-xl border border-gray-200 px-4">
-                    <Icon className="h-6 w-6 shrink-0 text-blue-600" aria-hidden="true" />
-                    <span className="text-sm font-semibold text-gray-800">{label}</span>
+              <h2 className="text-[26px] font-extrabold leading-tight tracking-[-1px] sm:text-[30px] lg:text-[34px]">
+                Your shop floor,{' '}
+                <span className="text-[#ff6b00]">under control.</span>
+              </h2>
+              <p className="mb-8 mt-4 text-[15px] leading-relaxed text-[#666666]">
+                See every active job at a glance. Rush orders surface automatically. Nothing falls through the cracks.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                {(
+                  [
+                    { val: '100%', label: 'Offline capable' },
+                    { val: 'Auto', label: 'PO generation' },
+                    { val: 'Live', label: 'Order tracking' },
+                    { val: 'Multi', label: 'Team support' },
+                  ] as const
+                ).map(({ val, label }) => (
+                  <div key={label} className="rounded-[9px] border border-[#1e1e1e] bg-[#141414] p-4">
+                    <p className="text-[22px] font-extrabold text-[#ff6b00]">{val}</p>
+                    <p className="mt-0.5 text-[11px] uppercase tracking-wide text-[#555555]">{label}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-gray-950 p-4 shadow-lg">
-              <div className="rounded-lg bg-white p-4">
-                <div className="flex items-center justify-between border-b border-gray-200 pb-3">
+            <div className="overflow-hidden rounded-xl border border-[#222222] bg-[#141414]">
+              <div className="flex items-center gap-2 border-b border-[#1a1a1a] bg-[#1a1a1a] px-4 py-2.5">
+                <span className="h-2 w-2 rounded-full bg-[#ff5f57]" />
+                <span className="h-2 w-2 rounded-full bg-[#ffbd2e]" />
+                <span className="h-2 w-2 rounded-full bg-[#28c840]" />
+                <span className="mx-auto text-[11px] tracking-wide text-[#555555]">Active Orders</span>
+              </div>
+              {PROD_ORDERS.map(({ id, detail, status, badge }) => (
+                <div key={id} className="flex min-h-[60px] items-center justify-between border-b border-[#1a1a1a] px-4 last:border-b-0">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Today</p>
-                    <p className="text-lg font-bold text-gray-900">Rush order queue</p>
+                    <p className="text-[12px] font-bold text-[#cccccc]">{id}</p>
+                    <p className="text-[11px] text-[#555555]">{detail}</p>
                   </div>
-                  <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-                    4 due soon
+                  <span className={`rounded px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${badge}`}>
+                    {status}
                   </span>
                 </div>
-                <div className="mt-4 space-y-3">
-                  {[
-                    ['ORD-202605-0182', 'Materials received', '50 black tees'],
-                    ['ORD-202605-0184', 'In production', '24 hoodies'],
-                    ['ORD-202605-0188', 'Ready to ship', '12 polos'],
-                  ].map(([order, status, detail]) => (
-                    <div key={order} className="flex min-h-[60px] items-center justify-between rounded-lg border border-gray-200 px-4">
-                      <div>
-                        <p className="text-sm font-bold text-gray-900">{order}</p>
-                        <p className="text-xs text-gray-500">{detail}</p>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm font-semibold text-green-700">
-                        <CheckCircleIcon className="h-5 w-5" aria-hidden="true" />
-                        {status}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
