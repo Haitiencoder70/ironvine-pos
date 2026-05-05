@@ -2,17 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import {
   ArrowRightIcon,
-  CheckCircleIcon,
   ClipboardDocumentListIcon,
-  CloudArrowDownIcon,
   CubeIcon,
   DeviceTabletIcon,
-  PrinterIcon,
-  TruckIcon,
 } from '@heroicons/react/24/outline';
-
-const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=2200&q=85';
 
 const WORKFLOW = ['Quote', 'Approve', 'Order materials', 'Print', 'Quality check', 'Ship'] as const;
 
@@ -34,10 +27,17 @@ const FEATURES = [
   },
 ] as const;
 
-const OPERATIONS = [
-  { label: 'Offline PWA queue', Icon: CloudArrowDownIcon },
-  { label: 'Receipt printing path', Icon: PrinterIcon },
-  { label: 'Shipment tracking', Icon: TruckIcon },
+const HERO_ORDERS = [
+  { id: 'ORD-202605-0182', detail: '50x Black Tee -- DTF Front', status: 'Rush', badge: 'bg-[#ff6b00] text-white' },
+  { id: 'ORD-202605-0184', detail: '24x White Hoodie -- Screen Print', status: 'In Production', badge: 'bg-[#1a2a1a] text-[#4caf50]' },
+  { id: 'ORD-202605-0188', detail: '12x Navy Polo -- Embroidery', status: 'Ready to Ship', badge: 'bg-[#142a3a] text-[#38bdf8]' },
+] as const;
+
+const PROD_ORDERS = [
+  { id: 'ORD-202605-0182', detail: '50x Black Tee -- DTF Front · Stark Industries', status: 'Rush', badge: 'bg-[#ff6b00] text-white' },
+  { id: 'ORD-202605-0184', detail: '24x White Hoodie -- Screen Print · Wayne Ent.', status: 'In Production', badge: 'bg-[#1a2a1a] text-[#4caf50]' },
+  { id: 'ORD-202605-0188', detail: '12x Navy Polo -- Embroidery · Acme Corp', status: 'Ready to Ship', badge: 'bg-[#142a3a] text-[#38bdf8]' },
+  { id: 'ORD-202605-0190', detail: '100x Grey Tee -- HTV · Daily Planet', status: 'Shipped', badge: 'bg-[#2a1a2a] text-[#a855f7]' },
 ] as const;
 
 export function LandingPage(): React.JSX.Element {
