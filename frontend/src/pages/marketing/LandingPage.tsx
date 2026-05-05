@@ -259,6 +259,66 @@ export function LandingPage(): React.JSX.Element {
           </div>
         </section>
       </main>
+
+      {/* CTA STRIP */}
+      <div className="px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-[#1e1e1e] bg-[#141414] px-8 py-14 text-center">
+          <h2 className="text-[26px] font-extrabold tracking-[-1px] sm:text-[30px] lg:text-[34px]">
+            Ready to run a{' '}
+            <span className="text-[#ff6b00]">tighter shop?</span>
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-[15px] text-[#666666]">
+            Join print shops already using PrintFlow to stay on top of every job.
+          </p>
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              onClick={() => navigate(accountCtaPath)}
+              className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[#ff6b00] px-7 text-base font-bold text-white hover:bg-[#e55f00] sm:w-auto"
+            >
+              {isSignedIn ? 'Go to dashboard' : 'Start free trial'}
+              <ArrowRightIcon className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/pricing')}
+              className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl border border-[#2a2a2a] px-7 text-base font-semibold text-[#888888] hover:border-[#444444] hover:text-[#f5f5f5] sm:w-auto"
+            >
+              See pricing
+            </button>
+          </div>
+          <p className="mt-4 text-[11px] tracking-wide text-[#444444]">
+            No credit card required -- Cancel anytime
+          </p>
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <footer className="border-t border-[#1a1a1a] px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 sm:flex-row sm:justify-between">
+          <button type="button" onClick={() => navigate('/')} className="min-h-[44px]">
+            <img
+              src="/printflow-logo-horizontal-white.png"
+              alt="PrintFlow POS"
+              className="h-7 w-auto opacity-40"
+            />
+          </button>
+          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+            {(['Features', 'Pricing', 'Privacy', 'Terms'] as const).map((label) => (
+              <button
+                key={label}
+                type="button"
+                className="min-h-[44px] text-[13px] text-[#555555] hover:text-[#f5f5f5]"
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+          <p className="text-[12px] text-[#444444]">
+            &copy; {new Date().getFullYear()} PrintFlow. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
