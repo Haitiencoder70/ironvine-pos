@@ -142,15 +142,66 @@ export function LandingPage(): React.JSX.Element {
           </div>
         </section>
 
-        <section className="border-b border-gray-200 bg-gray-50">
-          <div className="mx-auto grid max-w-7xl gap-6 px-4 py-14 sm:px-6 lg:grid-cols-3 lg:px-8">
-            {FEATURES.map(({ title, body, Icon }) => (
-              <article key={title} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <Icon className="h-8 w-8 text-blue-600" aria-hidden="true" />
-                <h2 className="mt-5 text-lg font-semibold text-gray-900">{title}</h2>
-                <p className="mt-3 text-sm leading-6 text-gray-600">{body}</p>
-              </article>
-            ))}
+        {/* WORKFLOW */}
+        <div className="border-t border-[#1a1a1a]" />
+        <section className="px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <p className="mb-3 border-l-2 border-[#ff6b00] pl-3 text-[11px] font-semibold uppercase tracking-[4px] text-[#ff6b00]">
+              How it works
+            </p>
+            <h2 className="text-[26px] font-extrabold tracking-[-1px] sm:text-[30px] lg:text-[34px]">
+              From quote to shipped.
+            </h2>
+            <p className="mb-14 mt-2 text-[15px] text-[#666666]">
+              Every step in one place -- no spreadsheets, no sticky notes.
+            </p>
+            <div className="relative grid grid-cols-3 gap-y-10 sm:grid-cols-6">
+              <div className="absolute left-[8%] right-[8%] top-[22px] hidden h-px bg-gradient-to-r from-[#ff6b00] to-[rgba(255,107,0,0.1)] sm:block" />
+              {WORKFLOW.map((step, i) => (
+                <div key={step} className="relative z-10 flex flex-col items-center gap-3 text-center">
+                  <div
+                    className={`flex h-11 w-11 items-center justify-center rounded-full border-2 text-[13px] font-extrabold ${
+                      i === 0
+                        ? 'border-[#ff6b00] bg-[#ff6b00] text-white'
+                        : 'border-[#ff6b00] bg-[#0f0f0f] text-[#ff6b00]'
+                    }`}
+                  >
+                    {i + 1}
+                  </div>
+                  <p className="text-[12px] font-semibold text-[#cccccc]">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FEATURES */}
+        <div className="border-t border-[#1a1a1a]" />
+        <section className="px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <p className="mb-3 border-l-2 border-[#ff6b00] pl-3 text-[11px] font-semibold uppercase tracking-[4px] text-[#ff6b00]">
+              Features
+            </p>
+            <h2 className="text-[26px] font-extrabold tracking-[-1px] sm:text-[30px] lg:text-[34px]">
+              Everything your shop needs.
+            </h2>
+            <p className="mb-14 mt-2 text-[15px] text-[#666666]">
+              No bloat. No fluff. Just what print shops actually use.
+            </p>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {FEATURES.map(({ title, body, Icon }) => (
+                <article
+                  key={title}
+                  className="rounded-xl border border-[#1e1e1e] bg-[#141414] p-7 transition-colors hover:border-[#ff6b00]"
+                >
+                  <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-[9px] border border-[#3d2200] bg-[#1f1204]">
+                    <Icon className="h-6 w-6 text-[#ff6b00]" aria-hidden="true" />
+                  </div>
+                  <h3 className="mb-2.5 text-[17px] font-bold text-[#f5f5f5]">{title}</h3>
+                  <p className="text-[13px] leading-relaxed text-[#666666]">{body}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
