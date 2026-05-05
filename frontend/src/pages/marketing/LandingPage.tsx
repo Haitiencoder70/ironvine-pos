@@ -43,45 +43,42 @@ const PROD_ORDERS = [
 export function LandingPage(): React.JSX.Element {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
-  const accountCtaLabel = isSignedIn ? 'Go to dashboard' : 'Start free';
-  const accountCtaPath = isSignedIn ? '/signup' : '/signup';
+  const accountCtaPath = '/signup';
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-      <header className="fixed inset-x-0 top-0 z-30 border-b border-white/20 bg-gray-950/80 backdrop-blur">
+    <div className="min-h-screen bg-[#0f0f0f] text-[#f5f5f5]">
+
+      {/* NAV */}
+      <header className="fixed inset-x-0 top-0 z-30 border-b border-[#1a1a1a] bg-[#0f0f0f]/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="min-h-[44px] rounded-xl px-1 text-left text-lg font-bold text-white"
+            className="min-h-[44px] rounded-xl px-1"
           >
-            <img
-              src="/printflow-logo-horizontal-white.png"
-              alt="PrintFlow POS"
-              className="h-9 w-auto"
-            />
+            <img src="/printflow-logo-horizontal-white.png" alt="PrintFlow POS" className="h-9 w-auto" />
           </button>
           <nav className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => navigate('/pricing')}
-              className="hidden min-h-[44px] rounded-xl px-4 text-sm font-medium text-gray-200 hover:bg-white/10 sm:inline-flex sm:items-center"
+              className="hidden min-h-[44px] rounded-xl px-4 text-sm font-medium text-[#777777] hover:text-[#f5f5f5] sm:inline-flex sm:items-center"
             >
               Pricing
             </button>
             <button
               type="button"
               onClick={() => navigate(isSignedIn ? accountCtaPath : '/sign-in')}
-              className="min-h-[44px] rounded-xl px-4 text-sm font-medium text-gray-200 hover:bg-white/10"
+              className="min-h-[44px] rounded-xl px-4 text-sm font-medium text-[#777777] hover:text-[#f5f5f5]"
             >
               {isSignedIn ? 'Dashboard' : 'Sign in'}
             </button>
             <button
               type="button"
               onClick={() => navigate(accountCtaPath)}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#ff6b00] px-4 text-sm font-semibold text-white hover:bg-[#e55f00]"
             >
-              {accountCtaLabel}
+              {isSignedIn ? 'Go to dashboard' : 'Start free trial'}
               <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
             </button>
           </nav>
@@ -89,54 +86,58 @@ export function LandingPage(): React.JSX.Element {
       </header>
 
       <main>
-        <section className="relative min-h-[92vh] overflow-hidden bg-gray-950">
-          <img
-            src={HERO_IMAGE}
-            alt="Custom printed shirts stacked in a production workspace"
-            className="absolute inset-0 h-full w-full object-cover opacity-55"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,7,18,0.95),rgba(17,24,39,0.76),rgba(17,24,39,0.2))]" />
-
-          <div className="relative mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-4 pb-28 pt-28 sm:px-6 lg:px-8">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-200">
-                T-shirt graphics point of sale
-              </p>
-              <h1 className="mt-5 text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
-                PrintFlow POS
-              </h1>
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-gray-100">
-                Run custom apparel orders from quote to delivery with customer records, production status,
-                inventory, purchase orders, and tablet-ready shop workflows in one place.
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={() => navigate(accountCtaPath)}
-                  className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 text-base font-semibold text-white shadow-lg shadow-blue-950/30 hover:bg-blue-700"
-                >
-                  {isSignedIn ? 'Go to dashboard' : 'Create workspace'}
-                  <ArrowRightIcon className="h-5 w-5" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigate('/pricing')}
-                  className="inline-flex min-h-[52px] items-center justify-center rounded-xl border border-white/45 bg-white/10 px-7 text-base font-semibold text-white backdrop-blur hover:bg-white/20"
-                >
-                  View pricing
-                </button>
-              </div>
+        {/* HERO */}
+        <section className="px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="mb-7 inline-flex items-center gap-2 rounded border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[3px] text-[#ff6b00]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#ff6b00]" />
+              POS built for print shops
             </div>
+            <h1 className="text-[42px] font-extrabold leading-none tracking-[-1.5px] text-[#f5f5f5] sm:text-[54px] sm:tracking-[-2px] lg:text-[62px] lg:tracking-[-2.5px]">
+              The POS that keeps<br />your shop{' '}
+              <span className="text-[#ff6b00]">moving.</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-[520px] text-[15px] leading-relaxed text-[#777777] sm:text-[18px]">
+              From first quote to final shipment -- track every order, manage inventory, and never lose a job again.
+            </p>
+            <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <button
+                type="button"
+                onClick={() => navigate(accountCtaPath)}
+                className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[#ff6b00] px-7 text-base font-bold text-white hover:bg-[#e55f00] sm:w-auto"
+              >
+                {isSignedIn ? 'Go to dashboard' : 'Start free trial'}
+                <ArrowRightIcon className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/pricing')}
+                className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl border border-[#2a2a2a] px-7 text-base font-semibold text-[#888888] hover:border-[#444444] hover:text-[#f5f5f5] sm:w-auto"
+              >
+                See pricing
+              </button>
+            </div>
+            <p className="mt-4 text-[11px] tracking-wide text-[#444444]">
+              No credit card required -- Free 14-day trial
+            </p>
 
-            <div className="absolute bottom-0 left-0 right-0 border-t border-white/15 bg-gray-950/72 backdrop-blur">
-              <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px px-4 py-4 sm:grid-cols-4 sm:px-6 lg:grid-cols-6 lg:px-8">
-                {WORKFLOW.map((step) => (
-                  <div key={step} className="min-h-[56px] px-3 py-2">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-200">Workflow</p>
-                    <p className="mt-1 text-sm font-semibold text-white">{step}</p>
-                  </div>
-                ))}
+            {/* Product signal */}
+            <div className="mx-auto mt-12 max-w-lg overflow-hidden rounded-xl border border-[#222222] bg-[#141414]">
+              <div className="flex items-center gap-2 border-b border-[#1a1a1a] bg-[#1a1a1a] px-4 py-2.5">
+                <span className="h-2 w-2 rounded-full bg-[#ff5f57]" />
+                <span className="h-2 w-2 rounded-full bg-[#ffbd2e]" />
+                <span className="h-2 w-2 rounded-full bg-[#28c840]" />
+                <span className="mx-auto text-[11px] tracking-wide text-[#555555]">Active Orders</span>
               </div>
+              {HERO_ORDERS.map(({ id, detail, status, badge }) => (
+                <div key={id} className="flex min-h-[52px] items-center justify-between border-b border-[#1a1a1a] px-4 last:border-b-0">
+                  <div>
+                    <p className="text-[12px] font-bold text-[#cccccc]">{id}</p>
+                    <p className="text-[11px] text-[#555555]">{detail}</p>
+                  </div>
+                  <span className={`rounded px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${badge}`}>{status}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
