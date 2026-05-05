@@ -1,3 +1,9 @@
+# Brainstorming sessions
+.superpowers/
+
+# Visual verification screenshots (local only)
+/landing-*.png
+
 # Dependencies
 node_modules/
 .pnp

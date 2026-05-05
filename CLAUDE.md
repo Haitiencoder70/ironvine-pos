@@ -380,4 +380,18 @@ POST   /api/sync/mutations       (replay queued offline mutations)
 
 ---
 
+## ⚡ Current Priority Order
+
+1. Fix active POS workflow bugs
+2. Wrap PO / order / inventory writes in `prisma.$transaction()`
+3. Add one golden-path E2E smoke test (create order → approve → PO → receive → ship)
+4. Add root quality scripts (`npm run typecheck`, `npm run lint`, `npm run check-ready`)
+5. Add Prettier
+6. Add coverage reporting
+7. Add Husky / lint-staged (lightweight, last)
+
+**Before every Render deploy:** `npm run check-ready` — typecheck + lint + smoke test.
+
+---
+
 **This is a professional SaaS product. Every line of code should be production-ready, tenant-isolated, offline-capable, and touch-optimized.**
