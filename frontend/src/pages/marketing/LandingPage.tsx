@@ -34,16 +34,20 @@ const HERO_ORDERS = [
 ] as const;
 
 const PROD_ORDERS = [
-  { id: 'ORD-202605-0182', detail: '50x Black Tee -- DTF Front · Stark Industries', status: 'Rush', badge: 'bg-[#ff6b00] text-white' },
-  { id: 'ORD-202605-0184', detail: '24x White Hoodie -- Screen Print · Wayne Ent.', status: 'In Production', badge: 'bg-[#1a2a1a] text-[#4caf50]' },
-  { id: 'ORD-202605-0188', detail: '12x Navy Polo -- Embroidery · Acme Corp', status: 'Ready to Ship', badge: 'bg-[#142a3a] text-[#38bdf8]' },
-  { id: 'ORD-202605-0190', detail: '100x Grey Tee -- HTV · Daily Planet', status: 'Shipped', badge: 'bg-[#2a1a2a] text-[#a855f7]' },
+  { id: 'ORD-202605-0182', detail: '50x Black Tee -- DTF Front -- Stark Industries', status: 'Rush', badge: 'bg-[#ff6b00] text-white' },
+  { id: 'ORD-202605-0184', detail: '24x White Hoodie -- Screen Print -- Wayne Ent.', status: 'In Production', badge: 'bg-[#1a2a1a] text-[#4caf50]' },
+  { id: 'ORD-202605-0188', detail: '12x Navy Polo -- Embroidery -- Acme Corp', status: 'Ready to Ship', badge: 'bg-[#142a3a] text-[#38bdf8]' },
+  { id: 'ORD-202605-0190', detail: '100x Grey Tee -- HTV -- Daily Planet', status: 'Shipped', badge: 'bg-[#2a1a2a] text-[#a855f7]' },
 ] as const;
 
 export function LandingPage(): React.JSX.Element {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
-  const accountCtaPath = '/signup';
+  const accountCtaPath = isSignedIn ? '/dashboard' : '/signup';
+
+  const scrollToFeatures = (): void => {
+    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-[#f5f5f5]">
@@ -68,7 +72,7 @@ export function LandingPage(): React.JSX.Element {
             </button>
             <button
               type="button"
-              onClick={() => navigate(isSignedIn ? accountCtaPath : '/sign-in')}
+              onClick={() => navigate(isSignedIn ? '/dashboard' : '/sign-in')}
               className="min-h-[44px] rounded-xl px-4 text-sm font-medium text-[#777777] hover:text-[#f5f5f5]"
             >
               {isSignedIn ? 'Dashboard' : 'Sign in'}
@@ -144,7 +148,7 @@ export function LandingPage(): React.JSX.Element {
 
         {/* WORKFLOW */}
         <div className="border-t border-[#1a1a1a]" />
-        <section className="px-4 py-20 sm:px-6 lg:px-8">
+        <section id="features" className="scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <p className="mb-3 border-l-2 border-[#ff6b00] pl-3 text-[11px] font-semibold uppercase tracking-[4px] text-[#ff6b00]">
               How it works
@@ -304,14 +308,24 @@ export function LandingPage(): React.JSX.Element {
             />
           </button>
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-            {(['Features', 'Pricing', 'Privacy', 'Terms'] as const).map((label) => (
-              <button
-                key={label}
-                type="button"
-                className="min-h-[44px] text-[13px] text-[#555555] hover:text-[#f5f5f5]"
-              >
+            <button
+              type="button"
+              onClick={scrollToFeatures}
+              className="min-h-[44px] text-[13px] text-[#555555] hover:text-[#f5f5f5]"
+            >
+              Features
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/pricing')}
+              className="min-h-[44px] text-[13px] text-[#555555] hover:text-[#f5f5f5]"
+            >
+              Pricing
+            </button>
+            {(['Privacy', 'Terms'] as const).map((label) => (
+              <span key={label} className="flex min-h-[44px] items-center text-[13px] text-[#555555]">
                 {label}
-              </button>
+              </span>
             ))}
           </nav>
           <p className="text-[12px] text-[#444444]">
