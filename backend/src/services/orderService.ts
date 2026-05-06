@@ -96,6 +96,21 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
   const total = subtotal + taxAmount;
 
   const order = await prisma.$transaction(async (tx) => {
+    // Validate all required-material inventory links belong to this org
+    const matInventoryIds = items
+      .flatMap(i => i.requiredMaterials ?? [])
+      .map(m => m.inventoryItemId)
+      .filter((id): id is string => typeof id === 'string' && id.length > 0);
+
+    if (matInventoryIds.length > 0) {
+      const count = await tx.inventoryItem.count({
+        where: { id: { in: matInventoryIds }, organizationId },
+      });
+      if (count !== matInventoryIds.length) {
+        throw new AppError(400, 'One or more inventory items not found', 'INVALID_INVENTORY_ITEM');
+      }
+    }
+
     const created = await tx.order.create({
       data: {
         orderNumber,
