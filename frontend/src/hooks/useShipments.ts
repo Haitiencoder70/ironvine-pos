@@ -95,10 +95,10 @@ export function useUpdateTracking() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: { trackingNumber?: string; carrier?: ShipmentCarrier; estimatedDelivery?: string; sendTrackingEmail?: boolean } }) =>
       shipmentApi.updateTracking(id, payload),
-    onSuccess: (res) => {
+    onSuccess: (res, variables) => {
       void queryClient.invalidateQueries({ queryKey: shipmentKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: shipmentKeys.detail(res.data.id) });
-      toast.success('Tracking details updated');
+      toast.success(variables.payload.sendTrackingEmail ? 'Tracking email sent to customer' : 'Tracking details updated');
     },
     onError: () => {
       toast.error('Failed to update tracking');

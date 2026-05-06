@@ -10,9 +10,10 @@ import {
   MapPinIcon,
   ClockIcon,
   ArrowTopRightOnSquareIcon,
+  EnvelopeIcon,
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
-import { useShipment } from '../../hooks/useShipments';
+import { useShipment, useUpdateTracking } from '../../hooks/useShipments';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
 import { SkeletonLoader } from '../../components/ui';
@@ -50,6 +51,7 @@ export function ShipmentDetailPage(): JSX.Element {
   const [showTrackingModal, setShowTrackingModal] = useState(false);
 
   const { data, isLoading, isError, refetch } = useShipment(id ?? '');
+  const emailTracking = useUpdateTracking();
   const shipment = data?.data;
 
   if (isLoading) {
@@ -88,6 +90,24 @@ export function ShipmentDetailPage(): JSX.Element {
     else if (shipment.carrier === 'USPS') trackingUrl = `https://tools.usps.com/go/TrackConfirmAction?tLabels=${shipment.trackingNumber}`;
     else if (shipment.carrier === 'DHL') trackingUrl = `https://www.dhl.com/en/express/tracking.html?AWB=${shipment.trackingNumber}`;
   }
+  const canEmailTracking = Boolean(shipment.trackingNumber && shipment.order?.customer?.email);
+
+  const handleEmailTracking = async () => {
+    if (!canEmailTracking) {
+      setShowTrackingModal(true);
+      return;
+    }
+
+    await emailTracking.mutateAsync({
+      id: shipment.id,
+      payload: {
+        carrier: shipment.carrier,
+        trackingNumber: shipment.trackingNumber,
+        estimatedDelivery: shipment.estimatedDelivery,
+        sendTrackingEmail: true,
+      },
+    });
+  };
 
   return (
     <>
@@ -120,6 +140,16 @@ export function ShipmentDetailPage(): JSX.Element {
                onClick={() => setShowTrackingModal(true)}
              >
                Manage Tracking
+             </TouchButton>
+             <TouchButton
+               variant="secondary"
+               size="md"
+               icon={<EnvelopeIcon className="h-4 w-4" />}
+               loading={emailTracking.isPending}
+               disabled={emailTracking.isPending || !shipment.order?.customer?.email}
+               onClick={() => void handleEmailTracking()}
+             >
+               Email Tracking
              </TouchButton>
              <TouchButton
                variant="primary"

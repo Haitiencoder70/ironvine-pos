@@ -78,7 +78,11 @@ export function OrderFilters({
 
   const handleStatusChange = useCallback(
     (value: string | number | string[] | number[]) =>
-      onFiltersChange({ status: value as OrderStatus | '', page: 1 }),
+      onFiltersChange({
+        status: value as OrderStatus | '',
+        excludeCancelled: value === '',
+        page: 1,
+      }),
     [onFiltersChange]
   );
 
@@ -253,7 +257,7 @@ export function OrderFilters({
                   {filters.status && (
                     <FilterChip
                       label={`Status: ${filters.status.replace(/_/g, ' ')}`}
-                      onRemove={() => onFiltersChange({ status: '', page: 1 })}
+                      onRemove={() => onFiltersChange({ status: '', excludeCancelled: true, page: 1 })}
                     />
                   )}
                   {filters.priority && (

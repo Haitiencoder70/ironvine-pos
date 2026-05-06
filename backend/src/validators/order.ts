@@ -54,6 +54,10 @@ export const useMaterialsSchema = z.object({
 
 export const listOrdersQuerySchema = z.object({
   status: z.nativeEnum(OrderStatus).optional(),
+  excludeCancelled: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .optional(),
   customerId: z.string().min(1).optional(),
   priority: z.nativeEnum(OrderPriority).optional(),
   search: z.string().max(100).optional(),

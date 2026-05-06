@@ -220,7 +220,6 @@ export async function sendShipmentTrackingEmail(opts: {
   trackingUrl: string;
   estimatedDelivery?: Date | null;
 }) {
-  if (!(await isModuleEnabled(opts.organizationId, 'EMAIL'))) return;
   if (!opts.customerEmail) return;
 
   const estimatedDelivery = opts.estimatedDelivery
@@ -246,15 +245,20 @@ export async function sendShipmentTrackingEmail(opts: {
   );
 
   try {
-    await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: await getOrgFromAddress(opts.organizationId),
       to: opts.customerEmail,
       subject: `Tracking for order ${opts.orderNumber}`,
       html,
     });
+    if (error) {
+      logger.error(`Failed to send shipment email to ${opts.customerEmail}`, error);
+      throw new Error(error.message);
+    }
     logger.info(`Sent Shipment Tracking Email to ${opts.customerEmail}`);
   } catch (err) {
     logger.error(`Failed to send shipment email to ${opts.customerEmail}`, err);
+    throw err;
   }
 }
 
