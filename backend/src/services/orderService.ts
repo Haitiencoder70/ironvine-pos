@@ -206,6 +206,63 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
       );
     }
 
+    if (newStatus === 'MATERIALS_RECEIVED' || newStatus === 'IN_PRODUCTION') {
+      const [requiredCount, unfulfilledCount] = await Promise.all([
+        tx.requiredMaterial.count({
+          where: { organizationId, orderItem: { orderId } },
+        }),
+        tx.requiredMaterial.count({
+          where: {
+            organizationId,
+            isFulfilled: false,
+            orderItem: { orderId },
+          },
+        }),
+      ]);
+
+      if (requiredCount > 0 && unfulfilledCount > 0) {
+        throw new AppError(
+          400,
+          'All required materials must be received before production can start.',
+          'MATERIALS_NOT_FULFILLED',
+        );
+      }
+    }
+
+    if (newStatus === 'QUALITY_CHECK') {
+      const [requiredMaterials, materialUsage] = await Promise.all([
+        tx.requiredMaterial.findMany({
+          where: { organizationId, orderItem: { orderId } },
+          select: { inventoryItemId: true, quantityRequired: true, description: true },
+        }),
+        tx.materialUsage.groupBy({
+          by: ['inventoryItemId'],
+          where: { organizationId, orderId },
+          _sum: { quantityUsed: true },
+        }),
+      ]);
+
+      const usageByInventoryItem = new Map(
+        materialUsage.map((usage) => [
+          usage.inventoryItemId,
+          Number(usage._sum.quantityUsed ?? 0),
+        ]),
+      );
+      const missingUsage = requiredMaterials.find((material) => {
+        if (!material.inventoryItemId) return true;
+        const used = usageByInventoryItem.get(material.inventoryItemId) ?? 0;
+        return used < Number(material.quantityRequired);
+      });
+
+      if (missingUsage) {
+        throw new AppError(
+          400,
+          `Record material usage for "${missingUsage.description}" before sending the order to quality check.`,
+          'MATERIAL_USAGE_REQUIRED',
+        );
+      }
+    }
+
     const withCustomer = await tx.order.findUnique({
       where: { id: orderId },
       select: { customer: { select: { email: true, phone: true } } },
