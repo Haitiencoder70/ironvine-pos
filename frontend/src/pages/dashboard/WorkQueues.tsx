@@ -58,7 +58,7 @@ function QueuePanel<T>({ config, loading }: { config: QueueConfig<T>; loading: b
   const navigate = useNavigate();
 
   return (
-    <div className="dashboard-panel rounded-2xl overflow-hidden min-h-[250px]">
+    <div className="dashboard-panel rounded-2xl overflow-hidden flex flex-col h-full">
       <div className="dashboard-panel-header flex items-center justify-between gap-3 px-4 py-3">
         <div className="flex items-center gap-2 min-w-0">
           <span className="h-9 w-9 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-blue-300">
@@ -129,7 +129,7 @@ export function WorkQueues({ queues, loading }: WorkQueuesProps): React.JSX.Elem
         <div className="min-w-0 flex-1">
           <p className="text-[13px] font-semibold text-gray-300 truncate">{po.poNumber}</p>
           <p className="text-[11.5px] text-gray-600 truncate mt-0.5">
-            {po.vendor?.name ?? 'Vendor'}{po.linkedOrder ? ` - ${po.linkedOrder.orderNumber}` : ''}
+            {po.linkedOrder ? `${po.linkedOrder.orderNumber} - ` : ''}{po.vendor?.name ?? 'Vendor'}
           </p>
         </div>
         {expected && <span className={clsx('text-[11px] font-semibold whitespace-nowrap', expected.tone)}>{expected.text}</span>}
@@ -143,7 +143,7 @@ export function WorkQueues({ queues, loading }: WorkQueuesProps): React.JSX.Elem
       count: queues?.needsMaterials.length ?? 0,
       icon: <ShoppingCartIcon className="h-5 w-5" />,
       items: queues?.needsMaterials ?? [],
-      emptyText: 'No material orders waiting.',
+      emptyText: 'No orders waiting for new material POs.',
       viewAllPath: '/orders?status=MATERIALS_ORDERED',
       renderItem: (item) => orderRow(item as DashboardWorkOrder),
     },
@@ -184,7 +184,7 @@ export function WorkQueues({ queues, loading }: WorkQueuesProps): React.JSX.Elem
           <p className="text-[12px] text-gray-600 mt-1">The jobs and supplier orders that need staff attention next.</p>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
         {configs.map((config) => (
           <QueuePanel key={config.title} config={config} loading={loading} />
         ))}
