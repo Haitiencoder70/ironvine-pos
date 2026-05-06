@@ -62,6 +62,32 @@ async function resolveInventoryItemForPOItem(
   return created.id;
 }
 
+async function linkReceivedPOItemToOrderMaterial(
+  tx: Prisma.TransactionClient,
+  params: {
+    organizationId: string;
+    linkedOrderId: string | null;
+    description: string;
+    inventoryItemId: string;
+    isFulfilled: boolean;
+  },
+): Promise<void> {
+  if (!params.linkedOrderId) return;
+
+  await tx.requiredMaterial.updateMany({
+    where: {
+      organizationId: params.organizationId,
+      description: params.description,
+      inventoryItemId: null,
+      orderItem: { orderId: params.linkedOrderId },
+    },
+    data: {
+      inventoryItemId: params.inventoryItemId,
+      ...(params.isFulfilled ? { isFulfilled: true } : {}),
+    },
+  });
+}
+
 // ─── Create ───────────────────────────────────────────────────────────────────
 
 export async function createPOForOrder(input: CreatePOInput): Promise<PurchaseOrder & {
@@ -209,6 +235,14 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
     throw new AppError(400, 'All items already received for this purchase order', 'PO_ALREADY_RECEIVED');
   }
 
+  if (po.status !== 'SENT' && po.status !== 'PARTIALLY_RECEIVED') {
+    throw new AppError(
+      400,
+      `Cannot receive items for a purchase order in status "${po.status}". Send it to the vendor first.`,
+      'INVALID_PO_STATUS',
+    );
+  }
+
   const { receiving, updatedInventory, orderStatusUpdated } = await prisma.$transaction(async (tx) => {
     const localInventory: { inventoryItemId: string; quantityAdded: number }[] = [];
     let localOrderUpdated = false;
@@ -231,6 +265,14 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
 
     if (freshPO.status === 'RECEIVED') {
       throw new AppError(400, 'All items already received for this purchase order', 'PO_ALREADY_RECEIVED');
+    }
+
+    if (freshPO.status !== 'SENT' && freshPO.status !== 'PARTIALLY_RECEIVED') {
+      throw new AppError(
+        400,
+        `Cannot receive items for a purchase order in status "${freshPO.status}". Send it to the vendor first.`,
+        'INVALID_PO_STATUS',
+      );
     }
 
     // Create the receiving event
@@ -301,6 +343,14 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
         quantity: item.quantityReceived,
         orderId: freshPO.linkedOrderId ?? undefined,
         performedBy: receivedBy,
+      });
+
+      await linkReceivedPOItemToOrderMaterial(tx as Prisma.TransactionClient, {
+        organizationId,
+        linkedOrderId: freshPO.linkedOrderId,
+        description: poItem.description,
+        inventoryItemId,
+        isFulfilled: alreadyReceived + item.quantityReceived >= poItem.quantity,
       });
 
       localInventory.push({ inventoryItemId, quantityAdded: item.quantityReceived });
