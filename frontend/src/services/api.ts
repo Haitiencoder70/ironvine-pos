@@ -21,6 +21,7 @@ import {
   OrderWorkflow,
   StockMovement,
   DashboardStats,
+  DashboardWorkQueues,
   ProfitStats,
   TopProductProfit,
   SalesReport,
@@ -337,6 +338,8 @@ export const dashboardApi = {
     api.get<ApiResponse<DashboardStats>>('/dashboard/stats').then((r) => r.data),
   getRecentOrders: () =>
     api.get<ApiResponse<Order[]>>('/dashboard/recent-orders').then((r) => r.data),
+  getWorkQueues: () =>
+    api.get<ApiResponse<DashboardWorkQueues>>('/dashboard/work-queues').then((r) => r.data),
   getLowStockAlerts: () =>
     api.get<ApiResponse<InventoryItem[]>>('/dashboard/low-stock').then((r) => r.data),
   getPendingPOs: () =>

@@ -4,6 +4,7 @@ import { authorize } from '../middleware/authorize';
 import {
   getStats,
   getRecentOrdersHandler,
+  getWorkQueuesHandler,
   getOrdersByStatusHandler,
   getLowStockAlertsHandler,
   getPendingPOsHandler,
@@ -17,6 +18,7 @@ export const dashboardRouter = Router();
 // ─── Dashboard Stats ──────────────────────────────────────────────────────────
 dashboardRouter.get('/stats', authorize('dashboard:view'), getStats);
 dashboardRouter.get('/recent-orders', authorize('dashboard:view'), getRecentOrdersHandler);
+dashboardRouter.get('/work-queues', authorize('dashboard:view'), getWorkQueuesHandler);
 dashboardRouter.get('/orders-by-status', authorize('dashboard:view'), getOrdersByStatusHandler);
 dashboardRouter.get('/low-stock', authorize('dashboard:view'), getLowStockAlertsHandler);
 dashboardRouter.get('/pending-pos', authorize('dashboard:view'), getPendingPOsHandler);

@@ -298,6 +298,35 @@ export interface DashboardStats {
   revenueToday: number;
 }
 
+export interface DashboardWorkOrder {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  priority: OrderPriority;
+  dueDate?: string | null;
+  customer?: {
+    firstName: string;
+    lastName: string;
+    company?: string | null;
+  } | null;
+}
+
+export interface DashboardWorkPurchaseOrder {
+  id: string;
+  poNumber: string;
+  status: PurchaseOrderStatus;
+  expectedDate?: string | null;
+  vendor?: { name: string } | null;
+  linkedOrder?: { orderNumber: string } | null;
+}
+
+export interface DashboardWorkQueues {
+  needsMaterials: DashboardWorkOrder[];
+  purchaseOrdersToReceive: DashboardWorkPurchaseOrder[];
+  inProduction: DashboardWorkOrder[];
+  readyToShip: DashboardWorkOrder[];
+}
+
 export interface ProfitStats {
   revenue: number;
   costs: number;

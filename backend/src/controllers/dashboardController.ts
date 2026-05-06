@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from '../types';
 import {
   getDashboardStats,
   getRecentOrders,
+  getWorkQueues,
   getOrdersByStatus,
   getLowStockAlerts,
   getPendingPOs,
@@ -26,6 +27,16 @@ export const getRecentOrdersHandler = async (req: Request, res: Response, next: 
     const authReq = req as AuthenticatedRequest;
     const orders = await getRecentOrders(authReq.organizationDbId!);
     res.json({ data: orders });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getWorkQueuesHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const queues = await getWorkQueues(authReq.organizationDbId!);
+    res.json({ data: queues });
   } catch (err) {
     next(err);
   }

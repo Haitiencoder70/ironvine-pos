@@ -62,6 +62,88 @@ export async function getRecentOrders(organizationId: string) {
   });
 }
 
+export async function getWorkQueues(organizationId: string) {
+  const [
+    needsMaterials,
+    purchaseOrdersToReceive,
+    inProduction,
+    readyToShip,
+  ] = await Promise.all([
+    prisma.order.findMany({
+      where: {
+        organizationId,
+        status: { in: ['APPROVED', 'MATERIALS_ORDERED'] },
+        items: {
+          some: {
+            requiredMaterials: {
+              some: { isFulfilled: false },
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        orderNumber: true,
+        status: true,
+        priority: true,
+        dueDate: true,
+        customer: { select: { firstName: true, lastName: true, company: true } },
+      },
+      orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+      take: 8,
+    }),
+    prisma.purchaseOrder.findMany({
+      where: {
+        organizationId,
+        status: { in: ['SENT', 'PARTIALLY_RECEIVED'] },
+      },
+      select: {
+        id: true,
+        poNumber: true,
+        status: true,
+        expectedDate: true,
+        vendor: { select: { name: true } },
+        linkedOrder: { select: { orderNumber: true } },
+      },
+      orderBy: [{ expectedDate: 'asc' }, { createdAt: 'desc' }],
+      take: 8,
+    }),
+    prisma.order.findMany({
+      where: { organizationId, status: 'IN_PRODUCTION' },
+      select: {
+        id: true,
+        orderNumber: true,
+        status: true,
+        priority: true,
+        dueDate: true,
+        customer: { select: { firstName: true, lastName: true, company: true } },
+      },
+      orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+      take: 8,
+    }),
+    prisma.order.findMany({
+      where: { organizationId, status: 'READY_TO_SHIP' },
+      select: {
+        id: true,
+        orderNumber: true,
+        status: true,
+        priority: true,
+        dueDate: true,
+        customer: { select: { firstName: true, lastName: true, company: true } },
+      },
+      orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+      take: 8,
+    }),
+  ]);
+
+  return {
+    needsMaterials,
+    purchaseOrdersToReceive,
+    inProduction,
+    readyToShip,
+  };
+}
+
 export async function getOrdersByStatus(organizationId: string) {
   const counts = await prisma.order.groupBy({
     by: ['status'],

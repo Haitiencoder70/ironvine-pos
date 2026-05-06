@@ -13,6 +13,7 @@ import { LowStockAlerts } from './dashboard/LowStockAlerts';
 import { QuickActions } from './dashboard/QuickActions';
 import { ProfitOverview } from './dashboard/ProfitOverview';
 import { TopProducts } from './dashboard/TopProducts';
+import { WorkQueues } from './dashboard/WorkQueues';
 import { useAuthStore } from '../store/authStore';
 
 const containerVariants = {
@@ -47,6 +48,14 @@ export function DashboardPage(): JSX.Element {
     select: (res) => res.data,
   });
 
+  const workQueuesQuery = useQuery({
+    queryKey: ['dashboard', 'work-queues'],
+    queryFn: () => dashboardApi.getWorkQueues(),
+    enabled: isTokenReady,
+    refetchInterval: 30_000,
+    select: (res) => res.data,
+  });
+
   const lowStockQuery = useQuery({
     queryKey: ['dashboard', 'low-stock'],
     queryFn: () => dashboardApi.getLowStockAlerts(),
@@ -76,11 +85,13 @@ export function DashboardPage(): JSX.Element {
       onCreated: () => {
         void queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
         void queryClient.invalidateQueries({ queryKey: ['dashboard', 'recent-orders'] });
+        void queryClient.invalidateQueries({ queryKey: ['dashboard', 'work-queues'] });
         toast.success('New order received', { id: 'order-created' });
       },
       onStatusChanged: () => {
         void queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
         void queryClient.invalidateQueries({ queryKey: ['dashboard', 'recent-orders'] });
+        void queryClient.invalidateQueries({ queryKey: ['dashboard', 'work-queues'] });
         toast('Order status updated', { icon: '📋', id: 'order-status' });
       },
     });
@@ -153,6 +164,10 @@ export function DashboardPage(): JSX.Element {
       {/* ── Stats ────────────────────────────────────────────────────── */}
       <motion.div variants={sectionVariant}>
         <StatsGrid stats={statsQuery.data} loading={statsQuery.isLoading} />
+      </motion.div>
+
+      <motion.div variants={sectionVariant}>
+        <WorkQueues queues={workQueuesQuery.data} loading={workQueuesQuery.isLoading} />
       </motion.div>
 
       {/* ── Mid section ──────────────────────────────────────────────── */}
