@@ -39,10 +39,20 @@ async function resolveInventoryItemForPOItem(
       name: params.description,
       category,
     },
-    select: { id: true },
+    select: { id: true, costPrice: true },
   });
 
-  if (existing) return existing.id;
+  if (existing) {
+    // Backfill costPrice from PO unit cost if the item has no cost recorded yet.
+    // Never overwrite a non-zero cost with zero.
+    if (params.unitCost.greaterThan(0) && new Decimal(existing.costPrice).equals(0)) {
+      await tx.inventoryItem.update({
+        where: { id: existing.id },
+        data: { costPrice: params.unitCost },
+      });
+    }
+    return existing.id;
+  }
 
   const created = await tx.inventoryItem.create({
     data: {
