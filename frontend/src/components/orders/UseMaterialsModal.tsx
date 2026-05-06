@@ -32,9 +32,10 @@ const useMaterialsSchema = z.object({
     z.object({
       inventoryItemId: z.string(),
       description: z.string(),
-      quantityRequired: z.number(),
+      quantityRequired: z.coerce.number(),
       quantityUnit: z.string(),
       quantityUsed: z
+        .coerce
         .number({ invalid_type_error: 'Enter a valid amount' })
         .positive('Must be greater than 0'),
     })
@@ -80,9 +81,9 @@ export function UseMaterialsModal({
         item.requiredMaterials.map((rm) => ({
           inventoryItemId: rm.inventoryItemId ?? '',
           description: rm.description,
-          quantityRequired: rm.quantityRequired,
+          quantityRequired: Number(rm.quantityRequired),
           quantityUnit: rm.quantityUnit,
-          quantityUsed: rm.quantityRequired,
+          quantityUsed: Number(rm.quantityRequired),
         }))
       ),
     [items],
@@ -144,6 +145,14 @@ export function UseMaterialsModal({
   const onSubmit = handleSubmit((data) => {
     setSubmitError(null);
     useMaterialsMutation.mutate(data);
+  }, (formErrors) => {
+    const entryErrors = Array.isArray(formErrors.entries) ? formErrors.entries : [];
+    const firstEntryError = entryErrors.find((entry) => entry?.quantityUsed || entry?.quantityRequired);
+    const message =
+      firstEntryError?.quantityUsed?.message ??
+      firstEntryError?.quantityRequired?.message ??
+      'Check material quantities before confirming usage.';
+    setSubmitError(message);
   });
 
   const handleClose = useCallback(() => {
