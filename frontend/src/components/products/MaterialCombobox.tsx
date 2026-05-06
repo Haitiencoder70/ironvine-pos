@@ -93,10 +93,21 @@ export function MaterialCombobox({
 
   const truncateSku = (sku: string) => (sku.length > 12 ? sku.slice(0, 12) + '…' : sku);
 
+  const handleContainerBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+    if (!containerRef.current?.contains(e.relatedTarget as Node)) {
+      setOpen(false);
+    }
+  };
+
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="relative" onBlur={handleContainerBlur}>
       <input
         type="text"
+        role="combobox"
+        aria-label="Material"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-autocomplete="list"
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -106,9 +117,9 @@ export function MaterialCombobox({
       />
 
       {open && filtered.length > 0 && (
-        <ul className="absolute z-50 left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg">
+        <ul role="listbox" className="absolute z-50 left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg">
           {filtered.map(item => (
-            <li key={item.id}>
+            <li key={item.id} role="option" aria-selected={false}>
               <button
                 type="button"
                 onMouseDown={() => handleSelect(item)}
