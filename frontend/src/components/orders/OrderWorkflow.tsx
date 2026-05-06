@@ -134,7 +134,41 @@ export function OrderWorkflow({ order, onAdvanceStatus, isAdvancing }: OrderWork
   });
 
   const currentIdx = STATUS_ORDER[order.status] ?? -1;
-  const nextAction = NEXT_ACTION[order.status];
+  const requiredMaterials = order.items.flatMap((item) => item.requiredMaterials);
+  const activePOMaterialDescriptions = new Set(
+    (order.purchaseOrders ?? [])
+      .filter((po) => po.status !== 'CANCELLED')
+      .flatMap((po) => po.items.map((item) => item.description))
+  );
+  const hasRemainingMaterialsToOrder =
+    requiredMaterials.length > 0 &&
+    requiredMaterials.some(
+      (material) =>
+        !material.isFulfilled &&
+        !activePOMaterialDescriptions.has(material.description)
+    );
+  const hasUnfulfilledMaterials =
+    requiredMaterials.length > 0 && requiredMaterials.some((material) => !material.isFulfilled);
+  const hasMaterialUsage = (order.materialUsages?.length ?? 0) > 0;
+  const baseNextAction = NEXT_ACTION[order.status];
+  const nextAction =
+    order.status === 'MATERIALS_ORDERED' && hasRemainingMaterialsToOrder
+      ? {
+          label: 'Order Remaining Materials',
+          nextStatus: 'MATERIALS_ORDERED' as const,
+          variant: 'primary' as const,
+          requiresModal: 'materials_po' as const,
+        }
+      : order.status === 'MATERIALS_RECEIVED' && hasUnfulfilledMaterials
+        ? undefined
+        : order.status === 'IN_PRODUCTION' && requiredMaterials.length > 0 && !hasMaterialUsage
+          ? {
+              label: 'Record Material Usage',
+              nextStatus: 'QUALITY_CHECK' as const,
+              variant: 'warning' as const,
+              requiresModal: 'materials' as const,
+            }
+          : baseNextAction;
 
   const isOnHold = order.status === 'ON_HOLD';
   const isCancelled = order.status === 'CANCELLED';
@@ -156,6 +190,15 @@ export function OrderWorkflow({ order, onAdvanceStatus, isAdvancing }: OrderWork
         >
           {nextAction.label}
         </TouchButton>
+      )}
+
+      {order.status === 'MATERIALS_RECEIVED' && hasUnfulfilledMaterials && (
+        <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+          <ExclamationCircleIcon className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-700 font-medium">
+            Receive all required materials before starting production.
+          </p>
+        </div>
       )}
 
       {isOnHold && (

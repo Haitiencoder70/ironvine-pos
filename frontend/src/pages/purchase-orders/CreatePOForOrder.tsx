@@ -213,6 +213,11 @@ export function CreatePOPage(): JSX.Element {
 
     const order = orderData.data;
     setValue('linkedOrderId', order.id);
+    const alreadyOrderedDescriptions = new Set(
+      (order.purchaseOrders ?? [])
+        .filter((po) => po.status !== 'CANCELLED')
+        .flatMap((po) => po.items.map((item) => item.description))
+    );
 
     // Strategy 1: requiredMaterials saved at order creation
     const fromRequired = order.items.flatMap(item =>
@@ -226,6 +231,7 @@ export function CreatePOPage(): JSX.Element {
           ?? normalizeMaterialCategory(rm.attributes?.category as string | undefined)
           ?? inferCategory(rm.description),
       }))
+    ).filter(item => !alreadyOrderedDescriptions.has(item.description)
     );
 
     if (fromRequired.length > 0) {
@@ -259,8 +265,12 @@ export function CreatePOPage(): JSX.Element {
       return [{ description: desc, quantity: item.quantity, unitCost: 0, materialCategory: inferCategory(desc) }];
     });
 
-    if (fromAttributes.length > 0) {
-      setMaterialPool(fromAttributes);
+    const unorderedFromAttributes = fromAttributes.filter(
+      item => !alreadyOrderedDescriptions.has(item.description)
+    );
+
+    if (unorderedFromAttributes.length > 0) {
+      setMaterialPool(unorderedFromAttributes);
     }
   }, [linkedOrderId, orderData, setValue]);
 

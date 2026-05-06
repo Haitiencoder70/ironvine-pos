@@ -78,7 +78,7 @@ async function linkReceivedPOItemToOrderMaterial(
     where: {
       organizationId: params.organizationId,
       description: params.description,
-      inventoryItemId: null,
+      OR: [{ inventoryItemId: null }, { inventoryItemId: params.inventoryItemId }],
       orderItem: { orderId: params.linkedOrderId },
     },
     data: {
@@ -394,8 +394,15 @@ export async function receivePOItems(input: ReceivePOInput): Promise<{
         where: { id: freshPO.linkedOrderId },
         select: { status: true, orderNumber: true },
       });
+      const unfulfilledRequiredMaterials = await tx.requiredMaterial.count({
+        where: {
+          organizationId,
+          isFulfilled: false,
+          orderItem: { orderId: freshPO.linkedOrderId },
+        },
+      });
 
-      if (linkedOrder?.status === 'MATERIALS_ORDERED') {
+      if (linkedOrder?.status === 'MATERIALS_ORDERED' && unfulfilledRequiredMaterials === 0) {
         await tx.order.update({
           where: { id: freshPO.linkedOrderId! },
           data: { status: 'MATERIALS_RECEIVED' },

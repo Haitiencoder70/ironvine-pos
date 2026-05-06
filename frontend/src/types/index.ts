@@ -122,6 +122,7 @@ export interface RequiredMaterial {
   description: string;
   quantityRequired: number;
   quantityUnit: string;
+  isFulfilled: boolean;
   inventoryItem?: { id: string; name: string; category: string };
   attributes?: Record<string, unknown>;
 }
@@ -148,6 +149,7 @@ export interface Order {
   items: OrderItem[];
   statusHistory?: { id: string; fromStatus: string | null; toStatus: string; changedBy: string; notes?: string; createdAt: string }[];
   purchaseOrders?: PurchaseOrder[];
+  materialUsages?: { id: string; inventoryItemId: string; quantityUsed: number; quantityUnit: string; createdAt: string }[];
   shipments?: Shipment[];
   designApproved: boolean;
   designApprovedAt: string | null;
