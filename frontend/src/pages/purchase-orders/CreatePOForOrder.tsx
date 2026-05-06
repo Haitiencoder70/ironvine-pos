@@ -402,6 +402,7 @@ export function CreatePOPage(): JSX.Element {
   };
 
   const isCheckingData = (linkedOrderId && isLoadingOrder) || isLoadingVendors;
+  const hasNoRemainingOrderMaterials = Boolean(linkedOrderId && orderData?.data && materialPool.length === 0);
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6 pb-24">
@@ -595,7 +596,9 @@ export function CreatePOPage(): JSX.Element {
               {fields.length === 0 && (
                 <div className="p-6 border-2 border-dashed border-gray-200 rounded-xl text-center">
                   <p className="text-gray-500 text-sm">
-                    {linkedOrderId
+                    {hasNoRemainingOrderMaterials
+                      ? 'All required materials for this order are already covered by active purchase orders.'
+                      : linkedOrderId
                       ? selectedVendorId
                         ? 'No matching materials for this vendor. Check the vendor supply categories or add a custom item.'
                         : 'Select a vendor above to load materials for this order.'
@@ -657,6 +660,7 @@ export function CreatePOPage(): JSX.Element {
                 size="lg"
                 fullWidth
                 loading={createPO.isPending}
+                disabled={createPO.isPending || fields.length === 0}
                 icon={<DocumentTextIcon className="h-5 w-5" />}
               >
                 Save Draft PO

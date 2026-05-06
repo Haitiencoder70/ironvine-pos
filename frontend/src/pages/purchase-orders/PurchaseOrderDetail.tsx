@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import {
@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { usePurchaseOrder, useSendPurchaseOrder } from '../../hooks/usePurchaseOrders';
+import { useOrder } from '../../hooks/useOrders';
 import { useConfirm } from '../../hooks/useConfirm';
 import { TouchButton } from '../../components/ui/TouchButton';
 import { TouchCard } from '../../components/ui/TouchCard';
@@ -47,9 +48,25 @@ export function PurchaseOrderDetailPage(): JSX.Element {
 
   const { data, isLoading, isError, refetch } = usePurchaseOrder(id ?? '');
   const po = data?.data;
+  const { data: linkedOrderData } = useOrder(po?.linkedOrderId ?? '');
 
   const sendPO = useSendPurchaseOrder();
   const { confirm } = useConfirm();
+
+  const hasRemainingMaterials = useMemo(() => {
+    const order = linkedOrderData?.data;
+    if (!order) return false;
+
+    const coveredDescriptions = new Set(
+      (order.purchaseOrders ?? [])
+        .filter((orderPO) => orderPO.status !== 'CANCELLED')
+        .flatMap((orderPO) => orderPO.items.map((item) => item.description)),
+    );
+
+    return order.items
+      .flatMap((item) => item.requiredMaterials)
+      .some((material) => !material.isFulfilled && !coveredDescriptions.has(material.description));
+  }, [linkedOrderData]);
 
   if (isLoading) {
     return (
@@ -136,7 +153,7 @@ export function PurchaseOrderDetailPage(): JSX.Element {
               </TouchButton>
             )}
 
-            {po.linkedOrderId && (po.status === 'RECEIVED' || po.status === 'PARTIALLY_RECEIVED') && (
+            {po.linkedOrderId && hasRemainingMaterials && (po.status === 'RECEIVED' || po.status === 'PARTIALLY_RECEIVED') && (
               <TouchButton
                 variant="primary"
                 size="md"
