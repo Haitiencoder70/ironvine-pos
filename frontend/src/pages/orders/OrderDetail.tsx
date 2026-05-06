@@ -137,7 +137,7 @@ function CancelModal({ open, orderNumber, onClose, onConfirm, isLoading }: Cance
       open={open}
       onClose={onClose}
       title="Cancel Order"
-      description={`Are you sure you want to cancel order ${orderNumber}? This action can be undone by changing the status.`}
+      description={`Cancel order ${orderNumber}? Open linked purchase orders will be cancelled too. Received purchase orders stay in history.`}
       size="sm"
       closeOnOverlayClick={!isLoading}
     >

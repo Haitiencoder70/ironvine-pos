@@ -185,4 +185,78 @@ describe('order to materials workflow', () => {
       ).rejects.toMatchObject({ code: 'INVALID_PO_STATUS' });
     });
   });
+
+  it('cancels draft and sent linked POs when the order is cancelled', async () => {
+    const org = await createOrg({ slug: 'cancel-cascade', subdomain: 'cancel-cascade', plan: 'PRO' });
+    const owner = await createUser(org, 'OWNER');
+    const customer = await createCustomer(org);
+    const vendor = await testPrisma.vendor.create({
+      data: {
+        name: 'Cancel Vendor',
+        categories: ['BLANK_SHIRTS'],
+        organizationId: org.id,
+      },
+    });
+
+    await runWithTenantContext({ organizationId: org.clerkOrgId, organizationDbId: org.id }, async () => {
+      const order = await createOrder({
+        organizationId: org.id,
+        customerId: customer.id,
+        items: [
+          {
+            productType: 'TSHIRT',
+            quantity: 6,
+            unitPrice: 20,
+            printMethod: 'DTF',
+            printLocations: ['FRONT'],
+          },
+        ],
+        performedBy: owner.clerkUserId,
+      });
+
+      await updateOrderStatus({
+        organizationId: org.id,
+        orderId: order.id,
+        newStatus: 'APPROVED',
+        performedBy: owner.clerkUserId,
+      });
+
+      const sentPO = await createPOForOrder({
+        organizationId: org.id,
+        vendorId: vendor.id,
+        linkedOrderId: order.id,
+        items: [{ description: '6x Black T-Shirt Blanks', quantity: 6, unitCost: 4 }],
+        performedBy: owner.clerkUserId,
+      });
+      await sendToVendor({
+        organizationId: org.id,
+        poId: sentPO.id,
+        performedBy: owner.clerkUserId,
+      });
+
+      const draftPO = await createPOForOrder({
+        organizationId: org.id,
+        vendorId: vendor.id,
+        linkedOrderId: order.id,
+        items: [{ description: '6x DTF Transfers', quantity: 1, unitCost: 30 }],
+        performedBy: owner.clerkUserId,
+      });
+
+      await updateOrderStatus({
+        organizationId: org.id,
+        orderId: order.id,
+        newStatus: 'CANCELLED',
+        performedBy: owner.clerkUserId,
+      });
+
+      const linkedPOs = await testPrisma.purchaseOrder.findMany({
+        where: { organizationId: org.id, linkedOrderId: order.id },
+        orderBy: { poNumber: 'asc' },
+      });
+
+      expect(linkedPOs).toHaveLength(2);
+      expect(linkedPOs.map((po) => po.id).sort()).toEqual([draftPO.id, sentPO.id].sort());
+      expect(linkedPOs.every((po) => po.status === 'CANCELLED')).toBe(true);
+    });
+  });
 });

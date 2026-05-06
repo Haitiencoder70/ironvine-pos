@@ -242,6 +242,39 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
 
     // When order is cancelled, unreserve all materials reserved for this order
     if (newStatus === 'CANCELLED') {
+      const linkedPOs = await tx.purchaseOrder.findMany({
+        where: {
+          organizationId,
+          linkedOrderId: orderId,
+          status: { in: ['DRAFT', 'SENT'] },
+        },
+        select: { id: true, poNumber: true, status: true },
+      });
+
+      if (linkedPOs.length > 0) {
+        await tx.purchaseOrder.updateMany({
+          where: {
+            organizationId,
+            linkedOrderId: orderId,
+            status: { in: ['DRAFT', 'SENT'] },
+          },
+          data: { status: 'CANCELLED' },
+        });
+
+        await tx.activityLog.createMany({
+          data: linkedPOs.map((po) => ({
+            action: 'STATUS_CHANGED',
+            entityType: 'PurchaseOrder',
+            entityId: po.id,
+            entityLabel: po.poNumber,
+            description: `PO ${po.poNumber} cancelled because linked order ${locked.orderNumber} was cancelled`,
+            metadata: { from: po.status, to: 'CANCELLED', linkedOrderId: orderId },
+            performedBy,
+            organizationId,
+          })),
+        });
+      }
+
       const reservedItems = await tx.$queryRaw<
         Array<{ inventoryItemId: string; totalReserved: bigint; currentReserved: number }>
       >`

@@ -15,6 +15,7 @@ export async function getDashboardStats(organizationId: string) {
       where: {
         organizationId,
         createdAt: { gte: startOfDay },
+        status: { notIn: ['CANCELLED'] },
       },
     }),
     prisma.order.count({
@@ -49,7 +50,10 @@ export async function getDashboardStats(organizationId: string) {
 
 export async function getRecentOrders(organizationId: string) {
   return prisma.order.findMany({
-    where: { organizationId },
+    where: {
+      organizationId,
+      status: { notIn: ['CANCELLED'] },
+    },
     take: 10,
     orderBy: { createdAt: 'desc' },
     include: {

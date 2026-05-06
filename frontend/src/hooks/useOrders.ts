@@ -145,6 +145,8 @@ export function useUpdateOrderStatus(): UseMutationResult<
     onSuccess: (res) => {
       void queryClient.invalidateQueries({ queryKey: orderKeys.detail(res.data.id) });
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
     onError: () => {
       toast.error('Failed to update order status. Please try again.');

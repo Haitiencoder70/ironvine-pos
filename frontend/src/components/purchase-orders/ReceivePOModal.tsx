@@ -32,6 +32,15 @@ const receivePOSchema = z.object({
 
 type ReceivePOValues = z.infer<typeof receivePOSchema>;
 
+function getReceiveErrorMessage(error: unknown): string {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const response = (error as { response?: { data?: { error?: string } } }).response;
+    if (response?.data?.error) return response.data.error;
+  }
+  if (error instanceof Error) return error.message;
+  return 'Receipt failed. Please try again.';
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export interface ReceivePOModalProps {
@@ -58,7 +67,7 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
       notes: '',
       items: po?.items.map(item => ({
         purchaseOrderItemId: item.id,
-        inventoryItemId: item.inventoryItemId,
+        inventoryItemId: item.inventoryItemId ?? undefined,
         description: item.description,
         ordered: item.quantity,
         received: item.quantityRecv,
@@ -84,7 +93,7 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
         notes: '',
         items: po.items.map(item => ({
           purchaseOrderItemId: item.id,
-          inventoryItemId: item.inventoryItemId,
+          inventoryItemId: item.inventoryItemId ?? undefined,
           description: item.description,
           ordered: item.quantity,
           received: item.quantityRecv,
@@ -104,7 +113,7 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
       .filter((i) => i.quantityReceived > 0)
       .map((i) => ({
         purchaseOrderItemId: i.purchaseOrderItemId,
-        inventoryItemId: i.inventoryItemId,
+        inventoryItemId: i.inventoryItemId ?? undefined,
         quantityReceived: i.quantityReceived,
         notes: i.notes,
         isAccepted: true, // Defaulting per instructions
@@ -128,8 +137,7 @@ export function ReceivePOModal({ open, onClose, po }: ReceivePOModalProps) {
       reset();
       onClose();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Receipt failed. Please try again.';
-      setSubmitError(message);
+      setSubmitError(getReceiveErrorMessage(error));
     }
   };
 
