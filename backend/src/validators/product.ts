@@ -10,6 +10,15 @@ export const createProductCategorySchema = z.object({
 
 export const updateProductCategorySchema = createProductCategorySchema.partial();
 
+export const materialTemplateSchema = z.object({
+  materialCategory: z.string().min(1).max(50),
+  description: z.string().min(1).max(500),
+  quantityPerUnit: z.number().positive(),
+  estimatedCostPerUnit: z.number().nonnegative(),
+  notes: z.string().max(500).optional(),
+  inventoryItemId: z.string().cuid().optional().nullable(),
+});
+
 export const createProductSchema = z.object({
   name: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
@@ -32,11 +41,7 @@ export const createProductSchema = z.object({
   sizeUpcharges: z.record(z.number().nonnegative()).optional(),
   estimatedProductionMinutes: z.number().int().nonnegative().optional(),
   difficultyLevel: z.string().optional(),
-  materialTemplates: z.array(z.object({
-    description: z.string(),
-    quantityPerUnit: z.number().positive(),
-    estimatedCostPerUnit: z.number().nonnegative(),
-  })).optional(),
+  materialTemplates: z.array(materialTemplateSchema).optional(),
 });
 
 export const updateProductSchema = createProductSchema.partial();
