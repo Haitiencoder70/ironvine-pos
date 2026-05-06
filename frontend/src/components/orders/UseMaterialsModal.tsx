@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,6 +14,7 @@ import { TouchButton } from '../ui/TouchButton';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { orderApi } from '../../services/api';
 import { orderKeys } from '../../hooks/useOrders';
+import { inventoryKeys } from '../../hooks/useInventory';
 import type { OrderItem } from '../../types';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -43,6 +44,15 @@ const useMaterialsSchema = z.object({
 
 type UseMaterialsFormValues = z.infer<typeof useMaterialsSchema>;
 
+function getUseMaterialsErrorMessage(error: unknown): string {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const response = (error as { response?: { data?: { error?: string } } }).response;
+    if (response?.data?.error) return response.data.error;
+  }
+  if (error instanceof Error) return error.message;
+  return 'Failed to record materials. Please try again.';
+}
+
 export interface UseMaterialsModalProps {
   open: boolean;
   onClose: () => void;
@@ -61,16 +71,21 @@ export function UseMaterialsModal({
   items,
 }: UseMaterialsModalProps) {
   const queryClient = useQueryClient();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Build flat material entry list from all items' requiredMaterials
-  const allMaterials: MaterialEntry[] = items.flatMap((item) =>
-    item.requiredMaterials.map((rm) => ({
-      inventoryItemId: rm.inventoryItemId ?? '',
-      description: rm.description,
-      quantityRequired: rm.quantityRequired,
-      quantityUnit: rm.quantityUnit,
-      quantityUsed: rm.quantityRequired, // pre-fill with required amount
-    }))
+  const allMaterials = useMemo<MaterialEntry[]>(
+    () =>
+      items.flatMap((item) =>
+        item.requiredMaterials.map((rm) => ({
+          inventoryItemId: rm.inventoryItemId ?? '',
+          description: rm.description,
+          quantityRequired: rm.quantityRequired,
+          quantityUnit: rm.quantityUnit,
+          quantityUsed: rm.quantityRequired,
+        }))
+      ),
+    [items],
   );
 
   const {
@@ -86,29 +101,48 @@ export function UseMaterialsModal({
     },
   });
 
+  useEffect(() => {
+    if (!open) return;
+    setSubmitError(null);
+    reset({
+      entries: allMaterials,
+      notes: '',
+    });
+  }, [allMaterials, open, reset]);
+
   const useMaterialsMutation = useMutation({
-    mutationFn: (data: UseMaterialsFormValues) =>
-      orderApi.useMaterials(
-        orderId,
-        data.entries
-          .filter((e) => e.inventoryItemId)
-          .map((e) => ({
-            inventoryItemId: e.inventoryItemId,
-            quantityUsed: e.quantityUsed,
-          }))
-      ),
+    mutationFn: (data: UseMaterialsFormValues) => {
+      const materials = data.entries
+        .filter((e) => e.inventoryItemId)
+        .map((e) => ({
+          inventoryItemId: e.inventoryItemId,
+          quantityUsed: e.quantityUsed,
+        }));
+
+      if (materials.length === 0) {
+        throw new Error('No materials are linked to inventory yet. Receive all purchase orders first.');
+      }
+
+      return orderApi.useMaterials(orderId, materials);
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: orderKeys.detail(orderId) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: inventoryKeys.lowStock() });
       toast.success('Materials recorded and inventory updated');
       reset();
       onClose();
     },
-    onError: () => {
-      toast.error('Failed to record materials. Please try again.');
+    onError: (error) => {
+      const message = getUseMaterialsErrorMessage(error);
+      setSubmitError(message);
+      toast.error(message);
     },
   });
 
   const onSubmit = handleSubmit((data) => {
+    setSubmitError(null);
     useMaterialsMutation.mutate(data);
   });
 
@@ -219,6 +253,10 @@ export function UseMaterialsModal({
             })}
           </div>
 
+          {submitError && (
+            <p className="text-sm text-red-500 font-medium">{submitError}</p>
+          )}
+
           {/* Notes */}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">Notes (optional)</label>
@@ -250,11 +288,12 @@ export function UseMaterialsModal({
             </TouchButton>
             <TouchButton
               id="use-materials-confirm"
-              type="submit"
+              type="button"
               variant="primary"
               size="md"
               fullWidth
               loading={useMaterialsMutation.isPending}
+              onClick={() => void onSubmit()}
             >
               Confirm Usage
             </TouchButton>
