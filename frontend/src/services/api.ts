@@ -303,7 +303,7 @@ export interface BackendProduct {
   isActive: boolean;
   isFeatured: boolean;
   addOns?: Array<{ id: string; name: string; price: number | string; type: string; isActive: boolean }>;
-  materialTemplates?: Array<{ id: string; materialCategory?: string; description: string; quantityPerUnit: number | string; estimatedCostPerUnit: number | string }>;
+  materialTemplates?: Array<{ id: string; materialCategory?: string; description: string; quantityPerUnit: number | string; estimatedCostPerUnit: number | string; inventoryItemId?: string | null }>;
   primaryImage?: string | null;
   createdAt: string;
   updatedAt: string;

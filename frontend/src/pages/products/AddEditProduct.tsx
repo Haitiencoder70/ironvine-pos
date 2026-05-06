@@ -7,6 +7,8 @@ import { ImageGallery } from '../../components/images/ImageGallery';
 import { useEntityImages } from '../../hooks/useImages';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { MaterialCombobox } from '../../components/products/MaterialCombobox';
+import { useInventory } from '../../hooks/useInventory';
 import {
   ChevronLeftIcon,
   PlusIcon,
@@ -52,11 +54,12 @@ const sizeUpchargeSchema = z.object({
 });
 
 const materialCostSchema = z.object({
-  id:            z.string(),
-  category:      z.string().min(1, 'Select a category'),
-  material:      z.string().min(1, 'Material name required'),
-  qtyPerUnit:    z.number().min(0),
-  estimatedCost: z.number().min(0),
+  id:              z.string(),
+  category:        z.string().min(1, 'Select a category'),
+  material:        z.string().min(1, 'Material name required'),
+  qtyPerUnit:      z.number().min(0),
+  estimatedCost:   z.number().min(0),
+  inventoryItemId: z.string().nullable().default(null),
 });
 
 const MATERIAL_CATEGORIES = [
@@ -172,6 +175,8 @@ export function AddEditProductPage(): JSX.Element {
   const productImages = useEntityImages('product', id);
   const { data: categoriesData } = useProductCategories();
   const categories = categoriesData?.data ?? [];
+  const { data: inventoryData } = useInventory({ limit: 200 });
+  const inventoryItems = inventoryData?.data?.data ?? [];
 
   const {
     register,
@@ -255,6 +260,7 @@ export function AddEditProductPage(): JSX.Element {
                                       material: m.description,
                                       qtyPerUnit: Number(m.quantityPerUnit),
                                       estimatedCost: Number(m.estimatedCostPerUnit),
+                                      inventoryItemId: m.inventoryItemId ?? null,
                                     })),
         addOns:                     (product.addOns ?? []).map(a => ({
                                       id: a.id,
@@ -304,6 +310,7 @@ export function AddEditProductPage(): JSX.Element {
                                     description: m.material,
                                     quantityPerUnit: m.qtyPerUnit,
                                     estimatedCostPerUnit: m.estimatedCost,
+                                    inventoryItemId: m.inventoryItemId ?? null,
                                   })),
       addOns:                     data.addOns,
       estimatedProductionMinutes: data.estimatedProductionMinutes,
@@ -684,11 +691,23 @@ export function AddEditProductPage(): JSX.Element {
                       </select>
                     </td>
                     <td className="px-4 py-2">
-                      <input
-                        type="text"
-                        placeholder="e.g. Blank T-Shirt"
-                        {...register(`materialCosts.${i}.material`)}
-                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      <Controller
+                        name={`materialCosts.${i}.material`}
+                        control={control}
+                        render={({ field }) => (
+                          <MaterialCombobox
+                            value={field.value}
+                            inventoryItemId={watch(`materialCosts.${i}.inventoryItemId`)}
+                            inventoryItems={inventoryItems}
+                            onChange={(update) => {
+                              setValue(`materialCosts.${i}.material`, update.material, { shouldValidate: true });
+                              setValue(`materialCosts.${i}.category`, update.category, { shouldValidate: true });
+                              setValue(`materialCosts.${i}.estimatedCost`, update.estimatedCost, { shouldValidate: true });
+                              setValue(`materialCosts.${i}.inventoryItemId`, update.inventoryItemId);
+                            }}
+                            placeholder="Search inventory or type custom..."
+                          />
+                        )}
                       />
                     </td>
                     <td className="px-4 py-2">
@@ -748,7 +767,7 @@ export function AddEditProductPage(): JSX.Element {
 
           <button
             type="button"
-            onClick={() => materialArray.append({ id: generateId(), category: '', material: '', qtyPerUnit: 1, estimatedCost: 0 })}
+            onClick={() => materialArray.append({ id: generateId(), category: '', material: '', qtyPerUnit: 1, estimatedCost: 0, inventoryItemId: null })}
             className="mt-4 flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-semibold min-h-[44px] px-3 rounded-lg hover:bg-blue-50 transition-colors"
           >
             <PlusIcon className="h-4 w-4" /> Add Material
