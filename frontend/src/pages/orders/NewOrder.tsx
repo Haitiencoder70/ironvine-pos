@@ -672,6 +672,7 @@ export function NewOrderPage(): JSX.Element {
                 quantityRequired: m.quantity,
                 quantityUnit: 'units',
                 materialCategory: m.category,
+                unitCost: m.unitPrice,
               }))
             : undefined,
         })),

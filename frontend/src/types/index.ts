@@ -123,7 +123,7 @@ export interface RequiredMaterial {
   quantityRequired: number;
   quantityUnit: string;
   isFulfilled: boolean;
-  inventoryItem?: { id: string; name: string; category: string };
+  inventoryItem?: { id: string; name: string; category: string; costPrice?: number };
   attributes?: Record<string, unknown>;
 }
 

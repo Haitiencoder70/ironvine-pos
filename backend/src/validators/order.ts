@@ -7,6 +7,7 @@ export const requiredMaterialSchema = z.object({
   quantityRequired: z.number().positive(),
   quantityUnit: z.string().max(50).optional(),
   materialCategory: z.string().max(50).optional(),
+  unitCost: z.number().nonnegative().optional(),
 });
 
 export const createOrderItemSchema = z.object({

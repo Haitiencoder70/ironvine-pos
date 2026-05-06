@@ -11,6 +11,7 @@ import {
   ClipboardDocumentListIcon,
   PhoneIcon,
   EnvelopeIcon,
+  ShoppingCartIcon,
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { usePurchaseOrder, useSendPurchaseOrder } from '../../hooks/usePurchaseOrders';
@@ -132,6 +133,17 @@ export function PurchaseOrderDetailPage(): JSX.Element {
                 onClick={() => setShowReceiveModal(true)}
               >
                 Receive Items
+              </TouchButton>
+            )}
+
+            {po.linkedOrderId && (po.status === 'RECEIVED' || po.status === 'PARTIALLY_RECEIVED') && (
+              <TouchButton
+                variant="primary"
+                size="md"
+                icon={<ShoppingCartIcon className="h-5 w-5" />}
+                onClick={() => navigate(`/purchase-orders/new?orderId=${po.linkedOrderId}`)}
+              >
+                Order Remaining Materials
               </TouchButton>
             )}
 

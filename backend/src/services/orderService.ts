@@ -131,7 +131,10 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
                       quantityRequired: mat.quantityRequired,
                       quantityUnit: mat.quantityUnit ?? 'units',
                       organizationId,
-                      ...(mat.materialCategory ? { attributes: { materialCategory: mat.materialCategory } } : {}),
+                      attributes: {
+                        ...(mat.materialCategory ? { materialCategory: mat.materialCategory } : {}),
+                        ...(typeof mat.unitCost === 'number' ? { unitCost: mat.unitCost } : {}),
+                      },
                     })),
                   },
                 }

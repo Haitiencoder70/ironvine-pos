@@ -142,6 +142,42 @@ function inferCategory(description: string): string | undefined {
   return undefined;
 }
 
+function numberFromUnknown(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+}
+
+function fallbackUnitCost(description: string, category?: string): number {
+  const d = description.toLowerCase();
+  if (category === 'DTF_TRANSFERS' || d.includes('dtf') || d.includes('gang sheet')) return 30;
+  if (category === 'VINYL' || d.includes('htv') || d.includes('vinyl')) return 2.5;
+  if (category === 'BLANK_SHIRTS') {
+    if (d.includes('hoodie')) return 10.5;
+    if (d.includes('sweatshirt')) return 10;
+    if (d.includes('polo')) return 6.5;
+    if (d.includes('shirt') || d.includes('tee') || d.includes('gildan')) return 3.25;
+  }
+  return 0;
+}
+
+function resolveRequiredMaterialUnitCost(material: {
+  description: string;
+  attributes?: Record<string, unknown>;
+  inventoryItem?: { costPrice?: number };
+}, category?: string): number {
+  return (
+    numberFromUnknown(material.attributes?.['unitCost']) ??
+    numberFromUnknown(material.attributes?.['unitPrice']) ??
+    numberFromUnknown(material.attributes?.['estimatedCostPerUnit']) ??
+    numberFromUnknown(material.inventoryItem?.costPrice) ??
+    fallbackUnitCost(material.description, category)
+  );
+}
+
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
 const poItemSchema = z.object({
@@ -221,16 +257,20 @@ export function CreatePOPage(): JSX.Element {
 
     // Strategy 1: requiredMaterials saved at order creation
     const fromRequired = order.items.flatMap(item =>
-      item.requiredMaterials.map(rm => ({
-        inventoryItemId: rm.inventoryItemId,
-        description: rm.description,
-        quantity: Number(rm.quantityRequired),
-        unitCost: 0,
-        materialCategory: rm.inventoryItem?.category
+      item.requiredMaterials.map(rm => {
+        const materialCategory = rm.inventoryItem?.category
           ?? normalizeMaterialCategory(rm.attributes?.materialCategory as string | undefined)
           ?? normalizeMaterialCategory(rm.attributes?.category as string | undefined)
-          ?? inferCategory(rm.description),
-      }))
+          ?? inferCategory(rm.description);
+
+        return {
+          inventoryItemId: rm.inventoryItemId,
+          description: rm.description,
+          quantity: Number(rm.quantityRequired),
+          unitCost: resolveRequiredMaterialUnitCost(rm, materialCategory),
+          materialCategory,
+        };
+      })
     ).filter(item => !alreadyOrderedDescriptions.has(item.description)
     );
 
@@ -254,7 +294,8 @@ export function CreatePOPage(): JSX.Element {
           .filter(s => s.qty > 0)
           .map(s => {
             const desc = [brand, color, productLabel, s.size].filter(Boolean).join(' ');
-            return { description: desc, quantity: s.qty, unitCost: 0, materialCategory: inferCategory(desc) };
+            const materialCategory = inferCategory(desc);
+            return { description: desc, quantity: s.qty, unitCost: fallbackUnitCost(desc, materialCategory), materialCategory };
           });
       }
 
@@ -262,7 +303,8 @@ export function CreatePOPage(): JSX.Element {
       const desc =
         [brand, color, productLabel, sizeLabel].filter(Boolean).join(' ') ||
         `${item.quantity}× ${productLabel}`;
-      return [{ description: desc, quantity: item.quantity, unitCost: 0, materialCategory: inferCategory(desc) }];
+      const materialCategory = inferCategory(desc);
+      return [{ description: desc, quantity: item.quantity, unitCost: fallbackUnitCost(desc, materialCategory), materialCategory }];
     });
 
     const unorderedFromAttributes = fromAttributes.filter(

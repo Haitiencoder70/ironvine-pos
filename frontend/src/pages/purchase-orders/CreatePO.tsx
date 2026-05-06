@@ -153,6 +153,42 @@ function inferMaterialCategory(description: string): string | undefined {
   return undefined;
 }
 
+function numberFromUnknown(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+}
+
+function fallbackUnitCost(description: string, category?: string): number {
+  const d = description.toLowerCase();
+  if (category === 'DTF_TRANSFERS' || d.includes('dtf') || d.includes('gang sheet')) return 30;
+  if (category === 'VINYL' || d.includes('htv') || d.includes('vinyl')) return 2.5;
+  if (category === 'BLANK_SHIRTS') {
+    if (d.includes('hoodie')) return 10.5;
+    if (d.includes('sweatshirt')) return 10;
+    if (d.includes('polo')) return 6.5;
+    if (d.includes('shirt') || d.includes('tee') || d.includes('gildan')) return 3.25;
+  }
+  return 0;
+}
+
+function resolveRequiredMaterialUnitCost(material: {
+  description: string;
+  attributes?: Record<string, unknown>;
+  inventoryItem?: { costPrice?: number };
+}, category?: string): number {
+  return (
+    numberFromUnknown(material.attributes?.['unitCost']) ??
+    numberFromUnknown(material.attributes?.['unitPrice']) ??
+    numberFromUnknown(material.attributes?.['estimatedCostPerUnit']) ??
+    numberFromUnknown(material.inventoryItem?.costPrice) ??
+    fallbackUnitCost(material.description, category)
+  );
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export function CreatePOPage(): JSX.Element {
@@ -196,6 +232,11 @@ export function CreatePOPage(): JSX.Element {
 
   const orderMaterials = useMemo<OrderMaterialItem[]>(() => {
     if (!linkedOrderId || !orderData?.data) return [];
+    const alreadyOrderedDescriptions = new Set(
+      (orderData.data.purchaseOrders ?? [])
+        .filter((po) => po.status !== 'CANCELLED')
+        .flatMap((po) => po.items.map((item) => item.description))
+    );
 
     return orderData.data.items.flatMap(item =>
       item.requiredMaterials?.map(rm => {
@@ -209,11 +250,11 @@ export function CreatePOPage(): JSX.Element {
           inventoryItemId: rm.inventoryItemId ?? undefined,
           description: rm.description,
           quantity: Number(rm.quantityRequired),
-          unitCost: 0,
+          unitCost: resolveRequiredMaterialUnitCost(rm, category),
           category,
         };
       }) || []
-    );
+    ).filter((item) => !alreadyOrderedDescriptions.has(item.description));
   }, [linkedOrderId, orderData]);
 
   useEffect(() => {
