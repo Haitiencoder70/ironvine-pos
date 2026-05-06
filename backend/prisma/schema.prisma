@@ -198,30 +198,31 @@ model OrderItem {
 }
 
 model InventoryItem {
-  id                 String              @id @default(cuid())
-  sku                String
-  name               String
-  category           InventoryCategory
-  brand              String?
-  size               String?
-  color              String?
-  quantityOnHand     Int                 @default(0)
-  quantityReserved   Int                 @default(0)
-  reorderPoint       Int                 @default(10)
-  reorderQuantity    Int                 @default(50)
-  costPrice          Decimal             @db.Decimal(10, 2)
-  attributes         Json                @default("{}")
-  notes              String?
-  isActive           Boolean             @default(true)
-  organizationId     String
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  materialUsages     MaterialUsage[]
-  receivingItems     POReceivingItem[]
-  purchaseOrderItems PurchaseOrderItem[]
-  requiredMaterials  RequiredMaterial[]
-  stockMovements     StockMovement[]
+  id                       String                    @id @default(cuid())
+  sku                      String
+  name                     String
+  category                 InventoryCategory
+  brand                    String?
+  size                     String?
+  color                    String?
+  quantityOnHand           Int                       @default(0)
+  quantityReserved         Int                       @default(0)
+  reorderPoint             Int                       @default(10)
+  reorderQuantity          Int                       @default(50)
+  costPrice                Decimal                   @db.Decimal(10, 2)
+  attributes               Json                      @default("{}")
+  notes                    String?
+  isActive                 Boolean                   @default(true)
+  organizationId           String
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+  organization             Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  materialUsages           MaterialUsage[]
+  receivingItems           POReceivingItem[]
+  purchaseOrderItems       PurchaseOrderItem[]
+  requiredMaterials        RequiredMaterial[]
+  stockMovements           StockMovement[]
+  productMaterialTemplates ProductMaterialTemplate[]
 
   @@unique([sku, organizationId])
   @@index([organizationId])
@@ -583,21 +584,24 @@ model ProductAddOn {
 }
 
 model ProductMaterialTemplate {
-  id                   String       @id @default(cuid())
+  id                   String        @id @default(cuid())
   organizationId       String
   productId            String
   materialCategory     String
   description          String
-  quantityPerUnit      Decimal      @db.Decimal(10, 4)
-  estimatedCostPerUnit Decimal      @db.Decimal(10, 2)
+  quantityPerUnit      Decimal       @db.Decimal(10, 4)
+  estimatedCostPerUnit Decimal       @db.Decimal(10, 2)
   notes                String?
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
-  organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  product              Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  inventoryItemId      String?
+  organization         Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  product              Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventoryItem        InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
 
   @@index([organizationId])
   @@index([productId])
+  @@index([inventoryItemId])
   @@map("product_material_templates")
 }
 
