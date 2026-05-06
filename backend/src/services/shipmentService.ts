@@ -2,7 +2,7 @@ import { Prisma, Shipment, ShipmentStatus, ShipmentCarrier } from '@prisma/clien
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
-import { sendShipmentTrackingSMS } from './notificationService';
+import { sendShipmentTrackingEmail, sendShipmentTrackingSMS } from './notificationService';
 import type { PaginatedResult, PaginationInput } from '../types/services';
 
 // ─── Valid Status Transitions ─────────────────────────────────────────────────
@@ -15,6 +15,20 @@ const VALID_SHIPMENT_TRANSITIONS: Partial<Record<ShipmentStatus, ShipmentStatus[
   DELIVERED: [],
   EXCEPTION: ['IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED'],
 };
+
+function buildTrackingUrl(carrier: ShipmentCarrier, trackingNumber: string): string {
+  const encoded = encodeURIComponent(trackingNumber);
+  if (carrier === 'UPS') return `https://www.ups.com/track?tracknum=${encoded}`;
+  if (carrier === 'FEDEX') return `https://www.fedex.com/fedextrack/?trknbr=${encoded}`;
+  if (carrier === 'USPS') return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encoded}`;
+  if (carrier === 'DHL') return `https://www.dhl.com/en/express/tracking.html?AWB=${encoded}`;
+  return `https://www.google.com/search?q=${encoded}`;
+}
+
+function customerDisplayName(customer: { firstName: string; lastName: string } | null): string | undefined {
+  if (!customer) return undefined;
+  return [customer.firstName, customer.lastName].filter(Boolean).join(' ') || undefined;
+}
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
@@ -31,6 +45,7 @@ export interface CreateShipmentInput {
   shippingCost?: number;
   estimatedDelivery?: Date;
   notes?: string;
+  sendTrackingEmail?: boolean;
   performedBy: string;
 }
 
@@ -48,13 +63,20 @@ export async function createShipment(input: CreateShipmentInput): Promise<Shipme
     shippingCost,
     estimatedDelivery,
     notes,
+    sendTrackingEmail,
     performedBy,
   } = input;
 
   // Verify order belongs to org and is in a shippable state
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    select: { id: true, organizationId: true, status: true, orderNumber: true },
+    select: {
+      id: true,
+      organizationId: true,
+      status: true,
+      orderNumber: true,
+      customer: { select: { firstName: true, lastName: true, email: true } },
+    },
   });
 
   if (!order || order.organizationId !== organizationId) {
@@ -67,6 +89,15 @@ export async function createShipment(input: CreateShipmentInput): Promise<Shipme
       `Cannot create shipment for order in status "${order.status}". Order must be READY_TO_SHIP.`,
       'INVALID_ORDER_STATUS',
     );
+  }
+
+  if (sendTrackingEmail) {
+    if (!trackingNumber) {
+      throw new AppError(400, 'Add a tracking number before emailing the customer.', 'TRACKING_NUMBER_REQUIRED');
+    }
+    if (!order.customer?.email) {
+      throw new AppError(400, 'Customer does not have an email address on file.', 'CUSTOMER_EMAIL_REQUIRED');
+    }
   }
 
   const shipment = await prisma.$transaction(async (tx) => {
@@ -115,6 +146,21 @@ export async function createShipment(input: CreateShipmentInput): Promise<Shipme
   });
 
   logger.info('Shipment created', { shipmentId: shipment.id, orderId, organizationId });
+
+  if (sendTrackingEmail) {
+    const emailTrackingNumber = trackingNumber ?? '';
+    await sendShipmentTrackingEmail({
+      organizationId,
+      customerEmail: order.customer?.email ?? '',
+      customerName: customerDisplayName(order.customer),
+      orderNumber: order.orderNumber,
+      carrier,
+      trackingNumber: emailTrackingNumber,
+      trackingUrl: buildTrackingUrl(carrier, emailTrackingNumber),
+      estimatedDelivery,
+    });
+  }
+
   return shipment;
 }
 
@@ -291,7 +337,11 @@ export async function getShipmentById(organizationId: string, shipmentId: string
     where: { id: shipmentId },
     include: {
       order: {
-        select: { id: true, orderNumber: true, customer: { select: { id: true, firstName: true, lastName: true } } },
+        select: {
+          id: true,
+          orderNumber: true,
+          customer: { select: { id: true, firstName: true, lastName: true, email: true } },
+        },
       },
       statusHistory: { orderBy: { createdAt: 'desc' } },
     },
@@ -321,12 +371,25 @@ export async function updateTracking(input: {
   trackingNumber?: string;
   estimatedDelivery?: Date;
   performedBy: string;
+  sendTrackingEmail?: boolean;
 }): Promise<Shipment> {
-  const { organizationId, shipmentId, carrier, trackingNumber, estimatedDelivery, performedBy } = input;
+  const { organizationId, shipmentId, carrier, trackingNumber, estimatedDelivery, performedBy, sendTrackingEmail } = input;
 
   const shipment = await prisma.shipment.findUnique({
     where: { id: shipmentId },
-    select: { id: true, organizationId: true, trackingNumber: true },
+    select: {
+      id: true,
+      organizationId: true,
+      trackingNumber: true,
+      carrier: true,
+      estimatedDelivery: true,
+      order: {
+        select: {
+          orderNumber: true,
+          customer: { select: { firstName: true, lastName: true, email: true } },
+        },
+      },
+    },
   });
 
   if (!shipment || shipment.organizationId !== organizationId) {
@@ -353,6 +416,30 @@ export async function updateTracking(input: {
       organizationId,
     },
   });
+
+  if (sendTrackingEmail) {
+    const emailTrackingNumber = trackingNumber ?? shipment.trackingNumber;
+    const emailCarrier = carrier ?? shipment.carrier;
+    const emailEstimatedDelivery = estimatedDelivery ?? shipment.estimatedDelivery;
+
+    if (!emailTrackingNumber) {
+      throw new AppError(400, 'Add a tracking number before emailing the customer.', 'TRACKING_NUMBER_REQUIRED');
+    }
+    if (!shipment.order.customer?.email) {
+      throw new AppError(400, 'Customer does not have an email address on file.', 'CUSTOMER_EMAIL_REQUIRED');
+    }
+
+    await sendShipmentTrackingEmail({
+      organizationId,
+      customerEmail: shipment.order.customer.email,
+      customerName: customerDisplayName(shipment.order.customer),
+      orderNumber: shipment.order.orderNumber,
+      carrier: emailCarrier,
+      trackingNumber: emailTrackingNumber,
+      trackingUrl: buildTrackingUrl(emailCarrier, emailTrackingNumber),
+      estimatedDelivery: emailEstimatedDelivery,
+    });
+  }
 
   logger.info('Shipment tracking updated', { shipmentId, organizationId });
   return updated;

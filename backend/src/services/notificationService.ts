@@ -210,6 +210,54 @@ export async function sendShipmentTrackingSMS(organizationId: string, customerPh
 // These use emailService (Resend) directly and are NOT gated by the EMAIL module
 // toggle — billing emails are always sent regardless of notification preferences.
 
+export async function sendShipmentTrackingEmail(opts: {
+  organizationId: string;
+  customerEmail: string;
+  customerName?: string;
+  orderNumber: string;
+  carrier: string;
+  trackingNumber: string;
+  trackingUrl: string;
+  estimatedDelivery?: Date | null;
+}) {
+  if (!(await isModuleEnabled(opts.organizationId, 'EMAIL'))) return;
+  if (!opts.customerEmail) return;
+
+  const estimatedDelivery = opts.estimatedDelivery
+    ? `<p>Estimated delivery: <strong>${opts.estimatedDelivery.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      })}</strong></p>`
+    : '';
+  const greeting = opts.customerName ? `Hello ${opts.customerName},` : 'Hello,';
+  const html = emailWrapper(
+    'Your Order Has Shipped',
+    `<p>${greeting}</p>
+     <p>Your order <strong>#${opts.orderNumber}</strong> has shipped with <strong>${opts.carrier}</strong>.</p>
+     <div style="background: #f3f4f6; border-left: 4px solid #2563eb; padding: 16px; margin: 20px 0; border-radius: 4px;">
+       <p style="margin: 0 0 6px;">Tracking number:</p>
+       <strong style="color: #111827; font-size: 18px;">${opts.trackingNumber}</strong>
+     </div>
+     ${estimatedDelivery}
+     <p>You can use the tracking link below to follow delivery progress.</p>`,
+    'Track Shipment',
+    opts.trackingUrl,
+  );
+
+  try {
+    await resend.emails.send({
+      from: await getOrgFromAddress(opts.organizationId),
+      to: opts.customerEmail,
+      subject: `Tracking for order ${opts.orderNumber}`,
+      html,
+    });
+    logger.info(`Sent Shipment Tracking Email to ${opts.customerEmail}`);
+  } catch (err) {
+    logger.error(`Failed to send shipment email to ${opts.customerEmail}`, err);
+  }
+}
+
 import * as emailService from './emailService';
 import { APP_URL } from '../lib/resend';
 

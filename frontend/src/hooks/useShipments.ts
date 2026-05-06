@@ -93,7 +93,7 @@ export function useUpdateTracking() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: { trackingNumber?: string; carrier?: ShipmentCarrier; estimatedDelivery?: string } }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: { trackingNumber?: string; carrier?: ShipmentCarrier; estimatedDelivery?: string; sendTrackingEmail?: boolean } }) =>
       shipmentApi.updateTracking(id, payload),
     onSuccess: (res) => {
       void queryClient.invalidateQueries({ queryKey: shipmentKeys.lists() });

@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { TruckIcon, CheckCircleIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import { TruckIcon, CheckCircleIcon, MapPinIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { Modal } from '../ui/Modal';
 import { TouchButton } from '../ui/TouchButton';
@@ -15,12 +15,23 @@ import type { Order, ShipmentCarrier } from '../../types';
 
 const createShipmentSchema = z.object({
   carrier: z.string().min(1, 'Carrier is required'),
+  trackingNumber: z.string().max(100).optional(),
+  estimatedDelivery: z.string().optional(),
+  sendTrackingEmail: z.boolean().default(false),
   shippingStreet: z.string().optional(),
   shippingCity: z.string().optional(),
   shippingState: z.string().optional(),
   shippingZip: z.string().optional(),
   shippingCost: z.number({ invalid_type_error: 'Required' }).min(0).optional(),
   notes: z.string().max(1000).optional(),
+}).superRefine((data, ctx) => {
+  if (data.sendTrackingEmail && !data.trackingNumber?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['trackingNumber'],
+      message: 'Tracking number is required before emailing the customer',
+    });
+  }
 });
 
 type CreateShipmentValues = z.infer<typeof createShipmentSchema>;
@@ -53,6 +64,9 @@ export function CreateShipmentModal({ open, onClose, order }: CreateShipmentModa
     if (open && order) {
       reset({
         carrier: 'UPS',
+        trackingNumber: '',
+        estimatedDelivery: '',
+        sendTrackingEmail: false,
         shippingStreet: order.customer?.shippingStreet || order.customer?.billingStreet || '',
         shippingCity: order.customer?.shippingCity || order.customer?.billingCity || '',
         shippingState: order.customer?.shippingState || order.customer?.billingState || '',
@@ -65,12 +79,16 @@ export function CreateShipmentModal({ open, onClose, order }: CreateShipmentModa
 
   const onSubmit = async (data: CreateShipmentValues) => {
     if (!order) return;
+    const shouldSendTrackingEmail = Boolean(order.customer?.email) && data.sendTrackingEmail;
     try {
       // 1. Create the shipment
       await createShipment.mutateAsync({
         orderId: order.id,
         status: 'PENDING',
         ...data,
+        trackingNumber: data.trackingNumber || undefined,
+        estimatedDelivery: data.estimatedDelivery ? new Date(data.estimatedDelivery).toISOString() : undefined,
+        sendTrackingEmail: shouldSendTrackingEmail,
       });
       // 2. Automatically advance the order workflow to SHIPPED or similar if acceptable, 
       // The prompt asks for DELIVERED -> COMPLETED prompt, but making it LABEL_CREATED / SHIPPED could be done natively.
@@ -94,6 +112,7 @@ export function CreateShipmentModal({ open, onClose, order }: CreateShipmentModa
   }, [createShipment.isPending, onClose]);
 
   if (!order) return null;
+  const customerEmail = order.customer?.email;
 
   return (
     <Modal
@@ -146,7 +165,43 @@ export function CreateShipmentModal({ open, onClose, order }: CreateShipmentModa
               error={errors.shippingCost?.message}
             />
           </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <TouchInput
+              label="Tracking Number"
+              icon={<TruckIcon className="w-5 h-5" />}
+              {...register('trackingNumber')}
+              error={errors.trackingNumber?.message}
+            />
+            <TouchInput
+              label="Estimated Delivery Date"
+              type="date"
+              {...register('estimatedDelivery')}
+            />
+          </div>
         </div>
+
+        <label
+          className={clsx(
+            'flex items-start gap-3 rounded-xl border p-4 min-h-[44px]',
+            customerEmail ? 'cursor-pointer border-blue-100 bg-blue-50 text-blue-950' : 'border-gray-200 bg-gray-50 text-gray-500',
+          )}
+        >
+          <input
+            type="checkbox"
+            {...register('sendTrackingEmail')}
+            disabled={!customerEmail}
+            className="mt-1 h-5 w-5 rounded border-blue-300 text-blue-600 focus:ring-blue-500 disabled:border-gray-300 disabled:bg-gray-100"
+          />
+          <span>
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              <EnvelopeIcon className="h-4 w-4" />
+              Email tracking to customer
+            </span>
+            <span className="mt-1 block text-xs leading-5">
+              {customerEmail ? `Send tracking details to ${customerEmail}.` : 'Add a customer email before sending tracking updates.'}
+            </span>
+          </span>
+        </label>
 
         {/* Destination Mapping */}
         <div className="bg-white border border-gray-200 rounded-xl p-4">

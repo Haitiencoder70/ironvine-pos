@@ -13,9 +13,8 @@ import {
   createShipmentSchema,
   updateShipmentStatusSchema,
   listShipmentsQuerySchema,
+  updateShipmentTrackingSchema,
 } from '../validators/shipment';
-import { ShipmentCarrier } from '@prisma/client';
-import { z } from 'zod';
 
 export const shipmentsRouter = Router();
 
@@ -35,9 +34,4 @@ shipmentsRouter.post('/', authorize('orders:edit'), validate(createShipmentSchem
 shipmentsRouter.patch('/:id/status', authorize('orders:edit'), validate(updateShipmentStatusSchema), updateStatus);
 
 // ─── Update Tracking ──────────────────────────────────────────────────────────
-const updateTrackingSchema = z.object({
-  carrier: z.nativeEnum(ShipmentCarrier).optional(),
-  trackingNumber: z.string().optional(),
-  estimatedDelivery: z.coerce.date().optional(),
-});
-shipmentsRouter.patch('/:id/tracking', authorize('orders:edit'), validate(updateTrackingSchema), updateTrackingHandler);
+shipmentsRouter.patch('/:id/tracking', authorize('orders:edit'), validate(updateShipmentTrackingSchema), updateTrackingHandler);

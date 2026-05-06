@@ -12,6 +12,7 @@ export const createShipmentSchema = z.object({
     .regex(trackingNumberRegex, 'Enter a valid tracking number')
     .optional()
     .or(z.literal('')),
+  sendTrackingEmail: z.boolean().optional(),
   shippingStreet: z.string().max(200).optional(),
   shippingCity: z.string().max(100).optional(),
   shippingState: z.string().max(100).optional(),
@@ -44,6 +45,7 @@ export const updateShipmentTrackingSchema = z.object({
     .regex(trackingNumberRegex, 'Enter a valid tracking number'),
   carrier: z.nativeEnum(ShipmentCarrier).optional(),
   estimatedDelivery: z.coerce.date().optional(),
+  sendTrackingEmail: z.boolean().optional(),
 });
 
 export const listShipmentsQuerySchema = z.object({

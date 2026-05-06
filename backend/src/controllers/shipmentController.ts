@@ -86,6 +86,7 @@ export const updateTrackingHandler = async (req: Request, res: Response, next: N
       carrier: authReq.body.carrier,
       trackingNumber: authReq.body.trackingNumber,
       estimatedDelivery: authReq.body.estimatedDelivery,
+      sendTrackingEmail: authReq.body.sendTrackingEmail,
       performedBy: authReq.auth.userId,
     });
 
