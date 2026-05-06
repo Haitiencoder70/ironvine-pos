@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { useForm, Controller, useFieldArray, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -227,8 +227,8 @@ export function CreatePOPage(): JSX.Element {
     name: 'items',
   });
 
-  const watchedItems = watch('items');
   const selectedVendorId = watch('vendorId');
+  const watchedItems = useWatch({ control, name: 'items' }) ?? [];
 
   const orderMaterials = useMemo<OrderMaterialItem[]>(() => {
     if (!linkedOrderId || !orderData?.data) return [];
