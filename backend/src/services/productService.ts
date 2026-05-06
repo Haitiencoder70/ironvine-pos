@@ -61,6 +61,7 @@ export interface CreateProductInput {
     quantityPerUnit: number;
     estimatedCostPerUnit: number;
     notes?: string;
+    inventoryItemId?: string | null;
   }>;
 }
 
@@ -82,6 +83,24 @@ export interface CreateAddOnInput {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+async function validateTemplateInventoryItems(
+  tx: Prisma.TransactionClient | typeof prisma,
+  organizationId: string,
+  templates: Array<{ inventoryItemId?: string | null }>,
+): Promise<void> {
+  const ids = templates
+    .map(t => t.inventoryItemId)
+    .filter((id): id is string => typeof id === 'string' && id.length > 0);
+  if (ids.length === 0) return;
+
+  const count = await tx.inventoryItem.count({
+    where: { id: { in: ids }, organizationId },
+  });
+  if (count !== ids.length) {
+    throw new AppError(400, 'One or more inventory items not found', 'INVALID_INVENTORY_ITEM');
+  }
+}
 
 function toJson(value: unknown): Prisma.InputJsonValue {
   return value as unknown as Prisma.InputJsonValue;
@@ -220,6 +239,10 @@ export async function createProduct(organizationId: string, data: CreateProductI
   });
   if (!category) throw new AppError(404, 'Category not found');
 
+  if (materialTemplates?.length) {
+    await validateTemplateInventoryItems(prisma, organizationId, materialTemplates);
+  }
+
   return prisma.product.create({
     data: {
       ...rest,
@@ -274,6 +297,10 @@ export async function updateProduct(
     ...(sizeUpcharges !== undefined ? { sizeUpcharges: toJson(sizeUpcharges) } : {}),
     ...(priceTiers !== undefined ? { priceTiers: toJson(priceTiers) } : {}),
   };
+
+  if (materialTemplates?.length) {
+    await validateTemplateInventoryItems(prisma, organizationId, materialTemplates);
+  }
 
   if (materialTemplates) {
     await prisma.productMaterialTemplate.deleteMany({ where: { productId, organizationId } });
