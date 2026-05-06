@@ -77,7 +77,7 @@ export interface ConfiguredOrderItem {
   addOnsTotal: number;
 
   // Materials
-  requiredMaterials: { category: string; description: string; quantity: number; unitPrice: number }[];
+  requiredMaterials: { category: string; description: string; quantity: number; unitPrice: number; inventoryItemId?: string }[];
 
   // Legacy fields (for backend)
   productType: string;

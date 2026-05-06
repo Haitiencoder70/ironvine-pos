@@ -628,3 +628,12 @@ export interface DesignMockupData {
   position: MockupPosition;
   side: 'FRONT' | 'BACK';
 }
+
+export interface ProductMaterialTemplate {
+  id: string;
+  materialCategory: string;
+  description: string;
+  quantityPerUnit: number | string;
+  estimatedCostPerUnit: number | string;
+  inventoryItemId?: string | null;
+}
