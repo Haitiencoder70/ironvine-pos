@@ -37,6 +37,7 @@ export interface CompleteSaleInput {
   paymentMethod: PaymentMethod;
   amountTendered: number;
   discount: Discount;
+  shippingAmount?: number;
 }
 
 export interface SaleResult {
@@ -47,6 +48,7 @@ export interface SaleResult {
     subtotal: number;
     taxAmount: number;
     discountAmount: number;
+    shippingAmount: number;
     total: number;
     notes: string | null;
     createdAt: Date;
@@ -178,7 +180,7 @@ export async function getProducts(
 // ─── completeSale ─────────────────────────────────────────────────────────────
 
 export async function completeSale(input: CompleteSaleInput): Promise<SaleResult> {
-  const { orgId, userId, items, paymentMethod, amountTendered, discount } = input;
+  const { orgId, userId, items, paymentMethod, amountTendered, discount, shippingAmount = 0 } = input;
 
   if (items.length === 0) {
     throw new AppError(400, 'Sale must have at least one item', 'EMPTY_SALE');
@@ -203,7 +205,8 @@ export async function completeSale(input: CompleteSaleInput): Promise<SaleResult
 
   const taxableAmount = subtotal - discountAmount;
   const taxAmount = taxableAmount * taxRate;
-  const total = taxableAmount + taxAmount;
+  const customerShipping = Math.max(0, shippingAmount);
+  const total = taxableAmount + taxAmount + customerShipping;
   const changeDue = Math.max(0, amountTendered - total);
 
   const orderNumber = `POS-${Date.now()}`;
@@ -241,6 +244,7 @@ export async function completeSale(input: CompleteSaleInput): Promise<SaleResult
         subtotal,
         taxAmount,
         discount: discountAmount,
+        shippingAmount: customerShipping,
         total,
         notes: `POS walk-in sale | Payment: ${paymentMethod}`,
         items: {
@@ -291,6 +295,7 @@ export async function completeSale(input: CompleteSaleInput): Promise<SaleResult
       subtotal,
       taxAmount,
       discountAmount,
+      shippingAmount: customerShipping,
       total,
       notes: order.notes,
       createdAt: order.createdAt,

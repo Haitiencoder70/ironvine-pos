@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrashIcon, ShoppingBagIcon, MinusIcon, PlusIcon, TagIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, ShoppingBagIcon, MinusIcon, PlusIcon, TagIcon, TruckIcon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { PaymentModal } from './PaymentModal';
 import type { CartState } from '../../hooks/usePOS';
@@ -13,6 +13,7 @@ interface CartPanelProps {
 export function CartPanel({ cartState, onSaleComplete }: CartPanelProps): React.JSX.Element {
   const [showPayment, setShowPayment] = useState(false);
   const [discountInput, setDiscountInput] = useState('');
+  const [shippingInput, setShippingInput] = useState('');
   const [discountType, setDiscountType] = useState<'flat' | 'percent'>('flat');
 
   const {
@@ -22,8 +23,10 @@ export function CartPanel({ cartState, onSaleComplete }: CartPanelProps): React.
     subtotal,
     taxAmount,
     discountAmount,
+    shippingAmount,
     total,
     setDiscount,
+    setShippingAmount,
   } = cartState;
 
   const handleDiscountChange = (val: string): void => {
@@ -40,6 +43,12 @@ export function CartPanel({ cartState, onSaleComplete }: CartPanelProps): React.
     setDiscountType(type);
     const num = parseFloat(discountInput);
     setDiscount({ type, value: isNaN(num) ? 0 : num });
+  };
+
+  const handleShippingChange = (val: string): void => {
+    setShippingInput(val);
+    const num = parseFloat(val);
+    setShippingAmount(!isNaN(num) && num >= 0 ? num : 0);
   };
 
   return (
@@ -152,6 +161,20 @@ export function CartPanel({ cartState, onSaleComplete }: CartPanelProps): React.
             />
           </div>
 
+          <div className="flex items-center gap-2">
+            <TruckIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <input
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
+              value={shippingInput}
+              onChange={(e) => handleShippingChange(e.target.value)}
+              placeholder="Shipping charge"
+              className="flex-1 min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           {/* Totals */}
           <div className="space-y-1.5">
             <div className="flex justify-between text-sm text-gray-500">
@@ -168,6 +191,12 @@ export function CartPanel({ cartState, onSaleComplete }: CartPanelProps): React.
               <span>Tax (8.5%)</span>
               <span>${taxAmount.toFixed(2)}</span>
             </div>
+            {shippingAmount > 0 && (
+              <div className="flex justify-between text-sm text-gray-500">
+                <span>Shipping</span>
+                <span>${shippingAmount.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center pt-2 border-t border-gray-100">
               <span className="text-lg font-bold text-gray-900">Total</span>
               <span className="text-2xl font-bold text-gray-900">${total.toFixed(2)}</span>

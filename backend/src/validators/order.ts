@@ -31,6 +31,7 @@ export const createOrderSchema = z.object({
   internalNotes: z.string().max(2000).optional(),
   designNotes: z.string().max(2000).optional(),
   designFiles: z.array(z.string().url()).optional(),
+  shippingAmount: z.number().nonnegative().max(10_000).optional(),
   items: z.array(createOrderItemSchema).min(1, 'Order must have at least one item'),
 });
 

@@ -27,6 +27,7 @@ const completeSaleBodySchema = z.object({
     type: z.enum(['FLAT', 'PERCENT']),
     value: z.number().nonnegative(),
   }),
+  shippingAmount: z.number().nonnegative().max(10_000).optional(),
 });
 
 const getSaleHistoryQuerySchema = z.object({
@@ -89,6 +90,7 @@ export const completeSaleHandler = async (
       paymentMethod: parsed.data.paymentMethod,
       amountTendered: parsed.data.amountTendered,
       discount: parsed.data.discount,
+      shippingAmount: parsed.data.shippingAmount,
     });
 
     res.status(201).json({ data: result });

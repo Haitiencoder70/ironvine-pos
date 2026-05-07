@@ -88,8 +88,10 @@ export interface CartState {
   taxAmount: number;
   discount: DiscountConfig;
   discountAmount: number;
+  shippingAmount: number;
   total: number;
   setDiscount: (config: DiscountConfig) => void;
+  setShippingAmount: (amount: number) => void;
 }
 
 const DEFAULT_TAX_RATE = 0.085; // 8.5%
@@ -97,6 +99,7 @@ const DEFAULT_TAX_RATE = 0.085; // 8.5%
 export function useCart(): CartState {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [discount, setDiscount] = useState<DiscountConfig>({ type: 'flat', value: 0 });
+  const [shippingAmount, setShippingAmountState] = useState(0);
 
   const addToCart = useCallback((product: POSProduct) => {
     setCart((prev) => {
@@ -140,6 +143,11 @@ export function useCart(): CartState {
   const clearCart = useCallback(() => {
     setCart([]);
     setDiscount({ type: 'flat', value: 0 });
+    setShippingAmountState(0);
+  }, []);
+
+  const setShippingAmount = useCallback((amount: number) => {
+    setShippingAmountState(Math.max(0, amount));
   }, []);
 
   const subtotal = useMemo(
@@ -159,8 +167,8 @@ export function useCart(): CartState {
   );
 
   const total = useMemo(
-    () => subtotal - discountAmount + taxAmount,
-    [subtotal, discountAmount, taxAmount],
+    () => subtotal - discountAmount + taxAmount + shippingAmount,
+    [subtotal, discountAmount, taxAmount, shippingAmount],
   );
 
   return {
@@ -174,7 +182,9 @@ export function useCart(): CartState {
     taxAmount,
     discount,
     discountAmount,
+    shippingAmount,
     total,
     setDiscount,
+    setShippingAmount,
   };
 }

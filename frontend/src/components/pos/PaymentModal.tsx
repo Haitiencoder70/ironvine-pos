@@ -23,7 +23,7 @@ export function PaymentModal({
   const [cardAmount, setCardAmount] = useState('');
   const [splitCash, setSplitCash] = useState('');
 
-  const { cart, subtotal, taxAmount, discountAmount, total, clearCart } = cartState;
+  const { cart, subtotal, taxAmount, discount, shippingAmount, total, clearCart } = cartState;
   const completeSale = useCompleteSale();
 
   const cashTenderedNum = parseFloat(cashTendered) || 0;
@@ -52,10 +52,14 @@ export function PaymentModal({
         items: cart,
         subtotal,
         taxAmount,
-        discount: discountAmount,
+        discount: {
+          type: discount.type === 'percent' ? 'PERCENT' : 'FLAT',
+          value: discount.value,
+        },
+        shippingAmount,
         total,
         paymentMethod: paymentMethodMap[activeTab],
-        cashTendered: activeTab === 'CASH' ? cashTenderedNum : undefined,
+        amountTendered: activeTab === 'CASH' ? cashTenderedNum : total,
         changeDue: activeTab === 'CASH' ? changeDue : undefined,
         cardAmount: activeTab === 'SPLIT' ? splitCardNum : undefined,
       },

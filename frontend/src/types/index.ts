@@ -553,6 +553,7 @@ export interface Sale {
   orderNumber: string;
   createdAt: string;
   total: number;
+  shippingAmount?: number;
   paymentMethod: PaymentMethod;
   orderItems: { name: string; quantity: number; unitPrice: number }[];
 }

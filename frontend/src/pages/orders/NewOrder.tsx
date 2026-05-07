@@ -59,6 +59,7 @@ export interface NewOrderFormValues {
   dueDate: string;
   notes: string;
   designNotes: string;
+  shippingAmount: number;
   items: OrderItemFormValues[];
 }
 
@@ -81,6 +82,7 @@ const newOrderSchema = z.object({
   dueDate: z.string().optional(),
   notes: z.string().max(2000).optional(),
   designNotes: z.string().max(2000).optional(),
+  shippingAmount: z.number({ invalid_type_error: 'Enter a valid shipping charge' }).nonnegative('Shipping cannot be negative').max(10_000).optional().default(0),
   items: z.array(orderItemSchema).min(1, 'Add at least one item'),
 });
 
@@ -363,8 +365,10 @@ function Step3Review({ selectedCustomer, formValues, taxRate }: Step3ReviewProps
     (sum, item) => sum + (item._configured?.lineTotal ?? (item.quantity ?? 0) * (item.unitPrice ?? 0)),
     0
   );
+  const { register, formState: { errors } } = useFormContext<NewOrderFormValues>();
+  const shippingAmount = Number(formValues.shippingAmount ?? 0);
   const tax = subtotal * taxRate;
-  const total = subtotal + tax;
+  const total = subtotal + tax + shippingAmount;
 
   return (
     <div className="space-y-6">
@@ -468,6 +472,19 @@ function Step3Review({ selectedCustomer, formValues, taxRate }: Step3ReviewProps
 
       {/* Totals */}
       <div className="bg-gray-50 rounded-2xl border border-gray-200 p-4 space-y-2">
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-gray-700">Shipping charge</label>
+          <input
+            type="number"
+            inputMode="decimal"
+            min="0"
+            step="0.01"
+            {...register('shippingAmount', { valueAsNumber: true })}
+            className="w-full min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="0.00"
+          />
+          {errors.shippingAmount && <p className="text-xs text-red-500">{errors.shippingAmount.message}</p>}
+        </div>
         <div className="flex justify-between text-sm text-gray-600">
           <span>Subtotal</span>
           <span>{fmt(subtotal)}</span>
@@ -476,6 +493,12 @@ function Step3Review({ selectedCustomer, formValues, taxRate }: Step3ReviewProps
           <span>Tax ({(taxRate * 100).toFixed(2).replace(/\.00$/, '')}%)</span>
           <span>{fmt(tax)}</span>
         </div>
+        {shippingAmount > 0 && (
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>Shipping</span>
+            <span>{fmt(shippingAmount)}</span>
+          </div>
+        )}
         <div className="border-t border-gray-200 pt-2 flex justify-between text-base font-bold text-gray-900">
           <span>Total</span>
           <span>{fmt(total)}</span>
@@ -521,6 +544,7 @@ export function NewOrderPage(): JSX.Element {
             dueDate: '',
             notes: '',
             designNotes: '',
+            shippingAmount: 0,
             items: [],
             ...parsed,
           };
@@ -534,6 +558,7 @@ export function NewOrderPage(): JSX.Element {
         dueDate: '',
         notes: '',
         designNotes: '',
+        shippingAmount: 0,
         items: [],
       };
     })(),
@@ -657,6 +682,7 @@ export function NewOrderPage(): JSX.Element {
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
         notes: data.notes || undefined,
         designNotes: data.designNotes || undefined,
+        shippingAmount: data.shippingAmount || 0,
         items: data.items.map((item) => ({
           productType: item.productType,
           attributes: item.attributes || {},

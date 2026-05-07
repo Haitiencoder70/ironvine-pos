@@ -57,6 +57,7 @@ export interface CreateOrderInput {
   internalNotes?: string;
   designNotes?: string;
   designFiles?: string[];
+  shippingAmount?: number;
   items: CreateOrderItemInput[];
   performedBy: string;
 }

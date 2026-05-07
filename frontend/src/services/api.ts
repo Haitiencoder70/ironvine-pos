@@ -238,10 +238,11 @@ export interface CompleteSalePayload {
   items: CartItem[];
   subtotal: number;
   taxAmount: number;
-  discount: number;
+  discount: { type: 'FLAT' | 'PERCENT'; value: number };
+  shippingAmount: number;
   total: number;
   paymentMethod: PaymentMethod;
-  cashTendered?: number;
+  amountTendered: number;
   changeDue?: number;
   cardAmount?: number;
 }

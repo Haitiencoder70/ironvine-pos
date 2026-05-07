@@ -61,6 +61,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
     internalNotes,
     designNotes,
     designFiles = [],
+    shippingAmount = 0,
     items,
     performedBy,
   } = input;
@@ -85,6 +86,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
 
   // Calculate totals
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  const customerShipping = Math.max(0, shippingAmount);
 
   const org = await prisma.organization.findUnique({
     where: { id: organizationId },
@@ -93,7 +95,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
 
   const taxRate = org?.taxRate ? Number(org.taxRate) : 0;
   const taxAmount = subtotal * taxRate;
-  const total = subtotal + taxAmount;
+  const total = subtotal + taxAmount + customerShipping;
 
   const order = await prisma.$transaction(async (tx) => {
     // Validate all required-material inventory links belong to this org
@@ -125,6 +127,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order & { it
         designFiles,
         subtotal,
         taxAmount,
+        shippingAmount: customerShipping,
         total,
         items: {
           create: items.map((item) => ({
