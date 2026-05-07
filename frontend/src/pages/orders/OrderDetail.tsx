@@ -767,6 +767,12 @@ export function OrderDetailPage(): JSX.Element {
                   <span>Tax</span>
                   <span>{fmt(order.taxAmount)}</span>
                 </div>
+                {(order.shippingAmount ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Shipping</span>
+                    <span>{fmt(order.shippingAmount)}</span>
+                  </div>
+                )}
                 <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold text-gray-900">
                   <span>Total</span>
                   <span className="text-lg">{fmt(order.total)}</span>

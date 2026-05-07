@@ -140,6 +140,7 @@ export interface Order {
   subtotal: number;
   taxAmount: number;
   discount: number;
+  shippingAmount: number;
   total: number;
   dueDate?: string;
   notes?: string;
@@ -233,6 +234,7 @@ export interface Shipment {
   shippingZip?: string;
   shippingCountry?: string;
   shippingCost?: number;
+  customerShippingCharge?: number;
   estimatedDelivery?: string;
   deliveredAt?: string;
   notes?: string;

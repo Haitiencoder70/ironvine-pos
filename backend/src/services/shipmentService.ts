@@ -43,6 +43,7 @@ export interface CreateShipmentInput {
   shippingZip?: string;
   shippingCountry?: string;
   shippingCost?: number;
+  customerShippingCharge?: number;
   estimatedDelivery?: Date;
   notes?: string;
   sendTrackingEmail?: boolean;
@@ -61,6 +62,7 @@ export async function createShipment(input: CreateShipmentInput): Promise<Shipme
     shippingZip,
     shippingCountry,
     shippingCost,
+    customerShippingCharge,
     estimatedDelivery,
     notes,
     sendTrackingEmail,
@@ -100,7 +102,13 @@ export async function createShipment(input: CreateShipmentInput): Promise<Shipme
     }
   }
 
+  if (customerShippingCharge !== undefined && customerShippingCharge < 0) {
+    throw new AppError(400, 'Customer shipping charge must be 0 or more.', 'INVALID_SHIPPING_CHARGE');
+  }
+
   const shipment = await prisma.$transaction(async (tx) => {
+    const customerCharge = new Prisma.Decimal(customerShippingCharge ?? 0);
+
     const created = await tx.shipment.create({
       data: {
         organizationId,
@@ -118,6 +126,22 @@ export async function createShipment(input: CreateShipmentInput): Promise<Shipme
         notes,
       },
     });
+
+    if (customerCharge.gt(0)) {
+      await tx.$executeRaw`
+        UPDATE "shipments"
+        SET "customerShippingCharge" = ${customerCharge}
+        WHERE id = ${created.id} AND "organizationId" = ${organizationId}
+      `;
+
+      await tx.$executeRaw`
+        UPDATE "orders"
+        SET "shippingAmount" = "shippingAmount" + ${customerCharge},
+            total = total + ${customerCharge},
+            "updatedAt" = NOW()
+        WHERE id = ${orderId} AND "organizationId" = ${organizationId}
+      `;
+    }
 
     await tx.shipmentStatusHistory.create({
       data: {

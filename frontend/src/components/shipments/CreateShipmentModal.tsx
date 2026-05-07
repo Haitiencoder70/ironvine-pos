@@ -23,6 +23,7 @@ const createShipmentSchema = z.object({
   shippingState: z.string().optional(),
   shippingZip: z.string().optional(),
   shippingCost: z.number({ invalid_type_error: 'Required' }).min(0).optional(),
+  customerShippingCharge: z.number({ invalid_type_error: 'Required' }).min(0).optional(),
   notes: z.string().max(1000).optional(),
 }).superRefine((data, ctx) => {
   if (data.sendTrackingEmail && !data.trackingNumber?.trim()) {
@@ -72,6 +73,7 @@ export function CreateShipmentModal({ open, onClose, order }: CreateShipmentModa
         shippingState: order.customer?.shippingState || order.customer?.billingState || '',
         shippingZip: order.customer?.shippingZip || order.customer?.billingZip || '',
         shippingCost: 0,
+        customerShippingCharge: 0,
         notes: '',
       });
     }
@@ -135,7 +137,7 @@ export function CreateShipmentModal({ open, onClose, order }: CreateShipmentModa
           <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
              <TruckIcon className="h-4 w-4 text-gray-500" /> Shipping Provider
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex flex-col gap-1.5">
                <label className="text-sm font-medium text-gray-700">Select Carrier</label>
                <Controller
@@ -157,14 +159,25 @@ export function CreateShipmentModal({ open, onClose, order }: CreateShipmentModa
             </div>
 
             <TouchInput
-              label="Estimated Cost ($)"
+              label="Carrier Cost ($)"
               type="number"
               step="0.01"
               min="0"
               {...register('shippingCost', { valueAsNumber: true })}
               error={errors.shippingCost?.message}
             />
+            <TouchInput
+              label="Customer Charge ($)"
+              type="number"
+              step="0.01"
+              min="0"
+              {...register('customerShippingCharge', { valueAsNumber: true })}
+              error={errors.customerShippingCharge?.message}
+            />
           </div>
+          <p className="mt-2 text-xs text-gray-500">
+            Customer charge is added to the order total. Carrier cost is kept for internal shipping expense tracking.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <TouchInput
               label="Tracking Number"

@@ -43,6 +43,8 @@ const TIMELINE_STEPS = [
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
+const formatMoney = (value: number | undefined) => `$${Number(value ?? 0).toFixed(2)}`;
+
 export function ShipmentDetailPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -294,6 +296,18 @@ export function ShipmentDetailPage(): JSX.Element {
                    <span className="text-gray-500">Est. Delivery</span>
                    <span className="font-medium text-gray-900">{shipment.estimatedDelivery ? format(new Date(shipment.estimatedDelivery), 'MMM d, yyyy') : 'Pending Calculation'}</span>
                  </div>
+                 {(shipment.shippingCost ?? 0) > 0 && (
+                   <div className="flex justify-between items-center text-sm border-t border-gray-50 pt-3">
+                     <span className="text-gray-500">Carrier Cost</span>
+                     <span className="font-medium text-gray-900">{formatMoney(shipment.shippingCost)}</span>
+                   </div>
+                 )}
+                 {(shipment.customerShippingCharge ?? 0) > 0 && (
+                   <div className="flex justify-between items-center text-sm border-t border-gray-50 pt-3">
+                     <span className="text-gray-500">Customer Charge</span>
+                     <span className="font-bold text-gray-900">{formatMoney(shipment.customerShippingCharge)}</span>
+                   </div>
+                 )}
                </div>
             </TouchCard>
 

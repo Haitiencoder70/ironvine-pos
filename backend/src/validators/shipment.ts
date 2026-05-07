@@ -23,6 +23,11 @@ export const createShipmentSchema = z.object({
     .nonnegative('Must be 0 or more')
     .max(10_000, 'Shipping cost seems too high')
     .optional(),
+  customerShippingCharge: z
+    .number({ invalid_type_error: 'Must be a number' })
+    .nonnegative('Must be 0 or more')
+    .max(10_000, 'Customer shipping charge seems too high')
+    .optional(),
   estimatedDelivery: z.coerce.date().optional(),
   notes: z.string().max(2000).optional(),
 });
