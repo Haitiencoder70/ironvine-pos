@@ -430,6 +430,17 @@ export function ProductOrderConfigurator({ product, onBack, onAdd }: ProductOrde
 
   // Build materials list
   const buildMaterials = useCallback(() => {
+    // If the product has material templates, they are authoritative
+    if ((product.materialTemplates ?? []).length > 0) {
+      return product.materialTemplates!.map(t => ({
+        category: t.materialCategory ?? '',
+        description: t.description,
+        quantity: Math.ceil(Number(t.quantityPerUnit) * totalQty),
+        unitPrice: Number(t.estimatedCostPerUnit),
+        ...(t.inventoryItemId != null ? { inventoryItemId: t.inventoryItemId } : {}),
+      }));
+    }
+
     const mats: ConfiguredOrderItem['requiredMaterials'] = [];
     const sizeDesc = sizeMode === 'single'
       ? `${totalQty}× ${singleSize}`
