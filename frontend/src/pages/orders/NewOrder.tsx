@@ -47,6 +47,7 @@ export interface OrderItemFormValues {
     description: string;
     quantity: number;
     unitPrice: number;
+    inventoryItemId?: string;
   }[];
   // Rich product-linked configuration (optional — set when using catalog)
   _configured?: import('../../components/orders/ProductOrderConfigurator').ConfiguredOrderItem;
@@ -673,6 +674,7 @@ export function NewOrderPage(): JSX.Element {
                 quantityUnit: 'units',
                 materialCategory: m.category,
                 unitCost: m.unitPrice,
+                inventoryItemId: m.inventoryItemId,
               }))
             : undefined,
         })),
