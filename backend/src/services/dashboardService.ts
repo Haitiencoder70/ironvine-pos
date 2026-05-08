@@ -173,6 +173,7 @@ export async function getLowStockAlerts(organizationId: string) {
     FROM inventory_items
     WHERE "organizationId" = ${organizationId}
       AND "isActive" = true
+      AND "reorderPoint" > 0
       AND "quantityOnHand" <= "reorderPoint"
     ORDER BY "quantityOnHand" ASC
     LIMIT 50
