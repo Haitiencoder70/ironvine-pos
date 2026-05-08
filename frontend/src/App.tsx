@@ -60,6 +60,10 @@ const mainDomainRouter = createBrowserRouter([
 /** Routes shown when on an org subdomain (acme.yourapp.com) — the full app */
 const appRouter = createBrowserRouter([
   {
+    index: true,
+    element: <Suspense fallback={<PageFallback />}><LandingPage /></Suspense>,
+  },
+  {
     path: '/sign-in/*',
     element: <Suspense fallback={<PageFallback />}><SignInPage /></Suspense>,
   },
@@ -86,7 +90,6 @@ const appRouter = createBrowserRouter([
       {
         element: <ErrorBoundary><MainLayout /></ErrorBoundary>,
         children: [
-          { index: true, element: <Navigate to="/dashboard" replace /> },
           {
             path: '/products',
             children: [
