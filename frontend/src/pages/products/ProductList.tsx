@@ -271,7 +271,7 @@ export function ProductListPage(): JSX.Element {
   const hasAnyProducts = products.length > 0;
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-[1440px] mx-auto space-y-6">
 
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -290,8 +290,8 @@ export function ProductListPage(): JSX.Element {
       </div>
 
       {/* ── Category Tabs ── */}
-      <div className="overflow-x-auto -mx-4 sm:mx-0 pb-1">
-        <div className="flex gap-2 px-4 sm:px-0 min-w-max">
+      <div className="overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-0 scrollbar-none">
+        <div className="flex gap-2 min-w-max pr-2">
           {['All', ...backendCategories.map(c => c.name)].map(cat => (
             <button
               key={cat}
@@ -365,7 +365,7 @@ export function ProductListPage(): JSX.Element {
       {/* ── Product Grid / Empty State / Loading ── */}
       {isLoading ? (
         /* Loading skeleton */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-pulse">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-48 bg-gray-100 rounded-2xl" />
           ))}
@@ -401,7 +401,7 @@ export function ProductListPage(): JSX.Element {
           minHeight="min-h-[280px]"
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
           {displayed.map(product => (
             <ProductCard
               key={product.id}
