@@ -111,8 +111,8 @@ function generateId(): string {
 
 function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }): JSX.Element {
   return (
-    <h2 className="text-base font-bold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-3 mb-5">
-      <span className="text-gray-400">{icon}</span>
+    <h2 className="text-base font-bold text-slate-100 flex items-center gap-2 border-b border-white/10 pb-3 mb-5">
+      <span className="text-slate-400">{icon}</span>
       {title}
     </h2>
   );
@@ -151,7 +151,7 @@ function ToggleGroup({
             'px-4 py-2 rounded-xl text-sm font-semibold border transition-all min-h-[44px]',
             selected.includes(opt)
               ? 'bg-[#ff6b00] text-white border-[#ff6b00] shadow-sm'
-              : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+              : 'bg-white/[0.06] text-slate-300 border-white/10 hover:border-white/25 hover:text-slate-100'
           )}
         >
           {labels?.[opt] ?? opt}
@@ -331,8 +331,8 @@ export function AddEditProductPage(): JSX.Element {
   if (isEdit && isLoadingProduct) {
     return (
       <div className="p-6 max-w-4xl mx-auto animate-pulse space-y-4">
-        <div className="h-8 bg-gray-100 rounded-xl w-48" />
-        <div className="h-64 bg-gray-100 rounded-2xl" />
+        <div className="h-8 bg-white/[0.06] rounded-xl w-48" />
+        <div className="h-64 bg-white/[0.06] rounded-2xl" />
       </div>
     );
   }
@@ -345,15 +345,15 @@ export function AddEditProductPage(): JSX.Element {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="flex items-center justify-center min-h-[44px] -ml-2 px-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          className="flex items-center justify-center min-h-[44px] -ml-2 px-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-slate-100">
             {isEdit ? 'Edit Product' : 'New Product'}
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm text-slate-500 mt-0.5">
             {isEdit ? 'Update product info and pricing' : 'Add a product to your catalog'}
           </p>
         </div>
@@ -362,13 +362,13 @@ export function AddEditProductPage(): JSX.Element {
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
 
         {/* ── BASIC INFO ── */}
-        <TouchCard padding="lg" className="border border-gray-200 shadow-sm">
+        <TouchCard padding="lg" className="border-white/10">
           <SectionHeader icon={<TagIcon className="h-5 w-5" />} title="Basic Info" />
           <div className="space-y-4">
             {/* Category */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Category <span className="text-red-500">*</span>
+              <label className="block text-sm font-semibold text-slate-300 mb-1.5">
+                Category <span className="text-red-400">*</span>
               </label>
               <Controller
                 name="categoryId"
@@ -377,8 +377,8 @@ export function AddEditProductPage(): JSX.Element {
                   <select
                     {...field}
                     className={clsx(
-                      'w-full min-h-[44px] rounded-xl border px-3 text-base bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer',
-                      errors.categoryId ? 'border-red-400' : 'border-gray-200'
+                      'w-full min-h-[44px] rounded-xl border px-3 text-base bg-white/[0.06] text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer',
+                      errors.categoryId ? 'border-red-500/50' : 'border-white/10'
                     )}
                   >
                     <option value="">Select category...</option>
@@ -388,7 +388,7 @@ export function AddEditProductPage(): JSX.Element {
                   </select>
                 )}
               />
-              {errors.categoryId && <p className="mt-1 text-xs text-red-500">{errors.categoryId.message}</p>}
+              {errors.categoryId && <p className="mt-1 text-xs text-red-400">{errors.categoryId.message}</p>}
             </div>
 
             <TouchInput
@@ -400,12 +400,12 @@ export function AddEditProductPage(): JSX.Element {
             />
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-1.5">Description</label>
               <textarea
                 {...register('description')}
                 placeholder="What is this product? Include key details..."
                 rows={3}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-base bg-white text-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-white/10 px-4 py-3 text-base bg-white/[0.06] text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500/50"
               />
             </div>
 
@@ -418,12 +418,12 @@ export function AddEditProductPage(): JSX.Element {
         </TouchCard>
 
         {/* ── GARMENT & PRINT ── */}
-        <TouchCard padding="lg" className="border border-gray-200 shadow-sm">
+        <TouchCard padding="lg" className="border-white/10">
           <SectionHeader icon={<CubeIcon className="h-5 w-5" />} title="Garment & Print" />
           <div className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Garment Type <span className="text-red-500">*</span>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Garment Type <span className="text-red-400">*</span>
               </label>
               <ToggleGroup
                 options={GARMENT_TYPES}
@@ -432,12 +432,12 @@ export function AddEditProductPage(): JSX.Element {
                 multi={false}
                 onChange={([v]) => setValue('garmentType', v ?? 'TSHIRT', { shouldValidate: true })}
               />
-              {errors.garmentType && <p className="mt-1 text-xs text-red-500">{errors.garmentType.message}</p>}
+              {errors.garmentType && <p className="mt-1 text-xs text-red-400">{errors.garmentType.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Print Method <span className="text-red-500">*</span>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Print Method <span className="text-red-400">*</span>
               </label>
               <ToggleGroup
                 options={PRINT_METHODS}
@@ -446,19 +446,19 @@ export function AddEditProductPage(): JSX.Element {
                 multi={false}
                 onChange={([v]) => setValue('printMethod', v ?? 'DTF', { shouldValidate: true })}
               />
-              {errors.printMethod && <p className="mt-1 text-xs text-red-500">{errors.printMethod.message}</p>}
+              {errors.printMethod && <p className="mt-1 text-xs text-red-400">{errors.printMethod.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Print Locations Included <span className="text-red-500">*</span>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Print Locations Included <span className="text-red-400">*</span>
               </label>
               <ToggleGroup
                 options={PRINT_LOCATIONS}
                 selected={watchedPrintLocations}
                 onChange={v => setValue('printLocations', v, { shouldValidate: true })}
               />
-              {errors.printLocations && <p className="mt-1 text-xs text-red-500">{errors.printLocations.message}</p>}
+              {errors.printLocations && <p className="mt-1 text-xs text-red-400">{errors.printLocations.message}</p>}
             </div>
 
             <div className="max-w-xs">
@@ -473,11 +473,11 @@ export function AddEditProductPage(): JSX.Element {
         </TouchCard>
 
         {/* ── AVAILABLE OPTIONS ── */}
-        <TouchCard padding="lg" className="border border-gray-200 shadow-sm">
+        <TouchCard padding="lg" className="border-white/10">
           <SectionHeader icon={<CubeIcon className="h-5 w-5" />} title="Available Options" />
           <div className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Available Brands</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Available Brands</label>
               <ToggleGroup
                 options={BRANDS}
                 selected={watchedBrands}
@@ -486,21 +486,21 @@ export function AddEditProductPage(): JSX.Element {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Available Sizes <span className="text-red-500">*</span>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Available Sizes <span className="text-red-400">*</span>
               </label>
               <ToggleGroup
                 options={SIZES}
                 selected={watchedSizes}
                 onChange={v => setValue('availableSizes', v, { shouldValidate: true })}
               />
-              {errors.availableSizes && <p className="mt-1 text-xs text-red-500">{errors.availableSizes.message}</p>}
+              {errors.availableSizes && <p className="mt-1 text-xs text-red-400">{errors.availableSizes.message}</p>}
             </div>
           </div>
         </TouchCard>
 
         {/* ── PRICING ── */}
-        <TouchCard padding="lg" className="border border-gray-200 shadow-sm">
+        <TouchCard padding="lg" className="border-white/10">
           <SectionHeader icon={<CurrencyDollarIcon className="h-5 w-5" />} title="Pricing" />
           <div className="space-y-6">
 
@@ -519,38 +519,38 @@ export function AddEditProductPage(): JSX.Element {
             {/* Size Upcharges */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-gray-700">Size Upcharges</p>
+                <p className="text-sm font-semibold text-slate-300">Size Upcharges</p>
                 <button
                   type="button"
                   onClick={() => sizeUCArray.append({ size: '', upcharge: 0 })}
-                  className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-semibold min-h-[36px] px-3 rounded-lg hover:bg-blue-50 transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 font-semibold min-h-[36px] px-3 rounded-lg hover:bg-orange-900/20 transition-colors"
                 >
                   <PlusIcon className="h-4 w-4" /> Add Size Upcharge
                 </button>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-gray-200">
+              <div className="overflow-x-auto rounded-xl border border-white/10">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
+                  <thead className="bg-white/[0.06] text-xs text-slate-400 uppercase tracking-wider">
                     <tr>
                       <th className="text-left px-4 py-3 font-semibold">Size</th>
                       <th className="text-left px-4 py-3 font-semibold">Extra Charge ($)</th>
                       <th className="px-4 py-3 w-12" />
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-white/[0.06]">
                     {sizeUCArray.fields.length === 0 && (
                       <tr>
-                        <td colSpan={3} className="text-center text-gray-400 py-4 text-sm italic">
+                        <td colSpan={3} className="text-center text-slate-500 py-4 text-sm italic">
                           No size upcharges — all sizes same price
                         </td>
                       </tr>
                     )}
                     {sizeUCArray.fields.map((field, i) => (
-                      <tr key={field.id} className="hover:bg-gray-50">
+                      <tr key={field.id} className="hover:bg-white/[0.03]">
                         <td className="px-4 py-2">
                           <select
                             {...register(`sizeUpcharges.${i}.size`)}
-                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                            className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-sm bg-white/[0.06] text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer"
                           >
                             <option value="">Size...</option>
                             {SIZES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -562,14 +562,14 @@ export function AddEditProductPage(): JSX.Element {
                             step="0.01"
                             min="0"
                             {...register(`sizeUpcharges.${i}.upcharge`, { valueAsNumber: true })}
-                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-sm bg-white/[0.06] text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                           />
                         </td>
                         <td className="px-4 py-2 text-center">
                           <button
                             type="button"
                             onClick={() => sizeUCArray.remove(i)}
-                            className="p-2 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center mx-auto"
+                            className="p-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-900/20 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center mx-auto"
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
@@ -584,18 +584,18 @@ export function AddEditProductPage(): JSX.Element {
             {/* Quantity Price Tiers */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-gray-700">Quantity Price Tiers</p>
+                <p className="text-sm font-semibold text-slate-300">Quantity Price Tiers</p>
                 <button
                   type="button"
                   onClick={() => tierArray.append({ minQty: 1, maxQty: null, unitPrice: 0 })}
-                  className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-semibold min-h-[36px] px-3 rounded-lg hover:bg-blue-50 transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 font-semibold min-h-[36px] px-3 rounded-lg hover:bg-orange-900/20 transition-colors"
                 >
                   <PlusIcon className="h-4 w-4" /> Add Price Tier
                 </button>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-gray-200">
+              <div className="overflow-x-auto rounded-xl border border-white/10">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
+                  <thead className="bg-white/[0.06] text-xs text-slate-400 uppercase tracking-wider">
                     <tr>
                       <th className="text-left px-4 py-3 font-semibold">Min Qty</th>
                       <th className="text-left px-4 py-3 font-semibold">Max Qty</th>
@@ -603,15 +603,15 @@ export function AddEditProductPage(): JSX.Element {
                       <th className="px-4 py-3 w-12" />
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-white/[0.06]">
                     {tierArray.fields.map((field, i) => (
-                      <tr key={field.id} className="hover:bg-gray-50">
+                      <tr key={field.id} className="hover:bg-white/[0.03]">
                         <td className="px-4 py-2">
                           <input
                             type="number"
                             min="1"
                             {...register(`priceTiers.${i}.minQty`, { valueAsNumber: true })}
-                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-sm bg-white/[0.06] text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                           />
                         </td>
                         <td className="px-4 py-2">
@@ -622,7 +622,7 @@ export function AddEditProductPage(): JSX.Element {
                             {...register(`priceTiers.${i}.maxQty`, {
                               setValueAs: v => v === '' || v === null ? null : parseInt(v),
                             })}
-                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-sm bg-white/[0.06] text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                           />
                         </td>
                         <td className="px-4 py-2">
@@ -631,14 +631,14 @@ export function AddEditProductPage(): JSX.Element {
                             step="0.01"
                             min="0"
                             {...register(`priceTiers.${i}.unitPrice`, { valueAsNumber: true })}
-                            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-sm bg-white/[0.06] text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                           />
                         </td>
                         <td className="px-4 py-2 text-center">
                           <button
                             type="button"
                             onClick={() => tierArray.remove(i)}
-                            className="p-2 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center mx-auto"
+                            className="p-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-900/20 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center mx-auto"
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
@@ -647,7 +647,7 @@ export function AddEditProductPage(): JSX.Element {
                     ))}
                     {tierArray.fields.length === 0 && (
                       <tr>
-                        <td colSpan={4} className="text-center text-gray-400 py-4 text-sm italic">
+                        <td colSpan={4} className="text-center text-slate-500 py-4 text-sm italic">
                           No price tiers — base price applies to all quantities
                         </td>
                       </tr>
@@ -656,18 +656,18 @@ export function AddEditProductPage(): JSX.Element {
                 </table>
               </div>
               {errors.priceTiers && (
-                <p className="mt-1.5 text-xs text-red-500">{errors.priceTiers.message}</p>
+                <p className="mt-1.5 text-xs text-red-400">{errors.priceTiers.message}</p>
               )}
             </div>
           </div>
         </TouchCard>
 
         {/* ── MATERIAL COSTS ── */}
-        <TouchCard padding="lg" className="border border-gray-200 shadow-sm">
+        <TouchCard padding="lg" className="border-white/10">
           <SectionHeader icon={<BeakerIcon className="h-5 w-5" />} title="Material Costs (for profit tracking)" />
-          <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <div className="overflow-x-auto rounded-xl border border-white/10">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
+              <thead className="bg-white/[0.06] text-xs text-slate-400 uppercase tracking-wider">
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold w-40">Category</th>
                   <th className="text-left px-4 py-3 font-semibold">Material</th>
@@ -676,13 +676,13 @@ export function AddEditProductPage(): JSX.Element {
                   <th className="px-4 py-3 w-12" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-white/[0.06]">
                 {materialArray.fields.map((field, i) => (
-                  <tr key={field.id} className="hover:bg-gray-50">
+                  <tr key={field.id} className="hover:bg-white/[0.03]">
                     <td className="px-4 py-2">
                       <select
                         {...register(`materialCosts.${i}.category`)}
-                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                        className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-sm bg-white/[0.06] text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer"
                       >
                         <option value="">Category...</option>
                         {MATERIAL_CATEGORIES.map(c => (
@@ -716,7 +716,7 @@ export function AddEditProductPage(): JSX.Element {
                         step="0.01"
                         min="0"
                         {...register(`materialCosts.${i}.qtyPerUnit`, { valueAsNumber: true })}
-                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-sm bg-white/[0.06] text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                       />
                     </td>
                     <td className="px-4 py-2">
@@ -725,14 +725,14 @@ export function AddEditProductPage(): JSX.Element {
                         step="0.01"
                         min="0"
                         {...register(`materialCosts.${i}.estimatedCost`, { valueAsNumber: true })}
-                        className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-sm bg-white/[0.06] text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                       />
                     </td>
                     <td className="px-4 py-2 text-center">
                       <button
                         type="button"
                         onClick={() => materialArray.remove(i)}
-                        className="p-2 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center mx-auto"
+                        className="p-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-900/20 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center mx-auto"
                       >
                         <TrashIcon className="h-4 w-4" />
                       </button>
@@ -741,7 +741,7 @@ export function AddEditProductPage(): JSX.Element {
                 ))}
                 {materialArray.fields.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="text-center text-gray-400 py-4 text-sm italic">
+                    <td colSpan={5} className="text-center text-slate-500 py-4 text-sm italic">
                       No materials added — profit tracking unavailable
                     </td>
                   </tr>
@@ -751,14 +751,14 @@ export function AddEditProductPage(): JSX.Element {
           </div>
 
           {totalCost > 0 && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-100 flex flex-wrap items-center gap-4 text-sm">
+            <div className="mt-4 p-4 bg-white/[0.06] rounded-xl border border-white/10 flex flex-wrap items-center gap-4 text-sm">
               <div>
-                <span className="text-gray-500">Total cost/unit: </span>
-                <span className="font-black text-gray-900">${totalCost.toFixed(2)}</span>
+                <span className="text-slate-400">Total cost/unit: </span>
+                <span className="font-black text-slate-100">${totalCost.toFixed(2)}</span>
               </div>
               <div>
-                <span className="text-gray-500">Profit at base price: </span>
-                <span className={clsx('font-black', baseProfit >= 0 ? 'text-emerald-600' : 'text-red-600')}>
+                <span className="text-slate-400">Profit at base price: </span>
+                <span className={clsx('font-black', baseProfit >= 0 ? 'text-emerald-400' : 'text-red-400')}>
                   ${baseProfit.toFixed(2)} ({baseMargin.toFixed(1)}%)
                 </span>
               </div>
@@ -768,18 +768,18 @@ export function AddEditProductPage(): JSX.Element {
           <button
             type="button"
             onClick={() => materialArray.append({ id: generateId(), category: '', material: '', qtyPerUnit: 1, estimatedCost: 0, inventoryItemId: null })}
-            className="mt-4 flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-semibold min-h-[44px] px-3 rounded-lg hover:bg-blue-50 transition-colors"
+            className="mt-4 flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 font-semibold min-h-[44px] px-3 rounded-lg hover:bg-orange-900/20 transition-colors"
           >
             <PlusIcon className="h-4 w-4" /> Add Material
           </button>
         </TouchCard>
 
         {/* ── ADD-ONS ── */}
-        <TouchCard padding="lg" className="border border-gray-200 shadow-sm">
+        <TouchCard padding="lg" className="border-white/10">
           <SectionHeader icon={<WrenchScrewdriverIcon className="h-5 w-5" />} title="Add-Ons" />
-          <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <div className="overflow-x-auto rounded-xl border border-white/10">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
+              <thead className="bg-white/[0.06] text-xs text-slate-400 uppercase tracking-wider">
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold">Name</th>
                   <th className="text-left px-4 py-3 font-semibold w-32">Price ($)</th>
@@ -787,17 +787,17 @@ export function AddEditProductPage(): JSX.Element {
                   <th className="px-4 py-3 w-12" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-white/[0.06]">
                 {addOnArray.fields.map((field, i) => {
                   const isActive = watch(`addOns.${i}.isActive`);
                   return (
-                    <tr key={field.id} className="hover:bg-gray-50">
+                    <tr key={field.id} className="hover:bg-white/[0.03]">
                       <td className="px-4 py-2">
                         <input
                           type="text"
                           placeholder="e.g. Rush Order"
                           {...register(`addOns.${i}.name`)}
-                          className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-sm bg-white/[0.06] text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -806,7 +806,7 @@ export function AddEditProductPage(): JSX.Element {
                           step="0.01"
                           min="0"
                           {...register(`addOns.${i}.price`, { valueAsNumber: true })}
-                          className="w-full min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-sm bg-white/[0.06] text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                         />
                       </td>
                       <td className="px-4 py-2 text-center">
@@ -819,7 +819,7 @@ export function AddEditProductPage(): JSX.Element {
                               onClick={() => f.onChange(!f.value)}
                               className={clsx(
                                 'w-12 h-6 rounded-full border-2 relative transition-all min-h-[36px] min-w-[36px] mx-auto flex items-center',
-                                isActive ? 'bg-emerald-500 border-emerald-500' : 'bg-gray-200 border-gray-200'
+                                isActive ? 'bg-emerald-500 border-emerald-500' : 'bg-white/[0.12] border-white/10'
                               )}
                               aria-label="Toggle active"
                             >
@@ -835,7 +835,7 @@ export function AddEditProductPage(): JSX.Element {
                         <button
                           type="button"
                           onClick={() => addOnArray.remove(i)}
-                          className="p-2 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center mx-auto"
+                          className="p-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-900/20 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center mx-auto"
                         >
                           <TrashIcon className="h-4 w-4" />
                         </button>
@@ -845,7 +845,7 @@ export function AddEditProductPage(): JSX.Element {
                 })}
                 {addOnArray.fields.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="text-center text-gray-400 py-4 text-sm italic">
+                    <td colSpan={4} className="text-center text-slate-500 py-4 text-sm italic">
                       No add-ons configured
                     </td>
                   </tr>
@@ -856,14 +856,14 @@ export function AddEditProductPage(): JSX.Element {
           <button
             type="button"
             onClick={() => addOnArray.append({ id: generateId(), name: '', price: 0, isActive: true })}
-            className="mt-4 flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-semibold min-h-[44px] px-3 rounded-lg hover:bg-blue-50 transition-colors"
+            className="mt-4 flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 font-semibold min-h-[44px] px-3 rounded-lg hover:bg-orange-900/20 transition-colors"
           >
             <PlusIcon className="h-4 w-4" /> Add Add-On
           </button>
         </TouchCard>
 
         {/* ── PRODUCTION ── */}
-        <TouchCard padding="lg" className="border border-gray-200 shadow-sm">
+        <TouchCard padding="lg" className="border-white/10">
           <SectionHeader icon={<Cog6ToothIcon className="h-5 w-5" />} title="Production" />
           <div className="space-y-4">
             <div className="max-w-xs">
@@ -877,7 +877,7 @@ export function AddEditProductPage(): JSX.Element {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Difficulty Level</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Difficulty Level</label>
               <ToggleGroup
                 options={['EASY', 'MEDIUM', 'COMPLEX']}
                 selected={[watchedDifficulty]}
@@ -887,25 +887,25 @@ export function AddEditProductPage(): JSX.Element {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Production Notes</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-1.5">Production Notes</label>
               <textarea
                 {...register('productionNotes')}
                 placeholder="Press settings, special instructions, warnings..."
                 rows={3}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-base bg-white text-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-white/10 px-4 py-3 text-base bg-white/[0.06] text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500/50"
               />
             </div>
           </div>
         </TouchCard>
 
         {/* ── STATUS ── */}
-        <TouchCard padding="lg" className="border border-gray-200 shadow-sm">
+        <TouchCard padding="lg" className="border-white/10">
           <SectionHeader icon={<CheckCircleIcon className="h-5 w-5" />} title="Status" />
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="flex items-center justify-between p-4 bg-white/[0.06] rounded-xl border border-white/10">
               <div>
-                <p className="font-bold text-gray-900">Active</p>
-                <p className="text-xs text-gray-500">Inactive products won't appear in new orders</p>
+                <p className="font-bold text-slate-100">Active</p>
+                <p className="text-xs text-slate-400">Inactive products won't appear in new orders</p>
               </div>
               <Controller
                 name="isActive"
@@ -922,10 +922,10 @@ export function AddEditProductPage(): JSX.Element {
                 )}
               />
             </div>
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="flex items-center justify-between p-4 bg-white/[0.06] rounded-xl border border-white/10">
               <div>
-                <p className="font-bold text-gray-900">Featured</p>
-                <p className="text-xs text-gray-500">Show with a star badge in listings</p>
+                <p className="font-bold text-slate-100">Featured</p>
+                <p className="text-xs text-slate-400">Show with a star badge in listings</p>
               </div>
               <Controller
                 name="isFeatured"
@@ -947,8 +947,8 @@ export function AddEditProductPage(): JSX.Element {
 
         {/* ── Product Images ── */}
         {id && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700">Product Photos</h3>
+          <div className="glass-panel rounded-2xl border border-white/10 p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-slate-300">Product Photos</h3>
             <ImageGallery
               images={productImages.images}
               editable
@@ -970,7 +970,7 @@ export function AddEditProductPage(): JSX.Element {
         )}
 
         {/* ── Fixed bottom actions ── */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 z-20 lg:pl-72">
+        <div className="fixed bottom-0 left-0 right-0 p-4 border-t border-white/10 z-20 lg:pl-72" style={{ background: 'rgba(6,6,16,0.92)', backdropFilter: 'blur(24px)' }}>
           <div className="max-w-4xl mx-auto flex gap-3">
             <TouchButton
               type="button"

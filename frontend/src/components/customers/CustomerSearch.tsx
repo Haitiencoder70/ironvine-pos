@@ -120,7 +120,7 @@ export function CustomerSearch({ value, onChange, error }: CustomerSearchProps) 
         animate={{ opacity: 1, scale: 1 }}
         className={clsx(
           'flex items-start gap-4 p-4 rounded-2xl border-2 border-orange-500/40 bg-orange-500/10',
-          error && 'border-red-300 bg-red-50'
+          error && 'border-red-500/40 bg-red-900/20'
         )}
       >
         {/* Avatar */}
@@ -132,25 +132,25 @@ export function CustomerSearch({ value, onChange, error }: CustomerSearchProps) 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <CheckCircleIcon className="h-4 w-4 text-orange-500 flex-shrink-0" />
-            <p className="font-semibold text-gray-900 truncate">
+            <p className="font-semibold text-slate-100 truncate">
               {value.firstName} {value.lastName}
             </p>
           </div>
           <div className="mt-1 space-y-0.5">
             {value.company && (
-              <p className="text-sm text-gray-500 flex items-center gap-1.5">
+              <p className="text-sm text-slate-400 flex items-center gap-1.5">
                 <BuildingOfficeIcon className="h-3.5 w-3.5 flex-shrink-0" />
                 {value.company}
               </p>
             )}
             {value.phone && (
-              <p className="text-sm text-gray-500 flex items-center gap-1.5">
+              <p className="text-sm text-slate-400 flex items-center gap-1.5">
                 <PhoneIcon className="h-3.5 w-3.5 flex-shrink-0" />
                 {value.phone}
               </p>
             )}
             {value.email && (
-              <p className="text-sm text-gray-500 flex items-center gap-1.5">
+              <p className="text-sm text-slate-400 flex items-center gap-1.5">
                 <EnvelopeIcon className="h-3.5 w-3.5 flex-shrink-0" />
                 {value.email}
               </p>
@@ -163,7 +163,7 @@ export function CustomerSearch({ value, onChange, error }: CustomerSearchProps) 
           type="button"
           onClick={handleClear}
           aria-label="Change customer"
-          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 hover:bg-white/60 transition-colors"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
         >
           <XMarkIcon className="h-5 w-5" />
         </button>
@@ -200,11 +200,11 @@ export function CustomerSearch({ value, onChange, error }: CustomerSearchProps) 
           placeholder="Search by name, phone, or email…"
           autoComplete="off"
           className={clsx(
-            'w-full rounded-xl border bg-white pl-10 pr-10 py-2 min-h-[44px]',
-            'text-base shadow-sm transition-colors',
-            'placeholder:text-gray-400',
+            'w-full rounded-xl border bg-white/[0.06] pl-10 pr-10 py-2 min-h-[44px]',
+            'text-base text-slate-100 transition-colors',
+            'placeholder:text-slate-500',
             'focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent',
-            error ? 'border-red-400' : 'border-gray-300 hover:border-gray-400'
+            error ? 'border-red-500/50' : 'border-white/10 hover:border-white/20'
           )}
         />
         <button
@@ -233,11 +233,16 @@ export function CustomerSearch({ value, onChange, error }: CustomerSearchProps) 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 mt-1 w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+            className="absolute z-50 mt-1 w-full rounded-2xl shadow-2xl border border-white/10 overflow-hidden"
+            style={{
+              background: 'linear-gradient(160deg, rgba(14,14,28,0.98) 0%, rgba(8,8,18,0.99) 100%)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+            }}
           >
             {/* Results */}
             {customers.length > 0 ? (
-              <ul className="max-h-60 overflow-y-auto divide-y divide-gray-50">
+              <ul className="max-h-60 overflow-y-auto divide-y divide-white/[0.06]">
                 {customers.map((customer) => (
                   <li key={customer.id}>
                     <button
@@ -245,14 +250,14 @@ export function CustomerSearch({ value, onChange, error }: CustomerSearchProps) 
                       onClick={() => handleSelect(customer)}
                       className="w-full text-left px-4 py-3 min-h-[52px] hover:bg-orange-500/10 active:bg-orange-500/15 transition-colors flex items-center gap-3"
                     >
-                      <div className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 text-sm font-semibold text-gray-600">
+                      <div className="h-9 w-9 rounded-full bg-white/[0.08] flex items-center justify-center flex-shrink-0 text-sm font-semibold text-slate-300">
                         {customer.firstName[0]}{customer.lastName[0]}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">
+                        <p className="font-medium text-slate-100 truncate">
                           {customer.firstName} {customer.lastName}
                         </p>
-                        <p className="text-xs text-gray-400 truncate">
+                        <p className="text-xs text-slate-400 truncate">
                           {[customer.company, customer.phone, customer.email]
                             .filter(Boolean)
                             .join(' · ')}
@@ -264,8 +269,8 @@ export function CustomerSearch({ value, onChange, error }: CustomerSearchProps) 
               </ul>
             ) : (
               <div className="px-4 py-6 text-center">
-                <UserIcon className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">
+                <UserIcon className="h-8 w-8 text-white/20 mx-auto mb-2" />
+                <p className="text-sm text-slate-400">
                   {debouncedQuery
                     ? `No customers found for "${debouncedQuery}"`
                     : 'Start typing to search customers'}
@@ -274,14 +279,14 @@ export function CustomerSearch({ value, onChange, error }: CustomerSearchProps) 
             )}
 
             {/* Create new customer CTA */}
-            <div className="border-t border-gray-100 p-2">
+            <div className="border-t border-white/10 p-2">
               <button
                 type="button"
                 onClick={() => {
                   setShowCreateForm(true);
                   setIsOpen(false);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2.5 min-h-[44px] rounded-xl text-orange-500 hover:bg-orange-500/10 active:bg-orange-500/15 transition-colors text-sm font-semibold"
+                className="w-full flex items-center gap-2 px-3 py-2.5 min-h-[44px] rounded-xl text-orange-400 hover:bg-orange-500/10 active:bg-orange-500/15 transition-colors text-sm font-semibold"
               >
                 <UserPlusIcon className="h-4 w-4" />
                 Create new customer
@@ -300,17 +305,22 @@ export function CustomerSearch({ value, onChange, error }: CustomerSearchProps) 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 mt-1 w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-4"
+            className="absolute z-50 mt-1 w-full rounded-2xl shadow-2xl border border-white/10 p-4"
+            style={{
+              background: 'linear-gradient(160deg, rgba(14,14,28,0.98) 0%, rgba(8,8,18,0.99) 100%)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+            }}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="font-semibold text-slate-100 flex items-center gap-2">
                 <UserPlusIcon className="h-4 w-4 text-orange-500" />
                 New Customer
               </h3>
               <button
                 type="button"
                 onClick={() => setShowCreateForm(false)}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
               >
                 <XMarkIcon className="h-4 w-4" />
               </button>

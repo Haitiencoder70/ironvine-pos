@@ -38,10 +38,11 @@ function parseVendorMeta(notes?: string) {
 }
 
 const SUPPLIER_BADGE_CONFIG: Record<string, string> = {
-  'Garments': 'bg-blue-100 text-blue-800',
-  'DTF': 'bg-purple-100 text-purple-800',
-  'HTV': 'bg-pink-100 text-pink-800',
-  'Other': 'bg-gray-100 text-gray-800',
+  'Garments': 'bg-blue-900/40 text-blue-300 border border-blue-500/30',
+  'DTF': 'bg-purple-900/40 text-purple-300 border border-purple-500/30',
+  'HTV': 'bg-pink-900/40 text-pink-300 border border-pink-500/30',
+  'Supplies': 'bg-amber-900/40 text-amber-300 border border-amber-500/30',
+  'Other': 'bg-white/[0.08] text-slate-300 border border-white/10',
 };
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -93,8 +94,8 @@ export function VendorListPage(): JSX.Element {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-           <h1 className="text-2xl font-bold text-gray-900">Vendors</h1>
-           <p className="text-sm text-gray-500 mt-1">Manage suppliers, procurement ties, and material sources.</p>
+           <h1 className="text-2xl font-bold text-slate-100">Vendors</h1>
+           <p className="text-sm text-slate-500 mt-1">Manage suppliers, procurement ties, and material sources.</p>
         </div>
         <TouchButton
           variant="primary"
@@ -153,14 +154,14 @@ export function VendorListPage(): JSX.Element {
 
       {/* Error Banner */}
       {isError && (
-        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-          <ExclamationCircleIcon className="h-5 w-5 text-red-500 flex-shrink-0" />
-          <p className="text-sm text-red-700 flex-1">
+        <div className="flex items-center gap-3 p-4 bg-red-900/20 border border-red-500/30 rounded-xl">
+          <ExclamationCircleIcon className="h-5 w-5 text-red-400 flex-shrink-0" />
+          <p className="text-sm text-red-300 flex-1">
             Failed to load vendors. Check your connection and try again.
           </p>
           <button
             onClick={() => void refetch()}
-            className="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors min-h-[44px] px-4 rounded-xl hover:bg-red-50"
+            className="text-sm font-semibold text-red-400 hover:text-red-300 transition-colors min-h-[44px] px-4 rounded-xl hover:bg-red-900/20"
           >
             Retry
           </button>
@@ -168,10 +169,10 @@ export function VendorListPage(): JSX.Element {
       )}
 
       {/* Desktop Table View */}
-      <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="hidden lg:block glass-panel rounded-2xl border border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-gray-50 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-xs font-semibold">
+            <thead className="bg-white/[0.06] border-b border-white/10 text-slate-400 uppercase tracking-wider text-xs font-semibold">
               <tr>
                 <th className="px-6 py-4 w-12 text-center">Code</th>
                 <th className="px-6 py-4">Vendor</th>
@@ -181,7 +182,7 @@ export function VendorListPage(): JSX.Element {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-white/[0.06]">
               {isLoading ? (
                 <SkeletonLoader variant="table" rows={5} />
               ) : displayedVendors.length === 0 ? (
@@ -203,15 +204,15 @@ export function VendorListPage(): JSX.Element {
                 displayedVendors.map((v) => {
                   const { vendorCode } = parseVendorMeta(v.notes);
                   return (
-                    <tr key={v.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={v.id} className="hover:bg-white/[0.04] transition-colors">
                       <td className="px-6 py-4">
-                        <span className="font-mono text-xs font-bold text-gray-400">
+                        <span className="font-mono text-xs font-bold text-slate-500">
                           {vendorCode || '—'}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <p 
-                          className="font-bold text-gray-900 cursor-pointer hover:text-orange-400 truncate max-w-[200px] text-base"
+                        <p
+                          className="font-bold text-slate-100 cursor-pointer hover:text-orange-400 truncate max-w-[200px] text-base"
                           onClick={() => navigate(`/vendors/${v.id}`)}
                         >
                           {v.name}
@@ -219,19 +220,19 @@ export function VendorListPage(): JSX.Element {
                       </td>
                       <td className="px-6 py-4">
                         <div className="space-y-1 text-xs">
-                           {v.contactName && <p className="font-semibold text-gray-700">{v.contactName}</p>}
+                           {v.contactName && <p className="font-semibold text-slate-300">{v.contactName}</p>}
                            {v.phone && (
-                              <p className="text-gray-500 flex items-center gap-1.5"><PhoneIcon className="h-3.5 w-3.5 flex-shrink-0" />{v.phone}</p>
+                              <p className="text-slate-400 flex items-center gap-1.5"><PhoneIcon className="h-3.5 w-3.5 flex-shrink-0" />{v.phone}</p>
                            )}
                            {v.email && (
-                              <p className="text-gray-500 flex items-center gap-1.5"><EnvelopeIcon className="h-3.5 w-3.5 flex-shrink-0" />{v.email}</p>
+                              <p className="text-slate-400 flex items-center gap-1.5"><EnvelopeIcon className="h-3.5 w-3.5 flex-shrink-0" />{v.email}</p>
                            )}
-                           {!v.contactName && !v.phone && !v.email && <span className="text-gray-400">—</span>}
+                           {!v.contactName && !v.phone && !v.email && <span className="text-slate-500">—</span>}
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-2">
-                           {v.categories.length === 0 && <span className="text-gray-400 italic">—</span>}
+                           {v.categories.length === 0 && <span className="text-slate-500 italic">—</span>}
                            {v.categories.map(cat => {
                               const config = SUPPLIER_BADGE_CONFIG[cat] || SUPPLIER_BADGE_CONFIG['Other'];
                               return (
@@ -244,9 +245,9 @@ export function VendorListPage(): JSX.Element {
                       </td>
                       <td className="px-6 py-4 text-center">
                          {v.isActive ? (
-                            <CheckBadgeIcon className="h-6 w-6 text-green-500 mx-auto" />
+                            <CheckBadgeIcon className="h-6 w-6 text-green-400 mx-auto" />
                          ) : (
-                            <NoSymbolIcon className="h-6 w-6 text-gray-300 mx-auto" />
+                            <NoSymbolIcon className="h-6 w-6 text-slate-600 mx-auto" />
                          )}
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -296,20 +297,20 @@ export function VendorListPage(): JSX.Element {
                 key={v.id}
                 onClick={() => navigate(`/vendors/${v.id}`)}
                 padding="md"
-                className="border border-gray-100"
+                className="border-white/10"
               >
                 <div className="flex justify-between items-start gap-2 mb-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className={clsx("font-bold text-lg truncate", !v.isActive && "text-gray-400 line-through")}>
+                      <h3 className={clsx("font-bold text-lg truncate text-slate-100", !v.isActive && "text-slate-500 line-through")}>
                         {v.name}
                       </h3>
-                      {!v.isActive && <span className="text-[10px] uppercase font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-md tracking-wider">Inactive</span>}
+                      {!v.isActive && <span className="text-[10px] uppercase font-bold text-red-400 bg-red-900/30 px-1.5 py-0.5 rounded-md tracking-wider">Inactive</span>}
                     </div>
-                    {vendorCode && <p className="text-xs font-mono text-gray-400">{vendorCode}</p>}
+                    {vendorCode && <p className="text-xs font-mono text-slate-500">{vendorCode}</p>}
                   </div>
                 </div>
-                
+
                 <div className="mb-4">
                   <div className="flex flex-wrap gap-1.5">
                      {v.categories.map(cat => {
@@ -323,7 +324,7 @@ export function VendorListPage(): JSX.Element {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-50 flex-wrap text-sm">
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/[0.06] flex-wrap text-sm">
                    <TouchButton
                      variant="secondary"
                      size="sm"
@@ -345,10 +346,10 @@ export function VendorListPage(): JSX.Element {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-gray-200 pt-6 mt-6">
-          <p className="text-sm text-gray-500 hidden sm:block">
-            Showing page <span className="font-medium text-gray-900">{page}</span> of{' '}
-            <span className="font-medium text-gray-900">{totalPages}</span>
+        <div className="flex items-center justify-between border-t border-white/10 pt-6 mt-6">
+          <p className="text-sm text-slate-400 hidden sm:block">
+            Showing page <span className="font-medium text-slate-100">{page}</span> of{' '}
+            <span className="font-medium text-slate-100">{totalPages}</span>
           </p>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
             <TouchButton

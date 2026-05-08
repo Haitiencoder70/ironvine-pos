@@ -9,12 +9,12 @@ import { SkeletonLoader, EmptyState } from '../ui';
 import type { POSProduct } from '../../types';
 
 const METHOD_COLORS: Record<string, string> = {
-  DTF:        'bg-purple-100 text-purple-700',
-  HTV:        'bg-pink-100 text-pink-700',
-  SCREEN:     'bg-blue-100 text-blue-700',
-  EMBROIDERY: 'bg-amber-100 text-amber-700',
-  SUBLIMATION:'bg-green-100 text-green-700',
-  DEFAULT:    'bg-gray-100 text-gray-600',
+  DTF:        'bg-purple-900/40 text-purple-300 border border-purple-500/30',
+  HTV:        'bg-pink-900/40 text-pink-300 border border-pink-500/30',
+  SCREEN:     'bg-blue-900/40 text-blue-300 border border-blue-500/30',
+  EMBROIDERY: 'bg-amber-900/40 text-amber-300 border border-amber-500/30',
+  SUBLIMATION:'bg-green-900/40 text-green-300 border border-green-500/30',
+  DEFAULT:    'bg-white/[0.08] text-slate-300 border border-white/10',
 };
 
 function methodLabel(method: string): string {
@@ -68,13 +68,13 @@ export function ProductGrid({ onAddToCart }: ProductGridProps): React.JSX.Elemen
       {/* Search */}
       <div className="p-4 pb-2 flex-shrink-0 space-y-3">
         <div className="relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search products..."
-            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-white/10 bg-white/[0.06] text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent"
           />
         </div>
 
@@ -85,8 +85,8 @@ export function ProductGrid({ onAddToCart }: ProductGridProps): React.JSX.Elemen
             className={clsx(
               'flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium min-h-[36px] transition-colors whitespace-nowrap',
               category === ''
-                ? 'bg-blue-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600',
+                ? 'bg-[#ff6b00] text-white'
+                : 'bg-white/[0.06] border border-white/10 text-slate-300 hover:border-orange-500/40 hover:text-orange-400',
             )}
           >
             All
@@ -98,8 +98,8 @@ export function ProductGrid({ onAddToCart }: ProductGridProps): React.JSX.Elemen
               className={clsx(
                 'flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium min-h-[36px] transition-colors whitespace-nowrap',
                 category === cat.name
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600',
+                  ? 'bg-[#ff6b00] text-white'
+                  : 'bg-white/[0.06] border border-white/10 text-slate-300 hover:border-orange-500/40 hover:text-orange-400',
               )}
             >
               {cat.name}
@@ -137,13 +137,17 @@ export function ProductGrid({ onAddToCart }: ProductGridProps): React.JSX.Elemen
                   key={product.id}
                   onClick={() => handleTap(product)}
                   className={clsx(
-                    'rounded-xl shadow-sm bg-white p-3 text-left cursor-pointer transition-all duration-150 min-h-[120px] flex flex-col justify-between active:scale-95',
-                    'hover:shadow-md hover:ring-1 hover:ring-blue-200',
-                    isTapped && 'scale-95 ring-2 ring-blue-500',
+                    'rounded-xl p-3 text-left cursor-pointer transition-all duration-150 min-h-[120px] flex flex-col justify-between active:scale-95',
+                    'border border-white/10 hover:border-orange-500/30 hover:shadow-lg',
+                    isTapped && 'scale-95 border-orange-500/60 ring-2 ring-orange-500/30',
                   )}
+                  style={{
+                    background: 'linear-gradient(160deg, rgba(14,14,28,0.80) 0%, rgba(8,8,18,0.88) 100%)',
+                    backdropFilter: 'blur(16px)',
+                  }}
                 >
                   {/* Image or placeholder */}
-                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 mb-2 flex-shrink-0 flex items-center justify-center">
+                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-200 mb-2 flex-shrink-0 flex items-center justify-center">
                     {product.image ? (
                       <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                     ) : (
@@ -152,10 +156,10 @@ export function ProductGrid({ onAddToCart }: ProductGridProps): React.JSX.Elemen
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-1">
-                    <p className="text-sm font-semibold text-gray-900 leading-tight line-clamp-2">
+                    <p className="text-sm font-semibold text-slate-100 leading-tight line-clamp-2">
                       {product.name}
                     </p>
-                    <p className="text-xs text-gray-400 truncate">{product.categoryName}</p>
+                    <p className="text-xs text-slate-400 truncate">{product.categoryName}</p>
 
                     {/* Print method badge */}
                     <span className={clsx('inline-block text-xs font-medium px-2 py-0.5 rounded-full', methodColor(product.printMethod))}>
@@ -163,12 +167,12 @@ export function ProductGrid({ onAddToCart }: ProductGridProps): React.JSX.Elemen
                     </span>
                   </div>
 
-                  <div className="mt-2 pt-2 border-t border-gray-50">
-                    <span className="text-base font-bold text-blue-600">
+                  <div className="mt-2 pt-2 border-t border-white/[0.06]">
+                    <span className="text-base font-bold text-[#ff6b00]">
                       ${product.basePrice.toFixed(2)}
                     </span>
                     {product.priceTiers && product.priceTiers.length > 0 && (
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-slate-400 mt-0.5">
                         {product.priceTiers.length} tier{product.priceTiers.length !== 1 ? 's' : ''}
                       </p>
                     )}
