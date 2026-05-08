@@ -84,16 +84,27 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
   }, [product, qty, size, selectedAddOns, taxRate, activeAddOns]);
 
   const marginColor =
-    calc.profitMargin >= 50 ? 'text-emerald-600'
-    : calc.profitMargin >= 30 ? 'text-amber-600'
-    : 'text-red-600';
+    calc.profitMargin >= 50 ? 'text-emerald-400'
+    : calc.profitMargin >= 30 ? 'text-amber-400'
+    : 'text-red-400';
 
   return (
-    <div className={clsx('bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden', className)}>
+    <div
+      className={clsx('rounded-2xl overflow-hidden', className)}
+      style={{
+        background: 'linear-gradient(160deg, rgba(12,12,24,0.90) 0%, rgba(6,6,16,0.95) 100%)',
+        border: '1px solid rgba(255,255,255,0.10)',
+        borderTopColor: 'rgba(255,255,255,0.14)',
+        backdropFilter: 'blur(20px) saturate(1.7)',
+        WebkitBackdropFilter: 'blur(20px) saturate(1.7)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 20px rgba(0,0,0,0.5)',
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100 bg-gray-50">
-        <CalculatorIcon className="h-5 w-5 text-blue-600" />
-        <h3 className="font-bold text-gray-900 text-base">Price Calculator</h3>
+      <div className="flex items-center gap-2 px-5 py-4 border-b border-white/[0.08]"
+        style={{ background: 'rgba(255,255,255,0.04)' }}>
+        <CalculatorIcon className="h-5 w-5 text-orange-400" />
+        <h3 className="font-bold text-slate-100 text-base">Price Calculator</h3>
       </div>
 
       <div className="p-5 space-y-5">
@@ -101,14 +112,14 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Quantity */}
           <div className="flex-1">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
               Quantity
             </label>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => adjustQty(-1)}
-                className="flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 active:scale-95 transition-all min-h-[44px] min-w-[44px]"
+                className="flex items-center justify-center w-10 h-10 rounded-xl border border-white/10 bg-white/[0.06] text-slate-300 hover:bg-white/[0.12] hover:text-slate-100 active:scale-95 transition-all min-h-[44px] min-w-[44px]"
                 aria-label="Decrease quantity"
               >
                 <MinusIcon className="h-4 w-4" />
@@ -118,12 +129,12 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
                 min={1}
                 value={qty}
                 onChange={e => setQty(Math.max(1, parseInt(e.target.value) || 1))}
-                className="flex-1 text-center text-lg font-bold border border-gray-200 rounded-xl min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 text-center text-lg font-bold border border-white/10 rounded-xl min-h-[44px] bg-white/[0.06] text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
               />
               <button
                 type="button"
                 onClick={() => adjustQty(1)}
-                className="flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 active:scale-95 transition-all min-h-[44px] min-w-[44px]"
+                className="flex items-center justify-center w-10 h-10 rounded-xl border border-white/10 bg-white/[0.06] text-slate-300 hover:bg-white/[0.12] hover:text-slate-100 active:scale-95 transition-all min-h-[44px] min-w-[44px]"
                 aria-label="Increase quantity"
               >
                 <PlusIcon className="h-4 w-4" />
@@ -139,8 +150,8 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
                   className={clsx(
                     'px-3 py-1 text-xs font-semibold rounded-lg border transition-all min-h-[32px]',
                     qty === n
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                      ? 'border-orange-500 bg-orange-500/10 text-orange-400'
+                      : 'border-white/10 bg-white/[0.06] text-slate-400 hover:border-white/25 hover:text-slate-200'
                   )}
                 >
                   {n}
@@ -151,20 +162,20 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
 
           {/* Size */}
           <div className="flex-1">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
               Size
             </label>
             <select
               value={size}
               onChange={e => setSize(e.target.value)}
-              className="w-full min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className="w-full min-h-[44px] rounded-xl border border-white/10 px-3 text-base font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer"
             >
               {product.availableSizes.map(s => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
             {calc.sizeUC > 0 && (
-              <p className="text-xs text-amber-600 mt-1.5 font-medium">
+              <p className="text-xs text-amber-400 mt-1.5 font-medium">
                 +{formatCurrency(calc.sizeUC)} upcharge for {size}
               </p>
             )}
@@ -174,7 +185,7 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
         {/* Add-ons */}
         {activeAddOns.length > 0 && (
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
               Add-Ons
             </label>
             <div className="space-y-2">
@@ -184,23 +195,23 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
                   className={clsx(
                     'flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all min-h-[44px]',
                     selectedAddOns.has(ao.id)
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
+                      ? 'border-orange-500 bg-orange-500/10'
+                      : 'border-white/10 bg-white/[0.06] hover:border-white/25'
                   )}
                 >
                   <input
                     type="checkbox"
                     checked={selectedAddOns.has(ao.id)}
                     onChange={() => toggleAddOn(ao.id)}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded border-white/20 text-orange-500 focus:ring-orange-500/50"
                   />
                   <span className={clsx(
                     'flex-1 text-sm font-medium',
-                    selectedAddOns.has(ao.id) ? 'text-blue-900' : 'text-gray-700'
+                    selectedAddOns.has(ao.id) ? 'text-orange-300' : 'text-slate-300'
                   )}>
                     {ao.name}
                   </span>
-                  <span className="text-sm font-semibold text-gray-600">
+                  <span className="text-sm font-semibold text-slate-400">
                     +{formatCurrency(Number(ao.price))}/item
                   </span>
                 </label>
@@ -210,11 +221,11 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
         )}
 
         {/* Divider */}
-        <hr className="border-gray-100" />
+        <hr className="border-white/[0.08]" />
 
         {/* Price Breakdown */}
         <div>
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
             Price Breakdown
           </p>
           <div className="space-y-1.5 text-sm">
@@ -237,20 +248,20 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
               />
             ))}
 
-            <div className="border-t border-gray-100 pt-2 mt-2">
+            <div className="border-t border-white/[0.08] pt-2 mt-2">
               <BreakdownRow label="Subtotal" value={formatCurrency(calc.subtotal)} />
               <BreakdownRow label={`Tax (${(taxRate * 100).toFixed(2)}%)`} value={formatCurrency(calc.taxAmount)} />
             </div>
 
             <div
-              className="mt-2 p-3 rounded-xl"
-              style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%)' }}
+              className="mt-2 p-3 rounded-xl border border-orange-500/20"
+              style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.12) 0%, rgba(234,88,12,0.08) 100%)' }}
             >
               <BreakdownRow
                 label="TOTAL"
                 value={formatCurrency(calc.grandTotal)}
                 bold
-                className="text-base text-blue-900"
+                className="text-base text-orange-300"
               />
             </div>
           </div>
@@ -259,9 +270,9 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
         {/* Profit */}
         {calc.totalMaterialCost > 0 && (
           <>
-            <hr className="border-gray-100" />
+            <hr className="border-white/[0.08]" />
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
                 Profit Estimate
               </p>
               <div className="space-y-1.5 text-sm">
@@ -274,13 +285,13 @@ export function PriceCalculator({ product, taxRate = 0.0825, className }: PriceC
                 />
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-gray-500">Margin</span>
+                    <span className="text-xs font-medium text-slate-400">Margin</span>
                     <span className={clsx('text-sm font-bold', marginColor)}>
                       {calc.profitMargin.toFixed(1)}%
                       {calc.profitMargin >= 50 ? ' ✅' : calc.profitMargin >= 30 ? ' ⚠️' : ' ❌'}
                     </span>
                   </div>
-                  <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-2 rounded-full bg-white/[0.08] overflow-hidden">
                     <div
                       className={clsx(
                         'h-full rounded-full transition-all duration-500',
@@ -316,8 +327,8 @@ function BreakdownRow({
 }): JSX.Element {
   return (
     <div className={clsx('flex items-center justify-between', className)}>
-      <span className={clsx('text-gray-600', bold && 'font-semibold text-gray-900')}>{label}</span>
-      <span className={clsx('font-medium text-gray-900', bold && 'font-bold')}>{value}</span>
+      <span className={clsx('text-slate-400', bold && 'font-semibold text-slate-200')}>{label}</span>
+      <span className={clsx('font-medium text-slate-200', bold && 'font-bold')}>{value}</span>
     </div>
   );
 }

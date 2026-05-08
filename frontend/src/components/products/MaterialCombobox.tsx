@@ -113,20 +113,28 @@ export function MaterialCombobox({
         onKeyDown={handleKeyDown}
         onFocus={() => setOpen(true)}
         placeholder={placeholder}
-        className="w-full min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/[0.06] px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
       />
 
       {open && filtered.length > 0 && (
-        <ul role="listbox" className="absolute z-50 left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg">
+        <ul
+          role="listbox"
+          className="absolute z-50 left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-xl shadow-xl border border-white/10"
+          style={{
+            background: 'linear-gradient(160deg, rgba(14,14,28,0.97) 0%, rgba(8,8,18,0.99) 100%)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
+        >
           {filtered.map(item => (
             <li key={item.id} role="option" aria-selected={false}>
               <button
                 type="button"
                 onMouseDown={() => handleSelect(item)}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 focus:bg-blue-50 focus:outline-none min-h-[44px] flex flex-col justify-center"
+                className="w-full text-left px-3 py-2 text-sm hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none min-h-[44px] flex flex-col justify-center transition-colors"
               >
-                <span className="font-medium text-gray-900 truncate">{item.name}</span>
-                <span className="text-xs text-gray-400">{item.sku} · {item.category}</span>
+                <span className="font-medium text-slate-100 truncate">{item.name}</span>
+                <span className="text-xs text-slate-500">{item.sku} · {item.category}</span>
               </button>
             </li>
           ))}
@@ -135,11 +143,11 @@ export function MaterialCombobox({
 
       <div className="mt-0.5">
         {linkedItem ? (
-          <span className="text-xs text-green-700 bg-green-50 rounded px-1">
+          <span className="text-xs text-emerald-400 bg-emerald-500/10 rounded px-1">
             SKU: {truncateSku(linkedItem.sku)}
           </span>
         ) : (
-          <span className="text-xs text-gray-400">Custom</span>
+          <span className="text-xs text-slate-500">Custom</span>
         )}
       </div>
     </div>

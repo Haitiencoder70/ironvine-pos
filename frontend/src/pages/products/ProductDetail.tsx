@@ -53,28 +53,28 @@ function ProfitTable({ product }: { product: Product }): JSX.Element {
             <th className="text-right py-2 pl-2">Margin</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-50">
+        <tbody className="divide-y divide-white/[0.05]">
           {(product.priceTiers ?? []).map((tier, i) => {
             const tierPrice = Number(tier.price);
             const profit = tierPrice - costPerUnit;
             const margin = tierPrice > 0 ? (profit / tierPrice) * 100 : 0;
             const marginColor =
-              margin >= 50 ? 'text-emerald-600'
-              : margin >= 30 ? 'text-amber-600'
-              : 'text-red-500';
+              margin >= 50 ? 'text-emerald-400'
+              : margin >= 30 ? 'text-amber-400'
+              : 'text-red-400';
 
             return (
-              <tr key={i} className="hover:bg-gray-50">
-                <td className="py-2.5 pr-4 font-medium text-gray-700">
+              <tr key={i} className="hover:bg-white/[0.03]">
+                <td className="py-2.5 pr-4 font-medium text-slate-300">
                   {tier.minQty}+ units
                 </td>
-                <td className="text-right py-2.5 px-2 font-bold text-gray-900">
+                <td className="text-right py-2.5 px-2 font-bold text-slate-100">
                   {formatCurrency(tierPrice)}
                 </td>
-                <td className="text-right py-2.5 px-2 text-gray-500">
+                <td className="text-right py-2.5 px-2 text-slate-500">
                   {formatCurrency(costPerUnit)}
                 </td>
-                <td className="text-right py-2.5 px-2 font-semibold text-gray-800">
+                <td className="text-right py-2.5 px-2 font-semibold text-slate-200">
                   {formatCurrency(profit)}
                 </td>
                 <td className={clsx('text-right py-2.5 pl-2 font-bold', marginColor)}>
@@ -269,7 +269,7 @@ export function ProductDetailPage(): JSX.Element {
                 <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Print Locations</dt>
                 <dd className="mt-1 flex flex-wrap gap-1">
                   {(product.includedPrintLocations ?? []).map(loc => (
-                    <span key={loc} className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md font-medium">{loc}</span>
+                    <span key={loc} className="text-xs bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded-md font-medium">{loc}</span>
                   ))}
                 </dd>
               </div>
@@ -369,9 +369,9 @@ export function ProductDetailPage(): JSX.Element {
                   <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wide">Profit @ Base</p>
                   <p className="text-xl font-black text-emerald-700 mt-1">{formatCurrency(baseProfit)}</p>
                 </div>
-                <div className="text-center p-3 bg-blue-50 rounded-xl border border-blue-100">
-                  <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Base Margin</p>
-                  <p className="text-xl font-black text-blue-700 mt-1">{baseMargin.toFixed(1)}%</p>
+                <div className="text-center p-3 bg-orange-500/10 rounded-xl border border-orange-500/20">
+                  <p className="text-xs font-semibold text-orange-400 uppercase tracking-wide">Base Margin</p>
+                  <p className="text-xl font-black text-orange-300 mt-1">{baseMargin.toFixed(1)}%</p>
                 </div>
               </div>
 
@@ -390,20 +390,20 @@ export function ProductDetailPage(): JSX.Element {
                         <th className="text-right pb-2 font-semibold">Total</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-white/[0.05]">
                       {(product.materialTemplates ?? []).map(m => (
-                        <tr key={m.id} className="hover:bg-gray-50">
-                          <td className="py-2 font-medium text-gray-700">{m.description}</td>
-                          <td className="py-2 text-center text-gray-500">{Number(m.quantityPerUnit)}</td>
-                          <td className="py-2 text-right text-gray-600">{formatCurrency(Number(m.estimatedCostPerUnit))}</td>
-                          <td className="py-2 text-right font-semibold text-gray-800">
+                        <tr key={m.id} className="hover:bg-white/[0.03]">
+                          <td className="py-2 font-medium text-slate-300">{m.description}</td>
+                          <td className="py-2 text-center text-slate-500">{Number(m.quantityPerUnit)}</td>
+                          <td className="py-2 text-right text-slate-400">{formatCurrency(Number(m.estimatedCostPerUnit))}</td>
+                          <td className="py-2 text-right font-semibold text-slate-200">
                             {formatCurrency(Number(m.quantityPerUnit) * Number(m.estimatedCostPerUnit))}
                           </td>
                         </tr>
                       ))}
-                      <tr className="border-t border-gray-200 bg-gray-50">
-                        <td colSpan={3} className="py-2 font-bold text-gray-700 pl-0">Total est. cost/unit</td>
-                        <td className="py-2 text-right font-black text-gray-900">{formatCurrency(costPerUnit)}</td>
+                      <tr className="border-t border-white/10 bg-white/[0.04]">
+                        <td colSpan={3} className="py-2 font-bold text-slate-300 pl-0">Total est. cost/unit</td>
+                        <td className="py-2 text-right font-black text-slate-100">{formatCurrency(costPerUnit)}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -422,7 +422,7 @@ export function ProductDetailPage(): JSX.Element {
                     key={ao.id}
                     className={clsx(
                       'flex items-center justify-between p-3 rounded-xl border',
-                      ao.isActive ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50 opacity-60'
+                      ao.isActive ? 'border-white/10 bg-white/[0.06]' : 'border-white/[0.06] bg-white/[0.03] opacity-60'
                     )}
                   >
                     <div className="flex items-center gap-2">
@@ -430,10 +430,10 @@ export function ProductDetailPage(): JSX.Element {
                         'h-2 w-2 rounded-full flex-shrink-0',
                         ao.isActive ? 'bg-emerald-500' : 'bg-gray-300'
                       )} />
-                      <span className="font-medium text-gray-800">{ao.name}</span>
-                      {!ao.isActive && <span className="text-xs text-gray-400">(inactive)</span>}
+                      <span className="font-medium text-slate-200">{ao.name}</span>
+                      {!ao.isActive && <span className="text-xs text-slate-500">(inactive)</span>}
                     </div>
-                    <span className="font-bold text-gray-900">+{formatCurrency(Number(ao.price))}/item</span>
+                    <span className="font-bold text-slate-100">+{formatCurrency(Number(ao.price))}/item</span>
                   </div>
                 ))}
               </div>
