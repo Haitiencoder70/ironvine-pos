@@ -54,7 +54,7 @@ export function Table<T extends Record<string, unknown>>({
       <div className={twMerge('animate-pulse', className)}>
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-12 bg-gray-100 rounded-lg" />
+            <div key={i} className="h-12 bg-white/5 rounded-lg" />
           ))}
         </div>
       </div>
@@ -70,7 +70,7 @@ export function Table<T extends Record<string, unknown>>({
         )}
       >
         <div>
-          <p className="text-gray-500 text-lg">{emptyMessage}</p>
+          <p className="text-secondary text-lg">{emptyMessage}</p>
         </div>
       </div>
     );
@@ -78,8 +78,8 @@ export function Table<T extends Record<string, unknown>>({
 
   return (
     <div className={twMerge('overflow-x-auto', className)}>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-white/10">
+        <thead className="bg-white/5">
           <tr>
             {columns.map((column) => (
               <th
@@ -87,12 +87,12 @@ export function Table<T extends Record<string, unknown>>({
                 scope="col"
                 style={{ width: column.width }}
                 className={clsx(
-                  'px-4 py-3 text-left text-sm font-semibold text-gray-900',
+                  'px-4 py-3 text-left text-sm font-semibold text-slate-200',
                   column.align === 'center' && 'text-center',
                   column.align === 'right' && 'text-right',
                   column.sortable &&
                     onSort &&
-                    'cursor-pointer hover:bg-gray-100 select-none',
+                    'cursor-pointer hover:bg-white/10 select-none',
                   'transition-colors'
                 )}
                 onClick={() => column.sortable && onSort && handleSort(column.key)}
@@ -107,7 +107,7 @@ export function Table<T extends Record<string, unknown>>({
                 >
                   <span>{column.header}</span>
                   {column.sortable && onSort && sortKey === column.key && (
-                    <span className="text-gray-400">
+                    <span className="text-slate-400">
                       {sortDirection === 'asc' ? (
                         <ArrowUpIcon className="h-4 w-4" />
                       ) : (
@@ -120,7 +120,7 @@ export function Table<T extends Record<string, unknown>>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100 bg-white">
+        <tbody className="divide-y divide-white/5 bg-transparent">
           {data.map((item, index) => (
             <tr
               key={index}
@@ -128,14 +128,14 @@ export function Table<T extends Record<string, unknown>>({
               className={clsx(
                 'min-h-[44px]',
                 onRowClick &&
-                  'cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors'
+                  'cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors'
               )}
             >
               {columns.map((column) => (
                 <td
                   key={`${index}-${column.key as string}`}
                   className={clsx(
-                    'px-4 py-3 text-sm text-gray-700 whitespace-nowrap',
+                    'px-4 py-3 text-sm text-slate-300 whitespace-nowrap',
                     column.align === 'center' && 'text-center',
                     column.align === 'right' && 'text-right'
                   )}

@@ -51,9 +51,9 @@ const TIMEZONES = [
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'MXN'];
 
 const ROLE_COLORS: Record<string, string> = {
-  OWNER: 'bg-purple-100 text-purple-700',
-  MANAGER: 'bg-blue-100 text-blue-700',
-  STAFF: 'bg-gray-100 text-gray-700',
+  OWNER: 'bg-purple-500/15 text-purple-300',
+  MANAGER: 'bg-blue-500/15 text-blue-300',
+  STAFF: 'bg-slate-500/15 text-slate-300',
 };
 
 // ─── General Tab ──────────────────────────────────────────────────────────────
@@ -90,18 +90,18 @@ function GeneralTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
     <div className="space-y-6 max-w-xl">
       {/* Logo */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Business Logo</label>
+        <label className="block text-sm font-medium text-secondary mb-2">Business Logo</label>
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center overflow-hidden flex-shrink-0">
             {settings.logoUrl ? (
               <img src={settings.logoUrl} alt="Logo" className="w-full h-full object-cover" />
             ) : (
-              <BuildingOfficeIcon className="h-8 w-8 text-gray-400" />
+              <BuildingOfficeIcon className="h-8 w-8 text-slate-500" />
             )}
           </div>
           <button
             onClick={() => logoRef.current?.click()}
-            className="min-h-[44px] px-4 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="min-h-[44px] px-4 rounded-xl border border-white/10 text-sm font-medium text-secondary hover:bg-white/5 transition-colors"
           >
             Upload Logo
           </button>
@@ -111,34 +111,34 @@ function GeneralTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
 
       {/* Business Name */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Business Name</label>
+        <label className="block text-sm font-medium text-secondary mb-1.5">Business Name</label>
         <input
           value={form.name}
           onChange={field('name')}
-          className="w-full min-h-[44px] rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40"
         />
       </div>
 
       {/* Order Number Prefix */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Order Number Prefix</label>
+        <label className="block text-sm font-medium text-secondary mb-1.5">Order Number Prefix</label>
         <input
           value={form.orderNumberPrefix}
           onChange={field('orderNumberPrefix')}
           maxLength={6}
-          className="w-full min-h-[44px] rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40"
           placeholder="ORD"
         />
-        <p className="mt-1 text-xs text-gray-400">Orders will be numbered like {form.orderNumberPrefix || 'ORD'}-202401-0001</p>
+        <p className="mt-1 text-xs text-muted">Orders will be numbered like {form.orderNumberPrefix || 'ORD'}-202401-0001</p>
       </div>
 
       {/* Currency */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Currency</label>
+        <label className="block text-sm font-medium text-secondary mb-1.5">Currency</label>
         <select
           value={form.currency}
           onChange={field('currency')}
-          className="w-full min-h-[44px] rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
         >
           {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
@@ -146,11 +146,11 @@ function GeneralTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
 
       {/* Timezone */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Time Zone</label>
+        <label className="block text-sm font-medium text-secondary mb-1.5">Time Zone</label>
         <select
           value={form.timezone}
           onChange={field('timezone')}
-          className="w-full min-h-[44px] rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
         >
           {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz}</option>)}
         </select>
@@ -233,7 +233,7 @@ function UsersTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{users.length} team member{users.length !== 1 ? 's' : ''}</p>
+        <p className="text-sm text-secondary">{users.length} team member{users.length !== 1 ? 's' : ''}</p>
         <button
           onClick={() => setShowInvite(true)}
           className="min-h-[44px] px-4 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -245,21 +245,21 @@ function UsersTab() {
 
       {/* Invite Form */}
       {showInvite && (
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-blue-900">Invite New Team Member</h3>
+        <div className="glass-panel border-blue-500/20 rounded-2xl p-5 space-y-4">
+          <h3 className="text-sm font-semibold text-slate-100">Invite New Team Member</h3>
           <form onSubmit={handleInvite} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <input
                 placeholder="First name"
                 value={inviteForm.firstName}
                 onChange={(e) => setInviteForm((f) => ({ ...f, firstName: e.target.value }))}
-                className="min-h-[44px] rounded-xl border border-blue-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 placeholder:text-slate-500"
               />
               <input
                 placeholder="Last name"
                 value={inviteForm.lastName}
                 onChange={(e) => setInviteForm((f) => ({ ...f, lastName: e.target.value }))}
-                className="min-h-[44px] rounded-xl border border-blue-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 placeholder:text-slate-500"
               />
             </div>
             <input
@@ -267,18 +267,18 @@ function UsersTab() {
               placeholder="Email address"
               value={inviteForm.email}
               onChange={(e) => setInviteForm((f) => ({ ...f, email: e.target.value }))}
-              className="w-full min-h-[44px] rounded-xl border border-blue-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 placeholder:text-slate-500"
             />
             <select
               value={inviteForm.role}
               onChange={(e) => setInviteForm((f) => ({ ...f, role: e.target.value }))}
-              className="w-full min-h-[44px] rounded-xl border border-blue-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
             >
               <option value="STAFF">Staff</option>
               <option value="MANAGER">Manager</option>
               <option value="OWNER">Owner / Admin</option>
             </select>
-            {inviteError && <p className="text-xs text-red-600">{inviteError}</p>}
+            {inviteError && <p className="text-xs text-red-400">{inviteError}</p>}
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -290,7 +290,7 @@ function UsersTab() {
               <button
                 type="button"
                 onClick={() => { setShowInvite(false); setInviteError(''); }}
-                className="min-h-[44px] px-5 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+                className="min-h-[44px] px-5 rounded-xl border border-white/10 text-secondary text-sm font-medium hover:bg-white/5 transition-colors"
               >
                 Cancel
               </button>
@@ -300,51 +300,51 @@ function UsersTab() {
       )}
 
       {/* Users Table */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="glass-panel rounded-2xl overflow-hidden">
         {isLoading ? (
           <div className="p-5 space-y-3">
-            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-12 animate-pulse bg-gray-50 rounded-lg" />)}
+            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-12 animate-pulse bg-white/5 rounded-lg" />)}
           </div>
         ) : users.length === 0 ? (
-          <p className="p-8 text-center text-sm text-gray-400">No users yet.</p>
+          <p className="p-8 text-center text-sm text-muted">No users yet.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Name</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Email</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Role</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Status</th>
+              <tr className="border-b border-white/10">
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">Name</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide hidden sm:table-cell">Email</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">Role</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide hidden md:table-cell">Status</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-white/5">
               {users.map((user) => {
                 const isMe = currentUser?.id === user.id;
                 return (
-                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={user.id} className="hover:bg-white/5 transition-colors">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-xs font-semibold text-blue-700">
+                        <div className="w-8 h-8 rounded-full bg-blue-500/15 flex items-center justify-center flex-shrink-0 text-xs font-semibold text-blue-300">
                           {user.firstName[0]}{user.lastName[0]}
                         </div>
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-slate-100">
                           {user.firstName} {user.lastName}
-                          {isMe && <span className="ml-1.5 text-xs text-gray-400">(you)</span>}
+                          {isMe && <span className="ml-1.5 text-xs text-muted">(you)</span>}
                         </span>
                       </div>
                     </td>
-                    <td className="px-5 py-3 text-gray-500 hidden sm:table-cell">{user.email}</td>
+                    <td className="px-5 py-3 text-secondary hidden sm:table-cell">{user.email}</td>
                     <td className="px-5 py-3">
                       {isMe ? (
-                        <span className={clsx('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium', ROLE_COLORS[user.role] ?? 'bg-gray-100 text-gray-700')}>
+                        <span className={clsx('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium', ROLE_COLORS[user.role] ?? 'bg-slate-500/15 text-slate-300')}>
                           {user.role}
                         </span>
                       ) : (
                         <select
                           value={user.role}
                           onChange={(e) => updateMutation.mutate({ id: user.id, data: { role: e.target.value } })}
-                          className={clsx('rounded-lg border-0 text-xs font-medium px-2 py-1 min-h-[32px] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer', ROLE_COLORS[user.role] ?? 'bg-gray-100 text-gray-700')}
+                          className={clsx('rounded-lg border-0 text-xs font-medium px-2 py-1 min-h-[32px] focus:outline-none focus:ring-2 focus:ring-blue-500/60 cursor-pointer', ROLE_COLORS[user.role] ?? 'bg-slate-500/15 text-slate-300')}
                         >
                           <option value="STAFF">STAFF</option>
                           <option value="MANAGER">MANAGER</option>
@@ -359,23 +359,23 @@ function UsersTab() {
                         className="flex items-center gap-1.5 text-xs font-medium disabled:cursor-not-allowed"
                       >
                         {user.isActive
-                          ? <><CheckCircleIcon className="h-4 w-4 text-green-500" /><span className="text-green-700">Active</span></>
-                          : <><XCircleIcon className="h-4 w-4 text-red-400" /><span className="text-red-600">Inactive</span></>}
+                          ? <><CheckCircleIcon className="h-4 w-4 text-green-500" /><span className="text-green-400">Active</span></>
+                          : <><XCircleIcon className="h-4 w-4 text-red-400" /><span className="text-red-400">Inactive</span></>}
                       </button>
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-1 justify-end">
                         <Link
                           to={`/settings/users/${user.id}`}
-                          className="min-h-[36px] w-9 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+                          className="min-h-[36px] w-9 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
                           title="Edit"
                         >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
+                          <PencilIcon className="h-4 w-4 text-slate-400" />
                         </Link>
                         {!isMe && (
                           <button
                             onClick={() => confirmRemove(user)}
-                            className="min-h-[36px] w-9 flex items-center justify-center rounded-lg hover:bg-red-50 transition-colors"
+                            className="min-h-[36px] w-9 flex items-center justify-center rounded-lg hover:bg-red-500/10 transition-colors"
                             title="Remove"
                           >
                             <TrashIcon className="h-4 w-4 text-red-400" />
@@ -407,7 +407,7 @@ function TaxTab({ settings, onSave }: { settings: OrgSettings; onSave: (data: Pa
   return (
     <div className="space-y-6 max-w-xl">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Default Tax Rate (%)</label>
+        <label className="block text-sm font-medium text-secondary mb-1.5">Default Tax Rate (%)</label>
         <div className="relative">
           <input
             type="number"
@@ -417,26 +417,26 @@ function TaxTab({ settings, onSave }: { settings: OrgSettings; onSave: (data: Pa
             value={taxRate}
             onChange={(e) => setTaxRate(e.target.value)}
             className={clsx(
-              'w-full min-h-[44px] rounded-xl border px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500',
-              taxValid ? 'border-gray-200' : 'border-red-300 bg-red-50',
+              'w-full min-h-[44px] rounded-xl border text-slate-100 px-4 pr-10 text-sm focus:outline-none focus:ring-2',
+              taxValid ? 'border-white/10 bg-white/5 focus:ring-blue-500/60' : 'border-red-500/60 bg-red-500/10 focus:ring-red-500/60',
             )}
           />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">%</span>
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-500">%</span>
         </div>
-        {!taxValid && <p className="mt-1 text-xs text-red-600">Enter a value between 0 and 100</p>}
-        <p className="mt-1 text-xs text-gray-400">Applied to all new orders unless overridden</p>
+        {!taxValid && <p className="mt-1 text-xs text-red-400">Enter a value between 0 and 100</p>}
+        <p className="mt-1 text-xs text-muted">Applied to all new orders unless overridden</p>
       </div>
 
-      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+      <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
         <div>
-          <p className="text-sm font-medium text-gray-900">Tax included in prices</p>
-          <p className="text-xs text-gray-500 mt-0.5">Display prices with tax already included</p>
+          <p className="text-sm font-medium text-slate-100">Tax included in prices</p>
+          <p className="text-xs text-secondary mt-0.5">Display prices with tax already included</p>
         </div>
         <button
           onClick={() => setTaxInclusive((v) => !v)}
           className={clsx(
-            'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-            taxInclusive ? 'bg-blue-600' : 'bg-gray-200',
+            'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60',
+            taxInclusive ? 'bg-blue-600' : 'bg-white/20',
           )}
           role="switch"
           aria-checked={taxInclusive}
@@ -446,7 +446,7 @@ function TaxTab({ settings, onSave }: { settings: OrgSettings; onSave: (data: Pa
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Default Markup (%)</label>
+        <label className="block text-sm font-medium text-secondary mb-1.5">Default Markup (%)</label>
         <div className="relative">
           <input
             type="number"
@@ -454,16 +454,16 @@ function TaxTab({ settings, onSave }: { settings: OrgSettings; onSave: (data: Pa
             step="1"
             value={markup}
             onChange={(e) => setMarkup(e.target.value)}
-            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
           />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">%</span>
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-500">%</span>
         </div>
-        <p className="mt-1 text-xs text-gray-400">Suggested markup over cost when creating quotes</p>
+        <p className="mt-1 text-xs text-muted">Suggested markup over cost when creating quotes</p>
       </div>
 
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-        <p className="text-sm font-medium text-amber-900">Pricing Tiers</p>
-        <p className="text-xs text-amber-700 mt-1">Volume pricing tiers (e.g. 1–11 shirts, 12–23, 24+) are configured per product type and coming in a future update.</p>
+      <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+        <p className="text-sm font-medium text-amber-300">Pricing Tiers</p>
+        <p className="text-xs text-amber-400 mt-1">Volume pricing tiers (e.g. 1–11 shirts, 12–23, 24+) are configured per product type and coming in a future update.</p>
       </div>
 
       <button
@@ -502,7 +502,7 @@ function NotificationsTab() {
 
   const [recipientInput, setRecipientInput] = useState('');
 
-  if (isLoading || !notifs) return <div className="h-48 animate-pulse bg-gray-50 rounded-2xl" />;
+  if (isLoading || !notifs) return <div className="h-48 animate-pulse bg-white/5 rounded-2xl" />;
 
   const toggles: { key: keyof NotificationSettings; label: string; description: string }[] = [
     { key: 'newOrderEmail', label: 'New order received', description: 'Email when a new order is created' },
@@ -526,18 +526,18 @@ function NotificationsTab() {
 
   return (
     <div className="space-y-6 max-w-xl">
-      <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100 overflow-hidden">
+      <div className="glass-panel rounded-2xl divide-y divide-white/10 overflow-hidden">
         {toggles.map(({ key, label, description }) => (
           <div key={key} className="flex items-center justify-between px-5 py-4">
             <div>
-              <p className="text-sm font-medium text-gray-900">{label}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+              <p className="text-sm font-medium text-slate-100">{label}</p>
+              <p className="text-xs text-secondary mt-0.5">{description}</p>
             </div>
             <button
               onClick={() => mutation.mutate({ [key]: !notifs[key] })}
               className={clsx(
-                'relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                notifs[key] ? 'bg-blue-600' : 'bg-gray-200',
+                'relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60',
+                notifs[key] ? 'bg-blue-600' : 'bg-white/20',
               )}
               role="switch"
               aria-checked={!!notifs[key]}
@@ -550,7 +550,7 @@ function NotificationsTab() {
 
       {/* Recipients */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Email Recipients</label>
+        <label className="block text-sm font-medium text-secondary mb-2">Email Recipients</label>
         <div className="flex gap-2 mb-3">
           <input
             type="email"
@@ -558,7 +558,7 @@ function NotificationsTab() {
             value={recipientInput}
             onChange={(e) => setRecipientInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addRecipient(); } }}
-            className="flex-1 min-h-[44px] rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 placeholder:text-slate-500"
           />
           <button
             onClick={addRecipient}
@@ -568,13 +568,13 @@ function NotificationsTab() {
           </button>
         </div>
         {notifs.recipients.length === 0 ? (
-          <p className="text-xs text-gray-400">No recipients — notifications will be sent to the account owner only.</p>
+          <p className="text-xs text-muted">No recipients — notifications will be sent to the account owner only.</p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {notifs.recipients.map((r) => (
-              <span key={r} className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 text-xs font-medium px-3 py-1.5 rounded-full">
+              <span key={r} className="inline-flex items-center gap-1.5 bg-blue-500/15 text-blue-300 text-xs font-medium px-3 py-1.5 rounded-full">
                 {r}
-                <button onClick={() => removeRecipient(r)} className="hover:text-red-600 transition-colors">×</button>
+                <button onClick={() => removeRecipient(r)} className="hover:text-red-400 transition-colors">×</button>
               </span>
             ))}
           </div>
@@ -599,19 +599,19 @@ function IntegrationsTab() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-gray-500">Integrations are coming in a future update. Connect your tools to automate your workflow.</p>
+      <p className="text-sm text-secondary">Integrations are coming in a future update. Connect your tools to automate your workflow.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {integrations.map((int) => (
-          <div key={int.name} className="bg-white rounded-2xl shadow-sm p-5 flex items-start gap-4">
+          <div key={int.name} className="glass-panel rounded-2xl p-5 flex items-start gap-4">
             <span className="text-2xl flex-shrink-0">{int.logo}</span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-gray-900">{int.name}</p>
-                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{int.category}</span>
+                <p className="text-sm font-semibold text-slate-100">{int.name}</p>
+                <span className="text-xs bg-slate-500/15 text-slate-400 px-2 py-0.5 rounded-full">{int.category}</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">{int.description}</p>
+              <p className="text-xs text-secondary mt-1">{int.description}</p>
             </div>
-            <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium flex-shrink-0">Soon</span>
+            <span className="text-xs bg-amber-500/15 text-amber-300 px-2 py-1 rounded-full font-medium flex-shrink-0">Soon</span>
           </div>
         ))}
       </div>
@@ -646,21 +646,21 @@ function ModulesTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
 
   return (
     <div className="space-y-4 max-w-2xl">
-      <p className="text-sm text-gray-500 mb-4">Toggle advanced enterprise capabilities on or off for your organization.</p>
+      <p className="text-sm text-secondary mb-4">Toggle advanced enterprise capabilities on or off for your organization.</p>
       <div className="grid gap-3">
         {modules.map((mod) => {
           const isOn = enabled.has(mod.id);
           return (
-            <div key={mod.id} className="bg-white border border-gray-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+            <div key={mod.id} className="glass-panel rounded-2xl p-4 flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-gray-900">{mod.name}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{mod.description}</p>
+                <p className="text-sm font-semibold text-slate-100">{mod.name}</p>
+                <p className="text-xs text-secondary mt-0.5">{mod.description}</p>
               </div>
               <button
                 onClick={() => toggleModule(mod.id)}
                 className={clsx(
-                  'relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                  isOn ? 'bg-blue-600' : 'bg-gray-200',
+                  'relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60',
+                  isOn ? 'bg-blue-600' : 'bg-white/20',
                 )}
                 role="switch"
                 aria-checked={isOn}
@@ -701,19 +701,19 @@ export function SettingsPage(): React.JSX.Element {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage your organization and preferences</p>
+          <h1 className="text-2xl font-bold text-slate-100">Settings</h1>
+          <p className="text-sm text-secondary mt-0.5">Manage your organization and preferences</p>
         </div>
         <Link
           to="/settings/profile"
-          className="min-h-[44px] px-4 rounded-xl bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+          className="min-h-[44px] px-4 rounded-xl glass-panel text-secondary text-sm font-medium hover:text-slate-100 transition-colors flex items-center gap-2"
         >
           My Profile
         </Link>
       </div>
 
       {/* Tab Bar */}
-      <div className="flex gap-1 bg-gray-100 rounded-2xl p-1 overflow-x-auto">
+      <div className="flex gap-1 bg-white/5 border border-white/10 rounded-2xl p-1 overflow-x-auto">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -721,8 +721,8 @@ export function SettingsPage(): React.JSX.Element {
             className={clsx(
               'flex items-center gap-2 min-h-[44px] px-4 rounded-xl text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0',
               activeTab === tab.id
-                ? 'bg-white shadow-sm text-gray-900'
-                : 'text-gray-500 hover:text-gray-700',
+                ? 'bg-white/10 text-slate-100'
+                : 'text-slate-400 hover:text-slate-200',
             )}
           >
             {tab.icon}
@@ -735,7 +735,7 @@ export function SettingsPage(): React.JSX.Element {
       <div>
         {isLoading && activeTab !== 'users' && activeTab !== 'roles' && activeTab !== 'notifications' && activeTab !== 'integrations' && activeTab !== 'billing' && activeTab !== 'branding' && activeTab !== 'modules' ? (
           <div className="space-y-4 max-w-xl">
-            {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-12 animate-pulse bg-gray-50 rounded-xl" />)}
+            {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-12 animate-pulse bg-white/5 rounded-xl" />)}
           </div>
         ) : (
           <>

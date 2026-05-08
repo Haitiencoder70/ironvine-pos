@@ -33,14 +33,14 @@ export const TouchInput = memo(forwardRef<HTMLInputElement, TouchInputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-secondary"
           >
             {label}
           </label>
         )}
         <div className="relative">
           {icon && iconPosition === 'left' && (
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
               {icon}
             </div>
           )}
@@ -51,23 +51,23 @@ export const TouchInput = memo(forwardRef<HTMLInputElement, TouchInputProps>(
             aria-describedby={(error || helperText) ? errorId : undefined}
             className={twMerge(
               clsx(
-                'flex w-full rounded-xl border bg-white px-4 py-2 text-base shadow-sm transition-colors',
+                'flex w-full rounded-xl border bg-white/5 px-4 py-2 text-sm text-slate-100 transition-colors',
                 'min-h-[44px]',
                 'file:border-0 file:bg-transparent file:text-sm file:font-medium',
-                'placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-1',
+                'placeholder:text-slate-500 focus:outline-none focus:ring-2',
                 hasError
-                  ? 'border-red-500 focus:ring-red-500 text-red-900 placeholder-red-300'
-                  : 'border-gray-300 focus:ring-blue-500',
+                  ? 'border-red-500/60 focus:ring-red-500/60 text-red-300 placeholder:text-red-400/60'
+                  : 'border-white/10 focus:ring-blue-500/60 focus:border-blue-500/40',
                 icon && iconPosition === 'left' && 'pl-10',
                 icon && iconPosition === 'right' && 'pr-10',
-                props.disabled && 'cursor-not-allowed opacity-50 bg-gray-50',
+                props.disabled && 'cursor-not-allowed opacity-50',
                 className
               )
             )}
             {...props}
           />
           {icon && iconPosition === 'right' && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500">
               {icon}
             </div>
           )}
@@ -77,7 +77,7 @@ export const TouchInput = memo(forwardRef<HTMLInputElement, TouchInputProps>(
             id={errorId}
             className={clsx(
               'text-sm',
-              hasError ? 'text-red-500' : 'text-gray-500'
+              hasError ? 'text-red-400' : 'text-secondary'
             )}
           >
             {error || helperText}

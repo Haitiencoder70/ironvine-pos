@@ -23,15 +23,15 @@ export function POSTerminal(): React.JSX.Element {
     <div className="flex h-full overflow-hidden">
       <ErrorBoundary
         fallback={
-          <div className="flex-1 bg-gray-50 flex items-center justify-center p-4">
-            <p className="text-gray-500">Failed to load product grid.</p>
+          <div className="flex-1 flex items-center justify-center p-4">
+            <p className="text-secondary">Failed to load product grid.</p>
           </div>
         }
       >
         {/* ── Left: Product Grid ── */}
-        <div className="flex-1 overflow-hidden flex flex-col bg-gray-50 lg:w-[60%]">
+        <div className="flex-1 overflow-hidden flex flex-col lg:w-[60%]">
           <div className="flex-shrink-0 px-4 pt-4 pb-2">
-            <h1 className="text-xl font-bold text-gray-900">POS Terminal</h1>
+            <h1 className="text-xl font-bold text-slate-100">POS Terminal</h1>
           </div>
           <div className="flex-1 overflow-hidden">
             <ProductGrid
@@ -45,7 +45,7 @@ export function POSTerminal(): React.JSX.Element {
       {/* ── Right: Cart Panel (desktop only) ── */}
       <div className="hidden lg:flex flex-col w-[40%] max-w-sm flex-shrink-0">
         <ErrorBoundary
-          fallback={<div className="p-4 text-gray-500">Cart failed to load.</div>}
+          fallback={<div className="p-4 text-secondary">Cart failed to load.</div>}
         >
           <CartPanel cartState={cartState} onSaleComplete={handleSaleComplete} />
         </ErrorBoundary>

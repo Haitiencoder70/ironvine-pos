@@ -75,7 +75,7 @@ export function Modal({
             >
               <DialogPanel
                 className={twMerge(
-                  'w-full transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all',
+                  'w-full transform overflow-hidden rounded-2xl glass-panel-weighted-heavy p-6 text-left align-middle transition-all',
                   sizeMap[size],
                   className
                 )}
@@ -86,7 +86,7 @@ export function Modal({
                       {title && (
                         <DialogTitle
                           as="h3"
-                          className="text-xl font-semibold text-gray-900"
+                          className="text-xl font-semibold text-slate-100"
                         >
                           {title}
                         </DialogTitle>
@@ -94,7 +94,7 @@ export function Modal({
                       {description && (
                         <DialogDescription
                           as="p"
-                          className="mt-1 text-sm text-gray-500"
+                          className="mt-1 text-sm text-secondary"
                         >
                           {description}
                         </DialogDescription>
@@ -104,7 +104,7 @@ export function Modal({
                       <motion.button
                         whileTap={{ scale: 0.9 }}
                         onClick={onClose}
-                        className="ml-4 inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100 transition-colors"
+                        className="ml-4 inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full text-slate-400 hover:text-slate-200 hover:bg-white/10 transition-colors"
                         aria-label="Close modal"
                       >
                         <XMarkIcon className="h-6 w-6" />

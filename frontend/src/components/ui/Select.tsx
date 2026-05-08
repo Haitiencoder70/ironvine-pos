@@ -91,7 +91,7 @@ export function Select({
   return (
     <div className={twMerge('w-full', className)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-secondary mb-1.5">
           {label}
         </label>
       )}
@@ -105,18 +105,18 @@ export function Select({
         <div className="relative">
           <ListboxButton
             className={clsx(
-              'relative w-full min-h-[44px] rounded-xl border bg-white px-4 py-2 text-left shadow-sm',
+              'relative w-full min-h-[44px] rounded-xl border bg-white/5 px-4 py-2 text-left text-slate-100',
               'cursor-pointer select-none',
-              'transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              'transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-transparent',
               error
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-gray-300 hover:border-gray-400',
-              disabled && 'cursor-not-allowed bg-gray-50 opacity-60'
+                ? 'border-red-500/60 focus:ring-red-500/60'
+                : 'border-white/10 hover:border-white/20',
+              disabled && 'cursor-not-allowed opacity-50'
             )}
           >
-            <span className="block truncate text-base">{getDisplayValue()}</span>
+            <span className="block truncate text-sm">{getDisplayValue()}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+              <ChevronUpDownIcon className="h-5 w-5 text-slate-500" aria-hidden="true" />
             </span>
           </ListboxButton>
 
@@ -126,9 +126,9 @@ export function Select({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+            <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl glass-panel py-1 text-sm shadow-xl focus:outline-none">
               {searchable && (
-                <div className="sticky top-0 z-10 bg-white px-2 py-2 border-b border-gray-100">
+                <div className="sticky top-0 z-10 bg-[#0e0e1a] px-2 py-2 border-b border-white/10">
                   <SearchInput
                     value={searchQuery}
                     onChange={(v) => setSearchQuery(v)}
@@ -139,7 +139,7 @@ export function Select({
               )}
 
               {filteredOptions.length === 0 ? (
-                <div className="px-4 py-8 text-center text-gray-500">
+                <div className="px-4 py-8 text-center text-secondary">
                   No options found
                 </div>
               ) : (
@@ -151,7 +151,7 @@ export function Select({
                     className={({ focus }) =>
                       clsx(
                         'relative cursor-pointer select-none py-3 pl-4 pr-9 min-h-[44px] flex items-center',
-                        focus ? 'bg-blue-50 text-blue-900' : 'text-gray-900',
+                        focus ? 'bg-blue-500/15 text-blue-200' : 'text-slate-200',
                         option.disabled && 'cursor-not-allowed opacity-50'
                       )
                     }
@@ -169,7 +169,7 @@ export function Select({
                         </span>
 
                         {(isSelected(option.value) || selected) && (
-                          <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-600">
+                          <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-400">
                             <CheckIcon className="h-5 w-5" aria-hidden="true" />
                           </span>
                         )}

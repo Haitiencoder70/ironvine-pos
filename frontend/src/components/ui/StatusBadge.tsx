@@ -12,37 +12,37 @@ export interface StatusBadgeProps extends HTMLAttributes<HTMLSpanElement> {
 
 const colorMap: Record<string, string> = {
   // Common
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  CANCELLED: 'bg-red-100 text-red-800',
-  COMPLETED: 'bg-green-100 text-green-800',
-  DELIVERED: 'bg-green-100 text-green-800',
-  
+  PENDING: 'bg-yellow-500/15 text-yellow-300',
+  CANCELLED: 'bg-red-500/15 text-red-300',
+  COMPLETED: 'bg-green-500/15 text-green-300',
+  DELIVERED: 'bg-green-500/15 text-green-300',
+
   // Order Statuses
-  QUOTE: 'bg-gray-100 text-gray-800',
-  PENDING_APPROVAL: 'bg-yellow-100 text-yellow-800',
-  APPROVED: 'bg-blue-100 text-blue-800',
-  ON_HOLD: 'bg-orange-100 text-orange-800',
-  MATERIALS_ORDERED: 'bg-indigo-100 text-indigo-800',
-  MATERIALS_RECEIVED: 'bg-teal-100 text-teal-800',
-  IN_PRODUCTION: 'bg-purple-100 text-purple-800',
-  QUALITY_CHECK: 'bg-orange-100 text-orange-800',
-  READY_TO_SHIP: 'bg-emerald-100 text-emerald-800',
-  SHIPPED: 'bg-cyan-100 text-cyan-800',
-  
+  QUOTE: 'bg-slate-500/15 text-slate-300',
+  PENDING_APPROVAL: 'bg-yellow-500/15 text-yellow-300',
+  APPROVED: 'bg-blue-500/15 text-blue-300',
+  ON_HOLD: 'bg-orange-500/15 text-orange-300',
+  MATERIALS_ORDERED: 'bg-indigo-500/15 text-indigo-300',
+  MATERIALS_RECEIVED: 'bg-teal-500/15 text-teal-300',
+  IN_PRODUCTION: 'bg-purple-500/15 text-purple-300',
+  QUALITY_CHECK: 'bg-orange-500/15 text-orange-300',
+  READY_TO_SHIP: 'bg-emerald-500/15 text-emerald-300',
+  SHIPPED: 'bg-cyan-500/15 text-cyan-300',
+
   // PO Statuses
-  DRAFT: 'bg-gray-100 text-gray-800',
-  SENT: 'bg-blue-100 text-blue-800',
-  PARTIALLY_RECEIVED: 'bg-yellow-100 text-yellow-800',
-  RECEIVED: 'bg-green-100 text-green-800',
-  
+  DRAFT: 'bg-slate-500/15 text-slate-300',
+  SENT: 'bg-blue-500/15 text-blue-300',
+  PARTIALLY_RECEIVED: 'bg-yellow-500/15 text-yellow-300',
+  RECEIVED: 'bg-green-500/15 text-green-300',
+
   // Shipment Statuses
-  LABEL_CREATED: 'bg-gray-100 text-gray-800',
-  IN_TRANSIT: 'bg-blue-100 text-blue-800',
-  OUT_FOR_DELIVERY: 'bg-purple-100 text-purple-800',
-  EXCEPTION: 'bg-red-100 text-red-800',
+  LABEL_CREATED: 'bg-slate-500/15 text-slate-300',
+  IN_TRANSIT: 'bg-blue-500/15 text-blue-300',
+  OUT_FOR_DELIVERY: 'bg-purple-500/15 text-purple-300',
+  EXCEPTION: 'bg-red-500/15 text-red-300',
 };
 
-const defaultColor = 'bg-gray-100 text-gray-800';
+const defaultColor = 'bg-slate-500/15 text-slate-300';
 
 const sizeMap: Record<BadgeSize, string> = {
   sm: 'px-2 py-0.5 text-xs',

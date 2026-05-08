@@ -31,17 +31,17 @@ export function ConfirmDialog() {
 
   const iconColor =
     variant === 'danger'
-      ? 'text-red-500'
+      ? 'text-red-400'
       : variant === 'warning'
-      ? 'text-amber-500'
-      : 'text-blue-500';
+      ? 'text-amber-400'
+      : 'text-blue-400';
 
   const iconBg =
     variant === 'danger'
-      ? 'bg-red-50'
+      ? 'bg-red-500/10'
       : variant === 'warning'
-      ? 'bg-amber-50'
-      : 'bg-blue-50';
+      ? 'bg-amber-500/10'
+      : 'bg-blue-500/10';
 
   const confirmVariant =
     variant === 'danger'
@@ -65,11 +65,11 @@ export function ConfirmDialog() {
           <Icon className={`h-8 w-8 ${iconColor}`} aria-hidden="true" />
         </div>
         
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
+        <h3 className="text-xl font-bold text-slate-100 mb-2">
           {title}
         </h3>
-        
-        <p className="text-sm text-gray-500 mb-8">
+
+        <p className="text-sm text-secondary mb-8">
           {description}
         </p>
         

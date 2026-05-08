@@ -61,7 +61,7 @@ export function SearchInput({
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         {loading ? (
           <svg
-            className="animate-spin h-5 w-5 text-gray-400"
+            className="animate-spin h-5 w-5 text-slate-500"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -81,7 +81,7 @@ export function SearchInput({
             />
           </svg>
         ) : (
-          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+          <MagnifyingGlassIcon className="h-5 w-5 text-slate-500" />
         )}
       </div>
 
@@ -92,11 +92,11 @@ export function SearchInput({
         placeholder={placeholder}
         autoFocus={autoFocus}
         className={clsx(
-          'w-full rounded-xl border border-gray-300 bg-white py-2 pl-10 pr-10',
-          'min-h-[44px] text-base shadow-sm transition-colors',
-          'placeholder:text-gray-400',
-          'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-          'hover:border-gray-400'
+          'w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-10 pr-10',
+          'min-h-[44px] text-sm text-slate-100 transition-colors',
+          'placeholder:text-slate-500',
+          'focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40',
+          'hover:border-white/20'
         )}
       />
 
@@ -106,7 +106,7 @@ export function SearchInput({
           className="absolute inset-y-0 right-0 pr-3 flex items-center"
           aria-label="Clear search"
         >
-          <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+          <XMarkIcon className="h-5 w-5 text-slate-500 hover:text-slate-200 transition-colors" />
         </button>
       )}
     </div>

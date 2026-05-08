@@ -30,20 +30,20 @@ export function EmptyState({
     <div
       className={twMerge(
         clsx(
-          'flex flex-col items-center justify-center text-center p-8 bg-white border border-gray-100 rounded-2xl shadow-sm',
+          'flex flex-col items-center justify-center text-center p-8 glass-panel rounded-2xl',
           minHeight,
           className
         )
       )}
     >
       {icon && (
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-50 mb-4 text-gray-400">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 mb-4 text-slate-400">
           {icon}
         </div>
       )}
-      
-      <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 max-w-sm mx-auto mb-8 leading-relaxed">
+
+      <h3 className="text-xl font-bold text-slate-100 mb-2">{title}</h3>
+      <p className="text-sm text-secondary max-w-sm mx-auto mb-8 leading-relaxed">
         {description}
       </p>
 
