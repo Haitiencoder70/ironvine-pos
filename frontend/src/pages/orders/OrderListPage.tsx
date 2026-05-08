@@ -31,8 +31,8 @@ interface StatusTab {
 }
 
 const STATUS_TABS: StatusTab[] = [
-  { label: 'All', value: '', colorClass: 'text-gray-600' },
-  { label: 'Quote', value: 'QUOTE', colorClass: 'text-gray-600' },
+  { label: 'All', value: '', colorClass: 'text-slate-300' },
+  { label: 'Quote', value: 'QUOTE', colorClass: 'text-slate-300' },
   { label: 'Approved', value: 'APPROVED', colorClass: 'text-blue-600' },
   { label: 'In Production', value: 'IN_PRODUCTION', colorClass: 'text-purple-600' },
   { label: 'Ready to Ship', value: 'READY_TO_SHIP', colorClass: 'text-emerald-600' },
@@ -128,8 +128,8 @@ function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
           'inline-flex items-center justify-center h-11 w-11 rounded-xl',
           'transition-colors font-medium text-sm',
           page === 1
-            ? 'text-gray-300 cursor-not-allowed'
-            : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
+            ? 'text-slate-600 cursor-not-allowed'
+            : 'text-slate-300 hover:bg-white/[0.06] active:bg-white/[0.08]'
         )}
       >
         <ChevronLeftIcon className="h-5 w-5" />
@@ -137,7 +137,7 @@ function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
 
       {getPageNumbers().map((p, i) =>
         p === '...' ? (
-          <span key={`ellipsis-${i}`} className="px-1 text-gray-400 text-sm">
+          <span key={`ellipsis-${i}`} className="px-1 text-slate-500 text-sm">
             …
           </span>
         ) : (
@@ -150,8 +150,8 @@ function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
               'inline-flex items-center justify-center h-11 w-11 rounded-xl',
               'transition-colors font-semibold text-sm',
               p === page
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
+                ? 'bg-blue-600 text-white'
+                : 'text-slate-300 hover:bg-white/[0.06] active:bg-white/[0.08]'
             )}
           >
             {p}
@@ -168,8 +168,8 @@ function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
           'inline-flex items-center justify-center h-11 w-11 rounded-xl',
           'transition-colors font-medium text-sm',
           page === totalPages
-            ? 'text-gray-300 cursor-not-allowed'
-            : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
+            ? 'text-slate-600 cursor-not-allowed'
+            : 'text-slate-300 hover:bg-white/[0.06] active:bg-white/[0.08]'
         )}
       >
         <ChevronRightIcon className="h-5 w-5" />
@@ -204,10 +204,10 @@ function Th({
       scope="col"
       onClick={() => sortKey && onSort?.(sortKey)}
       className={clsx(
-        'px-4 py-3 text-sm font-semibold text-gray-900 bg-gray-50',
+        'px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide bg-white/[0.04]',
         align === 'center' && 'text-center',
         align === 'right' && 'text-right',
-        sortKey && onSort && 'cursor-pointer hover:bg-gray-100 select-none transition-colors'
+        sortKey && onSort && 'cursor-pointer hover:bg-white/[0.06] select-none transition-colors'
       )}
     >
       <span className="inline-flex items-center gap-1">
@@ -271,15 +271,15 @@ export function OrderListPage(): JSX.Element {
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-slate-100">Orders</h1>
+          <p className="text-sm text-slate-500 mt-0.5">
             {isLoading ? 'Loading…' : `${total.toLocaleString()} order${total !== 1 ? 's' : ''}`}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           {isFetching && !isLoading && (
-            <ArrowPathIcon className="h-4 w-4 text-gray-400 animate-spin" />
+            <ArrowPathIcon className="h-4 w-4 text-slate-500 animate-spin" />
           )}
           {can('orders:create') && (
             <TouchButton
@@ -297,9 +297,9 @@ export function OrderListPage(): JSX.Element {
 
       {/* ── Error Banner ── */}
       {isError && (
-        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+        <div className="flex items-center gap-3 p-4 bg-red-900/20 border border-red-500/30 rounded-xl">
           <ExclamationCircleIcon className="h-5 w-5 text-red-500 flex-shrink-0" />
-          <p className="text-sm text-red-700 flex-1">
+          <p className="text-sm text-red-300 flex-1">
             Failed to load orders. Please check your connection.
           </p>
           <TouchButton variant="danger" size="sm" onClick={() => void refetch()}>
@@ -310,7 +310,7 @@ export function OrderListPage(): JSX.Element {
 
       {/* ── Status Tabs ── */}
       <div className="overflow-x-auto -mx-4 sm:mx-0 pb-1">
-        <div className="flex gap-1 px-4 sm:px-0 min-w-max sm:min-w-0 border-b border-gray-200">
+        <div className="flex gap-1 px-4 sm:px-0 min-w-max sm:min-w-0 border-b border-white/10">
           {STATUS_TABS.map((tab) => (
             <button
               key={tab.value || 'all'}
@@ -321,7 +321,7 @@ export function OrderListPage(): JSX.Element {
                 'transition-colors focus:outline-none',
                 filters.status === tab.value
                   ? `${tab.colorClass} border-b-2 border-current -mb-px`
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t-lg'
+                  : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04] rounded-t-lg'
               )}
             >
               {tab.label}
@@ -348,7 +348,7 @@ export function OrderListPage(): JSX.Element {
             exit={{ opacity: 0 }}
           >
             {/* Desktop skeleton */}
-            <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="hidden sm:block card-cinema rounded-2xl overflow-hidden">
               <table className="min-w-full">
                 <thead>
                   <tr>
@@ -356,7 +356,7 @@ export function OrderListPage(): JSX.Element {
                       (h) => (
                         <th
                           key={h}
-                          className="px-4 py-3 text-left text-sm font-semibold text-gray-900 bg-gray-50"
+                          className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide bg-white/[0.04]"
                         >
                           {h}
                         </th>
@@ -364,7 +364,7 @@ export function OrderListPage(): JSX.Element {
                     )}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
+                <tbody className="divide-y divide-white/[0.04]">
                   <SkeletonLoader variant="table" rows={8} />
                 </tbody>
               </table>
@@ -405,7 +405,7 @@ export function OrderListPage(): JSX.Element {
             exit={{ opacity: 0 }}
           >
             {/* ── Desktop Table ── */}
-            <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="hidden sm:block card-cinema rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full" role="grid">
                   <thead>
@@ -449,10 +449,10 @@ export function OrderListPage(): JSX.Element {
                         currentSortDir={filters.sortDir}
                         onSort={handleSort}
                       />
-                      <th className="px-4 py-3 bg-gray-50" />
+                      <th className="px-4 py-3 bg-white/[0.04]" />
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 bg-white">
+                  <tbody className="divide-y divide-white/[0.04]">
                     {orders.map((order) => (
                       <OrderTableRow key={order.id} order={order} />
                     ))}
@@ -462,16 +462,16 @@ export function OrderListPage(): JSX.Element {
 
               {/* Pagination inside card for desktop */}
               {totalPages > 1 && (
-                <div className="border-t border-gray-100">
+                <div className="border-t border-white/[0.06]">
                   <div className="flex items-center justify-between px-4 py-3">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-500">
                       Showing{' '}
-                      <span className="font-medium text-gray-700">
+                      <span className="font-medium text-slate-300">
                         {((filters.page ?? 1) - 1) * PAGE_SIZE + 1}–
                         {Math.min((filters.page ?? 1) * PAGE_SIZE, total)}
                       </span>{' '}
                       of{' '}
-                      <span className="font-medium text-gray-700">
+                      <span className="font-medium text-slate-300">
                         {total.toLocaleString()}
                       </span>
                     </p>

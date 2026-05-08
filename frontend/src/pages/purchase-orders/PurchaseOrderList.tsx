@@ -27,7 +27,7 @@ function fmt(n: number): string {
 }
 
 const STATUS_CONFIG: Record<PurchaseOrderStatus, { label: string; bg: string; text: string }> = {
-  DRAFT: { label: 'Draft', bg: 'bg-gray-100', text: 'text-gray-700' },
+  DRAFT: { label: 'Draft', bg: 'bg-white/[0.08]', text: 'text-slate-300' },
   SENT: { label: 'Sent', bg: 'bg-blue-100', text: 'text-blue-800' },
   PARTIALLY_RECEIVED: { label: 'Partial', bg: 'bg-amber-100', text: 'text-amber-800' },
   RECEIVED: { label: 'Received', bg: 'bg-green-100', text: 'text-green-800' },
@@ -87,8 +87,8 @@ export function PurchaseOrderListPage(): JSX.Element {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Purchase Orders</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage external supplier part orders.</p>
+          <h1 className="text-2xl font-bold text-slate-100">Purchase Orders</h1>
+          <p className="text-sm text-slate-500 mt-1">Manage external supplier part orders.</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <TouchButton
@@ -103,16 +103,16 @@ export function PurchaseOrderListPage(): JSX.Element {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4">
+      <div className="glass-panel rounded-xl p-4 flex flex-col md:flex-row gap-4">
         {/* Search */}
         <div className="flex-1 relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
           <input
             type="text"
             placeholder="Search PO number..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-gray-300 bg-white text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-white/10 bg-white/[0.06] text-slate-100 placeholder:text-slate-500 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -123,7 +123,7 @@ export function PurchaseOrderListPage(): JSX.Element {
             setStatus(e.target.value as PurchaseOrderStatus | '');
             setPage(1);
           }}
-          className="md:w-48 min-h-[44px] rounded-xl border border-gray-300 bg-white px-3 text-base shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="md:w-48 min-h-[44px] rounded-xl border border-white/10 bg-[rgba(10,10,20,0.85)] text-slate-100 px-3 text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Statuses</option>
           {Object.entries(STATUS_CONFIG).map(([key, config]) => (
@@ -133,14 +133,14 @@ export function PurchaseOrderListPage(): JSX.Element {
 
         {/* Vendor */}
         <div className="relative md:w-56">
-           <BuildingStorefrontIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+           <BuildingStorefrontIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
            <select
              value={vendorId}
              onChange={(e) => {
                setVendorId(e.target.value);
                setPage(1);
              }}
-             className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-gray-300 bg-white text-base shadow-sm cursor-pointer appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+             className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-white/10 bg-[rgba(10,10,20,0.85)] text-slate-100 text-base cursor-pointer appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
            >
              <option value="">All Vendors</option>
              {vendors.map((v) => (
@@ -167,10 +167,10 @@ export function PurchaseOrderListPage(): JSX.Element {
       )}
 
       {/* Desktop Table View */}
-      <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="hidden lg:block card-cinema rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-gray-50 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-xs font-semibold">
+            <thead className="bg-white/[0.04] border-b border-white/[0.06] text-slate-400 text-xs font-semibold uppercase tracking-wide">
               <tr>
                 <th className="px-6 py-4">PO Number</th>
                 <th className="px-6 py-4">Vendor</th>
@@ -181,7 +181,7 @@ export function PurchaseOrderListPage(): JSX.Element {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {isLoading ? (
                 <SkeletonLoader variant="table" rows={5} />
               ) : purchaseOrders.length === 0 ? (
@@ -203,11 +203,11 @@ export function PurchaseOrderListPage(): JSX.Element {
                 purchaseOrders.map((po) => {
                   const badge = STATUS_CONFIG[po.status];
                   return (
-                    <tr key={po.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 font-bold text-gray-900 cursor-pointer" onClick={() => navigate(`/purchase-orders/${po.id}`)}>
+                    <tr key={po.id} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-100 cursor-pointer" onClick={() => navigate(`/purchase-orders/${po.id}`)}>
                         {po.poNumber}
                       </td>
-                      <td className="px-6 py-4 font-medium text-gray-700">
+                      <td className="px-6 py-4 font-medium text-slate-300">
                         {po.vendor?.name || 'Unknown Vendor'}
                       </td>
                       <td className="px-6 py-4">
@@ -217,20 +217,20 @@ export function PurchaseOrderListPage(): JSX.Element {
                       </td>
                       <td className="px-6 py-4">
                         {po.linkedOrderId ? (
-                          <span 
-                            className="text-blue-600 hover:underline cursor-pointer"
+                          <span
+                            className="text-blue-400 hover:underline cursor-pointer"
                             onClick={() => navigate(`/orders/${po.linkedOrderId}`)}
                           >
                             View Order
                           </span>
                         ) : (
-                          <span className="text-gray-400 text-xs">—</span>
+                          <span className="text-slate-500 text-xs">—</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-right font-mono text-gray-900">
+                      <td className="px-6 py-4 text-right font-mono text-slate-100">
                         {fmt(po.total)}
                       </td>
-                      <td className="px-6 py-4 text-gray-500">
+                      <td className="px-6 py-4 text-slate-500">
                         {format(new Date(po.createdAt), 'MMM d, yyyy')}
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -270,12 +270,12 @@ export function PurchaseOrderListPage(): JSX.Element {
                 key={po.id}
                 onClick={() => navigate(`/purchase-orders/${po.id}`)}
                 padding="md"
-                className="border border-gray-100"
+                className="border border-white/10"
               >
                 <div className="flex justify-between items-start gap-3 mb-2">
                   <div>
-                    <h3 className="font-bold text-gray-900 text-lg">{po.poNumber}</h3>
-                    <p className="text-sm font-medium text-gray-700">{po.vendor?.name}</p>
+                    <h3 className="font-bold text-slate-100 text-lg">{po.poNumber}</h3>
+                    <p className="text-sm font-medium text-slate-300">{po.vendor?.name}</p>
                   </div>
                   <span className={clsx('px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide', badge.bg, badge.text)}>
                     {badge.label}
@@ -283,13 +283,13 @@ export function PurchaseOrderListPage(): JSX.Element {
                 </div>
                 
                 <div className="flex justify-between items-end mt-4">
-                  <div className="text-xs text-gray-500 space-y-1">
+                  <div className="text-xs text-slate-500 space-y-1">
                     <p>{format(new Date(po.createdAt), 'MMM d, yyyy')}</p>
                     {po.linkedOrderId && (
-                       <p className="text-blue-600 font-medium">Per-Job PO</p>
+                       <p className="text-blue-400 font-medium">Per-Job PO</p>
                     )}
                   </div>
-                  <div className="text-right text-lg font-bold text-gray-900 border-l border-gray-100 pl-4 py-1">
+                  <div className="text-right text-lg font-bold text-slate-100 border-l border-white/[0.06] pl-4 py-1">
                     {fmt(po.total)}
                   </div>
                 </div>
@@ -301,10 +301,10 @@ export function PurchaseOrderListPage(): JSX.Element {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-gray-200 pt-6 mt-6">
-          <p className="text-sm text-gray-500 hidden sm:block">
-            Showing <span className="font-medium text-gray-900">{purchaseOrders.length}</span> of{' '}
-            <span className="font-medium text-gray-900">{total}</span>
+        <div className="flex items-center justify-between border-t border-white/10 pt-6 mt-6">
+          <p className="text-sm text-slate-500 hidden sm:block">
+            Showing <span className="font-medium text-slate-100">{purchaseOrders.length}</span> of{' '}
+            <span className="font-medium text-slate-100">{total}</span>
           </p>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
             <TouchButton

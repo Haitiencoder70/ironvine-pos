@@ -31,7 +31,7 @@ function fmt(n: number): string {
 }
 
 const STATUS_CONFIG: Record<PurchaseOrderStatus, { label: string; bg: string; text: string }> = {
-  DRAFT: { label: 'Draft', bg: 'bg-gray-100', text: 'text-gray-700' },
+  DRAFT: { label: 'Draft', bg: 'bg-white/[0.08]', text: 'text-slate-300' },
   SENT: { label: 'Sent to Vendor', bg: 'bg-blue-100', text: 'text-blue-800' },
   PARTIALLY_RECEIVED: { label: 'Partially Received', bg: 'bg-amber-100', text: 'text-amber-800' },
   RECEIVED: { label: 'Fully Received', bg: 'bg-green-100', text: 'text-green-800' },
@@ -79,8 +79,8 @@ export function PurchaseOrderDetailPage(): JSX.Element {
   if (isError || !po) {
     return (
       <div className="p-6 max-w-xl mx-auto text-center mt-16">
-        <ExclamationCircleIcon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Purchase Order not found</h2>
+        <ExclamationCircleIcon className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+        <h2 className="text-lg font-semibold text-slate-100 mb-2">Purchase Order not found</h2>
         <div className="flex gap-3 justify-center">
           <TouchButton variant="secondary" size="md" onClick={() => void refetch()}>
             Retry
@@ -108,12 +108,12 @@ export function PurchaseOrderDetailPage(): JSX.Element {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/purchase-orders')}
-              className="flex items-center justify-center min-h-[44px] -ml-2 px-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              className="flex items-center justify-center min-h-[44px] -ml-2 px-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
             >
               <ChevronLeftIcon className="h-5 w-5" />
             </button>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{po.poNumber}</h1>
+              <h1 className="text-2xl font-bold text-slate-100">{po.poNumber}</h1>
               <span className={clsx('px-3 py-1 rounded-full text-xs font-semibold tracking-wide', badge.bg, badge.text)}>
                 {badge.label}
               </span>
@@ -181,26 +181,26 @@ export function PurchaseOrderDetailPage(): JSX.Element {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Vendor Info */}
-            <TouchCard padding="md" className="border border-gray-200 print:border-none print:shadow-none">
-              <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-4 border-b pb-2">
-                <BuildingStorefrontIcon className="h-4 w-4 text-gray-500" />
+            <TouchCard padding="md" className="border border-white/10 print:border-none print:shadow-none">
+              <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+                <BuildingStorefrontIcon className="h-4 w-4 text-slate-400" />
                 Vendor & Order Details
               </h2>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-bold text-lg text-gray-900">{po.vendor?.name}</h3>
-                  {po.vendor?.contactName && <p className="text-sm text-gray-600 mt-1">Attn: {po.vendor.contactName}</p>}
-                  
+                  <h3 className="font-bold text-lg text-slate-100">{po.vendor?.name}</h3>
+                  {po.vendor?.contactName && <p className="text-sm text-slate-400 mt-1">Attn: {po.vendor.contactName}</p>}
+
                   <div className="mt-3 space-y-1.5">
                     {po.vendor?.phone && (
-                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <p className="text-sm text-slate-500 flex items-center gap-2">
                         <PhoneIcon className="h-3.5 w-3.5" />
                         {po.vendor.phone}
                       </p>
                     )}
                     {po.vendor?.email && (
-                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <p className="text-sm text-slate-500 flex items-center gap-2">
                         <EnvelopeIcon className="h-3.5 w-3.5" />
                         {po.vendor.email}
                       </p>
@@ -208,22 +208,22 @@ export function PurchaseOrderDetailPage(): JSX.Element {
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-xl space-y-3">
+                <div className="bg-white/[0.04] p-4 rounded-xl space-y-3">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">Order Date:</span>
-                    <span className="font-medium text-gray-900">{format(new Date(po.createdAt), 'MMM d, yyyy')}</span>
+                    <span className="text-slate-500">Order Date:</span>
+                    <span className="font-medium text-slate-100">{format(new Date(po.createdAt), 'MMM d, yyyy')}</span>
                   </div>
                   {po.expectedDate && (
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500">Expected:</span>
-                      <span className="font-medium text-gray-900">{format(new Date(po.expectedDate), 'MMM d, yyyy')}</span>
+                      <span className="text-slate-500">Expected:</span>
+                      <span className="font-medium text-slate-100">{format(new Date(po.expectedDate), 'MMM d, yyyy')}</span>
                     </div>
                   )}
                   {po.linkedOrderId && (
-                    <div className="flex justify-between items-center text-sm pt-2 border-t border-gray-200">
-                      <span className="text-gray-500">Linked Customer Job:</span>
-                      <span 
-                        className="font-medium text-blue-600 cursor-pointer hover:underline"
+                    <div className="flex justify-between items-center text-sm pt-2 border-t border-white/10">
+                      <span className="text-slate-500">Linked Customer Job:</span>
+                      <span
+                        className="font-medium text-blue-400 cursor-pointer hover:underline"
                         onClick={() => navigate(`/orders/${po.linkedOrderId}`)}
                       >
                         View Order Profile
@@ -242,29 +242,29 @@ export function PurchaseOrderDetailPage(): JSX.Element {
             </TouchCard>
 
             {/* Line Items */}
-            <TouchCard padding="md" className="border border-gray-200 print:shadow-none print:border-none">
-              <div className="flex items-center justify-between mb-4 border-b pb-2">
-                <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                  <CubeIcon className="h-5 w-5 text-gray-500" />
+            <TouchCard padding="md" className="border border-white/10 print:shadow-none print:border-none">
+              <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-2">
+                <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2">
+                  <CubeIcon className="h-5 w-5 text-slate-400" />
                   Line Items
                 </h2>
                 <div className="text-right">
-                  <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">Fulfillment Progress</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide">Fulfillment Progress</p>
                   <div className="flex items-center gap-2 mt-1 min-w-[120px]">
-                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="flex-1 h-2 bg-white/[0.08] rounded-full overflow-hidden">
                       <div 
                         className={clsx('h-full transition-all', receiveProgress === 100 ? 'bg-green-500' : 'bg-blue-500')}
                         style={{ width: `${Math.min(100, receiveProgress)}%` }}
                       />
                     </div>
-                    <span className="text-xs font-bold text-gray-700">{totalReceived}/{totalOrdered}</span>
+                    <span className="text-xs font-bold text-slate-300">{totalReceived}/{totalOrdered}</span>
                   </div>
                 </div>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap lg:whitespace-normal">
-                  <thead className="bg-gray-50 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                  <thead className="bg-white/[0.04] text-slate-400 uppercase tracking-wide text-[10px] font-semibold">
                     <tr>
                       <th className="px-4 py-2 rounded-l-lg">Description</th>
                       <th className="px-4 py-2 text-right">Ordered</th>
@@ -273,24 +273,24 @@ export function PurchaseOrderDetailPage(): JSX.Element {
                       <th className="px-4 py-2 text-right rounded-r-lg">Total</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody>
                     {po.items.map((item) => {
                       const fulfilled = item.quantityRecv >= item.quantity;
                       const partial = item.quantityRecv > 0 && !fulfilled;
                       return (
-                        <tr key={item.id} className="hover:bg-gray-50/50">
-                          <td className="px-4 py-3 font-medium text-gray-900">{item.description}</td>
-                          <td className="px-4 py-3 text-right text-gray-600 font-bold">{item.quantity}</td>
+                        <tr key={item.id} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
+                          <td className="px-4 py-3 font-medium text-slate-100">{item.description}</td>
+                          <td className="px-4 py-3 text-right text-slate-400 font-bold">{item.quantity}</td>
                           <td className="px-4 py-3 text-right">
                             <span className={clsx(
                               'px-2 py-0.5 rounded text-xs font-bold',
-                              fulfilled ? 'bg-green-100 text-green-800' : partial ? 'bg-amber-100 text-amber-800' : 'text-gray-400'
+                              fulfilled ? 'bg-green-100 text-green-800' : partial ? 'bg-amber-100 text-amber-800' : 'text-slate-500'
                             )}>
                               {item.quantityRecv}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-right text-gray-500 font-mono">{fmt(item.unitCost)}</td>
-                          <td className="px-4 py-3 text-right text-gray-900 font-bold font-mono">{fmt((item.totalCost ?? 0) || item.unitCost * item.quantity)}</td>
+                          <td className="px-4 py-3 text-right text-slate-500 font-mono">{fmt(item.unitCost)}</td>
+                          <td className="px-4 py-3 text-right text-slate-100 font-bold font-mono">{fmt((item.totalCost ?? 0) || item.unitCost * item.quantity)}</td>
                         </tr>
                       );
                     })}
@@ -305,21 +305,21 @@ export function PurchaseOrderDetailPage(): JSX.Element {
           <div className="lg:col-span-1 space-y-6">
             
             {/* Totals */}
-            <TouchCard padding="md" className="border border-gray-200">
-               <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-4 border-b pb-2">
-                 <ClipboardDocumentListIcon className="h-4 w-4 text-gray-500" />
+            <TouchCard padding="md" className="border border-white/10">
+               <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+                 <ClipboardDocumentListIcon className="h-4 w-4 text-slate-400" />
                  Totals
                </h2>
                <div className="space-y-2">
-                 <div className="flex justify-between text-sm text-gray-600">
+                 <div className="flex justify-between text-sm text-slate-400">
                    <span>Subtotal</span>
                    <span className="font-mono">{fmt(po.subtotal)}</span>
                  </div>
-                 <div className="flex justify-between text-sm text-gray-600">
+                 <div className="flex justify-between text-sm text-slate-400">
                    <span>Estimated Tax</span>
                    <span className="font-mono">{fmt(po.taxAmount)}</span>
                  </div>
-                 <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold text-gray-900 text-lg">
+                 <div className="border-t border-white/10 pt-2 mt-2 flex justify-between font-bold text-slate-100 text-lg">
                    <span>Total</span>
                    <span className="font-mono text-xl">{fmt(po.total)}</span>
                  </div>

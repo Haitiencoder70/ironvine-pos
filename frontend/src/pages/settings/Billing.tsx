@@ -15,25 +15,25 @@ const PLAN_DETAILS: Record<Plan, {
   FREE: {
     label: 'Free',
     price: '$0/mo',
-    badgeClass: 'bg-gray-100 text-gray-700',
+    badgeClass: 'bg-slate-500/15 text-slate-300',
     features: ['1 user', '100 orders/mo', '100 customers', '500 inventory items', 'Community support'],
   },
   STARTER: {
     label: 'Starter',
     price: '$29/mo',
-    badgeClass: 'bg-blue-100 text-blue-700',
+    badgeClass: 'bg-blue-500/15 text-blue-300',
     features: ['3 users', '1,000 orders/mo', '500 customers', '2,000 inventory items', 'Email support'],
   },
   PRO: {
     label: 'Pro',
     price: '$79/mo',
-    badgeClass: 'bg-purple-100 text-purple-700',
+    badgeClass: 'bg-purple-500/15 text-purple-300',
     features: ['10 users', '5,000 orders/mo', '2,000 customers', '5,000 inventory items', 'Priority support'],
   },
   ENTERPRISE: {
     label: 'Enterprise',
     price: 'Custom',
-    badgeClass: 'bg-amber-100 text-amber-700',
+    badgeClass: 'bg-amber-500/15 text-amber-300',
     features: ['Unlimited users', 'Unlimited orders', 'Unlimited customers', 'Unlimited inventory', 'Dedicated support'],
   },
 };
@@ -46,13 +46,13 @@ function UsageBar({ label, current, max }: { label: string; current: number; max
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-sm">
-        <span className="text-gray-600">{label}</span>
-        <span className={isWarning ? 'text-red-600 font-medium' : 'text-gray-500'}>
+        <span className="text-slate-400">{label}</span>
+        <span className={isWarning ? 'text-red-400 font-medium' : 'text-slate-500'}>
           {isUnlimited ? `${current} / ∞` : `${current} / ${max}`}
         </span>
       </div>
       {!isUnlimited && (
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all ${isWarning ? 'bg-red-500' : 'bg-blue-500'}`}
             style={{ width: `${pct}%` }}
@@ -83,9 +83,9 @@ export function BillingTab() {
   if (isLoading || !billing) {
     return (
       <div className="p-6 space-y-4 animate-pulse">
-        <div className="h-6 bg-gray-100 rounded w-40" />
-        <div className="h-32 bg-gray-100 rounded-xl" />
-        <div className="h-48 bg-gray-100 rounded-xl" />
+        <div className="h-6 bg-white/[0.04] rounded w-40" />
+        <div className="h-32 bg-white/[0.04] rounded-xl" />
+        <div className="h-48 bg-white/[0.04] rounded-xl" />
       </div>
     );
   }
@@ -98,7 +98,7 @@ export function BillingTab() {
       {/* Current plan header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Current Plan</h2>
+          <h2 className="text-lg font-semibold text-slate-100">Current Plan</h2>
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             <span className={`px-3 py-1 rounded-full text-sm font-medium ${PLAN_DETAILS[currentPlan].badgeClass}`}>
               {PLAN_DETAILS[currentPlan].label}
@@ -124,7 +124,7 @@ export function BillingTab() {
           <button
             onClick={() => portal.mutate()}
             disabled={portal.isPending}
-            className="min-h-[44px] px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
+            className="min-h-[44px] px-4 text-sm font-medium text-slate-300 border border-white/10 rounded-xl hover:bg-white/5 disabled:opacity-50 whitespace-nowrap"
           >
             {portal.isPending ? 'Opening…' : 'Manage Subscription'}
           </button>
@@ -132,8 +132,8 @@ export function BillingTab() {
       </div>
 
       {/* Usage */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Usage</h3>
+      <div className="glass-panel rounded-xl p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Usage</h3>
         <UsageBar label="Orders" current={billing.usage.orders.current} max={billing.usage.orders.max} />
         <UsageBar label="Customers" current={billing.usage.customers.current} max={billing.usage.customers.max} />
         <UsageBar label="Team Members" current={billing.usage.users.current} max={billing.usage.users.max} />
@@ -142,7 +142,7 @@ export function BillingTab() {
 
       {/* Plan comparison */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Plans</h3>
+        <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">Plans</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {PLAN_ORDER.map((plan, idx) => {
             const details = PLAN_DETAILS[plan];
@@ -154,18 +154,18 @@ export function BillingTab() {
             return (
               <div
                 key={plan}
-                className={`rounded-xl border p-5 flex flex-col gap-4 ${
-                  isCurrent ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200'
+                className={`glass-panel rounded-xl border p-5 flex flex-col gap-4 ${
+                  isCurrent ? 'border-blue-500/60 ring-2 ring-blue-500/20' : 'border-white/10'
                 }`}
               >
                 <div>
                   <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${details.badgeClass}`}>
                     {details.label}
                   </span>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">{details.price}</p>
+                  <p className="text-2xl font-bold text-slate-100 mt-2">{details.price}</p>
                 </div>
 
-                <ul className="flex-1 space-y-1.5 text-sm text-gray-600">
+                <ul className="flex-1 space-y-1.5 text-sm text-slate-400">
                   {details.features.map((f) => (
                     <li key={f} className="flex items-start gap-1.5">
                       <span className="text-green-500 mt-0.5 shrink-0">✓</span>
@@ -175,13 +175,13 @@ export function BillingTab() {
                 </ul>
 
                 {isCurrent ? (
-                  <div className="min-h-[44px] flex items-center justify-center text-sm text-gray-400 border border-gray-200 rounded-xl">
+                  <div className="min-h-[44px] flex items-center justify-center text-sm text-slate-500 border border-white/10 rounded-xl">
                     Current plan
                   </div>
                 ) : isEnterprise ? (
                   <a
                     href="mailto:sales@printflowpos.com"
-                    className="min-h-[44px] flex items-center justify-center text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100"
+                    className="min-h-[44px] flex items-center justify-center text-sm font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl hover:bg-amber-500/20"
                   >
                     Contact Sales
                   </a>
@@ -194,7 +194,7 @@ export function BillingTab() {
                     {checkout.isPending ? 'Loading…' : 'Upgrade'}
                   </button>
                 ) : (
-                  <div className="min-h-[44px] flex items-center justify-center text-sm text-gray-400 border border-gray-100 rounded-xl">
+                  <div className="min-h-[44px] flex items-center justify-center text-sm text-slate-500 border border-white/[0.06] rounded-xl">
                     Downgrade via portal
                   </div>
                 )}
@@ -202,7 +202,7 @@ export function BillingTab() {
             );
           })}
         </div>
-        <p className="text-xs text-gray-400 mt-3">
+        <p className="text-xs text-slate-500 mt-3">
           To downgrade, click "Manage Subscription" above to access the Stripe billing portal.
         </p>
       </div>

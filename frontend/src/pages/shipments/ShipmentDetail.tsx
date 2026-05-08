@@ -67,8 +67,8 @@ export function ShipmentDetailPage(): JSX.Element {
   if (isError || !shipment) {
     return (
       <div className="p-6 max-w-xl mx-auto text-center mt-16">
-        <ExclamationCircleIcon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Shipment details not found</h2>
+        <ExclamationCircleIcon className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+        <h2 className="text-lg font-semibold text-slate-100 mb-2">Shipment details not found</h2>
         <div className="flex gap-3 justify-center">
           <TouchButton variant="secondary" size="md" onClick={() => void refetch()}>
             Retry
@@ -120,12 +120,12 @@ export function ShipmentDetailPage(): JSX.Element {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)} // generally safe if routed through lists, or /shipments specifically
-              className="flex items-center justify-center min-h-[44px] -ml-2 px-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              className="flex items-center justify-center min-h-[44px] -ml-2 px-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
             >
               <ChevronLeftIcon className="h-5 w-5" />
             </button>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-gray-900 border-r border-gray-300 pr-3 mr-1">
+              <h1 className="text-2xl font-bold text-slate-100 border-r border-white/10 pr-3 mr-1">
                 Ref: {shipment.id.substring(0, 8).toUpperCase()}
               </h1>
               <span className={clsx('px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wide', badge.bg, badge.text)}>
@@ -178,18 +178,18 @@ export function ShipmentDetailPage(): JSX.Element {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Timeline Progress */}
-            <TouchCard padding="lg" className="border border-gray-200">
-               <h2 className="text-base font-semibold text-gray-900 mb-6">Delivery Progress</h2>
-               
+            <TouchCard padding="lg" className="border border-white/10">
+               <h2 className="text-base font-semibold text-slate-100 mb-6">Delivery Progress</h2>
+
                {shipment.status === 'EXCEPTION' ? (
-                 <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-800 font-medium">
+                 <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-3 text-red-400 font-medium">
                     <ExclamationCircleIcon className="h-6 w-6" />
                     Delivery Exception Logged. Check carrier notes or contact delivery agent.
                  </div>
                ) : (
                  <div className="relative flex justify-between items-center px-4 sm:px-8 mt-4 mb-2">
                    {/* Background Line */}
-                   <div className="absolute left-8 right-8 top-1/2 -translate-y-1/2 h-1 bg-gray-100 rounded-full z-0" />
+                   <div className="absolute left-8 right-8 top-1/2 -translate-y-1/2 h-1 bg-white/[0.06] rounded-full z-0" />
                    
                    {/* Progress Line */}
                    <div 
@@ -206,16 +206,16 @@ export function ShipmentDetailPage(): JSX.Element {
                          <div 
                            className={clsx(
                              'h-6 w-6 sm:h-8 sm:w-8 rounded-full border-2 flex items-center justify-center shadow-sm transition-colors',
-                             isCompleted ? 'bg-blue-500 border-blue-500 text-white' : 
-                             isCurrent ? 'bg-white border-blue-500 text-blue-600 ring-4 ring-blue-50' : 
-                             'bg-white border-gray-200 text-gray-300'
+                             isCompleted ? 'bg-blue-500 border-blue-500 text-white' :
+                             isCurrent ? 'bg-slate-900 border-blue-500 text-blue-400 ring-4 ring-blue-500/20' :
+                             'bg-slate-900 border-white/20 text-slate-600'
                            )}
                          >
                             <div className={clsx("h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full", isCompleted ? 'bg-white' : isCurrent ? 'bg-blue-600' : 'bg-transparent')} />
                          </div>
                          <p className={clsx(
                            'absolute top-10 w-24 text-center text-[10px] sm:text-xs font-bold leading-tight',
-                            isCompleted || isCurrent ? 'text-gray-900' : 'text-gray-400'
+                            isCompleted || isCurrent ? 'text-slate-100' : 'text-slate-500'
                          )}>
                            {stepDef.label}
                          </p>
@@ -227,30 +227,30 @@ export function ShipmentDetailPage(): JSX.Element {
             </TouchCard>
 
             {/* Event History / Detailed Log */}
-             <TouchCard padding="md" className="border border-gray-200">
-                <h2 className="text-sm font-semibold text-gray-900 border-b pb-3 mb-3 flex items-center gap-2">
-                  <ClockIcon className="h-4 w-4 text-gray-500" /> Event Log
+             <TouchCard padding="md" className="border border-white/10">
+                <h2 className="text-sm font-semibold text-slate-100 border-b border-white/10 pb-3 mb-3 flex items-center gap-2">
+                  <ClockIcon className="h-4 w-4 text-slate-400" /> Event Log
                 </h2>
                 <div className="space-y-4">
                   <div className="flex items-start gap-4">
                      <div className="h-full pt-1">
-                       <div className="h-2 w-2 rounded-full bg-blue-500 ring-4 ring-blue-50" />
+                       <div className="h-2 w-2 rounded-full bg-blue-500 ring-4 ring-blue-500/20" />
                      </div>
                      <div>
-                       <p className="text-sm font-bold text-gray-900 mb-0.5">Shipment Updated: {badge.label}</p>
-                       <p className="text-xs text-gray-500 font-mono tracking-wide">{format(new Date(shipment.updatedAt), 'MMM d, yyyy h:mm a')}</p>
-                       {shipment.notes && <p className="text-sm text-gray-700 mt-2 bg-gray-50 p-2 rounded-lg">{shipment.notes}</p>}
+                       <p className="text-sm font-bold text-slate-100 mb-0.5">Shipment Updated: {badge.label}</p>
+                       <p className="text-xs text-slate-500 font-mono tracking-wide">{format(new Date(shipment.updatedAt), 'MMM d, yyyy h:mm a')}</p>
+                       {shipment.notes && <p className="text-sm text-slate-300 mt-2 bg-white/[0.04] p-2 rounded-lg">{shipment.notes}</p>}
                      </div>
                   </div>
                   {/* Assuming backend only records latest updatedAt realistically without a separate history table. If event array existed, we map it here inline. */}
                   <div className="flex items-start gap-4 opacity-50 relative">
-                     <div className="absolute left-[3px] -top-6 bottom-4 w-[2px] bg-gray-200 rounded" />
+                     <div className="absolute left-[3px] -top-6 bottom-4 w-[2px] bg-white/10 rounded" />
                      <div className="h-full pt-1 z-10">
-                       <div className="h-2 w-2 rounded-full bg-gray-400" />
+                       <div className="h-2 w-2 rounded-full bg-slate-500" />
                      </div>
                      <div>
-                       <p className="text-sm font-bold text-gray-900 mb-0.5">Shipment Generated</p>
-                       <p className="text-xs text-gray-500 font-mono tracking-wide">{format(new Date(shipment.createdAt), 'MMM d, yyyy h:mm a')}</p>
+                       <p className="text-sm font-bold text-slate-100 mb-0.5">Shipment Generated</p>
+                       <p className="text-xs text-slate-500 font-mono tracking-wide">{format(new Date(shipment.createdAt), 'MMM d, yyyy h:mm a')}</p>
                      </div>
                   </div>
                 </div>
@@ -261,25 +261,25 @@ export function ShipmentDetailPage(): JSX.Element {
           <div className="lg:col-span-1 space-y-6">
             
             {/* Tracking Reference */}
-            <TouchCard padding="md" className="border border-gray-200">
-               <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-4 border-b pb-2">
-                 <TruckIcon className="h-4 w-4 text-gray-500" />
+            <TouchCard padding="md" className="border border-white/10">
+               <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+                 <TruckIcon className="h-4 w-4 text-slate-400" />
                  Carrier Details
                </h2>
-               
+
                <div className="space-y-3">
                  <div className="flex justify-between items-center text-sm">
-                   <span className="text-gray-500">Carrier Service</span>
-                   <span className="font-bold text-gray-900">{shipment.carrier}</span>
+                   <span className="text-slate-400">Carrier Service</span>
+                   <span className="font-bold text-slate-100">{shipment.carrier}</span>
                  </div>
                  {shipment.trackingNumber && trackingUrl !== '#' && (
-                   <div className="flex justify-between items-center text-sm border-t border-gray-50 pt-3">
-                     <span className="text-gray-500">Tracking Info</span>
-                     <a 
+                   <div className="flex justify-between items-center text-sm border-t border-white/[0.06] pt-3">
+                     <span className="text-slate-400">Tracking Info</span>
+                     <a
                        href={trackingUrl}
                        target="_blank"
                        rel="noopener noreferrer"
-                       className="font-mono font-bold text-blue-600 hover:underline flex items-center gap-1"
+                       className="font-mono font-bold text-blue-400 hover:underline flex items-center gap-1"
                      >
                        {shipment.trackingNumber}
                        <ArrowTopRightOnSquareIcon className="h-3 w-3" />
@@ -287,41 +287,41 @@ export function ShipmentDetailPage(): JSX.Element {
                    </div>
                  )}
                  {shipment.trackingNumber && trackingUrl === '#' && (
-                   <div className="flex justify-between items-center text-sm border-t border-gray-50 pt-3">
-                     <span className="text-gray-500">Tracking Number</span>
-                     <span className="font-mono font-bold text-gray-900">{shipment.trackingNumber}</span>
+                   <div className="flex justify-between items-center text-sm border-t border-white/[0.06] pt-3">
+                     <span className="text-slate-400">Tracking Number</span>
+                     <span className="font-mono font-bold text-slate-100">{shipment.trackingNumber}</span>
                    </div>
                  )}
-                 <div className="flex justify-between items-center text-sm border-t border-gray-50 pt-3">
-                   <span className="text-gray-500">Est. Delivery</span>
-                   <span className="font-medium text-gray-900">{shipment.estimatedDelivery ? format(new Date(shipment.estimatedDelivery), 'MMM d, yyyy') : 'Pending Calculation'}</span>
+                 <div className="flex justify-between items-center text-sm border-t border-white/[0.06] pt-3">
+                   <span className="text-slate-400">Est. Delivery</span>
+                   <span className="font-medium text-slate-100">{shipment.estimatedDelivery ? format(new Date(shipment.estimatedDelivery), 'MMM d, yyyy') : 'Pending Calculation'}</span>
                  </div>
                  {(shipment.shippingCost ?? 0) > 0 && (
-                   <div className="flex justify-between items-center text-sm border-t border-gray-50 pt-3">
-                     <span className="text-gray-500">Carrier Cost</span>
-                     <span className="font-medium text-gray-900">{formatMoney(shipment.shippingCost)}</span>
+                   <div className="flex justify-between items-center text-sm border-t border-white/[0.06] pt-3">
+                     <span className="text-slate-400">Carrier Cost</span>
+                     <span className="font-medium text-slate-100">{formatMoney(shipment.shippingCost)}</span>
                    </div>
                  )}
                  {(shipment.customerShippingCharge ?? 0) > 0 && (
-                   <div className="flex justify-between items-center text-sm border-t border-gray-50 pt-3">
-                     <span className="text-gray-500">Customer Charge</span>
-                     <span className="font-bold text-gray-900">{formatMoney(shipment.customerShippingCharge)}</span>
+                   <div className="flex justify-between items-center text-sm border-t border-white/[0.06] pt-3">
+                     <span className="text-slate-400">Customer Charge</span>
+                     <span className="font-bold text-slate-100">{formatMoney(shipment.customerShippingCharge)}</span>
                    </div>
                  )}
                </div>
             </TouchCard>
 
             {/* Order Identity Link */}
-            <TouchCard padding="md" className="border border-gray-200 bg-gray-50">
-               <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-3">
-                 <ShoppingBagIcon className="h-4 w-4 text-gray-500" />
+            <TouchCard padding="md" className="border border-white/10 bg-white/[0.02]">
+               <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-3">
+                 <ShoppingBagIcon className="h-4 w-4 text-slate-400" />
                  Linked Workflow
                </h2>
-               <div className="bg-white p-3 border border-gray-200 rounded-xl">
-                 <p className="text-sm font-medium text-gray-600 mb-1">Customer Order Reference:</p>
-                 <button 
+               <div className="bg-white/[0.04] p-3 border border-white/10 rounded-xl">
+                 <p className="text-sm font-medium text-slate-400 mb-1">Customer Order Reference:</p>
+                 <button
                   onClick={() => navigate(`/orders/${shipment.orderId}`)}
-                  className="font-bold text-lg text-blue-600 hover:text-blue-800 transition-colors w-full text-left"
+                  className="font-bold text-lg text-blue-400 hover:text-blue-300 transition-colors w-full text-left"
                  >
                    {shipment.order?.orderNumber || 'View Active Job'}
                  </button>
@@ -329,15 +329,15 @@ export function ShipmentDetailPage(): JSX.Element {
             </TouchCard>
 
             {/* Destination Address */}
-            <TouchCard padding="md" className="border border-gray-200">
-               <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-3">
-                 <MapPinIcon className="h-4 w-4 text-gray-500" />
+            <TouchCard padding="md" className="border border-white/10">
+               <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-3">
+                 <MapPinIcon className="h-4 w-4 text-slate-400" />
                  Final Destination
                </h2>
-               <div className="text-sm text-gray-800 leading-snug">
+               <div className="text-sm text-slate-300 leading-snug">
                   {shipment.shippingStreet ? (
                     <>
-                      <p className="font-bold mb-1">
+                      <p className="font-bold mb-1 text-slate-100">
                         {shipment.order?.customer?.firstName} {shipment.order?.customer?.lastName}
                       </p>
                       <p>{shipment.shippingStreet}</p>
@@ -345,7 +345,7 @@ export function ShipmentDetailPage(): JSX.Element {
                       {shipment.shippingCountry && <p>{shipment.shippingCountry}</p>}
                     </>
                   ) : (
-                    <p className="text-gray-500 italic">No destination block recorded.</p>
+                    <p className="text-slate-500 italic">No destination block recorded.</p>
                   )}
                </div>
             </TouchCard>

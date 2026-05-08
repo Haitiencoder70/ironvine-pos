@@ -209,7 +209,7 @@ export function InventoryListPage(): JSX.Element {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="w-full pl-10 pr-4 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-gray-500 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              className="w-full pl-10 pr-4 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-gray-500 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
             />
           </div>
 
@@ -222,7 +222,7 @@ export function InventoryListPage(): JSX.Element {
                  setCategory(e.target.value);
                  setPage(1);
                }}
-               className="w-full pl-10 pr-10 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-white text-base shadow-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+               className="w-full pl-10 pr-10 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-white text-base appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
              >
                <option value="" className="bg-charcoal">All Categories</option>
                {CATEGORIES.map((c) => (
@@ -246,14 +246,14 @@ export function InventoryListPage(): JSX.Element {
 
       {/* ── Error Banner ── */}
       {isError && (
-        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-          <ExclamationCircleIcon className="h-5 w-5 text-red-500 flex-shrink-0" />
-          <p className="text-sm text-red-700 flex-1">
+        <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl backdrop-blur-md">
+          <ExclamationCircleIcon className="h-5 w-5 text-red-400 flex-shrink-0" />
+          <p className="text-sm text-red-300 flex-1">
             Failed to load inventory. Check your connection and try again.
           </p>
           <button
             onClick={() => void refetch()}
-            className="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors min-h-[44px] px-4 rounded-xl hover:bg-red-50"
+            className="text-sm font-semibold text-red-300 hover:text-white transition-colors min-h-[44px] px-4 rounded-xl hover:bg-red-500/20"
           >
             Retry
           </button>

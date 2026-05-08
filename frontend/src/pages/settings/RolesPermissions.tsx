@@ -11,11 +11,11 @@ import { usePermissions } from '../../hooks/usePermissions';
 const ROLES: UserRole[] = ['OWNER', 'MANAGER', 'STAFF'];
 
 const ROLE_COLORS: Record<UserRole, string> = {
-  OWNER: 'bg-purple-100 text-purple-700',
-  ADMIN: 'bg-indigo-100 text-indigo-700',
-  MANAGER: 'bg-blue-100 text-blue-700',
-  STAFF: 'bg-gray-100 text-gray-700',
-  VIEWER: 'bg-green-100 text-green-700',
+  OWNER: 'bg-purple-500/15 text-purple-300',
+  ADMIN: 'bg-indigo-500/15 text-indigo-300',
+  MANAGER: 'bg-blue-500/15 text-blue-300',
+  STAFF: 'bg-slate-500/15 text-slate-300',
+  VIEWER: 'bg-green-500/15 text-green-300',
 };
 
 const PERMISSION_GROUPS: { label: string; permissions: Permission[] }[] = [
@@ -75,7 +75,7 @@ function AuditLogSection(): React.JSX.Element {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm p-6 text-sm text-gray-500 text-center">
+      <div className="card-cinema rounded-2xl p-6 text-sm text-slate-400 text-center">
         Loading audit log...
       </div>
     );
@@ -83,7 +83,7 @@ function AuditLogSection(): React.JSX.Element {
 
   if (isError) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm p-6 text-sm text-red-500 text-center">
+      <div className="card-cinema rounded-2xl p-6 text-sm text-red-400 text-center">
         Failed to load audit log.
       </div>
     );
@@ -92,43 +92,43 @@ function AuditLogSection(): React.JSX.Element {
   const entries: AuditLogEntry[] = data?.data ?? [];
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
+    <div className="card-cinema rounded-2xl overflow-hidden">
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.06]">
         <ExclamationTriangleIcon className="h-5 w-5 text-amber-500 flex-shrink-0" />
         <div>
-          <p className="text-sm font-semibold text-gray-900">Permission Audit Log</p>
-          <p className="text-xs text-gray-500 mt-0.5">Last 20 permission denial events for your organization.</p>
+          <p className="text-sm font-semibold text-slate-100">Permission Audit Log</p>
+          <p className="text-xs text-slate-500 mt-0.5">Last 20 permission denial events for your organization.</p>
         </div>
       </div>
 
       {entries.length === 0 ? (
-        <div className="px-5 py-8 text-sm text-gray-400 text-center">No permission denials recorded</div>
+        <div className="px-5 py-8 text-sm text-slate-500 text-center">No permission denials recorded</div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Time</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">User ID</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Permissions Attempted</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Path</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Role</th>
+              <tr className="bg-white/[0.04] border-b border-white/[0.06]">
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Time</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">User ID</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Permissions Attempted</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Path</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Role</th>
               </tr>
             </thead>
             <tbody>
               {entries.map((entry) => {
                 const meta = entry.metadata as { permissions?: string[]; role?: string; path?: string; method?: string } | null;
                 return (
-                  <tr key={entry.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-3 text-xs text-gray-500 whitespace-nowrap">{timeAgo(entry.createdAt)}</td>
-                    <td className="px-5 py-3 text-xs text-gray-700 font-mono truncate max-w-[120px]">{entry.performedBy}</td>
-                    <td className="px-5 py-3 text-xs text-gray-700 font-mono">{entry.entityId}</td>
-                    <td className="px-5 py-3 text-xs text-gray-700 font-mono">
-                      {meta?.method && <span className="text-gray-400 mr-1">{meta.method}</span>}
+                  <tr key={entry.id} className="border-b border-white/[0.06] hover:bg-white/[0.03] transition-colors">
+                    <td className="px-5 py-3 text-xs text-slate-500 whitespace-nowrap">{timeAgo(entry.createdAt)}</td>
+                    <td className="px-5 py-3 text-xs text-slate-300 font-mono truncate max-w-[120px]">{entry.performedBy}</td>
+                    <td className="px-5 py-3 text-xs text-slate-300 font-mono">{entry.entityId}</td>
+                    <td className="px-5 py-3 text-xs text-slate-300 font-mono">
+                      {meta?.method && <span className="text-slate-500 mr-1">{meta.method}</span>}
                       {meta?.path ?? '—'}
                     </td>
                     <td className="px-5 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/[0.06] text-slate-300">
                         {meta?.role ?? '—'}
                       </span>
                     </td>
@@ -153,11 +153,11 @@ export function RolesPermissionsTab(): React.JSX.Element {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start gap-3 bg-white rounded-2xl shadow-sm p-5">
+      <div className="flex items-start gap-3 card-cinema rounded-2xl p-5">
         <ShieldCheckIcon className="h-6 w-6 text-purple-500 flex-shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-semibold text-gray-900">Role Permission Matrix</p>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-sm font-semibold text-slate-100">Role Permission Matrix</p>
+          <p className="text-xs text-slate-500 mt-0.5">
             Default permissions for each role. Permissions are inherited — Owner has all Manager permissions,
             Manager has all Staff permissions.
           </p>
@@ -170,11 +170,11 @@ export function RolesPermissionsTab(): React.JSX.Element {
       </div>
 
       {/* Matrix Table */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-x-auto">
+      <div className="card-cinema rounded-xl overflow-x-auto overflow-hidden">
         <table className="w-full text-sm border-collapse">
           <thead>
-            <tr className="border-b border-gray-100">
-              <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide w-48">
+            <tr className="border-b border-white/[0.06]">
+              <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide w-48">
                 Permission
               </th>
               {ROLES.map((role) => (
@@ -195,10 +195,10 @@ export function RolesPermissionsTab(): React.JSX.Element {
             {PERMISSION_GROUPS.map((group) => (
               <>
                 {/* Group header row */}
-                <tr key={`group-${group.label}`} className="bg-gray-50 border-t border-b border-gray-100">
+                <tr key={`group-${group.label}`} className="bg-white/[0.06] border-t border-b border-white/[0.06]">
                   <td
                     colSpan={ROLES.length + 1}
-                    className="px-5 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                    className="px-5 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider"
                   >
                     {group.label}
                   </td>
@@ -208,12 +208,12 @@ export function RolesPermissionsTab(): React.JSX.Element {
                 {group.permissions.map((perm) => (
                   <tr
                     key={perm}
-                    className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                    className="border-b border-white/[0.06] hover:bg-white/[0.03] transition-colors"
                   >
                     <td className="px-5 py-0 min-h-[44px]">
                       <div className="flex items-center min-h-[44px]">
-                        <span className="text-sm text-gray-700">{permissionLabel(perm)}</span>
-                        <span className="ml-2 text-xs text-gray-400 font-mono">{perm}</span>
+                        <span className="text-sm text-slate-300">{permissionLabel(perm)}</span>
+                        <span className="ml-2 text-xs text-slate-500 font-mono">{perm}</span>
                       </div>
                     </td>
                     {ROLES.map((role) => {
@@ -224,7 +224,7 @@ export function RolesPermissionsTab(): React.JSX.Element {
                             {granted ? (
                               <CheckCircleIcon className="h-5 w-5 text-green-500" aria-label="Granted" />
                             ) : (
-                              <span className="text-gray-300 text-lg font-light select-none" aria-label="Not granted">
+                              <span className="text-slate-600 text-lg font-light select-none" aria-label="Not granted">
                                 —
                               </span>
                             )}
@@ -242,12 +242,12 @@ export function RolesPermissionsTab(): React.JSX.Element {
 
       {/* Legend */}
       <div className="flex items-center gap-6 px-1">
-        <div className="flex items-center gap-2 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-slate-500">
           <CheckCircleIcon className="h-4 w-4 text-green-500" />
           <span>Permission granted</span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <span className="text-gray-300 text-base font-light">—</span>
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <span className="text-slate-600 text-base font-light">—</span>
           <span>Not granted</span>
         </div>
       </div>

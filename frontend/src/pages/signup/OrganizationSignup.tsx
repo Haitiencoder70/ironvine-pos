@@ -90,7 +90,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
         <div
           key={i}
           className={`h-2 rounded-full transition-all ${
-            i + 1 === current ? 'w-8 bg-blue-600' : i + 1 < current ? 'w-2 bg-blue-300' : 'w-2 bg-gray-200'
+            i + 1 === current ? 'w-8 bg-blue-600' : i + 1 < current ? 'w-2 bg-blue-300' : 'w-2 bg-white/20'
           }`}
         />
       ))}
@@ -103,7 +103,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      <label className="block text-sm font-medium text-slate-300">{label}</label>
       {children}
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
@@ -114,7 +114,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full min-h-[44px] px-3 text-sm text-gray-900 placeholder-gray-400 bg-white rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${props.className ?? ''}`}
+      className={`w-full min-h-[44px] px-3 text-sm text-slate-100 placeholder:text-slate-500 bg-white/[0.06] rounded-xl border border-white/10 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${props.className ?? ''}`}
     />
   );
 }
@@ -224,7 +224,7 @@ export function OrganizationSignup(): React.JSX.Element {
   // While Clerk is loading or we're checking for an existing org, show a spinner
   if (!isLoaded || isSsoCallback || checkingExistingOrg) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="h-8 w-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
       </div>
     );
@@ -234,7 +234,7 @@ export function OrganizationSignup(): React.JSX.Element {
   // creation Clerk returns here, then the organization setup wizard renders.
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <SignUp
           routing="path"
           path="/signup"
@@ -246,9 +246,17 @@ export function OrganizationSignup(): React.JSX.Element {
               logoImageUrl: '/printflow-logo-horizontal.svg',
               logoLinkUrl: '/',
             },
+            variables: {
+              colorBackground: 'rgba(6, 6, 14, 0.95)',
+              colorInputBackground: 'rgba(255,255,255,0.06)',
+              colorInputText: '#f1f5f9',
+              colorText: '#dde1ea',
+              colorPrimary: '#3b82f6',
+              colorNeutral: '#334155',
+            },
             elements: {
-              formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 min-h-[44px]',
-              card: 'shadow-lg rounded-2xl',
+              card: 'bg-transparent shadow-none border-0',
+              formButtonPrimary: 'btn-primary',
             },
           }}
         />
@@ -260,20 +268,20 @@ export function OrganizationSignup(): React.JSX.Element {
   const totalSteps = form.plan === 'FREE' ? 2 : 3;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="text-center mb-8">
-          <span className="text-2xl font-bold text-gray-900">PrintFlow POS</span>
-          <p className="text-sm text-gray-500 mt-1">Create your organization</p>
+          <span className="text-2xl font-bold text-slate-100">PrintFlow POS</span>
+          <p className="text-sm text-slate-500 mt-1">Create your organization</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+        <div className="card-cinema rounded-2xl p-8 space-y-6">
           <StepIndicator current={step} total={totalSteps} />
 
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">{STEP_TITLES[step - 1]}</h2>
-            <p className="text-sm text-gray-500">Step {step} of {totalSteps}</p>
+            <h2 className="text-lg font-semibold text-slate-100">{STEP_TITLES[step - 1]}</h2>
+            <p className="text-sm text-slate-500">Step {step} of {totalSteps}</p>
           </div>
 
           {/* ── Step 1: Org Details ── */}
@@ -297,7 +305,7 @@ export function OrganizationSignup(): React.JSX.Element {
                 <select
                   value={form.industry}
                   onChange={(e) => set('industry', e.target.value)}
-                  className="w-full min-h-[44px] px-3 text-sm rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  className="w-full min-h-[44px] px-3 text-sm text-slate-100 rounded-xl border border-white/10 outline-none focus:ring-2 focus:ring-blue-500 bg-white/[0.06]"
                 >
                   <option value="">Select industry...</option>
                   {INDUSTRIES.map((ind) => (
@@ -312,13 +320,13 @@ export function OrganizationSignup(): React.JSX.Element {
           {step === 2 && (
             <div className="space-y-4">
               <div className="flex justify-center">
-                <div className="inline-flex bg-gray-100 rounded-xl p-1 gap-1">
+                <div className="inline-flex bg-white/[0.04] rounded-xl p-1 gap-1">
                   {(['monthly', 'yearly'] as const).map((c) => (
                     <button
                       key={c}
                       onClick={() => set('cycle', c)}
                       className={`min-h-[36px] px-4 rounded-lg text-sm font-medium capitalize transition-colors ${
-                        form.cycle === c ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                        form.cycle === c ? 'bg-white/10 text-slate-100' : 'text-slate-400'
                       }`}
                     >
                       {c}{c === 'yearly' && <span className="ml-1 text-xs text-green-600">-20%</span>}
@@ -359,7 +367,7 @@ export function OrganizationSignup(): React.JSX.Element {
               <button
                 onClick={() => setStep((s) => s - 1)}
                 disabled={submitting}
-                className="min-h-[44px] px-5 flex-1 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="min-h-[44px] px-5 flex-1 rounded-xl border border-white/10 text-sm font-medium text-slate-300 hover:bg-white/[0.06] disabled:opacity-50"
               >
                 Back
               </button>

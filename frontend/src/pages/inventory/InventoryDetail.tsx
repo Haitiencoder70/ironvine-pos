@@ -64,9 +64,9 @@ export function InventoryDetailPage(): JSX.Element {
   if (isError || !item) {
     return (
       <div className="p-6 max-w-xl mx-auto text-center mt-16">
-        <ExclamationCircleIcon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Item not found</h2>
-        <p className="text-sm text-gray-500 mb-6">
+        <ExclamationCircleIcon className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+        <h2 className="text-lg font-semibold text-slate-100 mb-2">Item not found</h2>
+        <p className="text-sm text-slate-400 mb-6">
           This inventory item may have been deleted or you may not have access.
         </p>
         <div className="flex gap-3 justify-center">
@@ -150,48 +150,48 @@ export function InventoryDetailPage(): JSX.Element {
           <div className="lg:col-span-1 space-y-6">
             
             {/* Status Card */}
-            <TouchCard padding="md" className="border border-gray-200">
-              <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-4">
-                <CubeIcon className="h-4 w-4 text-gray-500" />
+            <TouchCard padding="md" className="card-cinema border border-white/10">
+              <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-4">
+                <CubeIcon className="h-4 w-4 text-slate-400" />
                 Current Stock
               </h2>
-              
+
               <div className="space-y-4 relative">
                 <div className="flex items-end justify-between">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Available</span>
-                  <span className={clsx('text-4xl font-bold', isLowStock ? 'text-red-600' : 'text-gray-900')}>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Available</span>
+                  <span className={clsx('text-4xl font-bold', isLowStock ? 'text-red-400' : 'text-slate-100')}>
                     {item.quantityAvailable}
                   </span>
                 </div>
 
-                <div className="border-t border-gray-100 pt-3 flex justify-between items-center text-sm">
-                  <span className="text-gray-500">Reserved</span>
-                  <span className="font-medium text-gray-900">{item.quantityReserved}</span>
+                <div className="border-t border-white/[0.06] pt-3 flex justify-between items-center text-sm">
+                  <span className="text-slate-500">Reserved</span>
+                  <span className="font-medium text-slate-100">{item.quantityReserved}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm bg-gray-50 -mx-4 px-4 py-2 border-y border-gray-100">
-                  <span className="text-gray-500">Total On Hand</span>
-                  <span className="font-bold text-gray-900">{item.quantityOnHand}</span>
+                <div className="flex justify-between items-center text-sm bg-white/[0.04] -mx-4 px-4 py-2 border-y border-white/[0.06]">
+                  <span className="text-slate-500">Total On Hand</span>
+                  <span className="font-bold text-slate-100">{item.quantityOnHand}</span>
                 </div>
 
                 <div className="pt-2">
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-gray-500 font-medium">Reorder Point</span>
-                    <span className="text-gray-900 font-medium">{item.reorderPoint}</span>
+                    <span className="text-slate-500 font-medium">Reorder Point</span>
+                    <span className="text-slate-100 font-medium">{item.reorderPoint}</span>
                   </div>
                   {/* Visual gauge */}
-                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden relative">
+                  <div className="h-2 w-full bg-white/[0.06] rounded-full overflow-hidden relative">
                     {/* Reorder line marker */}
-                    <div 
-                      className="absolute top-0 bottom-0 w-0.5 bg-gray-400 z-10" 
-                      style={{ left: `${Math.min(100, Math.max(5, (item.reorderPoint / Math.max(item.quantityOnHand, item.reorderPoint * 2)) * 100))}%` }} 
+                    <div
+                      className="absolute top-0 bottom-0 w-0.5 bg-slate-500 z-10"
+                      style={{ left: `${Math.min(100, Math.max(5, (item.reorderPoint / Math.max(item.quantityOnHand, item.reorderPoint * 2)) * 100))}%` }}
                     />
-                    <div 
+                    <div
                       className={clsx('h-full transition-all', isLowStock ? 'bg-red-500' : 'bg-blue-500')}
                       style={{ width: `${Math.min(100, (item.quantityAvailable / Math.max(item.quantityOnHand, item.reorderPoint * 2)) * 100)}%` }}
                     />
                   </div>
                   {isLowStock && (
-                    <p className="text-xs text-red-600 font-medium mt-1.5 flex items-center gap-1">
+                    <p className="text-xs text-red-400 font-medium mt-1.5 flex items-center gap-1">
                       <ExclamationCircleIcon className="h-3.5 w-3.5" /> Below reorder point
                     </p>
                   )}
@@ -200,48 +200,48 @@ export function InventoryDetailPage(): JSX.Element {
             </TouchCard>
 
             {/* Config Card */}
-            <TouchCard padding="md" className="border border-gray-200">
-              <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-4">
-                <TagIcon className="h-4 w-4 text-gray-500" />
+            <TouchCard padding="md" className="card-cinema border border-white/10">
+              <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-4">
+                <TagIcon className="h-4 w-4 text-slate-400" />
                 Item Configuration
               </h2>
-              
+
               <dl className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">Category</dt>
-                  <dd className="font-medium text-gray-900">{CATEGORY_LABELS[item.category]}</dd>
+                  <dt className="text-slate-500">Category</dt>
+                  <dd className="font-medium text-slate-100">{CATEGORY_LABELS[item.category]}</dd>
                 </div>
-                <div className="flex justify-between border-t border-gray-100 pt-3">
-                  <dt className="text-gray-500">Brand</dt>
-                  <dd className="font-medium text-gray-900">{item.brand || '—'}</dd>
+                <div className="flex justify-between border-t border-white/[0.06] pt-3">
+                  <dt className="text-slate-500">Brand</dt>
+                  <dd className="font-medium text-slate-100">{item.brand || '—'}</dd>
                 </div>
-                <div className="flex justify-between border-t border-gray-100 pt-3">
-                  <dt className="text-gray-500">Size / Color</dt>
-                  <dd className="font-medium text-gray-900">
+                <div className="flex justify-between border-t border-white/[0.06] pt-3">
+                  <dt className="text-slate-500">Size / Color</dt>
+                  <dd className="font-medium text-slate-100">
                     {[item.size, item.color].filter(Boolean).join(' · ') || '—'}
                   </dd>
                 </div>
-                <div className="flex justify-between border-t border-gray-100 pt-3 items-center">
-                  <dt className="text-gray-500 flex flex-col">
+                <div className="flex justify-between border-t border-white/[0.06] pt-3 items-center">
+                  <dt className="text-slate-500 flex flex-col">
                     <span>Reorder Qty</span>
                     <span className="text-[10px]">Amount to buy</span>
                   </dt>
-                  <dd className="font-bold text-gray-900">{item.reorderQuantity}</dd>
+                  <dd className="font-bold text-slate-100">{item.reorderQuantity}</dd>
                 </div>
-                <div className="flex justify-between border-t border-gray-100 pt-3 bg-gray-50 -mx-4 px-4 py-2">
-                  <dt className="text-gray-500">Unit Cost</dt>
-                  <dd className="font-mono text-gray-900 font-semibold">{fmt(item.costPrice)}</dd>
+                <div className="flex justify-between border-t border-white/[0.06] pt-3 bg-white/[0.04] -mx-4 px-4 py-2">
+                  <dt className="text-slate-500">Unit Cost</dt>
+                  <dd className="font-mono text-slate-100 font-semibold">{fmt(item.costPrice)}</dd>
                 </div>
               </dl>
             </TouchCard>
 
             {item.notes && (
-              <TouchCard padding="md" className="border border-gray-200 bg-amber-50">
-                <h2 className="text-sm font-semibold text-amber-900 flex items-center gap-2 mb-2">
-                  <ClipboardDocumentListIcon className="h-4 w-4 text-amber-700" />
+              <TouchCard padding="md" className="border border-amber-500/20 bg-amber-500/[0.07]">
+                <h2 className="text-sm font-semibold text-amber-300 flex items-center gap-2 mb-2">
+                  <ClipboardDocumentListIcon className="h-4 w-4 text-amber-400" />
                   Notes
                 </h2>
-                <p className="text-sm text-amber-800 whitespace-pre-wrap">{item.notes}</p>
+                <p className="text-sm text-amber-200/80 whitespace-pre-wrap">{item.notes}</p>
               </TouchCard>
             )}
 
@@ -249,9 +249,9 @@ export function InventoryDetailPage(): JSX.Element {
 
           {/* Right Column: History */}
           <div className="lg:col-span-2">
-            <TouchCard padding="md" className="border border-gray-200">
-              <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2 mb-4">
-                <ClockIcon className="h-5 w-5 text-gray-500" />
+            <TouchCard padding="md" className="card-cinema border border-white/10">
+              <h2 className="text-base font-semibold text-slate-100 flex items-center gap-2 mb-4">
+                <ClockIcon className="h-5 w-5 text-slate-400" />
                 Movement History
               </h2>
               

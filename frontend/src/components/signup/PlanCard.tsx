@@ -39,10 +39,10 @@ export function PlanCard({
     <div
       className={`relative rounded-2xl border p-6 flex flex-col gap-5 transition-all ${
         selected
-          ? 'border-blue-500 ring-2 ring-blue-200 bg-blue-50/30'
+          ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-500/10'
           : popular
-          ? 'border-purple-400 shadow-md'
-          : 'border-gray-200 bg-white'
+          ? 'border-purple-400 glass-panel'
+          : 'border-white/10 glass-panel'
       }`}
     >
       {popular && (
@@ -52,14 +52,14 @@ export function PlanCard({
       )}
 
       <div>
-        <h3 className="text-base font-semibold text-gray-900">{name}</h3>
-        <p className="text-3xl font-bold text-gray-900 mt-1">{displayPrice}</p>
+        <h3 className="text-base font-semibold text-slate-100">{name}</h3>
+        <p className="text-3xl font-bold text-slate-100 mt-1">{displayPrice}</p>
         {yearlySavings && (
           <p className="text-xs text-green-600 mt-0.5">Save ${yearlySavings}/year</p>
         )}
       </div>
 
-      <ul className="flex-1 space-y-2 text-sm text-gray-600">
+      <ul className="flex-1 space-y-2 text-sm text-slate-400">
         {features.map((f) => (
           <li key={f} className="flex items-start gap-2">
             <span className="text-green-500 mt-0.5 shrink-0">&#10003;</span>
@@ -75,8 +75,8 @@ export function PlanCard({
           ctaVariant === 'primary'
             ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
             : ctaVariant === 'outline'
-            ? 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            ? 'border border-white/10 text-slate-300 bg-white/[0.06] hover:bg-white/10'
+            : 'bg-white/[0.04] text-slate-500 cursor-not-allowed'
         }`}
       >
         {ctaLabel}

@@ -62,12 +62,12 @@ function MetricCard({
   color: string;
 }): React.JSX.Element {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5 flex items-start gap-4">
+    <div className="glass-panel-weighted rounded-2xl p-5 flex items-start gap-4">
       <div className={clsx('p-3 rounded-xl flex-shrink-0', color)}>{icon}</div>
       <div className="min-w-0">
-        <p className="text-sm text-gray-500">{label}</p>
-        <p className="text-2xl font-bold text-gray-900 mt-0.5">{value}</p>
-        {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+        <p className="text-sm text-muted">{label}</p>
+        <p className="text-2xl font-bold text-slate-100 stat-number mt-0.5">{value}</p>
+        {sub && <p className="text-xs text-slate-500 mt-0.5">{sub}</p>}
         {change !== undefined && <ChangePill value={change ?? null} />}
       </div>
     </div>
@@ -75,7 +75,7 @@ function MetricCard({
 }
 
 function SkeletonCard(): React.JSX.Element {
-  return <div className="bg-white rounded-2xl shadow-sm p-5 h-28 animate-pulse bg-gray-50" />;
+  return <div className="glass-panel rounded-2xl p-5 h-28 animate-pulse bg-white/[0.04]" />;
 }
 
 export function ReportsPage(): React.JSX.Element {
@@ -121,31 +121,31 @@ export function ReportsPage(): React.JSX.Element {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Business performance overview</p>
+          <h1 className="text-2xl font-bold text-slate-100">Reports & Analytics</h1>
+          <p className="text-sm text-muted mt-0.5">Business performance overview</p>
         </div>
         <div className="flex gap-2">
           <Link
             to="/reports/sales"
-            className="min-h-[44px] px-4 rounded-xl bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors flex items-center"
+            className="min-h-[44px] px-4 rounded-xl glass-panel text-blue-400 text-sm font-medium hover:bg-white/10 transition-colors flex items-center"
           >
             Sales Report
           </Link>
           <Link
             to="/reports/inventory"
-            className="min-h-[44px] px-4 rounded-xl bg-green-50 text-green-700 text-sm font-medium hover:bg-green-100 transition-colors flex items-center"
+            className="min-h-[44px] px-4 rounded-xl glass-panel text-green-400 text-sm font-medium hover:bg-white/10 transition-colors flex items-center"
           >
             Inventory Report
           </Link>
           <Link
             to="/reports/profit"
-            className="min-h-[44px] px-4 rounded-xl bg-emerald-50 text-emerald-700 text-sm font-medium hover:bg-emerald-100 transition-colors flex items-center"
+            className="min-h-[44px] px-4 rounded-xl glass-panel text-emerald-400 text-sm font-medium hover:bg-white/10 transition-colors flex items-center"
           >
             Profit Report
           </Link>
           <Link
             to="/reports/production"
-            className="min-h-[44px] px-4 rounded-xl bg-orange-50 text-orange-700 text-sm font-medium hover:bg-orange-100 transition-colors flex items-center"
+            className="min-h-[44px] px-4 rounded-xl glass-panel text-orange-400 text-sm font-medium hover:bg-white/10 transition-colors flex items-center"
           >
             Production Report
           </Link>
@@ -193,10 +193,10 @@ export function ReportsPage(): React.JSX.Element {
       </div>
 
       {/* Revenue Chart */}
-      <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h2 className="text-base font-semibold text-gray-900 mb-4">Revenue Over Time</h2>
+      <div className="card-cinema rounded-2xl p-5">
+        <h2 className="text-base font-semibold text-slate-100 mb-4">Revenue Over Time</h2>
         {loading ? (
-          <div className="h-64 animate-pulse bg-gray-50 rounded-xl" />
+          <div className="h-64 animate-pulse bg-white/[0.04] rounded-xl" />
         ) : (
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={sales?.revenueOverTime ?? []} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
@@ -213,10 +213,10 @@ export function ReportsPage(): React.JSX.Element {
       {/* Orders by Status + Top Products */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Orders by Status */}
-        <div className="bg-white rounded-2xl shadow-sm p-5">
-          <h2 className="text-base font-semibold text-gray-900 mb-4">Orders by Status</h2>
+        <div className="card-cinema rounded-2xl p-5">
+          <h2 className="text-base font-semibold text-slate-100 mb-4">Orders by Status</h2>
           {loading ? (
-            <div className="h-56 animate-pulse bg-gray-50 rounded-xl" />
+            <div className="h-56 animate-pulse bg-white/[0.04] rounded-xl" />
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
@@ -241,10 +241,10 @@ export function ReportsPage(): React.JSX.Element {
         </div>
 
         {/* Top Products */}
-        <div className="bg-white rounded-2xl shadow-sm p-5">
-          <h2 className="text-base font-semibold text-gray-900 mb-4">Top Products</h2>
+        <div className="card-cinema rounded-2xl p-5">
+          <h2 className="text-base font-semibold text-slate-100 mb-4">Top Products</h2>
           {loading ? (
-            <div className="h-56 animate-pulse bg-gray-50 rounded-xl" />
+            <div className="h-56 animate-pulse bg-white/[0.04] rounded-xl" />
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={sales?.topProducts.slice(0, 6) ?? []} layout="vertical" margin={{ left: 0, right: 16 }}>
@@ -264,36 +264,36 @@ export function ReportsPage(): React.JSX.Element {
       </div>
 
       {/* Top Customers */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-gray-900">Top Customers</h2>
+      <div className="card-cinema rounded-2xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-white/[0.06]">
+          <h2 className="text-base font-semibold text-slate-100">Top Customers</h2>
         </div>
         {loading ? (
           <div className="p-5 space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-10 animate-pulse bg-gray-50 rounded-lg" />
+              <div key={i} className="h-10 animate-pulse bg-white/[0.04] rounded-lg" />
             ))}
           </div>
         ) : (sales?.topCustomers.length ?? 0) === 0 ? (
-          <p className="p-5 text-sm text-gray-400">No customer data for this period.</p>
+          <p className="p-5 text-sm text-slate-500">No customer data for this period.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Customer</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Orders</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Spent</th>
+              <tr className="border-b border-white/[0.06]">
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Customer</th>
+                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Orders</th>
+                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Spent</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-white/[0.04]">
               {(sales?.topCustomers ?? []).map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3 font-medium text-gray-900">{c.name}</td>
-                  <td className="px-5 py-3 text-right text-gray-600">{c.orderCount}</td>
-                  <td className="px-5 py-3 text-right font-semibold text-gray-900">{formatCurrency(c.totalSpent)}</td>
+                <tr key={c.id} className="hover:bg-white/[0.04] transition-colors">
+                  <td className="px-5 py-3 font-medium text-slate-100">{c.name}</td>
+                  <td className="px-5 py-3 text-right text-slate-400">{c.orderCount}</td>
+                  <td className="px-5 py-3 text-right font-semibold text-slate-100">{formatCurrency(c.totalSpent)}</td>
                   <td className="px-5 py-3 text-right">
-                    <Link to={`/customers/${c.id}`} className="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                    <Link to={`/customers/${c.id}`} className="text-blue-400 hover:text-blue-300 text-xs font-medium">
                       View →
                     </Link>
                   </td>
@@ -307,16 +307,16 @@ export function ReportsPage(): React.JSX.Element {
       {/* Inventory + Production */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Inventory Report Card */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-          <h2 className="text-base font-semibold text-gray-900">Inventory Overview</h2>
+        <div className="card-cinema rounded-2xl p-5 space-y-4">
+          <h2 className="text-base font-semibold text-slate-100">Inventory Overview</h2>
           {inventoryQuery.isLoading ? (
-            <div className="h-40 animate-pulse bg-gray-50 rounded-xl" />
+            <div className="h-40 animate-pulse bg-white/[0.04] rounded-xl" />
           ) : (
             <>
               <div className="grid grid-cols-3 gap-3">
-                <div className="bg-gray-50 rounded-xl p-3 text-center">
-                  <p className="text-xl font-bold text-gray-900">{inventory?.summary.totalItems ?? 0}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Total SKUs</p>
+                <div className="bg-white/[0.04] rounded-xl p-3 text-center">
+                  <p className="text-xl font-bold text-slate-100">{inventory?.summary.totalItems ?? 0}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Total SKUs</p>
                 </div>
                 <div className="bg-amber-50 rounded-xl p-3 text-center">
                   <p className="text-xl font-bold text-amber-700">{inventory?.summary.lowStockCount ?? 0}</p>
@@ -328,8 +328,8 @@ export function ReportsPage(): React.JSX.Element {
                 </div>
               </div>
               <div className="pt-1">
-                <p className="text-xs text-gray-500">Total inventory value</p>
-                <p className="text-xl font-bold text-gray-900">{formatCurrency(inventory?.summary.totalInventoryValue ?? 0)}</p>
+                <p className="text-xs text-slate-500">Total inventory value</p>
+                <p className="text-xl font-bold text-slate-100">{formatCurrency(inventory?.summary.totalInventoryValue ?? 0)}</p>
               </div>
               {(inventory?.byCategory.length ?? 0) > 0 && (
                 <ResponsiveContainer width="100%" height={140}>
@@ -347,10 +347,10 @@ export function ReportsPage(): React.JSX.Element {
         </div>
 
         {/* Production Report Card */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-          <h2 className="text-base font-semibold text-gray-900">Production Overview</h2>
+        <div className="card-cinema rounded-2xl p-5 space-y-4">
+          <h2 className="text-base font-semibold text-slate-100">Production Overview</h2>
           {productionQuery.isLoading ? (
-            <div className="h-40 animate-pulse bg-gray-50 rounded-xl" />
+            <div className="h-40 animate-pulse bg-white/[0.04] rounded-xl" />
           ) : (
             <>
               <div className="grid grid-cols-2 gap-3">
@@ -365,7 +365,7 @@ export function ReportsPage(): React.JSX.Element {
               </div>
               {(production?.ordersByPrintMethod.length ?? 0) > 0 && (
                 <>
-                  <p className="text-sm font-medium text-gray-700">Orders by Print Method</p>
+                  <p className="text-sm font-medium text-slate-300">Orders by Print Method</p>
                   <ResponsiveContainer width="100%" height={140}>
                     <PieChart>
                       <Pie
@@ -393,23 +393,23 @@ export function ReportsPage(): React.JSX.Element {
 
       {/* Low Stock Alerts */}
       {(inventory?.lowStock.length ?? 0) > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-amber-200 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-amber-900">Low Stock Items</h2>
-            <Link to="/reports/inventory" className="text-sm font-medium text-amber-700 hover:text-amber-900">
+        <div className="border border-amber-500/30 bg-amber-500/[0.06] rounded-2xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-amber-500/20 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-amber-400">Low Stock Items</h2>
+            <Link to="/reports/inventory" className="text-sm font-medium text-amber-400 hover:text-amber-300">
               Full Report →
             </Link>
           </div>
-          <div className="divide-y divide-amber-100">
+          <div className="divide-y divide-amber-500/10">
             {(inventory?.lowStock.slice(0, 5) ?? []).map((item) => (
               <div key={item.id} className="px-5 py-3 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{item.name}</p>
-                  <p className="text-xs text-gray-500">{item.sku}</p>
+                  <p className="text-sm font-medium text-slate-100">{item.name}</p>
+                  <p className="text-xs text-slate-500">{item.sku}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-amber-700">{item.quantityOnHand} left</p>
-                  <p className="text-xs text-gray-400">min {item.reorderPoint}</p>
+                  <p className="text-sm font-bold text-amber-400">{item.quantityOnHand} left</p>
+                  <p className="text-xs text-slate-500">min {item.reorderPoint}</p>
                 </div>
               </div>
             ))}

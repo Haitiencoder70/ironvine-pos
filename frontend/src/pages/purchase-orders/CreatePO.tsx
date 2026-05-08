@@ -330,19 +330,19 @@ export function CreatePOPage(): JSX.Element {
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Create Purchase Order</h1>
+          <h1 className="text-2xl font-bold text-slate-100">Create Purchase Order</h1>
           {linkedOrderId && orderData?.data ? (
-            <p className="text-sm font-medium text-blue-600 mt-0.5 flex items-center gap-1.5">
+            <p className="text-sm font-medium text-blue-400 mt-0.5 flex items-center gap-1.5">
               <ShoppingCartIcon className="h-4 w-4" />
               Ordering for Job: {orderData.data.orderNumber}
             </p>
           ) : (
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="text-sm text-slate-500 mt-0.5">
               Drafting a new supplier order
             </p>
           )}
@@ -351,19 +351,19 @@ export function CreatePOPage(): JSX.Element {
 
       {isCheckingData ? (
         <div className="animate-pulse space-y-4">
-          <div className="h-[200px] bg-gray-100 rounded-2xl" />
-          <div className="h-[400px] bg-gray-100 rounded-2xl" />
+          <div className="h-[200px] bg-white/[0.04] rounded-2xl" />
+          <div className="h-[400px] bg-white/[0.04] rounded-2xl" />
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <TouchCard padding="lg" className="border border-gray-200">
-            <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2 mb-4">
-              <BuildingStorefrontIcon className="h-5 w-5 text-gray-500" />
+          <TouchCard padding="lg" className="border border-white/10">
+            <h2 className="text-base font-semibold text-slate-100 flex items-center gap-2 mb-4">
+              <BuildingStorefrontIcon className="h-5 w-5 text-slate-400" />
               Vendor & Fulfillment
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Select Vendor *</label>
+                <label className="text-sm font-medium text-slate-300">Select Vendor *</label>
                 <Controller
                   name="vendorId"
                   control={control}
@@ -372,8 +372,8 @@ export function CreatePOPage(): JSX.Element {
                       <select
                         {...field}
                         className={clsx(
-                          'w-full min-h-[48px] rounded-xl border bg-white px-4 py-2 text-base shadow-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-blue-500',
-                          errors.vendorId ? 'border-red-400 focus:border-red-500' : 'border-gray-300 hover:border-gray-400'
+                          'w-full min-h-[48px] rounded-xl border bg-[rgba(10,10,20,0.85)] text-slate-100 px-4 py-2 text-base cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-blue-500',
+                          errors.vendorId ? 'border-red-400 focus:border-red-500' : 'border-white/10 hover:border-white/20'
                         )}
                       >
                         <option value="" disabled>Select a vendor...</option>
@@ -387,29 +387,29 @@ export function CreatePOPage(): JSX.Element {
                 {errors.vendorId && <p className="text-xs text-red-500">{errors.vendorId.message}</p>}
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Expected Delivery</label>
+                <label className="text-sm font-medium text-slate-300">Expected Delivery</label>
                 <input
                   type="date"
                   {...register('expectedDate')}
-                  className="w-full min-h-[48px] rounded-xl border border-gray-300 bg-white px-4 py-2 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full min-h-[48px] rounded-xl border border-white/10 bg-white/[0.06] text-slate-100 px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="text-sm font-medium text-gray-700 block mb-1.5">Vendor Notes (Optional)</label>
+                <label className="text-sm font-medium text-slate-300 block mb-1.5">Vendor Notes (Optional)</label>
                 <textarea
                   rows={2}
                   placeholder="Please pack by sizes..."
                   {...register('notes')}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.06] text-slate-100 placeholder:text-slate-500 px-4 py-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
           </TouchCard>
 
-          <TouchCard padding="lg" className="border border-gray-200">
+          <TouchCard padding="lg" className="border border-white/10">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                <CubeIcon className="h-5 w-5 text-gray-500" />
+              <h2 className="text-base font-semibold text-slate-100 flex items-center gap-2">
+                <CubeIcon className="h-5 w-5 text-slate-400" />
                 Line Items
               </h2>
             </div>
@@ -427,31 +427,31 @@ export function CreatePOPage(): JSX.Element {
                 const lineCost = (parseFloat(String(watched?.quantity)) || 0) * (parseFloat(String(watched?.unitCost)) || 0);
 
                 return (
-                  <div key={field.id} className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3">
+                  <div key={field.id} className="p-4 bg-white/[0.04] border border-white/10 rounded-xl space-y-3">
                     {/* Header row */}
                     <div className="flex items-start gap-3">
                       <span className="text-2xl flex-shrink-0 mt-0.5" role="img" aria-hidden="true">{emoji}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 leading-snug">
+                        <p className="text-sm font-semibold text-slate-100 leading-snug">
                           {watched?.description || `Item #${index + 1}`}
                         </p>
                         {lineCost > 0 && (
-                          <p className="text-xs text-gray-500 mt-0.5">
+                          <p className="text-xs text-slate-500 mt-0.5">
                             {watched?.quantity} × {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(String(watched?.unitCost)) || 0)}
                             {' = '}
-                            <span className="font-semibold text-gray-700">
+                            <span className="font-semibold text-slate-300">
                               {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(lineCost)}
                             </span>
                           </p>
                         )}
                         {linkedOrderId && orderData?.data && (
-                          <p className="text-xs text-blue-600 mt-0.5">For Order: {orderData.data.orderNumber}</p>
+                          <p className="text-xs text-blue-400 mt-0.5">For Order: {orderData.data.orderNumber}</p>
                         )}
                       </div>
                       <button
                         type="button"
                         onClick={() => remove(index)}
-                        className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors flex-shrink-0"
+                        className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-400 transition-colors flex-shrink-0"
                         aria-label="Remove item"
                       >
                         <TrashIcon className="h-4 w-4" />
@@ -489,8 +489,8 @@ export function CreatePOPage(): JSX.Element {
                 );
               })}
               {fields.length === 0 && (
-                <div className="p-6 border-2 border-dashed border-gray-200 rounded-xl text-center">
-                  <p className="text-gray-500 text-sm">
+                <div className="p-6 border-2 border-dashed border-white/10 rounded-xl text-center">
+                  <p className="text-slate-500 text-sm">
                     {hasNoRemainingOrderMaterials
                       ? 'All required materials for this order are already covered by active purchase orders.'
                       : 'No items added to this PO yet.'}
@@ -523,19 +523,19 @@ export function CreatePOPage(): JSX.Element {
           </TouchCard>
 
           <div className="flex justify-end p-4">
-            <div className="w-full md:w-64 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-               <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
+            <div className="w-full md:w-64 glass-panel p-4 rounded-xl border border-white/10">
+               <div className="flex justify-between items-center text-sm text-slate-400 mb-2">
                  <span>Subtotal</span>
-                 <span className="font-mono text-gray-900">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal)}</span>
+                 <span className="font-mono text-slate-100">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal)}</span>
                </div>
-               <div className="pt-2 border-t border-gray-100 flex justify-between items-center font-bold text-gray-900 text-lg">
+               <div className="pt-2 border-t border-white/[0.06] flex justify-between items-center font-bold text-slate-100 text-lg">
                  <span>Estimated Total</span>
                  <span className="font-mono">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal)}</span>
                </div>
             </div>
           </div>
 
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20">
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-[rgba(8,8,18,0.92)] border-t border-white/10 backdrop-blur-md z-20">
             <div className="max-w-5xl mx-auto flex gap-4">
               <TouchButton
                 type="button"

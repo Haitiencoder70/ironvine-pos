@@ -21,7 +21,7 @@ const PRIORITY_COLOR: Record<string, string> = {
 };
 
 function SkeletonCard(): JSX.Element {
-  return <div className="bg-white rounded-2xl shadow-sm p-5 h-28 animate-pulse bg-gray-50" />;
+  return <div className="glass-panel rounded-2xl p-5 h-28 animate-pulse bg-white/[0.04]" />;
 }
 
 export function ProductionReportPage(): JSX.Element {
@@ -51,13 +51,13 @@ export function ProductionReportPage(): JSX.Element {
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate('/reports')}
-          className="flex items-center justify-center min-h-[44px] min-w-[44px] -ml-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          className="flex items-center justify-center min-h-[44px] min-w-[44px] -ml-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Production Report</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Completed orders, print methods, and throughput</p>
+          <h1 className="text-2xl font-bold text-slate-100">Production Report</h1>
+          <p className="text-sm text-muted mt-0.5">Completed orders, print methods, and throughput</p>
         </div>
       </div>
 
@@ -69,36 +69,36 @@ export function ProductionReportPage(): JSX.Element {
           Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
           <>
-            <div className="bg-white rounded-2xl shadow-sm p-5 flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-blue-50 flex-shrink-0">
-                <ClockIcon className="h-5 w-5 text-blue-600" />
+            <div className="glass-panel-weighted rounded-2xl p-5 flex items-start gap-4">
+              <div className="p-3 rounded-xl bg-blue-500/20 flex-shrink-0">
+                <ClockIcon className="h-5 w-5 text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Avg Days to Complete</p>
-                <p className="text-2xl font-bold text-gray-900 mt-0.5">{report?.avgProductionDays ?? 0}</p>
-                <p className="text-xs text-gray-400 mt-0.5">from order creation</p>
+                <p className="text-sm text-muted">Avg Days to Complete</p>
+                <p className="text-2xl font-bold text-slate-100 stat-number mt-0.5">{report?.avgProductionDays ?? 0}</p>
+                <p className="text-xs text-slate-500 mt-0.5">from order creation</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm p-5 flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-green-50 flex-shrink-0">
-                <CheckCircleIcon className="h-5 w-5 text-green-600" />
+            <div className="glass-panel-weighted rounded-2xl p-5 flex items-start gap-4">
+              <div className="p-3 rounded-xl bg-green-500/20 flex-shrink-0">
+                <CheckCircleIcon className="h-5 w-5 text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Orders Completed</p>
-                <p className="text-2xl font-bold text-gray-900 mt-0.5">{report?.completedCount ?? 0}</p>
-                <p className="text-xs text-gray-400 mt-0.5">in selected period</p>
+                <p className="text-sm text-muted">Orders Completed</p>
+                <p className="text-2xl font-bold text-slate-100 stat-number mt-0.5">{report?.completedCount ?? 0}</p>
+                <p className="text-xs text-slate-500 mt-0.5">in selected period</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm p-5 flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-purple-50 flex-shrink-0">
-                <WrenchScrewdriverIcon className="h-5 w-5 text-purple-600" />
+            <div className="glass-panel-weighted rounded-2xl p-5 flex items-start gap-4">
+              <div className="p-3 rounded-xl bg-purple-500/20 flex-shrink-0">
+                <WrenchScrewdriverIcon className="h-5 w-5 text-purple-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Print Methods Used</p>
-                <p className="text-2xl font-bold text-gray-900 mt-0.5">{report?.ordersByPrintMethod.length ?? 0}</p>
-                <p className="text-xs text-gray-400 mt-0.5">unique methods</p>
+                <p className="text-sm text-muted">Print Methods Used</p>
+                <p className="text-2xl font-bold text-slate-100 stat-number mt-0.5">{report?.ordersByPrintMethod.length ?? 0}</p>
+                <p className="text-xs text-slate-500 mt-0.5">unique methods</p>
               </div>
             </div>
           </>
@@ -123,10 +123,10 @@ export function ProductionReportPage(): JSX.Element {
       {!isLoading && !isError && (report?.completedCount ?? 0) > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Print Methods */}
-          <div className="bg-white rounded-2xl shadow-sm p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">Items by Print Method</h2>
+          <div className="card-cinema rounded-2xl p-5">
+            <h2 className="text-base font-semibold text-slate-100 mb-4">Items by Print Method</h2>
             {(report?.ordersByPrintMethod.length ?? 0) === 0 ? (
-              <p className="text-sm text-gray-400 py-8 text-center">No print method data available.</p>
+              <p className="text-sm text-slate-500 py-8 text-center">No print method data available.</p>
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
@@ -152,10 +152,10 @@ export function ProductionReportPage(): JSX.Element {
           </div>
 
           {/* Orders by Priority */}
-          <div className="bg-white rounded-2xl shadow-sm p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">Orders by Priority</h2>
+          <div className="card-cinema rounded-2xl p-5">
+            <h2 className="text-base font-semibold text-slate-100 mb-4">Orders by Priority</h2>
             {(report?.ordersByPriority.length ?? 0) === 0 ? (
-              <p className="text-sm text-gray-400 py-8 text-center">No priority data available.</p>
+              <p className="text-sm text-slate-500 py-8 text-center">No priority data available.</p>
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart

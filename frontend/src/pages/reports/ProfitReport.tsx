@@ -33,12 +33,12 @@ function SectionCard({ title, children }: { title: string; children: React.React
 }
 
 function ProductProfitTable({ products, highlight }: { products: TopProductProfit[]; highlight: 'high' | 'low' }): JSX.Element {
-  if (!products.length) return <p className="text-sm text-gray-500 py-6 text-center">No data.</p>;
+  if (!products.length) return <p className="text-sm text-muted py-6 text-center">No data.</p>;
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-[1fr_70px_80px_60px] gap-2 px-2 pb-1 border-b border-white/[0.06]">
         {['Product', 'Units', 'Revenue', 'Margin'].map((h) => (
-          <span key={h} className="text-[10px] font-semibold uppercase tracking-widest text-gray-600 last:text-right">{h}</span>
+          <span key={h} className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 last:text-right">{h}</span>
         ))}
       </div>
       {products.map((p) => (
@@ -111,11 +111,11 @@ export function ProfitReportPage(): JSX.Element {
         </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-extrabold tracking-tight text-white">Profit Report</h1>
-          <p className="text-xs text-gray-500 mt-0.5">Revenue, costs, and margin analysis</p>
+          <p className="text-xs text-muted mt-0.5">Revenue, costs, and margin analysis</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <div className="flex flex-col gap-0.5">
-            <label className="text-[10px] uppercase tracking-widest text-gray-600 font-semibold">From</label>
+            <label className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">From</label>
             <input
               type="date"
               value={format(startDate, 'yyyy-MM-dd')}
@@ -124,7 +124,7 @@ export function ProfitReportPage(): JSX.Element {
             />
           </div>
           <div className="flex flex-col gap-0.5">
-            <label className="text-[10px] uppercase tracking-widest text-gray-600 font-semibold">To</label>
+            <label className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">To</label>
             <input
               type="date"
               value={format(endDate, 'yyyy-MM-dd')}
@@ -184,7 +184,7 @@ export function ProfitReportPage(): JSX.Element {
         {topQ.isLoading ? (
           <div className="h-72 animate-pulse rounded-xl bg-white/[0.04]" />
         ) : products.length === 0 ? (
-          <p className="text-sm text-gray-500 py-8 text-center">No data for selected period.</p>
+          <p className="text-sm text-muted py-8 text-center">No data for selected period.</p>
         ) : (
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={products.slice(0, 10)} margin={{ top: 4, right: 16, left: 0, bottom: 50 }}>
@@ -211,7 +211,7 @@ export function ProfitReportPage(): JSX.Element {
           {topQ.isLoading ? (
             <div className="h-64 animate-pulse rounded-xl bg-white/[0.04]" />
           ) : pieData.length === 0 ? (
-            <p className="text-sm text-gray-500 py-8 text-center">No data for selected period.</p>
+            <p className="text-sm text-muted py-8 text-center">No data for selected period.</p>
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
@@ -226,11 +226,11 @@ export function ProfitReportPage(): JSX.Element {
         </SectionCard>
 
         <SectionCard title="Add-on Revenue Breakdown">
-          <p className="text-xs text-gray-500 mb-3">Estimated base vs. add-on split per product.</p>
+          <p className="text-xs text-muted mb-3">Estimated base vs. add-on split per product.</p>
           {topQ.isLoading ? (
             <div className="h-56 animate-pulse rounded-xl bg-white/[0.04]" />
           ) : products.length === 0 ? (
-            <p className="text-sm text-gray-500 py-8 text-center">No data for selected period.</p>
+            <p className="text-sm text-muted py-8 text-center">No data for selected period.</p>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart

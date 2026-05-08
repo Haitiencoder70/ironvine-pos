@@ -129,8 +129,8 @@ export function AddEditInventoryPage(): JSX.Element {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center gap-4">
         <div className="text-5xl">🚫</div>
-        <h2 className="text-xl font-bold text-gray-900">Inventory Limit Reached</h2>
-        <p className="text-gray-500 max-w-sm">{limitCheck.message}</p>
+        <h2 className="text-xl font-bold text-slate-100">Inventory Limit Reached</h2>
+        <p className="text-slate-400 max-w-sm">{limitCheck.message}</p>
         <div className="flex gap-3 mt-2">
           <button
             onClick={() => canAddInventory(true)}
@@ -140,7 +140,7 @@ export function AddEditInventoryPage(): JSX.Element {
           </button>
           <button
             onClick={() => navigate(-1)}
-            className="min-h-[44px] px-6 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
+            className="min-h-[44px] px-6 rounded-xl border border-white/10 text-slate-300 text-sm font-medium hover:bg-white/[0.04]"
           >
             Go Back
           </button>
@@ -193,8 +193,8 @@ export function AddEditInventoryPage(): JSX.Element {
   if (isEditing && isFetchingItem) {
     return (
       <div className="p-4 sm:p-6 max-w-3xl mx-auto animate-pulse space-y-6">
-        <div className="h-8 w-48 bg-gray-100 rounded" />
-        <div className="h-96 bg-gray-100 rounded-2xl" />
+        <div className="h-8 w-48 bg-white/[0.04] rounded" />
+        <div className="h-96 bg-white/[0.04] rounded-2xl" />
       </div>
     );
   }
@@ -219,10 +219,10 @@ export function AddEditInventoryPage(): JSX.Element {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+        <div className="card-cinema rounded-2xl border border-white/10 p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-              <CubeIcon className="h-5 w-5 text-gray-500" />
+            <h2 className="text-base font-semibold text-slate-100 flex items-center gap-2">
+              <CubeIcon className="h-5 w-5 text-slate-400" />
               Core Details
             </h2>
             <TouchButton
@@ -246,7 +246,7 @@ export function AddEditInventoryPage(): JSX.Element {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Category *</label>
+              <label className="text-sm font-medium text-slate-300">Category *</label>
               <Controller
                 name="category"
                 control={control}
@@ -254,8 +254,8 @@ export function AddEditInventoryPage(): JSX.Element {
                   <select
                     {...field}
                     className={clsx(
-                      'w-full min-h-[44px] rounded-xl border bg-white px-4 py-2 text-base shadow-sm appearance-none cursor-pointer',
-                      errors.category ? 'border-red-400' : 'border-gray-300 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none'
+                      'w-full min-h-[44px] rounded-xl border bg-[rgba(10,10,20,0.85)] px-4 py-2 text-slate-100 text-base appearance-none cursor-pointer',
+                      errors.category ? 'border-red-400' : 'border-white/10 hover:border-white/20 focus:ring-2 focus:ring-blue-500 focus:outline-none'
                     )}
                   >
                     <option value="">Select Category...</option>
@@ -282,8 +282,8 @@ export function AddEditInventoryPage(): JSX.Element {
 
         {/* ── Category-specific attribute fields ── */}
         {selectedCategory === 'BLANK_SHIRTS' && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-base font-semibold text-gray-900">Garment Attributes</h2>
+          <div className="card-cinema rounded-2xl border border-white/10 p-5 space-y-4">
+            <h2 className="text-base font-semibold text-slate-100">Garment Attributes</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <TouchInput
                 label="Brand"
@@ -308,8 +308,8 @@ export function AddEditInventoryPage(): JSX.Element {
         )}
 
         {selectedCategory === 'DTF_TRANSFERS' && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-base font-semibold text-gray-900">DTF Transfer Attributes</h2>
+          <div className="card-cinema rounded-2xl border border-white/10 p-5 space-y-4">
+            <h2 className="text-base font-semibold text-slate-100">DTF Transfer Attributes</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <TouchInput
                 label="Film Type"
@@ -334,8 +334,8 @@ export function AddEditInventoryPage(): JSX.Element {
         )}
 
         {selectedCategory === 'VINYL' && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-base font-semibold text-gray-900">HTV Vinyl Attributes</h2>
+          <div className="card-cinema rounded-2xl border border-white/10 p-5 space-y-4">
+            <h2 className="text-base font-semibold text-slate-100">HTV Vinyl Attributes</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <TouchInput
                 label="Brand"
@@ -360,8 +360,8 @@ export function AddEditInventoryPage(): JSX.Element {
         )}
 
         {(selectedCategory === 'OTHER' || selectedCategory === 'SUPPLIES' || selectedCategory === 'INK' || selectedCategory === 'PACKAGING' || selectedCategory === 'EMBROIDERY_THREAD') && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-base font-semibold text-gray-900">Supply Attributes</h2>
+          <div className="card-cinema rounded-2xl border border-white/10 p-5 space-y-4">
+            <h2 className="text-base font-semibold text-slate-100">Supply Attributes</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <TouchInput
                 label="Supplier / Brand"
@@ -385,8 +385,8 @@ export function AddEditInventoryPage(): JSX.Element {
           </div>
         )}
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-          <h2 className="text-base font-semibold text-gray-900">Stock & Cost</h2>
+        <div className="card-cinema rounded-2xl border border-white/10 p-5 space-y-4">
+          <h2 className="text-base font-semibold text-slate-100">Stock & Cost</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <TouchInput
               label="Initial Qty"
@@ -425,23 +425,23 @@ export function AddEditInventoryPage(): JSX.Element {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+        <div className="card-cinema rounded-2xl border border-white/10 p-5 space-y-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Internal Notes</label>
+            <label className="text-sm font-medium text-slate-300">Internal Notes</label>
             <textarea
               rows={3}
               placeholder="Supplier references, location bin #..."
               {...register('notes')}
               className={clsx(
-                'w-full rounded-xl border bg-white px-4 py-2 text-base shadow-sm resize-none',
-                errors.notes ? 'border-red-400' : 'border-gray-300 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none'
+                'w-full rounded-xl border bg-white/[0.06] px-4 py-2 text-slate-100 placeholder:text-slate-500 text-base resize-none',
+                errors.notes ? 'border-red-400' : 'border-white/10 hover:border-white/20 focus:ring-2 focus:ring-blue-500 focus:outline-none'
               )}
             />
             {errors.notes && <p className="text-xs text-red-500">{errors.notes.message}</p>}
           </div>
         </div>
 
-        <div className="flex gap-4 border-t border-gray-200 pt-6">
+        <div className="flex gap-4 border-t border-white/10 pt-6">
           <TouchButton
             type="button"
             variant="secondary"

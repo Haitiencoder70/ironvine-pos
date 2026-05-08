@@ -11,9 +11,9 @@ const PAYMENT_LABELS: Record<string, string> = {
 };
 
 const PAYMENT_COLORS: Record<string, string> = {
-  CASH: 'bg-green-50 text-green-700',
-  CARD: 'bg-blue-50 text-blue-700',
-  SPLIT: 'bg-purple-50 text-purple-700',
+  CASH: 'bg-green-900/40 text-green-300',
+  CARD: 'bg-blue-900/40 text-blue-300',
+  SPLIT: 'bg-purple-900/40 text-purple-300',
 };
 
 export function SaleHistory(): React.JSX.Element {
@@ -27,8 +27,8 @@ export function SaleHistory(): React.JSX.Element {
   return (
     <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Sale History</h1>
-        <span className="text-sm text-gray-500">{total} sales total</span>
+        <h1 className="text-xl font-bold text-slate-100">Sale History</h1>
+        <span className="text-sm text-slate-500">{total} sales total</span>
       </div>
 
       {isLoading ? (
@@ -39,7 +39,7 @@ export function SaleHistory(): React.JSX.Element {
         </div>
       ) : sales.length === 0 ? (
         <EmptyState
-          icon={<ClockIcon className="h-12 w-12 text-gray-300" />}
+          icon={<ClockIcon className="h-12 w-12 text-slate-500" />}
           title="No sales yet"
           description="Completed POS sales will appear here"
         />
@@ -48,31 +48,31 @@ export function SaleHistory(): React.JSX.Element {
           {sales.map((sale) => (
             <div
               key={sale.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-4 flex items-center gap-4"
+              className="card-cinema rounded-xl border border-white/[0.06] px-4 py-4 flex items-center gap-4"
             >
               {/* Order info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-mono text-sm font-bold text-gray-900">
+                  <span className="font-mono text-sm font-bold text-slate-100">
                     {sale.orderNumber}
                   </span>
                   <span
                     className={clsx(
                       'text-xs px-2 py-0.5 rounded-full font-medium',
-                      PAYMENT_COLORS[sale.paymentMethod] ?? 'bg-gray-100 text-gray-600',
+                      PAYMENT_COLORS[sale.paymentMethod] ?? 'bg-white/10 text-slate-400',
                     )}
                   >
                     {PAYMENT_LABELS[sale.paymentMethod] ?? sale.paymentMethod}
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   {new Date(sale.createdAt).toLocaleString()} &middot;{' '}
                   {sale.orderItems.length} {sale.orderItems.length === 1 ? 'item' : 'items'}
                 </p>
               </div>
 
               {/* Total */}
-              <span className="text-lg font-bold text-gray-900 flex-shrink-0">
+              <span className="text-lg font-bold text-slate-100 flex-shrink-0">
                 ${sale.total.toFixed(2)}
               </span>
             </div>
@@ -87,26 +87,26 @@ export function SaleHistory(): React.JSX.Element {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             className={clsx(
-              'flex items-center gap-1.5 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium min-h-[44px] transition-colors',
+              'flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/10 text-sm font-medium min-h-[44px] transition-colors',
               page === 1
-                ? 'opacity-40 cursor-not-allowed text-gray-400'
-                : 'text-gray-700 hover:bg-gray-50',
+                ? 'opacity-40 cursor-not-allowed text-slate-500'
+                : 'text-slate-300 hover:bg-white/[0.06]',
             )}
           >
             <ChevronLeftIcon className="h-4 w-4" />
             Previous
           </button>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-slate-500">
             Page {page} of {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             className={clsx(
-              'flex items-center gap-1.5 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium min-h-[44px] transition-colors',
+              'flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/10 text-sm font-medium min-h-[44px] transition-colors',
               page === totalPages
-                ? 'opacity-40 cursor-not-allowed text-gray-400'
-                : 'text-gray-700 hover:bg-gray-50',
+                ? 'opacity-40 cursor-not-allowed text-slate-500'
+                : 'text-slate-300 hover:bg-white/[0.06]',
             )}
           >
             Next

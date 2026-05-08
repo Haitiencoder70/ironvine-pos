@@ -49,7 +49,7 @@ export function SubdomainChecker({ value, onChange, error }: SubdomainCheckerPro
 
   const statusIcon: Record<Status, React.ReactNode> = {
     idle:      null,
-    checking:  <span className="text-gray-400 text-sm animate-pulse">Checking…</span>,
+    checking:  <span className="text-slate-400 text-sm animate-pulse">Checking…</span>,
     available: <span className="text-green-600 text-sm font-medium">✓ Available</span>,
     taken:     <span className="text-red-500 text-sm font-medium">✗ Taken</span>,
     invalid:   <span className="text-amber-500 text-sm">Min 3 chars, letters/numbers/hyphens only</span>,
@@ -57,18 +57,18 @@ export function SubdomainChecker({ value, onChange, error }: SubdomainCheckerPro
 
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-slate-300">
         Organization URL
       </label>
-      <div className="flex items-center rounded-xl border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+      <div className="flex items-center rounded-xl border border-white/10 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
           placeholder="my-company"
-          className="flex-1 min-h-[44px] px-3 text-sm outline-none bg-transparent"
+          className="flex-1 min-h-[44px] px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none bg-white/[0.06]"
         />
-        <span className="px-3 text-sm text-gray-400 bg-gray-50 border-l border-gray-300 h-full flex items-center whitespace-nowrap">
+        <span className="px-3 text-sm text-slate-400 bg-white/[0.04] border-l border-white/10 h-full flex items-center whitespace-nowrap">
           .{APP_DOMAIN}
         </span>
       </div>
@@ -78,7 +78,7 @@ export function SubdomainChecker({ value, onChange, error }: SubdomainCheckerPro
       </div>
       {status === 'taken' && suggestions.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap mt-1">
-          <span className="text-xs text-gray-500">Try:</span>
+          <span className="text-xs text-slate-500">Try:</span>
           {suggestions.map((s) => (
             <button
               key={s}

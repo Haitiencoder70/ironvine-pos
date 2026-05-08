@@ -82,12 +82,12 @@ export function SalesReportPage(): React.JSX.Element {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link to="/reports" className="min-h-[44px] w-11 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors">
-            <ArrowLeftIcon className="h-4 w-4 text-gray-600" />
+          <Link to="/reports" className="min-h-[44px] w-11 flex items-center justify-center rounded-xl bg-white/[0.06] hover:bg-white/10 transition-colors">
+            <ArrowLeftIcon className="h-4 w-4 text-slate-400" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Sales Report</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Detailed sales breakdown</p>
+            <h1 className="text-2xl font-bold text-slate-100">Sales Report</h1>
+            <p className="text-sm text-muted mt-0.5">Detailed sales breakdown</p>
           </div>
         </div>
         <button
@@ -105,7 +105,7 @@ export function SalesReportPage(): React.JSX.Element {
 
       {/* Summary */}
       {isLoading ? (
-        <div className="h-24 animate-pulse bg-gray-50 rounded-2xl" />
+        <div className="h-24 animate-pulse bg-white/[0.04] rounded-2xl" />
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
@@ -114,19 +114,19 @@ export function SalesReportPage(): React.JSX.Element {
             { label: 'Avg Order Value', value: formatCurrency(data?.summary.avgOrderValue ?? 0) },
             { label: 'Completed', value: String(data?.summary.completedOrders ?? 0) },
           ].map((m) => (
-            <div key={m.label} className="bg-white rounded-2xl shadow-sm p-4">
-              <p className="text-xs text-gray-500">{m.label}</p>
-              <p className="text-xl font-bold text-gray-900 mt-0.5">{m.value}</p>
+            <div key={m.label} className="glass-panel-weighted rounded-2xl p-4">
+              <p className="text-xs text-muted">{m.label}</p>
+              <p className="text-xl font-bold text-slate-100 stat-number mt-0.5">{m.value}</p>
             </div>
           ))}
         </div>
       )}
 
       {/* Revenue Chart */}
-      <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h2 className="text-base font-semibold text-gray-900 mb-4">Revenue Trend</h2>
+      <div className="card-cinema rounded-2xl p-5">
+        <h2 className="text-base font-semibold text-slate-100 mb-4">Revenue Trend</h2>
         {isLoading ? (
-          <div className="h-48 animate-pulse bg-gray-50 rounded-xl" />
+          <div className="h-48 animate-pulse bg-white/[0.04] rounded-xl" />
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={data?.revenueOverTime ?? []} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
@@ -141,10 +141,10 @@ export function SalesReportPage(): React.JSX.Element {
       </div>
 
       {/* Orders by Status */}
-      <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h2 className="text-base font-semibold text-gray-900 mb-4">Revenue by Status</h2>
+      <div className="card-cinema rounded-2xl p-5">
+        <h2 className="text-base font-semibold text-slate-100 mb-4">Revenue by Status</h2>
         {isLoading ? (
-          <div className="h-48 animate-pulse bg-gray-50 rounded-xl" />
+          <div className="h-48 animate-pulse bg-white/[0.04] rounded-xl" />
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={data?.ordersByStatus ?? []} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
@@ -169,12 +169,12 @@ export function SalesReportPage(): React.JSX.Element {
           placeholder="Search order # or customer..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="min-h-[44px] flex-1 min-w-[200px] rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-h-[44px] flex-1 min-w-[200px] rounded-xl border border-white/10 bg-white/[0.06] px-4 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="min-h-[44px] rounded-xl border border-gray-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          className="min-h-[44px] rounded-xl border border-white/10 px-4 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[rgba(10,10,20,0.85)]"
         >
           <option value="">All Statuses</option>
           {uniqueStatuses.map((s) => (
@@ -184,35 +184,35 @@ export function SalesReportPage(): React.JSX.Element {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-900">Order Details</h2>
-          <span className="text-sm text-gray-400">{filteredRows.length} orders</span>
+      <div className="card-cinema rounded-2xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-white/[0.06] flex items-center justify-between">
+          <h2 className="text-base font-semibold text-slate-100">Order Details</h2>
+          <span className="text-sm text-slate-500">{filteredRows.length} orders</span>
         </div>
         {isLoading ? (
           <div className="p-5 space-y-2">
-            {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 animate-pulse bg-gray-50 rounded-lg" />)}
+            {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 animate-pulse bg-white/[0.04] rounded-lg" />)}
           </div>
         ) : filteredRows.length === 0 ? (
-          <p className="p-8 text-center text-sm text-gray-400">No orders match your filters.</p>
+          <p className="p-8 text-center text-sm text-slate-500">No orders match your filters.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100">
+                <tr className="border-b border-white/[0.06]">
                   {['Order #', 'Date', 'Customer', 'Status', 'Items', 'Total'].map((h) => (
-                    <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                    <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-white/[0.04]">
                 {filteredRows.map((row) => (
-                  <tr key={row.orderNumber} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-3 font-medium text-blue-600">
+                  <tr key={row.orderNumber} className="hover:bg-white/[0.04] transition-colors">
+                    <td className="px-5 py-3 font-medium text-blue-400">
                       <Link to={`/orders`} className="hover:underline">{row.orderNumber}</Link>
                     </td>
-                    <td className="px-5 py-3 text-gray-500 whitespace-nowrap">{format(new Date(row.createdAt), 'MMM d, yyyy')}</td>
-                    <td className="px-5 py-3 text-gray-900">{row.customerName || '—'}</td>
+                    <td className="px-5 py-3 text-slate-500 whitespace-nowrap">{format(new Date(row.createdAt), 'MMM d, yyyy')}</td>
+                    <td className="px-5 py-3 text-slate-100">{row.customerName || '—'}</td>
                     <td className="px-5 py-3">
                       <span
                         className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
@@ -221,15 +221,15 @@ export function SalesReportPage(): React.JSX.Element {
                         {row.status.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-gray-600 text-center">{row.itemCount}</td>
-                    <td className="px-5 py-3 font-semibold text-gray-900">{formatCurrency(row.total)}</td>
+                    <td className="px-5 py-3 text-slate-400 text-center">{row.itemCount}</td>
+                    <td className="px-5 py-3 font-semibold text-slate-100">{formatCurrency(row.total)}</td>
                   </tr>
                 ))}
               </tbody>
-              <tfoot className="border-t border-gray-200 bg-gray-50">
+              <tfoot className="border-t border-white/10 bg-white/[0.04]">
                 <tr>
-                  <td colSpan={5} className="px-5 py-3 text-sm font-semibold text-gray-700">Total ({filteredRows.length} orders)</td>
-                  <td className="px-5 py-3 font-bold text-gray-900">
+                  <td colSpan={5} className="px-5 py-3 text-sm font-semibold text-slate-300">Total ({filteredRows.length} orders)</td>
+                  <td className="px-5 py-3 font-bold text-slate-100">
                     {formatCurrency(filteredRows.reduce((sum, r) => sum + r.total, 0))}
                   </td>
                 </tr>

@@ -74,13 +74,13 @@ function AssetUploader({
   return (
     <div className="flex items-center gap-4">
       <div
-        className="flex-shrink-0 rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden"
+        className="flex-shrink-0 rounded-lg border-2 border-dashed border-white/10 bg-white/[0.04] flex items-center justify-center overflow-hidden"
         style={{ width: previewSize * 2, height: previewSize }}
       >
         {currentUrl ? (
           <img src={currentUrl} alt={label} className="max-h-full max-w-full object-contain p-1" />
         ) : (
-          <PhotoIcon className="h-6 w-6 text-gray-300" />
+          <PhotoIcon className="h-6 w-6 text-slate-600" />
         )}
       </div>
       <div className="flex flex-col gap-2">
@@ -99,7 +99,7 @@ function AssetUploader({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg border border-white/10 bg-white/[0.06] text-sm font-medium text-slate-300 hover:bg-white/10 disabled:opacity-50"
         >
           <ArrowUpTrayIcon className="h-4 w-4" />
           {uploading ? 'Uploading…' : `Upload ${label}`}
@@ -124,11 +124,11 @@ function AssetUploader({
 function BrandingUpgradeGate() {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="rounded-full bg-blue-50 p-4 mb-4">
-        <LockClosedIcon className="h-8 w-8 text-blue-500" />
+      <div className="rounded-full bg-blue-500/10 p-4 mb-4">
+        <LockClosedIcon className="h-8 w-8 text-blue-400" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">White-Label Branding</h3>
-      <p className="text-sm text-gray-500 max-w-sm mb-6">
+      <h3 className="text-lg font-semibold text-slate-100 mb-2">White-Label Branding</h3>
+      <p className="text-sm text-slate-400 max-w-sm mb-6">
         Customize your logo, colors, favicon, and email branding. Available on PRO and ENTERPRISE plans.
       </p>
       <a
@@ -216,16 +216,16 @@ export function BrandingSettings() {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <PaintBrushIcon className="h-6 w-6 text-gray-400" />
+        <PaintBrushIcon className="h-6 w-6 text-slate-400" />
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Branding</h2>
-          <p className="text-sm text-gray-500">Customize how your POS looks and feels.</p>
+          <h2 className="text-lg font-semibold text-slate-100">Branding</h2>
+          <p className="text-sm text-slate-400">Customize how your POS looks and feels.</p>
         </div>
       </div>
 
       {/* Logo */}
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Logo</h3>
+        <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Logo</h3>
         <AssetUploader
           label="Logo"
           currentUrl={logoUrl}
@@ -237,12 +237,12 @@ export function BrandingSettings() {
           }}
           previewSize={48}
         />
-        <p className="text-xs text-gray-400">PNG, JPG, or SVG. Max 2 MB. Recommended: 200×60px.</p>
+        <p className="text-xs text-slate-500">PNG, JPG, or SVG. Max 2 MB. Recommended: 200×60px.</p>
       </section>
 
       {/* Favicon */}
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Favicon</h3>
+        <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Favicon</h3>
         <AssetUploader
           label="Favicon"
           currentUrl={faviconUrl}
@@ -254,21 +254,21 @@ export function BrandingSettings() {
           }}
           previewSize={32}
         />
-        <p className="text-xs text-gray-400">PNG or ICO. Max 512 KB. Recommended: 32×32px.</p>
+        <p className="text-xs text-slate-500">PNG or ICO. Max 512 KB. Recommended: 32×32px.</p>
       </section>
 
       {/* Colors */}
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Brand Colors</h3>
+        <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Brand Colors</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Primary Color</label>
+            <label className="text-sm font-medium text-slate-300">Primary Color</label>
             <div className="flex items-center gap-3">
               <input
                 type="color"
                 value={form.primaryColor}
                 onChange={(e) => handleColorChange('primaryColor', e.target.value)}
-                className="h-11 w-11 rounded-lg border border-gray-300 cursor-pointer p-0.5"
+                className="h-11 w-11 rounded-lg border border-white/10 cursor-pointer p-0.5 bg-transparent"
               />
               <input
                 type="text"
@@ -278,19 +278,19 @@ export function BrandingSettings() {
                     handleColorChange('primaryColor', e.target.value);
                   }
                 }}
-                className="flex-1 min-h-[44px] px-3 py-2 rounded-lg border border-gray-300 text-sm font-mono"
+                className="flex-1 min-h-[44px] px-3 py-2 rounded-lg border border-white/10 bg-white/[0.06] text-slate-100 text-sm font-mono"
                 placeholder="#2563eb"
               />
             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Secondary Color</label>
+            <label className="text-sm font-medium text-slate-300">Secondary Color</label>
             <div className="flex items-center gap-3">
               <input
                 type="color"
                 value={form.secondaryColor}
                 onChange={(e) => handleColorChange('secondaryColor', e.target.value)}
-                className="h-11 w-11 rounded-lg border border-gray-300 cursor-pointer p-0.5"
+                className="h-11 w-11 rounded-lg border border-white/10 cursor-pointer p-0.5 bg-transparent"
               />
               <input
                 type="text"
@@ -300,7 +300,7 @@ export function BrandingSettings() {
                     handleColorChange('secondaryColor', e.target.value);
                   }
                 }}
-                className="flex-1 min-h-[44px] px-3 py-2 rounded-lg border border-gray-300 text-sm font-mono"
+                className="flex-1 min-h-[44px] px-3 py-2 rounded-lg border border-white/10 bg-white/[0.06] text-slate-100 text-sm font-mono"
                 placeholder="#64748b"
               />
             </div>
@@ -310,37 +310,37 @@ export function BrandingSettings() {
 
       {/* Email Branding */}
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Email Branding</h3>
+        <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Email Branding</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">From Name</label>
+            <label className="text-sm font-medium text-slate-300">From Name</label>
             <input
               type="text"
               value={form.emailFromName}
               onChange={(e) => setForm((f) => ({ ...f, emailFromName: e.target.value }))}
-              className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-gray-300 text-sm"
+              className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-white/10 bg-white/[0.06] text-slate-100 text-sm placeholder:text-slate-500"
               placeholder="Acme Printing"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">From Address</label>
+            <label className="text-sm font-medium text-slate-300">From Address</label>
             <input
               type="email"
               value={form.emailFromAddress}
               onChange={(e) => setForm((f) => ({ ...f, emailFromAddress: e.target.value }))}
-              className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-gray-300 text-sm"
+              className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-white/10 bg-white/[0.06] text-slate-100 text-sm placeholder:text-slate-500"
               placeholder="orders@acmeprinting.com"
             />
-            <p className="text-xs text-gray-400">Must be a verified sender in your Resend dashboard.</p>
+            <p className="text-xs text-slate-500">Must be a verified sender in your Resend dashboard.</p>
           </div>
         </div>
       </section>
 
       {/* Custom CSS */}
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Custom CSS</h3>
-        <p className="text-xs text-gray-400">Advanced: inject CSS into the app. Changes apply after Save.</p>
-        <div className="rounded-lg border border-gray-300 overflow-hidden">
+        <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Custom CSS</h3>
+        <p className="text-xs text-slate-500">Advanced: inject CSS into the app. Changes apply after Save.</p>
+        <div className="rounded-lg border border-white/10 overflow-hidden">
           <CodeMirror
             value={form.customCSS}
             height="200px"
@@ -354,15 +354,15 @@ export function BrandingSettings() {
       {/* Custom Domain — ENTERPRISE only */}
       {canUseCustomDomain && (
         <section className="space-y-3">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Custom Domain</h3>
+          <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Custom Domain</h3>
           <input
             type="text"
             value={form.customDomain}
             onChange={(e) => setForm((f) => ({ ...f, customDomain: e.target.value }))}
-            className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-gray-300 text-sm"
+            className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-white/10 bg-white/[0.06] text-slate-100 text-sm placeholder:text-slate-500"
             placeholder="pos.acmeprinting.com"
           />
-          <div className="rounded-lg bg-blue-50 border border-blue-100 p-4 text-sm text-blue-800 space-y-1">
+          <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-4 text-sm text-blue-300 space-y-1">
             <p className="font-semibold">DNS Setup Instructions</p>
             <p>Add a CNAME record pointing your domain to your app subdomain, then contact support to provision SSL.</p>
           </div>
@@ -370,7 +370,7 @@ export function BrandingSettings() {
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+      <div className="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
         <button
           type="button"
           onClick={() => void saveMutation.mutateAsync(form)}
@@ -383,7 +383,7 @@ export function BrandingSettings() {
           type="button"
           onClick={handleRestoreDefaults}
           disabled={saveMutation.isPending}
-          className="min-h-[44px] px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          className="min-h-[44px] px-4 py-2 rounded-lg border border-white/10 text-sm font-medium text-slate-400 hover:bg-white/5 disabled:opacity-50"
         >
           Restore Defaults
         </button>

@@ -68,7 +68,7 @@ export function ProfilePage(): React.JSX.Element {
   if (!isLoaded) {
     return (
       <div className="p-6 max-w-xl mx-auto">
-        <div className="h-64 animate-pulse bg-gray-50 rounded-2xl" />
+        <div className="h-64 animate-pulse bg-white/[0.04] rounded-2xl" />
       </div>
     );
   }
@@ -82,18 +82,18 @@ export function ProfilePage(): React.JSX.Element {
       <div className="flex items-center gap-3">
         <Link
           to="/settings"
-          className="min-h-[44px] w-11 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+          className="min-h-[44px] w-11 flex items-center justify-center rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/10 transition-colors"
         >
-          <ArrowLeftIcon className="h-4 w-4 text-gray-600" />
+          <ArrowLeftIcon className="h-4 w-4 text-slate-400" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Update your personal information</p>
+          <h1 className="text-2xl font-bold text-slate-100">My Profile</h1>
+          <p className="text-sm text-slate-400 mt-0.5">Update your personal information</p>
         </div>
       </div>
 
       {/* Avatar Section */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 flex items-center gap-5">
+      <div className="card-cinema rounded-2xl p-6 flex items-center gap-5">
         <div className="relative flex-shrink-0">
           {clerkUser?.imageUrl ? (
             <img
@@ -102,73 +102,73 @@ export function ProfilePage(): React.JSX.Element {
               className="w-20 h-20 rounded-full object-cover"
             />
           ) : (
-            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-2xl font-bold text-blue-700">
+            <div className="w-20 h-20 rounded-full bg-blue-500/15 flex items-center justify-center text-2xl font-bold text-blue-300">
               {initials}
             </div>
           )}
           <button
             onClick={() => avatarRef.current?.click()}
             disabled={avatarMutation.isPending}
-            className="absolute -bottom-1 -right-1 w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+            className="absolute -bottom-1 -right-1 w-8 h-8 bg-white/10 border border-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
             title="Change avatar"
           >
-            <CameraIcon className="h-4 w-4 text-gray-600" />
+            <CameraIcon className="h-4 w-4 text-slate-300" />
           </button>
           <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
         </div>
         <div>
-          <p className="text-lg font-semibold text-gray-900">{displayName || 'Your Name'}</p>
-          <p className="text-sm text-gray-500">{clerkUser?.primaryEmailAddress?.emailAddress}</p>
-          <p className="text-xs text-gray-400 mt-1 capitalize">
+          <p className="text-lg font-semibold text-slate-100">{displayName || 'Your Name'}</p>
+          <p className="text-sm text-slate-400">{clerkUser?.primaryEmailAddress?.emailAddress}</p>
+          <p className="text-xs text-slate-500 mt-1 capitalize">
             {clerkUser?.organizationMemberships?.[0]?.role?.replace('org:', '') ?? 'Member'}
           </p>
         </div>
       </div>
 
       {/* Profile Form */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
-        <h2 className="text-base font-semibold text-gray-900">Personal Information</h2>
+      <form onSubmit={handleSubmit} className="card-cinema rounded-2xl p-6 space-y-5">
+        <h2 className="text-base font-semibold text-slate-100">Personal Information</h2>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">First Name</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">First Name</label>
             <input
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               className={clsx(
-                'w-full min-h-[44px] rounded-xl border px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500',
-                errors.firstName ? 'border-red-300 bg-red-50' : 'border-gray-200',
+                'w-full min-h-[44px] rounded-xl border px-4 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/60',
+                errors.firstName ? 'border-red-500/60 bg-red-500/10' : 'border-white/10 bg-white/[0.06]',
               )}
             />
-            {errors.firstName && <p className="mt-1 text-xs text-red-600">{errors.firstName}</p>}
+            {errors.firstName && <p className="mt-1 text-xs text-red-400">{errors.firstName}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Last Name</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">Last Name</label>
             <input
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               className={clsx(
-                'w-full min-h-[44px] rounded-xl border px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500',
-                errors.lastName ? 'border-red-300 bg-red-50' : 'border-gray-200',
+                'w-full min-h-[44px] rounded-xl border px-4 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/60',
+                errors.lastName ? 'border-red-500/60 bg-red-500/10' : 'border-white/10 bg-white/[0.06]',
               )}
             />
-            {errors.lastName && <p className="mt-1 text-xs text-red-600">{errors.lastName}</p>}
+            {errors.lastName && <p className="mt-1 text-xs text-red-400">{errors.lastName}</p>}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
+          <label className="block text-sm font-medium text-slate-300 mb-1.5">Email Address</label>
           <input
             value={clerkUser?.primaryEmailAddress?.emailAddress ?? ''}
             disabled
-            className="w-full min-h-[44px] rounded-xl border border-gray-200 px-4 text-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+            className="w-full min-h-[44px] rounded-xl border border-white/10 px-4 text-sm bg-white/[0.03] text-slate-500 cursor-not-allowed"
           />
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-slate-500">
             Manage email and password in{' '}
             <button
               type="button"
               onClick={() => openUserProfile()}
-              className="text-blue-600 hover:underline"
+              className="text-blue-400 hover:underline"
             >
               account settings
             </button>
@@ -185,14 +185,14 @@ export function ProfilePage(): React.JSX.Element {
       </form>
 
       {/* Account Security */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
-        <h2 className="text-base font-semibold text-gray-900">Account Security</h2>
-        <p className="text-sm text-gray-500">
+      <div className="card-cinema rounded-2xl p-6 space-y-4">
+        <h2 className="text-base font-semibold text-slate-100">Account Security</h2>
+        <p className="text-sm text-slate-400">
           Password, two-factor authentication, and connected accounts are managed through your Clerk account profile.
         </p>
         <button
           onClick={() => openUserProfile()}
-          className="min-h-[44px] px-5 rounded-xl border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+          className="min-h-[44px] px-5 rounded-xl border border-white/10 text-slate-300 text-sm font-medium hover:bg-white/5 transition-colors"
         >
           Open Account Settings
         </button>

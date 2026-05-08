@@ -80,16 +80,16 @@ export function POSTerminal(): React.JSX.Element {
           {/* Sheet */}
           <div
             className={clsx(
-              'bg-white rounded-t-2xl shadow-2xl flex flex-col',
+              'glass-panel-weighted rounded-t-2xl flex flex-col',
               'h-[85vh]',
             )}
           >
             {/* Sheet header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
-              <span className="text-base font-bold text-gray-900">Cart</span>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 flex-shrink-0">
+              <span className="text-base font-bold text-slate-100">Cart</span>
               <button
                 onClick={() => setShowMobileCart(false)}
-                className="p-2 rounded-xl text-gray-400 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label="Close cart"
               >
                 <XMarkIcon className="h-5 w-5" />

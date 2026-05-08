@@ -85,45 +85,45 @@ export function ShipmentListPage(): JSX.Element {
       
       {/* Header */}
       <div>
-         <h1 className="text-2xl font-bold text-gray-900">Shipments</h1>
-         <p className="text-sm text-gray-500 mt-1">Track outbound packages and routing statuses.</p>
+         <h1 className="text-2xl font-bold text-slate-100">Shipments</h1>
+         <p className="text-sm text-slate-500 mt-1">Track outbound packages and routing statuses.</p>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
          <TouchCard padding="md" className="border-l-4 border-l-amber-500 flex items-center pr-10">
-            <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0 mr-4">
-              <ArchiveBoxIcon className="h-5 w-5 text-amber-600" />
+            <div className="h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 mr-4">
+              <ArchiveBoxIcon className="h-5 w-5 text-amber-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">Processing</p>
-              <p className="text-2xl font-bold text-gray-900">{pendingCount}</p>
+              <p className="text-sm text-slate-400 font-semibold uppercase tracking-wide">Processing</p>
+              <p className="text-2xl font-bold text-slate-100">{pendingCount}</p>
             </div>
          </TouchCard>
          <TouchCard padding="md" className="border-l-4 border-l-purple-500 flex items-center pr-10">
-            <div className="h-10 w-10 rounded-full bg-purple-50 flex items-center justify-center shrink-0 mr-4">
-              <TruckIcon className="h-5 w-5 text-purple-600" />
+            <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center shrink-0 mr-4">
+              <TruckIcon className="h-5 w-5 text-purple-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">In Transit</p>
-              <p className="text-2xl font-bold text-gray-900">{transitCount}</p>
+              <p className="text-sm text-slate-400 font-semibold uppercase tracking-wide">In Transit</p>
+              <p className="text-2xl font-bold text-slate-100">{transitCount}</p>
             </div>
          </TouchCard>
          <TouchCard padding="md" className="border-l-4 border-l-green-500 flex items-center pr-10">
-            <div className="h-10 w-10 rounded-full bg-green-50 flex items-center justify-center shrink-0 mr-4">
-              <CheckBadgeIcon className="h-5 w-5 text-green-600" />
+            <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center shrink-0 mr-4">
+              <CheckBadgeIcon className="h-5 w-5 text-green-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">Delivered</p>
-              <p className="text-2xl font-bold text-gray-900">{deliveredCount}</p>
+              <p className="text-sm text-slate-400 font-semibold uppercase tracking-wide">Delivered</p>
+              <p className="text-2xl font-bold text-slate-100">{deliveredCount}</p>
             </div>
          </TouchCard>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4">
+      <div className="glass-panel rounded-2xl p-4 border border-white/10 flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
           <input
             type="text"
             placeholder="Search tracking # or Order #..."
@@ -132,7 +132,7 @@ export function ShipmentListPage(): JSX.Element {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-gray-300 bg-white text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-white/10 bg-white/[0.06] text-slate-100 placeholder:text-slate-500 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -142,7 +142,7 @@ export function ShipmentListPage(): JSX.Element {
             setCarrier(e.target.value as ShipmentCarrier | '');
             setPage(1);
           }}
-          className="md:w-48 min-h-[44px] rounded-xl border border-gray-300 bg-white px-3 text-base shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="md:w-48 min-h-[44px] rounded-xl border border-white/10 bg-[rgba(10,10,20,0.85)] text-slate-100 px-3 text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Carriers</option>
           {CARRIERS.map(c => <option key={c} value={c}>{c}</option>)}
@@ -154,7 +154,7 @@ export function ShipmentListPage(): JSX.Element {
             setStatus(e.target.value as ShipmentStatus | '');
             setPage(1);
           }}
-          className="md:w-56 min-h-[44px] rounded-xl border border-gray-300 bg-white px-3 text-base shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="md:w-56 min-h-[44px] rounded-xl border border-white/10 bg-[rgba(10,10,20,0.85)] text-slate-100 px-3 text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Statuses</option>
           {Object.entries(STATUS_CONFIG).map(([key, config]) => (
@@ -180,10 +180,10 @@ export function ShipmentListPage(): JSX.Element {
       )}
 
       {/* Desktop Table */}
-      <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="hidden lg:block card-cinema rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-gray-50 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-xs font-semibold">
+            <thead className="bg-white/[0.04] border-b border-white/[0.06] text-slate-400 text-xs font-semibold uppercase tracking-wide">
               <tr>
                 <th className="px-6 py-4">Linked Order</th>
                 <th className="px-6 py-4">Customer</th>
@@ -194,7 +194,7 @@ export function ShipmentListPage(): JSX.Element {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-white/[0.04]">
               {isLoading ? (
                 <SkeletonLoader variant="table" rows={5} />
               ) : shipments.length === 0 ? (
@@ -215,16 +215,16 @@ export function ShipmentListPage(): JSX.Element {
                 shipments.map((s) => {
                   const badge = STATUS_CONFIG[s.status];
                   return (
-                    <tr key={s.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={s.id} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors">
                       <td className="px-6 py-4 font-bold">
-                        <span 
-                          className="text-blue-600 hover:underline cursor-pointer"
+                        <span
+                          className="text-blue-400 hover:underline cursor-pointer"
                           onClick={() => navigate(`/orders/${s.orderId}`)}
                         >
                           {s.order?.orderNumber || s.orderId.substring(0, 8)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-medium text-gray-700">
+                      <td className="px-6 py-4 font-medium text-slate-300">
                         {s.order?.customer?.firstName ? `${s.order.customer.firstName} ${s.order.customer.lastName}` : '—'}
                       </td>
                       <td className="px-6 py-4">
@@ -232,13 +232,13 @@ export function ShipmentListPage(): JSX.Element {
                           {badge.label}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-semibold text-gray-700">
+                      <td className="px-6 py-4 font-semibold text-slate-300">
                         {s.carrier}
                       </td>
-                      <td className="px-6 py-4 font-mono text-gray-600">
-                        {s.trackingNumber || <span className="italic text-gray-400">Processing</span>}
+                      <td className="px-6 py-4 font-mono text-slate-400">
+                        {s.trackingNumber || <span className="italic text-slate-500">Processing</span>}
                       </td>
-                      <td className="px-6 py-4 text-gray-500">
+                      <td className="px-6 py-4 text-slate-500">
                         {format(new Date(s.updatedAt), 'MMM d, yyyy')}
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -278,23 +278,23 @@ export function ShipmentListPage(): JSX.Element {
                 key={s.id}
                 onClick={() => navigate(`/shipments/${s.id}`)}
                 padding="md"
-                className="border border-gray-100"
+                className="border border-white/10"
               >
                 <div className="flex justify-between items-start gap-3 mb-2">
                   <div>
-                    <h3 className="font-bold text-gray-900 text-lg">{s.carrier}</h3>
-                    <p className="text-sm font-medium text-gray-700 mt-0.5">Job: {s.order?.orderNumber}</p>
+                    <h3 className="font-bold text-slate-100 text-lg">{s.carrier}</h3>
+                    <p className="text-sm font-medium text-slate-300 mt-0.5">Job: {s.order?.orderNumber}</p>
                   </div>
                   <span className={clsx('px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide text-center max-w-[100px]', badge.bg, badge.text)}>
                     {badge.label}
                   </span>
                 </div>
-                
-                <div className="flex justify-between items-end mt-4 pt-3 border-t border-gray-50">
-                  <div className="text-xs text-gray-500 space-y-1">
+
+                <div className="flex justify-between items-end mt-4 pt-3 border-t border-white/[0.06]">
+                  <div className="text-xs text-slate-500 space-y-1">
                     <p>Updated: {format(new Date(s.updatedAt), 'MMM d')}</p>
                   </div>
-                  <div className="text-right text-sm font-bold text-gray-900 border-l border-gray-100 pl-4 py-1 font-mono">
+                  <div className="text-right text-sm font-bold text-slate-100 border-l border-white/10 pl-4 py-1 font-mono">
                     {s.trackingNumber || 'Pending'}
                   </div>
                 </div>
@@ -306,9 +306,9 @@ export function ShipmentListPage(): JSX.Element {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-gray-200 pt-6 mt-6">
-          <p className="text-sm text-gray-500 hidden sm:block">
-            Showing <span className="font-medium text-gray-900">{shipments.length}</span> results
+        <div className="flex items-center justify-between border-t border-white/10 pt-6 mt-6">
+          <p className="text-sm text-slate-500 hidden sm:block">
+            Showing <span className="font-medium text-slate-100">{shipments.length}</span> results
           </p>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
             <TouchButton

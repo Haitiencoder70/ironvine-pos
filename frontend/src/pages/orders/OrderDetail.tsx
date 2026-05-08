@@ -53,9 +53,9 @@ import type { OrderStatus, OrderPriority } from '../../types';
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
 const PRIORITY_STYLES: Record<OrderPriority, string> = {
-  NORMAL: 'bg-gray-100 text-gray-700',
-  HIGH: 'bg-amber-100 text-amber-800',
-  RUSH: 'bg-red-100 text-red-800',
+  NORMAL: 'bg-white/[0.08] text-slate-300',
+  HIGH: 'bg-amber-900/30 text-amber-300',
+  RUSH: 'bg-red-900/30 text-red-300',
 };
 
 const PRIORITY_LABELS: Record<OrderPriority, string> = {
@@ -101,7 +101,7 @@ interface SectionHeaderProps {
 function SectionHeader({ icon, title, action }: SectionHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h2 className="flex items-center gap-2 text-base font-semibold text-gray-900">
+      <h2 className="flex items-center gap-2 text-base font-semibold text-slate-100">
         {icon}
         {title}
       </h2>
@@ -143,13 +143,13 @@ function CancelModal({ open, orderNumber, onClose, onConfirm, isLoading }: Cance
     >
       <div className="space-y-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Reason (optional)</label>
+          <label className="text-sm font-medium text-slate-300">Reason (optional)</label>
           <textarea
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Why is this order being cancelled?"
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-base shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-base text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
           />
         </div>
         <div className="flex gap-3">
@@ -290,9 +290,9 @@ export function OrderDetailPage(): JSX.Element {
   if (isError || !order) {
     return (
       <div className="p-6 max-w-xl mx-auto text-center mt-16">
-        <ExclamationCircleIcon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Order not found</h2>
-        <p className="text-sm text-gray-500 mb-6">
+        <ExclamationCircleIcon className="h-12 w-12 text-slate-600 mx-auto mb-4" />
+        <h2 className="text-lg font-semibold text-slate-200 mb-2">Order not found</h2>
+        <p className="text-sm text-slate-500 mb-6">
           This order may have been deleted or you may not have access.
         </p>
         <div className="flex gap-3 justify-center">
@@ -320,7 +320,7 @@ export function OrderDetailPage(): JSX.Element {
           <button
             type="button"
             onClick={() => navigate('/orders')}
-            className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors min-h-[44px] -ml-2 px-2 rounded-xl hover:bg-gray-100 print:hidden"
+            className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-300 transition-colors min-h-[44px] -ml-2 px-2 rounded-xl hover:bg-white/[0.06] print:hidden"
           >
             <ChevronLeftIcon className="h-4 w-4" />
             Orders
@@ -328,7 +328,7 @@ export function OrderDetailPage(): JSX.Element {
 
           {/* Order number + badges */}
           <div className="flex flex-1 flex-wrap items-center gap-3 min-w-0">
-            <h1 className="text-2xl font-bold text-gray-900 truncate">
+            <h1 className="text-2xl font-bold text-slate-100 truncate">
               {order.orderNumber}
             </h1>
             <StatusBadge status={order.status} size="md" />
@@ -341,7 +341,7 @@ export function OrderDetailPage(): JSX.Element {
               {PRIORITY_LABELS[priority]}
             </span>
             {order.dueDate && (
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-slate-500">
                 Due {format(new Date(order.dueDate), 'MMM d, yyyy')}
               </span>
             )}
@@ -351,7 +351,7 @@ export function OrderDetailPage(): JSX.Element {
           <Menu as="div" className="relative print:hidden">
             <MenuButton
               id="order-actions-menu"
-              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl border border-white/10 bg-white/[0.06] text-slate-400 hover:bg-white/[0.10] hover:text-slate-100 transition-colors"
               aria-label="Order actions"
             >
               <EllipsisVerticalIcon className="h-5 w-5" />
@@ -365,17 +365,17 @@ export function OrderDetailPage(): JSX.Element {
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
             >
-              <MenuItems className="absolute right-0 z-30 mt-1 w-52 origin-top-right rounded-2xl bg-white shadow-xl ring-1 ring-black/5 focus:outline-none py-1">
+              <MenuItems className="absolute right-0 z-30 mt-1 w-52 origin-top-right rounded-2xl glass-panel-weighted-heavy shadow-xl ring-1 ring-white/10 focus:outline-none py-1">
                 <MenuItem>
                   {({ focus }) => (
                     <button
                       onClick={() => navigate(`/orders/${order.id}/edit`)}
                       className={clsx(
-                        'flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 min-h-[44px]',
-                        focus && 'bg-gray-50'
+                        'flex w-full items-center gap-3 px-4 py-3 text-sm text-slate-300 min-h-[44px] transition-colors',
+                        focus && 'bg-white/[0.08]'
                       )}
                     >
-                      <PencilSquareIcon className="h-4 w-4 text-gray-400" />
+                      <PencilSquareIcon className="h-4 w-4 text-slate-500" />
                       Edit Order
                     </button>
                   )}
@@ -385,11 +385,11 @@ export function OrderDetailPage(): JSX.Element {
                     <button
                       onClick={handlePrint}
                       className={clsx(
-                        'flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 min-h-[44px]',
-                        focus && 'bg-gray-50'
+                        'flex w-full items-center gap-3 px-4 py-3 text-sm text-slate-300 min-h-[44px] transition-colors',
+                        focus && 'bg-white/[0.08]'
                       )}
                     >
-                      <PrinterIcon className="h-4 w-4 text-gray-400" />
+                      <PrinterIcon className="h-4 w-4 text-slate-500" />
                       Print Order
                     </button>
                   )}
@@ -399,11 +399,11 @@ export function OrderDetailPage(): JSX.Element {
                     <button
                       onClick={handlePrint}
                       className={clsx(
-                        'flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 min-h-[44px]',
-                        focus && 'bg-gray-50'
+                        'flex w-full items-center gap-3 px-4 py-3 text-sm text-slate-300 min-h-[44px] transition-colors',
+                        focus && 'bg-white/[0.08]'
                       )}
                     >
-                      <QrCodeIcon className="h-4 w-4 text-gray-400" />
+                      <QrCodeIcon className="h-4 w-4 text-slate-500" />
                       Print Label
                     </button>
                   )}
@@ -413,25 +413,25 @@ export function OrderDetailPage(): JSX.Element {
                     <button
                       onClick={() => toast('Duplicate coming soon', { icon: '📋' })}
                       className={clsx(
-                        'flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 min-h-[44px]',
-                        focus && 'bg-gray-50'
+                        'flex w-full items-center gap-3 px-4 py-3 text-sm text-slate-300 min-h-[44px] transition-colors',
+                        focus && 'bg-white/[0.08]'
                       )}
                     >
-                      <DocumentDuplicateIcon className="h-4 w-4 text-gray-400" />
+                      <DocumentDuplicateIcon className="h-4 w-4 text-slate-500" />
                       Duplicate Order
                     </button>
                   )}
                 </MenuItem>
                 {order.status !== 'CANCELLED' && order.status !== 'COMPLETED' && (
                   <>
-                    <div className="my-1 border-t border-gray-100" />
+                    <div className="my-1 border-t border-white/[0.08]" />
                     <MenuItem>
                       {({ focus }) => (
                         <button
                           onClick={() => setShowCancelModal(true)}
                           className={clsx(
                             'flex w-full items-center gap-3 px-4 py-3 text-sm text-red-600 min-h-[44px]',
-                            focus && 'bg-red-50'
+                            focus && 'bg-red-900/20'
                           )}
                         >
                           <XCircleIcon className="h-4 w-4" />
@@ -447,7 +447,7 @@ export function OrderDetailPage(): JSX.Element {
 
           {/* Refetch indicator */}
           {updateStatus.isPending && (
-            <ArrowPathIcon className="h-4 w-4 text-gray-400 animate-spin" />
+            <ArrowPathIcon className="h-4 w-4 text-slate-500 animate-spin" />
           )}
         </div>
 
@@ -456,9 +456,9 @@ export function OrderDetailPage(): JSX.Element {
           {/* ── Left column (2/3) ── */}
           <div className="lg:col-span-2 space-y-5">
             {/* Customer Card */}
-            <TouchCard padding="md" className="shadow-sm border border-gray-100">
+            <TouchCard padding="md" className="border border-white/[0.06]">
               <SectionHeader
-                icon={<UserIcon className="h-4 w-4 text-gray-500" />}
+                icon={<UserIcon className="h-4 w-4 text-slate-500" />}
                 title="Customer"
                 action={
                   order.customer && (
@@ -480,11 +480,11 @@ export function OrderDetailPage(): JSX.Element {
                         {order.customer.firstName[0]}{order.customer.lastName[0]}
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-900">
+                        <p className="font-semibold text-slate-100">
                           {order.customer.firstName} {order.customer.lastName}
                         </p>
                         {order.customer.company && (
-                          <p className="text-sm text-gray-400 flex items-center gap-1">
+                          <p className="text-sm text-slate-500 flex items-center gap-1">
                             <BuildingOfficeIcon className="h-3.5 w-3.5" />
                             {order.customer.company}
                           </p>
@@ -492,16 +492,16 @@ export function OrderDetailPage(): JSX.Element {
                       </div>
                     </div>
                     {order.customer.phone && (
-                      <p className="text-sm text-gray-600 flex items-center gap-2">
-                        <PhoneIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      <p className="text-sm text-slate-400 flex items-center gap-2">
+                        <PhoneIcon className="h-4 w-4 text-slate-500 flex-shrink-0" />
                         <a href={`tel:${order.customer.phone}`} className="hover:text-blue-600 transition-colors">
                           {order.customer.phone}
                         </a>
                       </p>
                     )}
                     {order.customer.email && (
-                      <p className="text-sm text-gray-600 flex items-center gap-2">
-                        <EnvelopeIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      <p className="text-sm text-slate-400 flex items-center gap-2">
+                        <EnvelopeIcon className="h-4 w-4 text-slate-500 flex-shrink-0" />
                         <a href={`mailto:${order.customer.email}`} className="hover:text-blue-600 transition-colors truncate">
                           {order.customer.email}
                         </a>
@@ -513,11 +513,11 @@ export function OrderDetailPage(): JSX.Element {
                   <div className="space-y-3">
                     {order.customer.shippingStreet && (
                       <div>
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-0.5">
                           Shipping
                         </p>
-                        <p className="text-sm text-gray-600 flex items-start gap-1.5">
-                          <MapPinIcon className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-slate-400 flex items-start gap-1.5">
+                          <MapPinIcon className="h-4 w-4 text-slate-500 flex-shrink-0 mt-0.5" />
                           <span>
                             {order.customer.shippingStreet}<br />
                             {order.customer.shippingCity}, {order.customer.shippingState} {order.customer.shippingZip}
@@ -527,11 +527,11 @@ export function OrderDetailPage(): JSX.Element {
                     )}
                     {order.customer.billingStreet && (
                       <div>
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-0.5">
                           Billing
                         </p>
-                        <p className="text-sm text-gray-600 flex items-start gap-1.5">
-                          <MapPinIcon className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-slate-400 flex items-start gap-1.5">
+                          <MapPinIcon className="h-4 w-4 text-slate-500 flex-shrink-0 mt-0.5" />
                           <span>
                             {order.customer.billingStreet}<br />
                             {order.customer.billingCity}, {order.customer.billingState} {order.customer.billingZip}
@@ -542,14 +542,14 @@ export function OrderDetailPage(): JSX.Element {
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-400">No customer information</p>
+                <p className="text-sm text-slate-500">No customer information</p>
               )}
             </TouchCard>
 
             {/* Order Items */}
-            <TouchCard padding="md" className="shadow-sm border border-gray-100">
+            <TouchCard padding="md" className="border border-white/[0.06]">
               <SectionHeader
-                icon={<CubeIcon className="h-4 w-4 text-gray-500" />}
+                icon={<CubeIcon className="h-4 w-4 text-slate-500" />}
                 title={`Order Items (${order.items.length})`}
               />
               <div className="space-y-3">
@@ -560,30 +560,30 @@ export function OrderDetailPage(): JSX.Element {
                   return (
                     <div
                       key={item.id}
-                      className="border border-gray-200 rounded-xl overflow-hidden"
+                      className="border border-white/10 rounded-xl overflow-hidden"
                     >
                       {/* Item row */}
                       <button
                         type="button"
                         onClick={() => toggleItemExpand(item.id)}
-                        className="w-full text-left px-4 py-3 flex items-start gap-3 hover:bg-gray-50 transition-colors min-h-[52px]"
+                        className="w-full text-left px-4 py-3 flex items-start gap-3 hover:bg-white/[0.04] transition-colors min-h-[52px]"
                         aria-expanded={isExpanded}
                       >
-                        <span className="text-xs font-bold text-gray-400 mt-0.5 flex-shrink-0">
+                        <span className="text-xs font-bold text-slate-500 mt-0.5 flex-shrink-0">
                           #{idx + 1}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm">
+                          <p className="font-semibold text-slate-100 text-sm">
                             {PRODUCT_TYPE_LABELS[item.productType] ?? item.productType}
                             {item.size ? ` · ${item.size}` : ''}
                             {item.color ? ` · ${item.color}` : ''}
                           </p>
-                          <p className="text-xs text-gray-400 mt-0.5">
+                          <p className="text-xs text-slate-500 mt-0.5">
                             {item.quantity} × {fmt(item.unitPrice)}
                             {item.printMethod ? ` · ${item.printMethod.replace(/_/g, ' ')}` : ''}
                           </p>
                           {item.printLocations.length > 0 && (
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-slate-500">
                               {item.printLocations
                                 .map((l) => PRINT_LOCATION_LABELS[l as string] ?? l)
                                 .join(', ')}
@@ -591,8 +591,8 @@ export function OrderDetailPage(): JSX.Element {
                           )}
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <p className="font-bold text-gray-900">{fmt(lineTotal)}</p>
-                          <span className="text-xs text-gray-400">
+                          <p className="font-bold text-slate-100">{fmt(lineTotal)}</p>
+                          <span className="text-xs text-slate-500">
                             {isExpanded ? '▲ Less' : '▼ Materials'}
                           </span>
                         </div>
@@ -608,7 +608,7 @@ export function OrderDetailPage(): JSX.Element {
                             transition={{ duration: 0.18 }}
                             style={{ overflow: 'hidden' }}
                           >
-                            <div className="px-4 pb-3 border-t border-gray-100 bg-amber-50">
+                            <div className="px-4 pb-3 border-t border-white/[0.06] bg-amber-900/10">
                               <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide pt-3 pb-1.5">
                                 Required Materials
                               </p>
@@ -631,7 +631,7 @@ export function OrderDetailPage(): JSX.Element {
                             transition={{ duration: 0.18 }}
                             style={{ overflow: 'hidden' }}
                           >
-                            <p className="px-4 pb-3 text-xs text-gray-400 border-t border-gray-100 pt-2">
+                            <p className="px-4 pb-3 text-xs text-slate-500 border-t border-white/[0.06] pt-2">
                               No required materials listed for this item.
                             </p>
                           </motion.div>
@@ -644,7 +644,7 @@ export function OrderDetailPage(): JSX.Element {
 
               {/* Use Materials button (in production) */}
               {order.status === 'IN_PRODUCTION' && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="mt-4 pt-4 border-t border-white/[0.06]">
                   <TouchButton
                     id="order-use-materials"
                     variant="warning"
@@ -660,28 +660,28 @@ export function OrderDetailPage(): JSX.Element {
 
             {/* Notes */}
             {(order.notes || order.designNotes || order.internalNotes) && (
-              <TouchCard padding="md" className="shadow-sm border border-gray-100">
+              <TouchCard padding="md" className="border border-white/[0.06]">
                 <SectionHeader
-                  icon={<ClipboardDocumentListIcon className="h-4 w-4 text-gray-500" />}
+                  icon={<ClipboardDocumentListIcon className="h-4 w-4 text-slate-500" />}
                   title="Notes"
                 />
                 <div className="space-y-3">
                   {order.notes && (
                     <div>
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Order Notes</p>
-                      <p className="text-sm text-gray-700">{order.notes}</p>
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Order Notes</p>
+                      <p className="text-sm text-slate-300">{order.notes}</p>
                     </div>
                   )}
                   {order.designNotes && (
                     <div>
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Design Notes</p>
-                      <p className="text-sm text-gray-700">{order.designNotes}</p>
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Design Notes</p>
+                      <p className="text-sm text-slate-300">{order.designNotes}</p>
                     </div>
                   )}
                   {order.internalNotes && (
                     <div>
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Internal Notes</p>
-                      <p className="text-sm text-gray-700 italic">{order.internalNotes}</p>
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Internal Notes</p>
+                      <p className="text-sm text-slate-300 italic">{order.internalNotes}</p>
                     </div>
                   )}
                 </div>
@@ -689,9 +689,9 @@ export function OrderDetailPage(): JSX.Element {
             )}
 
             {/* Design Mockups */}
-            <TouchCard padding="md" className="shadow-sm border border-gray-100">
+            <TouchCard padding="md" className="border border-white/[0.06]">
               <SectionHeader
-                icon={<PhotoIcon className="h-4 w-4 text-gray-500" />}
+                icon={<PhotoIcon className="h-4 w-4 text-slate-500" />}
                 title="Design Mockups"
               />
               <div className="space-y-4">
@@ -717,13 +717,13 @@ export function OrderDetailPage(): JSX.Element {
             </TouchCard>
 
             {/* Production Photos */}
-            <TouchCard padding="md" className="shadow-sm border border-gray-100">
+            <TouchCard padding="md" className="border border-white/[0.06]">
               <SectionHeader
-                icon={<CameraIcon className="h-4 w-4 text-gray-500" />}
+                icon={<CameraIcon className="h-4 w-4 text-slate-500" />}
                 title="Production Photos"
               />
               <div className="space-y-4">
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-slate-500">
                   Photos taken during production for quality assurance.
                 </p>
                 <ImageGallery
@@ -747,13 +747,13 @@ export function OrderDetailPage(): JSX.Element {
             </TouchCard>
 
             {/* Totals */}
-            <TouchCard padding="md" className="shadow-sm border border-gray-100">
+            <TouchCard padding="md" className="border border-white/[0.06]">
               <SectionHeader
-                icon={<CurrencyDollarIcon className="h-4 w-4 text-gray-500" />}
+                icon={<CurrencyDollarIcon className="h-4 w-4 text-slate-500" />}
                 title="Order Totals"
               />
               <div className="space-y-2">
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm text-slate-400">
                   <span>Subtotal</span>
                   <span>{fmt(order.subtotal)}</span>
                 </div>
@@ -763,17 +763,17 @@ export function OrderDetailPage(): JSX.Element {
                     <span>−{fmt(order.discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm text-slate-400">
                   <span>Tax</span>
                   <span>{fmt(order.taxAmount)}</span>
                 </div>
                 {(order.shippingAmount ?? 0) > 0 && (
-                  <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-sm text-slate-400">
                     <span>Shipping</span>
                     <span>{fmt(order.shippingAmount)}</span>
                   </div>
                 )}
-                <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold text-gray-900">
+                <div className="border-t border-white/10 pt-2 mt-2 flex justify-between font-bold text-slate-100">
                   <span>Total</span>
                   <span className="text-lg">{fmt(order.total)}</span>
                 </div>
@@ -784,9 +784,9 @@ export function OrderDetailPage(): JSX.Element {
           {/* ── Right column (1/3) ── */}
           <div className="space-y-5">
             {/* Order Workflow */}
-            <TouchCard padding="md" className="shadow-sm border border-gray-100">
+            <TouchCard padding="md" className="border border-white/[0.06]">
               <SectionHeader
-                icon={<ShoppingCartIcon className="h-4 w-4 text-gray-500" />}
+                icon={<ShoppingCartIcon className="h-4 w-4 text-slate-500" />}
                 title="Order Progress"
               />
               <OrderWorkflow
@@ -797,34 +797,34 @@ export function OrderDetailPage(): JSX.Element {
             </TouchCard>
 
             {/* Order Metadata */}
-            <TouchCard padding="md" className="shadow-sm border border-gray-100">
+            <TouchCard padding="md" className="border border-white/[0.06]">
               <SectionHeader
-                icon={<ClipboardDocumentListIcon className="h-4 w-4 text-gray-500" />}
+                icon={<ClipboardDocumentListIcon className="h-4 w-4 text-slate-500" />}
                 title="Details"
               />
               <dl className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-gray-400">Created</dt>
-                  <dd className="text-gray-700 font-medium">
+                  <dt className="text-slate-500">Created</dt>
+                  <dd className="text-slate-300 font-medium">
                     {format(new Date(order.createdAt), 'MMM d, yyyy')}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-400">Last Updated</dt>
-                  <dd className="text-gray-700 font-medium">
+                  <dt className="text-slate-500">Last Updated</dt>
+                  <dd className="text-slate-300 font-medium">
                     {format(new Date(order.updatedAt), 'MMM d, h:mm a')}
                   </dd>
                 </div>
                 {order.dueDate && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-400">Due Date</dt>
-                    <dd className="text-gray-700 font-medium">
+                    <dt className="text-slate-500">Due Date</dt>
+                    <dd className="text-slate-300 font-medium">
                       {format(new Date(order.dueDate), 'MMM d, yyyy')}
                     </dd>
                   </div>
                 )}
                 {order.designFiles.length > 0 && (
-                  <div className="pt-2 border-t border-gray-100">
+                  <div className="pt-2 border-t border-white/[0.06]">
                     <dt className="text-gray-400 mb-1">Design Files</dt>
                     <dd className="space-y-1">
                       {order.designFiles.map((url, i) => (

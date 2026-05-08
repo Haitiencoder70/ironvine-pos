@@ -39,16 +39,16 @@ const INDUSTRIES = [
 ];
 
 const ROLE_COLORS: Record<string, string> = {
-  OWNER:   'bg-purple-100 text-purple-700',
-  MANAGER: 'bg-blue-100 text-blue-700',
-  STAFF:   'bg-gray-100 text-gray-700',
+  OWNER:   'bg-purple-500/15 text-purple-300',
+  MANAGER: 'bg-blue-500/15 text-blue-300',
+  STAFF:   'bg-slate-500/15 text-slate-300',
 };
 
 const PLAN_COLORS: Record<string, string> = {
-  FREE:       'bg-gray-100 text-gray-700',
-  STARTER:    'bg-blue-100 text-blue-700',
-  PRO:        'bg-purple-100 text-purple-700',
-  ENTERPRISE: 'bg-amber-100 text-amber-700',
+  FREE:       'bg-slate-500/15 text-slate-300',
+  STARTER:    'bg-blue-500/15 text-blue-300',
+  PRO:        'bg-purple-500/15 text-purple-300',
+  ENTERPRISE: 'bg-amber-500/15 text-amber-300',
 };
 
 // ─── Field helper ─────────────────────────────────────────────────────────────
@@ -56,9 +56,9 @@ const PLAN_COLORS: Record<string, string> = {
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      <label className="block text-sm font-medium text-slate-300">{label}</label>
       {children}
-      {hint && <p className="text-xs text-gray-400">{hint}</p>}
+      {hint && <p className="text-xs text-slate-500">{hint}</p>}
     </div>
   );
 }
@@ -67,7 +67,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full min-h-[44px] px-3 text-sm rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-400 ${props.className ?? ''}`}
+      className={`w-full min-h-[44px] px-3 text-sm rounded-xl border border-white/10 bg-white/[0.06] text-slate-100 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed ${props.className ?? ''}`}
     />
   );
 }
@@ -77,7 +77,7 @@ function Select(props: React.SelectHTMLAttributes<HTMLSelectElement> & { childre
   return (
     <select
       {...rest}
-      className={`w-full min-h-[44px] px-3 text-sm rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500 bg-white ${className ?? ''}`}
+      className={`w-full min-h-[44px] px-3 text-sm rounded-xl border border-white/10 bg-[rgba(10,10,20,0.85)] text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/60 ${className ?? ''}`}
     >
       {children}
     </select>
@@ -129,7 +129,7 @@ function GeneralTab({ settings, onSave }: { settings: OrgSettings; onSave: (d: P
             onChange={(e) => set('taxRate', e.target.value)}
             className="pr-8"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">%</span>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">%</span>
         </div>
       </Field>
       <button
@@ -167,10 +167,10 @@ function BrandingTab({ settings, plan }: { settings: OrgSettings; plan: string }
   if (!isPaid) {
     return (
       <div className="max-w-lg">
-        <div className="p-6 bg-amber-50 border border-amber-200 rounded-2xl text-center space-y-3">
+        <div className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-center space-y-3">
           <div className="text-3xl">🎨</div>
-          <h3 className="text-base font-semibold text-amber-900">Branding is a Starter+ feature</h3>
-          <p className="text-sm text-amber-700">Upgrade to customize your logo, colors, and how your brand appears to customers.</p>
+          <h3 className="text-base font-semibold text-amber-300">Branding is a Starter+ feature</h3>
+          <p className="text-sm text-amber-400">Upgrade to customize your logo, colors, and how your brand appears to customers.</p>
         </div>
       </div>
     );
@@ -180,30 +180,30 @@ function BrandingTab({ settings, plan }: { settings: OrgSettings; plan: string }
     <div className="space-y-8 max-w-lg">
       {/* Logo */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700">Logo</h3>
+        <h3 className="text-sm font-semibold text-slate-300">Logo</h3>
         <div
           onClick={() => logoRef.current?.click()}
-          className="border-2 border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center gap-3 cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors"
+          className="border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center gap-3 cursor-pointer hover:border-blue-500/40 hover:bg-blue-500/5 transition-colors"
         >
           {settings.logoUrl ? (
             <img src={settings.logoUrl} alt="Logo" className="h-16 object-contain" />
           ) : (
             <>
-              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-2xl">🖼️</div>
-              <p className="text-sm text-gray-500">Drag & drop or click to upload</p>
-              <p className="text-xs text-gray-400">PNG, JPG, SVG — max 2MB</p>
+              <div className="w-16 h-16 rounded-xl bg-white/[0.06] flex items-center justify-center text-2xl">🖼️</div>
+              <p className="text-sm text-slate-400">Drag & drop or click to upload</p>
+              <p className="text-xs text-slate-500">PNG, JPG, SVG — max 2MB</p>
             </>
           )}
         </div>
         <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
         {settings.logoUrl && (
-          <button className="text-xs text-gray-400 hover:text-red-500 hover:underline">Remove logo</button>
+          <button className="text-xs text-slate-500 hover:text-red-400 hover:underline">Remove logo</button>
         )}
       </div>
 
       {/* Colors */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-700">Brand Colors</h3>
+        <h3 className="text-sm font-semibold text-slate-300">Brand Colors</h3>
         <div className="grid grid-cols-2 gap-4">
           <Field label="Primary Color">
             <div className="flex items-center gap-2">
@@ -211,7 +211,7 @@ function BrandingTab({ settings, plan }: { settings: OrgSettings; plan: string }
                 type="color"
                 value={primaryColor}
                 onChange={(e) => setPrimaryColor(e.target.value)}
-                className="h-11 w-11 rounded-xl border border-gray-300 cursor-pointer p-1"
+                className="h-11 w-11 rounded-xl border border-white/10 cursor-pointer p-1 bg-transparent"
               />
               <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="font-mono text-xs" />
             </div>
@@ -222,7 +222,7 @@ function BrandingTab({ settings, plan }: { settings: OrgSettings; plan: string }
                 type="color"
                 value={secondaryColor}
                 onChange={(e) => setSecondaryColor(e.target.value)}
-                className="h-11 w-11 rounded-xl border border-gray-300 cursor-pointer p-1"
+                className="h-11 w-11 rounded-xl border border-white/10 cursor-pointer p-1 bg-transparent"
               />
               <Input value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="font-mono text-xs" />
             </div>
@@ -230,11 +230,11 @@ function BrandingTab({ settings, plan }: { settings: OrgSettings; plan: string }
         </div>
 
         {/* Preview */}
-        <div className="rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="rounded-2xl border border-white/10 overflow-hidden">
           <div className="px-4 py-3 text-white text-sm font-semibold" style={{ background: primaryColor }}>
             {settings.name || 'Your Organization'}
           </div>
-          <div className="p-4 space-y-2 bg-white">
+          <div className="p-4 space-y-2 bg-white/[0.04]">
             <div className="h-3 rounded-full w-3/4 opacity-20" style={{ background: primaryColor }} />
             <div className="h-3 rounded-full w-1/2 opacity-10" style={{ background: secondaryColor }} />
             <button className="mt-3 min-h-[36px] px-4 rounded-lg text-white text-xs font-medium" style={{ background: secondaryColor }}>
@@ -250,7 +250,7 @@ function BrandingTab({ settings, plan }: { settings: OrgSettings; plan: string }
         </button>
         <button
           onClick={() => { setPrimaryColor('#2563eb'); setSecondaryColor('#7c3aed'); }}
-          className="min-h-[44px] px-4 rounded-xl border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
+          className="min-h-[44px] px-4 rounded-xl border border-white/10 text-sm text-slate-400 hover:bg-white/5"
         >
           Restore Defaults
         </button>
@@ -281,7 +281,7 @@ function TeamTab() {
   return (
     <div className="space-y-4 max-w-3xl">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-slate-400">
           {userCount} member{userCount !== 1 ? 's' : ''}
           {userMax !== -1 && ` · ${userMax - userCount} slot${userMax - userCount !== 1 ? 's' : ''} remaining`}
         </div>
@@ -295,44 +295,44 @@ function TeamTab() {
       </div>
 
       {atLimit && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400">
           You've reached your user limit. Upgrade your plan to add more team members.
         </div>
       )}
 
       {isLoading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse bg-gray-50 rounded-2xl" />)}
+          {[1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse bg-white/[0.04] rounded-2xl" />)}
         </div>
       ) : (
         <div className="space-y-2">
           {users.map((user) => {
             const isMe = currentUser?.id === user.id;
             return (
-              <div key={user.id} className="bg-white border border-gray-100 rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-sm font-semibold text-blue-700 flex-shrink-0">
+              <div key={user.id} className="glass-panel rounded-2xl px-5 py-4 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-blue-500/15 flex items-center justify-center text-sm font-semibold text-blue-300 flex-shrink-0">
                   {user.firstName[0]}{user.lastName[0]}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-slate-100">
                       {user.firstName} {user.lastName}
-                      {isMe && <span className="ml-1 text-xs text-gray-400">(you)</span>}
+                      {isMe && <span className="ml-1 text-xs text-slate-500">(you)</span>}
                     </p>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[user.role] ?? 'bg-gray-100 text-gray-600'}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[user.role] ?? 'bg-slate-500/15 text-slate-300'}`}>
                       {user.role}
                     </span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${user.isActive ? 'bg-green-500/15 text-green-400' : 'bg-slate-500/15 text-slate-400'}`}>
                       {user.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5 truncate">{user.email}</p>
+                  <p className="text-xs text-slate-500 mt-0.5 truncate">{user.email}</p>
                 </div>
                 {!isMe && (
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       onClick={() => setEditUser(user)}
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-blue-400 hover:bg-blue-500/10"
                       title="Edit role"
                     >
                       ✏️
@@ -340,7 +340,7 @@ function TeamTab() {
                     {user.role !== 'OWNER' && (
                       <button
                         onClick={() => setRemoveUser(user)}
-                        className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50"
+                        className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10"
                         title="Remove user"
                       >
                         🗑️
@@ -373,14 +373,14 @@ function BillingTab() {
 
   if (!isOwner) {
     return (
-      <div className="max-w-lg p-6 bg-gray-50 border border-gray-200 rounded-2xl text-center">
-        <p className="text-sm text-gray-500">Only the organization owner can manage billing.</p>
+      <div className="max-w-lg p-6 glass-panel rounded-2xl text-center">
+        <p className="text-sm text-slate-400">Only the organization owner can manage billing.</p>
       </div>
     );
   }
 
   if (isLoading || !billing) {
-    return <div className="space-y-4 animate-pulse max-w-lg">{[1,2,3].map((i) => <div key={i} className="h-12 bg-gray-100 rounded-xl" />)}</div>;
+    return <div className="space-y-4 animate-pulse max-w-lg">{[1,2,3].map((i) => <div key={i} className="h-12 bg-white/[0.04] rounded-xl" />)}</div>;
   }
 
   const PLAN_LABELS: Record<string, string> = { FREE: 'Free', STARTER: 'Starter', PRO: 'Professional', ENTERPRISE: 'Enterprise' };
@@ -388,10 +388,10 @@ function BillingTab() {
   return (
     <div className="space-y-6 max-w-lg">
       {/* Current plan */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 flex items-start justify-between gap-4 flex-wrap">
+      <div className="glass-panel rounded-2xl p-5 flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Current Plan</p>
-          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${PLAN_COLORS[billing.plan] ?? 'bg-gray-100 text-gray-700'}`}>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Current Plan</p>
+          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${PLAN_COLORS[billing.plan] ?? 'bg-slate-500/15 text-slate-300'}`}>
             {PLAN_LABELS[billing.plan] ?? billing.plan}
           </span>
           {billing.subscriptionStatus && billing.subscriptionStatus !== 'active' && (
@@ -419,7 +419,7 @@ function BillingTab() {
             <button
               onClick={() => portal.mutate()}
               disabled={portal.isPending}
-              className="min-h-[44px] px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50"
+              className="min-h-[44px] px-4 text-sm font-medium text-slate-300 border border-white/10 rounded-xl hover:bg-white/5 disabled:opacity-50"
             >
               {portal.isPending ? 'Opening…' : 'Manage Subscription'}
             </button>
@@ -428,8 +428,8 @@ function BillingTab() {
       </div>
 
       {/* Usage summary */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Usage Summary</p>
+      <div className="glass-panel rounded-2xl p-5 space-y-4">
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Usage Summary</p>
         <UsageProgressBar label="Orders" current={billing.usage.orders.current} max={billing.usage.orders.max} />
         <UsageProgressBar label="Customers" current={billing.usage.customers.current} max={billing.usage.customers.max} />
         <UsageProgressBar label="Team Members" current={billing.usage.users.current} max={billing.usage.users.max} />
@@ -448,7 +448,7 @@ function UsageTab() {
   const { data: billing, isLoading } = useBillingUsage();
 
   if (isLoading || !billing) {
-    return <div className="space-y-4 animate-pulse max-w-lg">{[1,2,3,4].map((i) => <div key={i} className="h-10 bg-gray-100 rounded-xl" />)}</div>;
+    return <div className="space-y-4 animate-pulse max-w-lg">{[1,2,3,4].map((i) => <div key={i} className="h-10 bg-white/[0.04] rounded-xl" />)}</div>;
   }
 
   const USAGE_ITEMS: { key: keyof typeof billing.usage; label: string; unit?: string }[] = [
@@ -465,10 +465,10 @@ function UsageTab() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-5 max-w-lg">
+      <div className="glass-panel rounded-2xl p-6 space-y-5 max-w-lg">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-gray-900">Resource Usage</p>
-          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${PLAN_COLORS[billing.plan] ?? 'bg-gray-100 text-gray-600'}`}>
+          <p className="text-sm font-semibold text-slate-100">Resource Usage</p>
+          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${PLAN_COLORS[billing.plan] ?? 'bg-slate-500/15 text-slate-300'}`}>
             {billing.plan}
           </span>
         </div>
@@ -485,11 +485,11 @@ function UsageTab() {
       </div>
 
       {anyNearLimit && (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+        <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-3">
           <span className="text-xl flex-shrink-0">⚠️</span>
           <div>
-            <p className="text-sm font-semibold text-amber-900">You're approaching your plan limits</p>
-            <p className="text-xs text-amber-700 mt-0.5">Upgrade now to avoid interruptions to your workflow.</p>
+            <p className="text-sm font-semibold text-amber-300">You're approaching your plan limits</p>
+            <p className="text-xs text-amber-400 mt-0.5">Upgrade now to avoid interruptions to your workflow.</p>
             <button
               onClick={() => setShowUpgrade(true)}
               className="mt-2 min-h-[36px] px-4 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700"
@@ -535,18 +535,18 @@ export function OrganizationSettingsPage(): React.JSX.Element {
   return (
     <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Organization Settings</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Manage your organization profile, team, and subscription</p>
+        <h1 className="text-2xl font-bold text-slate-100">Organization Settings</h1>
+        <p className="text-sm text-slate-400 mt-0.5">Manage your organization profile, team, and subscription</p>
       </div>
 
       {/* Tab Bar */}
-      <div className="flex gap-1 bg-gray-100 rounded-2xl p-1 overflow-x-auto">
+      <div className="flex gap-1 bg-white/5 border border-white/10 rounded-2xl p-1 overflow-x-auto">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`min-h-[44px] px-5 rounded-xl text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
-              activeTab === tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              activeTab === tab.id ? 'bg-white/10 text-slate-100' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             {tab.label}
@@ -558,7 +558,7 @@ export function OrganizationSettingsPage(): React.JSX.Element {
       <div>
         {showSkeleton ? (
           <div className="space-y-4 max-w-lg">
-            {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-12 animate-pulse bg-gray-50 rounded-xl" />)}
+            {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-12 animate-pulse bg-white/[0.04] rounded-xl" />)}
           </div>
         ) : (
           <>

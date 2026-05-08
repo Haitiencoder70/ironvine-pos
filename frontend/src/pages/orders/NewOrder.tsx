@@ -95,7 +95,7 @@ const STEPS = [
 ] as const;
 
 const PRIORITY_OPTIONS: { value: OrderPriority; label: string; color: string }[] = [
-  { value: 'NORMAL', label: 'Normal', color: 'border-gray-200 bg-white text-gray-700' },
+  { value: 'NORMAL', label: 'Normal', color: 'border-white/10 bg-white/[0.06] text-slate-300' },
   { value: 'HIGH', label: 'High', color: 'border-amber-300 bg-amber-50 text-amber-800' },
   { value: 'RUSH', label: '🔥 Rush', color: 'border-red-300 bg-red-50 text-red-800' },
 ];
@@ -169,8 +169,8 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
                   'h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300',
                   'border-2 font-semibold text-sm',
                   isCompleted && 'bg-blue-600 border-blue-600 text-white',
-                  isCurrent && 'bg-white border-blue-600 text-blue-600 shadow-md ring-4 ring-blue-100',
-                  !isCompleted && !isCurrent && 'bg-white border-gray-200 text-gray-400'
+                  isCurrent && 'bg-white/[0.08] border-blue-500 text-blue-400 shadow-md ring-4 ring-blue-500/20',
+                  !isCompleted && !isCurrent && 'bg-white/[0.04] border-white/10 text-slate-500'
                 )}
                 aria-current={isCurrent ? 'step' : undefined}
               >
@@ -193,7 +193,7 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
               <div
                 className={clsx(
                   'h-0.5 w-16 sm:w-24 mx-2 mb-5 rounded-full transition-colors duration-500',
-                  currentStep > step.id ? 'bg-blue-500' : 'bg-gray-200'
+                  currentStep > step.id ? 'bg-blue-500' : 'bg-white/10'
                 )}
               />
             )}
@@ -216,8 +216,8 @@ function Step1Customer({ selectedCustomer, onCustomerChange, customerError }: St
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-gray-900">Select Customer</h2>
-        <p className="text-sm text-gray-500 mt-0.5">
+        <h2 className="text-lg font-bold text-slate-100">Select Customer</h2>
+        <p className="text-sm text-slate-500 mt-0.5">
           Search for an existing customer or create a new one.
         </p>
       </div>
@@ -227,9 +227,9 @@ function Step1Customer({ selectedCustomer, onCustomerChange, customerError }: St
         error={customerError}
       />
       {!selectedCustomer && (
-        <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+        <div className="flex items-start gap-3 p-4 bg-blue-900/20 rounded-xl border border-blue-500/30">
           <UserIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-blue-700">
+          <p className="text-sm text-blue-300">
             Select a customer before moving to the next step. You can also create a new customer inline.
           </p>
         </div>
@@ -254,15 +254,15 @@ function Step2Items() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-gray-900">Order Details & Items</h2>
-        <p className="text-sm text-gray-500 mt-0.5">
+        <h2 className="text-lg font-bold text-slate-100">Order Details & Items</h2>
+        <p className="text-sm text-slate-500 mt-0.5">
           Set priority, due date, and add all items for this order.
         </p>
       </div>
 
       {/* Priority selector */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Priority</label>
+        <label className="text-sm font-medium text-slate-300">Priority</label>
         <Controller
           name="priority"
           control={control}
@@ -302,13 +302,13 @@ function Step2Items() {
       {/* Due Date */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Due Date</label>
+          <label className="text-sm font-medium text-slate-300">Due Date</label>
           <input
             id="order-due-date"
             type="date"
             min={new Date().toISOString().split('T')[0]}
             {...register('dueDate')}
-            className="w-full min-h-[44px] rounded-xl border border-gray-300 bg-white px-4 py-2 text-base shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400"
+            className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-base text-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-white/20"
           />
         </div>
       </div>
@@ -316,23 +316,23 @@ function Step2Items() {
       {/* Design notes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="order-notes" className="text-sm font-medium text-gray-700">Order Notes</label>
+          <label htmlFor="order-notes" className="text-sm font-medium text-slate-300">Order Notes</label>
           <textarea
             id="order-notes"
             rows={3}
             placeholder="Customer instructions, special requests…"
             {...register('notes')}
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-base shadow-sm transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 resize-none"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-base text-slate-100 transition-colors placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-white/20 resize-none"
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="order-design-notes" className="text-sm font-medium text-gray-700">Design Notes</label>
+          <label htmlFor="order-design-notes" className="text-sm font-medium text-slate-300">Design Notes</label>
           <textarea
             id="order-design-notes"
             rows={3}
             placeholder="Design specifications, colors, file references…"
             {...register('designNotes')}
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-base shadow-sm transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 resize-none"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-base text-slate-100 transition-colors placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-white/20 resize-none"
           />
         </div>
       </div>
@@ -340,7 +340,7 @@ function Step2Items() {
       {/* Items */}
       <div className="space-y-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-semibold text-gray-900">Order Items</h3>
+          <h3 className="text-base font-semibold text-slate-100">Order Items</h3>
           {errors.items?.root && (
             <p className="text-sm text-red-500">{errors.items.root.message}</p>
           )}
@@ -373,25 +373,25 @@ function Step3Review({ selectedCustomer, formValues, taxRate }: Step3ReviewProps
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-gray-900">Review & Submit</h2>
-        <p className="text-sm text-gray-500 mt-0.5">
+        <h2 className="text-lg font-bold text-slate-100">Review & Submit</h2>
+        <p className="text-sm text-slate-500 mt-0.5">
           Confirm all details before creating the order.
         </p>
       </div>
 
       {/* Customer card */}
       {selectedCustomer && (
-        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Customer</p>
+        <div className="glass-panel rounded-2xl p-4">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Customer</p>
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0">
               {selectedCustomer.firstName[0]}{selectedCustomer.lastName[0]}
             </div>
             <div>
-              <p className="font-semibold text-gray-900">
+              <p className="font-semibold text-slate-100">
                 {selectedCustomer.firstName} {selectedCustomer.lastName}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-slate-500">
                 {[selectedCustomer.company, selectedCustomer.phone, selectedCustomer.email]
                   .filter(Boolean)
                   .join(' · ')}
@@ -402,68 +402,68 @@ function Step3Review({ selectedCustomer, formValues, taxRate }: Step3ReviewProps
       )}
 
       {/* Order info */}
-      <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Order Info</p>
+      <div className="glass-panel rounded-2xl p-4">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Order Info</p>
         <div className="flex flex-wrap gap-3">
           <StatusBadge status={formValues.priority} size="md" />
           {formValues.dueDate && (
-            <span className="inline-flex items-center gap-1.5 text-sm text-gray-600">
-              Due: <strong>{format(new Date(formValues.dueDate), 'MMM d, yyyy')}</strong>
+            <span className="inline-flex items-center gap-1.5 text-sm text-slate-400">
+              Due: <strong className="text-slate-200">{format(new Date(formValues.dueDate), 'MMM d, yyyy')}</strong>
             </span>
           )}
         </div>
         {formValues.notes && (
-          <p className="mt-2 text-sm text-gray-600 italic">{formValues.notes}</p>
+          <p className="mt-2 text-sm text-slate-400 italic">{formValues.notes}</p>
         )}
         {formValues.designNotes && (
-          <p className="mt-1 text-sm text-gray-600 italic">{formValues.designNotes}</p>
+          <p className="mt-1 text-sm text-slate-400 italic">{formValues.designNotes}</p>
         )}
       </div>
 
       {/* Items */}
       <div className="space-y-3">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
           Items ({formValues.items.length})
         </p>
         {formValues.items.map((item, idx) => {
           const cfg = item._configured;
           const lineTotal = cfg?.lineTotal ?? (item.quantity * item.unitPrice);
           return (
-            <div key={idx} className="bg-white rounded-2xl border border-gray-200 p-4">
+            <div key={idx} className="glass-panel rounded-2xl border border-white/10 p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-semibold text-slate-100">
                     {cfg ? cfg.productName : (PRODUCT_TYPE_LABELS[item.productType] ?? item.productType)}
-                    {cfg?.isCustomItem && <span className="ml-2 text-xs text-gray-400 font-normal">(custom)</span>}
+                    {cfg?.isCustomItem && <span className="ml-2 text-xs text-slate-500 font-normal">(custom)</span>}
                   </p>
                   {cfg && !cfg.isCustomItem && (
-                    <p className="text-sm text-gray-500 mt-0.5">
+                    <p className="text-sm text-slate-500 mt-0.5">
                       {[cfg.brand, cfg.color].filter(Boolean).join(' · ')}
                       {cfg.sizeBreakdown.length > 0 && (
                         ' · ' + cfg.sizeBreakdown.map((s) => `${s.qty}×${s.size}`).join(', ')
                       )}
                     </p>
                   )}
-                  <p className="text-sm text-gray-500 mt-0.5">
+                  <p className="text-sm text-slate-500 mt-0.5">
                     {cfg ? `${cfg.totalQuantity} units` : `Qty: ${item.quantity}`}
                     {' × '}{fmt(item.unitPrice)}
                     {cfg?.printMethod ? ` · ${cfg.printMethod}` : item.printMethod ? ` · ${item.printMethod.replace(/_/g, ' ')}` : ''}
                   </p>
                   {cfg?.selectedAddOns && cfg.selectedAddOns.length > 0 && (
-                    <p className="text-xs text-blue-600 mt-0.5">
+                    <p className="text-xs text-blue-400 mt-0.5">
                       + {cfg.selectedAddOns.map((a) => a.name).join(', ')}
                     </p>
                   )}
                   {cfg?.isPriceOverridden && (
-                    <p className="text-xs text-amber-600 mt-0.5">
+                    <p className="text-xs text-amber-400 mt-0.5">
                       ⚠ Price overridden from {fmt(cfg.originalTierPrice)}
                     </p>
                   )}
                   {item.description && (
-                    <p className="text-xs text-gray-400 italic mt-0.5">{item.description}</p>
+                    <p className="text-xs text-slate-500 italic mt-0.5">{item.description}</p>
                   )}
                 </div>
-                <p className="font-bold text-gray-900 flex-shrink-0">{fmt(lineTotal)}</p>
+                <p className="font-bold text-slate-100 flex-shrink-0">{fmt(lineTotal)}</p>
               </div>
             </div>
           );
@@ -471,35 +471,35 @@ function Step3Review({ selectedCustomer, formValues, taxRate }: Step3ReviewProps
       </div>
 
       {/* Totals */}
-      <div className="bg-gray-50 rounded-2xl border border-gray-200 p-4 space-y-2">
+      <div className="glass-panel rounded-2xl p-4 space-y-2">
         <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-700">Shipping charge</label>
+          <label className="block text-sm font-medium text-slate-300">Shipping charge</label>
           <input
             type="number"
             inputMode="decimal"
             min="0"
             step="0.01"
             {...register('shippingAmount', { valueAsNumber: true })}
-            className="w-full min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/[0.06] px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="0.00"
           />
           {errors.shippingAmount && <p className="text-xs text-red-500">{errors.shippingAmount.message}</p>}
         </div>
-        <div className="flex justify-between text-sm text-gray-600">
+        <div className="flex justify-between text-sm text-slate-400">
           <span>Subtotal</span>
           <span>{fmt(subtotal)}</span>
         </div>
-        <div className="flex justify-between text-sm text-gray-600">
+        <div className="flex justify-between text-sm text-slate-400">
           <span>Tax ({(taxRate * 100).toFixed(2).replace(/\.00$/, '')}%)</span>
           <span>{fmt(tax)}</span>
         </div>
         {shippingAmount > 0 && (
-          <div className="flex justify-between text-sm text-gray-600">
+          <div className="flex justify-between text-sm text-slate-400">
             <span>Shipping</span>
             <span>{fmt(shippingAmount)}</span>
           </div>
         )}
-        <div className="border-t border-gray-200 pt-2 flex justify-between text-base font-bold text-gray-900">
+        <div className="border-t border-white/10 pt-2 flex justify-between text-base font-bold text-slate-100">
           <span>Total</span>
           <span>{fmt(total)}</span>
         </div>
@@ -620,8 +620,8 @@ export function NewOrderPage(): JSX.Element {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center gap-4">
         <div className="text-5xl">🚫</div>
-        <h2 className="text-xl font-bold text-gray-900">Order Limit Reached</h2>
-        <p className="text-gray-500 max-w-sm">{limitCheck.message}</p>
+        <h2 className="text-xl font-bold text-slate-100">Order Limit Reached</h2>
+        <p className="text-slate-400 max-w-sm">{limitCheck.message}</p>
         <div className="flex gap-3 mt-2">
           <button
             onClick={() => canCreateOrder(true)}
@@ -631,7 +631,7 @@ export function NewOrderPage(): JSX.Element {
           </button>
           <button
             onClick={() => navigate(-1)}
-            className="min-h-[44px] px-6 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
+            className="min-h-[44px] px-6 rounded-xl border border-white/10 text-slate-300 text-sm font-medium hover:bg-white/[0.06]"
           >
             Go Back
           </button>
@@ -735,14 +735,14 @@ export function NewOrderPage(): JSX.Element {
         <button
           type="button"
           onClick={() => navigate('/orders')}
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors min-h-[44px] -ml-2 px-2 rounded-xl hover:bg-gray-100 mb-2"
+          className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-300 transition-colors min-h-[44px] -ml-2 px-2 rounded-xl hover:bg-white/[0.06] mb-2"
         >
           <ChevronLeftIcon className="h-4 w-4" />
           Back to Orders
         </button>
-        <h1 className="text-2xl font-bold text-gray-900">New Order</h1>
+        <h1 className="text-2xl font-bold text-slate-100">New Order</h1>
         {!isOnline && (
-          <div className="mt-2 flex items-center gap-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+          <div className="mt-2 flex items-center gap-2 text-amber-300 bg-amber-900/20 border border-amber-500/30 rounded-xl px-3 py-2">
             <WifiIcon className="h-4 w-4 flex-shrink-0" />
             <p className="text-sm">You're offline — order will be queued and synced when reconnected.</p>
           </div>
@@ -780,7 +780,7 @@ export function NewOrderPage(): JSX.Element {
           </AnimatePresence>
 
           {/* Navigation buttons */}
-          <div className="mt-8 flex items-center justify-between gap-4 border-t border-gray-100 pt-6">
+          <div className="mt-8 flex items-center justify-between gap-4 border-t border-white/[0.06] pt-6">
             <TouchButton
               id="new-order-back"
               type="button"
@@ -825,7 +825,7 @@ export function NewOrderPage(): JSX.Element {
 
       {/* Unsaved changes indicator */}
       {isDirty && (
-        <p className="mt-4 text-center text-xs text-gray-400">
+        <p className="mt-4 text-center text-xs text-slate-500">
           Draft auto-saved
         </p>
       )}
