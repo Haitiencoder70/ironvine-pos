@@ -244,7 +244,9 @@ export async function updateOrderStatus(input: UpdateOrderStatusInput): Promise<
       if (requiredCount > 0 && unfulfilledCount > 0) {
         throw new AppError(
           400,
-          'All required materials must be received before production can start.',
+          newStatus === 'MATERIALS_RECEIVED'
+            ? 'Receive all required materials before marking materials received.'
+            : 'All required materials must be received before production can start.',
           'MATERIALS_NOT_FULFILLED',
         );
       }

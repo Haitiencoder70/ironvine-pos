@@ -151,6 +151,10 @@ export function OrderWorkflow({ order, onAdvanceStatus, isAdvancing }: OrderWork
     requiredMaterials.length > 0 && requiredMaterials.some((material) => !material.isFulfilled);
   const hasMaterialUsage = (order.materialUsages?.length ?? 0) > 0;
   const baseNextAction = NEXT_ACTION[order.status];
+  const isWaitingOnReceivedPOs =
+    order.status === 'MATERIALS_ORDERED' &&
+    hasUnfulfilledMaterials &&
+    !hasRemainingMaterialsToOrder;
   const nextAction =
     order.status === 'MATERIALS_ORDERED' && hasRemainingMaterialsToOrder
       ? {
@@ -159,6 +163,8 @@ export function OrderWorkflow({ order, onAdvanceStatus, isAdvancing }: OrderWork
           variant: 'primary' as const,
           requiresModal: 'materials_po' as const,
         }
+      : isWaitingOnReceivedPOs
+        ? undefined
       : order.status === 'MATERIALS_RECEIVED' && hasUnfulfilledMaterials
         ? undefined
         : order.status === 'IN_PRODUCTION' && requiredMaterials.length > 0 && !hasMaterialUsage
@@ -190,6 +196,15 @@ export function OrderWorkflow({ order, onAdvanceStatus, isAdvancing }: OrderWork
         >
           {nextAction.label}
         </TouchButton>
+      )}
+
+      {isWaitingOnReceivedPOs && (
+        <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+          <ClockIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-blue-700 font-medium">
+            Receive the linked purchase order items before marking materials received.
+          </p>
+        </div>
       )}
 
       {order.status === 'MATERIALS_RECEIVED' && hasUnfulfilledMaterials && (
