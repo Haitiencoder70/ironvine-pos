@@ -52,7 +52,7 @@ const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'MXN'];
 
 const ROLE_COLORS: Record<string, string> = {
   OWNER: 'bg-purple-500/15 text-purple-300',
-  MANAGER: 'bg-blue-500/15 text-blue-300',
+  MANAGER: 'bg-orange-500/15 text-orange-300',
   STAFF: 'bg-slate-500/15 text-slate-300',
 };
 
@@ -115,7 +115,7 @@ function GeneralTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
         <input
           value={form.name}
           onChange={field('name')}
-          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40"
+          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/30"
         />
       </div>
 
@@ -126,7 +126,7 @@ function GeneralTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
           value={form.orderNumberPrefix}
           onChange={field('orderNumberPrefix')}
           maxLength={6}
-          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/40"
+          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/30"
           placeholder="ORD"
         />
         <p className="mt-1 text-xs text-muted">Orders will be numbered like {form.orderNumberPrefix || 'ORD'}-202401-0001</p>
@@ -138,7 +138,7 @@ function GeneralTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
         <select
           value={form.currency}
           onChange={field('currency')}
-          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
+          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50"
         >
           {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
@@ -150,7 +150,7 @@ function GeneralTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
         <select
           value={form.timezone}
           onChange={field('timezone')}
-          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
+          className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50"
         >
           {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz}</option>)}
         </select>
@@ -158,7 +158,7 @@ function GeneralTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
 
       <button
         onClick={() => onSave(form)}
-        className="min-h-[44px] px-6 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+        className="min-h-[44px] px-6 rounded-xl bg-[#ff6b00] text-white text-sm font-semibold hover:bg-[#e55f00] transition-colors"
       >
         Save Changes
       </button>
@@ -236,7 +236,7 @@ function UsersTab() {
         <p className="text-sm text-secondary">{users.length} team member{users.length !== 1 ? 's' : ''}</p>
         <button
           onClick={() => setShowInvite(true)}
-          className="min-h-[44px] px-4 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
+          className="min-h-[44px] px-4 rounded-xl bg-[#ff6b00] text-white text-sm font-semibold hover:bg-[#e55f00] transition-colors flex items-center gap-2"
         >
           <UserPlusIcon className="h-4 w-4" />
           Invite User
@@ -245,7 +245,7 @@ function UsersTab() {
 
       {/* Invite Form */}
       {showInvite && (
-        <div className="glass-panel border-blue-500/20 rounded-2xl p-5 space-y-4">
+        <div className="glass-panel border-orange-500/20 rounded-2xl p-5 space-y-4">
           <h3 className="text-sm font-semibold text-slate-100">Invite New Team Member</h3>
           <form onSubmit={handleInvite} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
@@ -253,13 +253,13 @@ function UsersTab() {
                 placeholder="First name"
                 value={inviteForm.firstName}
                 onChange={(e) => setInviteForm((f) => ({ ...f, firstName: e.target.value }))}
-                className="min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 placeholder:text-slate-500"
+                className="min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 placeholder:text-slate-500"
               />
               <input
                 placeholder="Last name"
                 value={inviteForm.lastName}
                 onChange={(e) => setInviteForm((f) => ({ ...f, lastName: e.target.value }))}
-                className="min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 placeholder:text-slate-500"
+                className="min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 placeholder:text-slate-500"
               />
             </div>
             <input
@@ -267,12 +267,12 @@ function UsersTab() {
               placeholder="Email address"
               value={inviteForm.email}
               onChange={(e) => setInviteForm((f) => ({ ...f, email: e.target.value }))}
-              className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 placeholder:text-slate-500"
+              className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 placeholder:text-slate-500"
             />
             <select
               value={inviteForm.role}
               onChange={(e) => setInviteForm((f) => ({ ...f, role: e.target.value }))}
-              className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
+              className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50"
             >
               <option value="STAFF">Staff</option>
               <option value="MANAGER">Manager</option>
@@ -283,7 +283,7 @@ function UsersTab() {
               <button
                 type="submit"
                 disabled={inviteMutation.isPending}
-                className="min-h-[44px] px-5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="min-h-[44px] px-5 rounded-xl bg-[#ff6b00] text-white text-sm font-semibold hover:bg-[#e55f00] disabled:opacity-50 transition-colors"
               >
                 {inviteMutation.isPending ? 'Sending…' : 'Send Invite'}
               </button>
@@ -325,7 +325,7 @@ function UsersTab() {
                   <tr key={user.id} className="hover:bg-white/5 transition-colors">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-blue-500/15 flex items-center justify-center flex-shrink-0 text-xs font-semibold text-blue-300">
+                        <div className="w-8 h-8 rounded-full bg-orange-500/15 flex items-center justify-center flex-shrink-0 text-xs font-semibold text-orange-300">
                           {user.firstName[0]}{user.lastName[0]}
                         </div>
                         <span className="font-medium text-slate-100">
@@ -344,7 +344,7 @@ function UsersTab() {
                         <select
                           value={user.role}
                           onChange={(e) => updateMutation.mutate({ id: user.id, data: { role: e.target.value } })}
-                          className={clsx('rounded-lg border-0 text-xs font-medium px-2 py-1 min-h-[32px] focus:outline-none focus:ring-2 focus:ring-blue-500/60 cursor-pointer', ROLE_COLORS[user.role] ?? 'bg-slate-500/15 text-slate-300')}
+                          className={clsx('rounded-lg border-0 text-xs font-medium px-2 py-1 min-h-[32px] focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer', ROLE_COLORS[user.role] ?? 'bg-slate-500/15 text-slate-300')}
                         >
                           <option value="STAFF">STAFF</option>
                           <option value="MANAGER">MANAGER</option>
@@ -418,7 +418,7 @@ function TaxTab({ settings, onSave }: { settings: OrgSettings; onSave: (data: Pa
             onChange={(e) => setTaxRate(e.target.value)}
             className={clsx(
               'w-full min-h-[44px] rounded-xl border text-slate-100 px-4 pr-10 text-sm focus:outline-none focus:ring-2',
-              taxValid ? 'border-white/10 bg-white/5 focus:ring-blue-500/60' : 'border-red-500/60 bg-red-500/10 focus:ring-red-500/60',
+              taxValid ? 'border-white/10 bg-white/5 focus:ring-orange-500/50' : 'border-red-500/60 bg-red-500/10 focus:ring-red-500/60',
             )}
           />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-500">%</span>
@@ -435,8 +435,8 @@ function TaxTab({ settings, onSave }: { settings: OrgSettings; onSave: (data: Pa
         <button
           onClick={() => setTaxInclusive((v) => !v)}
           className={clsx(
-            'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60',
-            taxInclusive ? 'bg-blue-600' : 'bg-white/20',
+            'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/50',
+            taxInclusive ? 'bg-[#ff6b00]' : 'bg-white/20',
           )}
           role="switch"
           aria-checked={taxInclusive}
@@ -454,7 +454,7 @@ function TaxTab({ settings, onSave }: { settings: OrgSettings; onSave: (data: Pa
             step="1"
             value={markup}
             onChange={(e) => setMarkup(e.target.value)}
-            className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
+            className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50"
           />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-500">%</span>
         </div>
@@ -472,7 +472,7 @@ function TaxTab({ settings, onSave }: { settings: OrgSettings; onSave: (data: Pa
           onSave({ taxRate: taxRateNum });
         }}
         disabled={!taxValid}
-        className="min-h-[44px] px-6 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="min-h-[44px] px-6 rounded-xl bg-[#ff6b00] text-white text-sm font-semibold hover:bg-[#e55f00] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
         Save Changes
       </button>
@@ -536,8 +536,8 @@ function NotificationsTab() {
             <button
               onClick={() => mutation.mutate({ [key]: !notifs[key] })}
               className={clsx(
-                'relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60',
-                notifs[key] ? 'bg-blue-600' : 'bg-white/20',
+                'relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/50',
+                notifs[key] ? 'bg-[#ff6b00]' : 'bg-white/20',
               )}
               role="switch"
               aria-checked={!!notifs[key]}
@@ -558,11 +558,11 @@ function NotificationsTab() {
             value={recipientInput}
             onChange={(e) => setRecipientInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addRecipient(); } }}
-            className="flex-1 min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 placeholder:text-slate-500"
+            className="flex-1 min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 placeholder:text-slate-500"
           />
           <button
             onClick={addRecipient}
-            className="min-h-[44px] px-4 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+            className="min-h-[44px] px-4 rounded-xl bg-[#ff6b00] text-white text-sm font-semibold hover:bg-[#e55f00] transition-colors"
           >
             Add
           </button>
@@ -572,7 +572,7 @@ function NotificationsTab() {
         ) : (
           <div className="flex flex-wrap gap-2">
             {notifs.recipients.map((r) => (
-              <span key={r} className="inline-flex items-center gap-1.5 bg-blue-500/15 text-blue-300 text-xs font-medium px-3 py-1.5 rounded-full">
+              <span key={r} className="inline-flex items-center gap-1.5 bg-orange-500/15 text-orange-300 text-xs font-medium px-3 py-1.5 rounded-full">
                 {r}
                 <button onClick={() => removeRecipient(r)} className="hover:text-red-400 transition-colors">×</button>
               </span>
@@ -659,8 +659,8 @@ function ModulesTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
               <button
                 onClick={() => toggleModule(mod.id)}
                 className={clsx(
-                  'relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60',
-                  isOn ? 'bg-blue-600' : 'bg-white/20',
+                  'relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/50',
+                  isOn ? 'bg-[#ff6b00]' : 'bg-white/20',
                 )}
                 role="switch"
                 aria-checked={isOn}

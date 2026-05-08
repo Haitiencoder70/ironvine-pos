@@ -76,7 +76,7 @@ export function OnboardingTour(): React.JSX.Element | null {
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-full transition-colors ${
-              i <= step ? 'bg-blue-600' : 'bg-gray-200'
+              i <= step ? 'bg-[#ff6b00]' : 'bg-gray-200'
             }`}
           />
         ))}
@@ -89,14 +89,14 @@ export function OnboardingTour(): React.JSX.Element | null {
         {current.action ? (
           <button
             onClick={() => handleAction(current.action!.href)}
-            className="flex-1 min-h-[44px] rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="flex-1 min-h-[44px] rounded-xl bg-[#ff6b00] text-white text-sm font-medium hover:bg-[#e55f00] transition-colors"
           >
             {current.action.label}
           </button>
         ) : (
           <button
             onClick={advance}
-            className="flex-1 min-h-[44px] rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="flex-1 min-h-[44px] rounded-xl bg-[#ff6b00] text-white text-sm font-medium hover:bg-[#e55f00] transition-colors"
           >
             {isLast ? 'Get started' : 'Next'}
           </button>

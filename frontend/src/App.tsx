@@ -38,7 +38,7 @@ const AddEditProductPage = lazy(() => import('@/pages/products/AddEditProduct').
 function PageFallback(): React.JSX.Element {
   return (
     <div className="flex items-center justify-center h-full min-h-[200px]">
-      <div className="h-8 w-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+      <div className="h-8 w-8 rounded-full border-2 border-[#ff6b00] border-t-transparent animate-spin" />
     </div>
   );
 }

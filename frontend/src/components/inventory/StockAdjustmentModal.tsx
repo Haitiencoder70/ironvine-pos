@@ -176,7 +176,7 @@ export function StockAdjustmentModal({ open, onClose, item }: StockAdjustmentMod
                   onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                   className={clsx(
                     'w-full min-h-[44px] rounded-xl border px-3 py-2 text-base text-right font-bold shadow-sm',
-                    'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                    'focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent',
                     watchType === 'IN' ? 'text-green-600' : watchType === 'OUT' ? 'text-red-600' : 'text-orange-600',
                     errors.quantityDelta ? 'border-red-400 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   )}
@@ -193,10 +193,10 @@ export function StockAdjustmentModal({ open, onClose, item }: StockAdjustmentMod
         {/* New Preview */}
         <div className={clsx(
           'p-3 rounded-xl border flex items-center justify-between',
-          previewQuantity < 0 ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'
+          previewQuantity < 0 ? 'bg-red-50 border-red-200' : 'bg-orange-500/10 border-orange-500/25'
         )}>
           <span className="text-sm font-medium text-gray-700">New Available Quantity</span>
-          <span className={clsx('text-lg font-bold', previewQuantity < 0 ? 'text-red-700' : 'text-blue-700')}>
+          <span className={clsx('text-lg font-bold', previewQuantity < 0 ? 'text-red-700' : 'text-orange-600')}>
             {previewQuantity}
           </span>
         </div>
@@ -218,7 +218,7 @@ export function StockAdjustmentModal({ open, onClose, item }: StockAdjustmentMod
                 rows={2}
                 placeholder="Why is stock changing?"
                 className={clsx(
-                  'w-full rounded-xl border bg-white px-4 py-2 text-base shadow-sm transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none',
+                  'w-full rounded-xl border bg-white px-4 py-2 text-base shadow-sm transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none',
                   errors.reason ? 'border-red-400' : 'border-gray-300 hover:border-gray-400'
                 )}
               />

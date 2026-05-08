@@ -34,14 +34,14 @@ export function ConfirmDialog() {
       ? 'text-red-400'
       : variant === 'warning'
       ? 'text-amber-400'
-      : 'text-blue-400';
+      : 'text-orange-400';
 
   const iconBg =
     variant === 'danger'
       ? 'bg-red-500/10'
       : variant === 'warning'
       ? 'bg-amber-500/10'
-      : 'bg-blue-500/10';
+      : 'bg-orange-500/10';
 
   const confirmVariant =
     variant === 'danger'

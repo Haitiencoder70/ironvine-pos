@@ -55,7 +55,7 @@ export const TouchButton = memo(forwardRef<HTMLButtonElement, TouchButtonProps>(
         className={twMerge(
           clsx(
             'relative inline-flex items-center justify-center gap-2 transition-all duration-150 ease-out',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60 focus-visible:ring-offset-1 focus-visible:ring-offset-transparent',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400/60 focus-visible:ring-offset-1 focus-visible:ring-offset-transparent',
             variantStyles[variant],
             sizeStyles[size],
             fullWidth && 'w-full',

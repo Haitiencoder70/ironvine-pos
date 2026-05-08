@@ -228,8 +228,8 @@ export function ImageUploader({
           'transition-colors duration-150 select-none',
           'p-6 text-center',
           isDragging
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/40',
+            ? 'border-orange-500 bg-orange-500/10'
+            : 'border-gray-300 bg-gray-50 hover:border-orange-400 hover:bg-orange-500/5',
         ].join(' ')}
       >
         <span className="text-4xl leading-none" aria-hidden>📷</span>
@@ -246,7 +246,7 @@ export function ImageUploader({
           <button
             type="button"
             onClick={handleCamera}
-            className="flex-1 flex items-center justify-center gap-2 min-h-[48px] rounded-xl bg-blue-600 text-white font-medium text-sm active:bg-blue-700 transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 min-h-[48px] rounded-xl bg-[#ff6b00] text-white font-medium text-sm active:bg-[#e55f00] transition-colors"
           >
             <span aria-hidden>📷</span> Take Photo
           </button>

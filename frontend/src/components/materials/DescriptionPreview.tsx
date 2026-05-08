@@ -13,7 +13,7 @@ export function DescriptionPreview({ description, onEdit }: DescriptionPreviewPr
         {onEdit && (
           <button
             onClick={onEdit}
-            className="text-xs text-blue-600 hover:underline font-medium"
+            className="text-xs text-orange-500 hover:underline font-medium"
           >
             Edit Description
           </button>

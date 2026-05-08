@@ -29,7 +29,7 @@ export function CascadingSelect({
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
           className={clsx(
-            'w-full min-h-[48px] rounded-xl border border-gray-300 bg-white px-4 py-2 text-base appearance-none cursor-pointer transition-colors focus:ring-2 focus:ring-blue-500 outline-none',
+            'w-full min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 py-2 text-base appearance-none cursor-pointer transition-colors focus:ring-2 focus:ring-orange-500/50 outline-none',
             disabled && 'opacity-50 cursor-not-allowed bg-gray-50',
             error && 'border-red-400 focus:border-red-500'
           )}

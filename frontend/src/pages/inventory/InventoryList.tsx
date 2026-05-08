@@ -209,7 +209,7 @@ export function InventoryListPage(): JSX.Element {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="w-full pl-10 pr-4 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-gray-500 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              className="w-full pl-10 pr-4 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-gray-500 text-base focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-colors"
             />
           </div>
 
@@ -222,7 +222,7 @@ export function InventoryListPage(): JSX.Element {
                  setCategory(e.target.value);
                  setPage(1);
                }}
-               className="w-full pl-10 pr-10 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-white text-base appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+               className="w-full pl-10 pr-10 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-white text-base appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors"
              >
                <option value="" className="bg-charcoal">All Categories</option>
                {CATEGORIES.map((c) => (

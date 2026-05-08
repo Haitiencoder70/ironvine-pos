@@ -68,7 +68,7 @@ export function FAB({ action, actions = [], className = '' }: FABProps): React.J
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={handlePrimary}
-        className="w-14 h-14 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="w-14 h-14 bg-[#ff6b00] text-white rounded-full shadow-xl flex items-center justify-center hover:bg-[#e55f00] transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:ring-offset-2"
         aria-label={isSpeedDial ? (open ? 'Close actions' : 'Open actions') : 'Primary action'}
         aria-expanded={isSpeedDial ? open : undefined}
       >
@@ -98,7 +98,7 @@ export function NewOrderFAB(): React.JSX.Element {
   return (
     <FixedFAB
       actions={[
-        { label: 'New Order', icon: <PlusIcon className="h-5 w-5" />, color: 'bg-blue-600', textColor: 'text-white', onClick: () => void navigate('/orders/new') },
+        { label: 'New Order', icon: <PlusIcon className="h-5 w-5" />, color: 'bg-[#ff6b00]', textColor: 'text-white', onClick: () => void navigate('/orders/new') },
       ]}
     />
   );

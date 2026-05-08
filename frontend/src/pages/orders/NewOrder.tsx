@@ -168,8 +168,8 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
                 className={clsx(
                   'h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300',
                   'border-2 font-semibold text-sm',
-                  isCompleted && 'bg-blue-600 border-blue-600 text-white',
-                  isCurrent && 'bg-white/[0.08] border-blue-500 text-blue-400 shadow-md ring-4 ring-blue-500/20',
+                  isCompleted && 'bg-[#ff6b00] border-[#ff6b00] text-white',
+                  isCurrent && 'bg-white/[0.08] border-[#ff6b00] text-orange-400 shadow-md ring-4 ring-orange-500/20',
                   !isCompleted && !isCurrent && 'bg-white/[0.04] border-white/10 text-slate-500'
                 )}
                 aria-current={isCurrent ? 'step' : undefined}
@@ -183,7 +183,7 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
               <span
                 className={clsx(
                   'mt-1.5 text-xs font-medium',
-                  isCurrent ? 'text-blue-600' : isCompleted ? 'text-blue-500' : 'text-gray-400'
+                  isCurrent ? 'text-orange-500' : isCompleted ? 'text-orange-400' : 'text-gray-400'
                 )}
               >
                 {step.label}
@@ -193,7 +193,7 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
               <div
                 className={clsx(
                   'h-0.5 w-16 sm:w-24 mx-2 mb-5 rounded-full transition-colors duration-500',
-                  currentStep > step.id ? 'bg-blue-500' : 'bg-white/10'
+                  currentStep > step.id ? 'bg-[#ff6b00]' : 'bg-white/10'
                 )}
               />
             )}
@@ -227,9 +227,9 @@ function Step1Customer({ selectedCustomer, onCustomerChange, customerError }: St
         error={customerError}
       />
       {!selectedCustomer && (
-        <div className="flex items-start gap-3 p-4 bg-blue-900/20 rounded-xl border border-blue-500/30">
-          <UserIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-blue-300">
+        <div className="flex items-start gap-3 p-4 bg-orange-900/20 rounded-xl border border-orange-500/30">
+          <UserIcon className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-orange-300">
             Select a customer before moving to the next step. You can also create a new customer inline.
           </p>
         </div>
@@ -276,7 +276,7 @@ function Step2Items() {
                     'cursor-pointer text-sm font-semibold transition-all duration-150 select-none',
                     field.value === opt.value
                       ? opt.value === 'NORMAL'
-                        ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-200'
+                        ? 'border-[#ff6b00] bg-orange-50 text-orange-700 ring-2 ring-orange-200'
                         : opt.value === 'HIGH'
                         ? 'border-amber-400 bg-amber-100 text-amber-800 ring-2 ring-amber-200'
                         : 'border-red-400 bg-red-100 text-red-800 ring-2 ring-red-200'
@@ -308,7 +308,7 @@ function Step2Items() {
             type="date"
             min={new Date().toISOString().split('T')[0]}
             {...register('dueDate')}
-            className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-base text-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-white/20"
+            className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-base text-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent hover:border-white/20"
           />
         </div>
       </div>
@@ -322,7 +322,7 @@ function Step2Items() {
             rows={3}
             placeholder="Customer instructions, special requests…"
             {...register('notes')}
-            className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-base text-slate-100 transition-colors placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-white/20 resize-none"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-base text-slate-100 transition-colors placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent hover:border-white/20 resize-none"
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -332,7 +332,7 @@ function Step2Items() {
             rows={3}
             placeholder="Design specifications, colors, file references…"
             {...register('designNotes')}
-            className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-base text-slate-100 transition-colors placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-white/20 resize-none"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-base text-slate-100 transition-colors placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent hover:border-white/20 resize-none"
           />
         </div>
       </div>
@@ -384,7 +384,7 @@ function Step3Review({ selectedCustomer, formValues, taxRate }: Step3ReviewProps
         <div className="glass-panel rounded-2xl p-4">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Customer</p>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0">
+            <div className="h-10 w-10 rounded-full bg-[#ff6b00] flex items-center justify-center text-white font-bold flex-shrink-0">
               {selectedCustomer.firstName[0]}{selectedCustomer.lastName[0]}
             </div>
             <div>
@@ -450,7 +450,7 @@ function Step3Review({ selectedCustomer, formValues, taxRate }: Step3ReviewProps
                     {cfg?.printMethod ? ` · ${cfg.printMethod}` : item.printMethod ? ` · ${item.printMethod.replace(/_/g, ' ')}` : ''}
                   </p>
                   {cfg?.selectedAddOns && cfg.selectedAddOns.length > 0 && (
-                    <p className="text-xs text-blue-400 mt-0.5">
+                    <p className="text-xs text-orange-400 mt-0.5">
                       + {cfg.selectedAddOns.map((a) => a.name).join(', ')}
                     </p>
                   )}
@@ -480,7 +480,7 @@ function Step3Review({ selectedCustomer, formValues, taxRate }: Step3ReviewProps
             min="0"
             step="0.01"
             {...register('shippingAmount', { valueAsNumber: true })}
-            className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/[0.06] px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/[0.06] px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
             placeholder="0.00"
           />
           {errors.shippingAmount && <p className="text-xs text-red-500">{errors.shippingAmount.message}</p>}
@@ -625,7 +625,7 @@ export function NewOrderPage(): JSX.Element {
         <div className="flex gap-3 mt-2">
           <button
             onClick={() => canCreateOrder(true)}
-            className="min-h-[44px] px-6 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+            className="min-h-[44px] px-6 rounded-xl bg-[#ff6b00] text-white text-sm font-semibold hover:bg-[#e55f00]"
           >
             Upgrade Plan
           </button>

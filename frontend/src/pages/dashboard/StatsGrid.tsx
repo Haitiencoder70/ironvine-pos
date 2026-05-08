@@ -120,10 +120,10 @@ export function StatsGrid({ stats, loading }: StatsGridProps): React.JSX.Element
     {
       label: 'Orders Today',
       value: String(stats?.ordersToday ?? 0),
-      icon: <ShoppingCartIcon className="h-5 w-5 text-blue-400" />,
-      accentColor: 'rgba(59,130,246,1)',
-      glowColor: '0 0 24px rgba(59,130,246,0.12)',
-      borderAccent: 'rgba(59,130,246,0.18)',
+      icon: <ShoppingCartIcon className="h-5 w-5 text-orange-400" />,
+      accentColor: 'rgba(255,107,0,1)',
+      glowColor: '0 0 24px rgba(255,107,0,0.12)',
+      borderAccent: 'rgba(255,107,0,0.18)',
       onClick: () => void navigate('/orders'),
     },
     {

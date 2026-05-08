@@ -105,7 +105,7 @@ export function AddEditCustomerPage(): JSX.Element {
         <div className="flex gap-3 mt-2">
           <button
             onClick={() => canAddCustomer(true)}
-            className="min-h-[44px] px-6 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+            className="min-h-[44px] px-6 rounded-xl bg-[#ff6b00] text-white text-sm font-semibold hover:bg-[#e55f00]"
           >
             Upgrade Plan
           </button>
@@ -200,7 +200,7 @@ export function AddEditCustomerPage(): JSX.Element {
         {/* Basic Info */}
         <div className="card-cinema rounded-2xl p-5 space-y-4">
           <h2 className="text-base font-semibold text-gray-200 flex items-center gap-2 mb-4">
-            <UserIcon className="h-5 w-5 text-blue-400" />
+            <UserIcon className="h-5 w-5 text-orange-400" />
             Contact Information
           </h2>
           
@@ -253,7 +253,7 @@ export function AddEditCustomerPage(): JSX.Element {
         {/* Billing Address */}
         <div className="card-cinema rounded-2xl p-5 space-y-4">
           <h2 className="text-base font-semibold text-gray-200 flex items-center gap-2 mb-4 mt-2">
-            <MapPinIcon className="h-5 w-5 text-blue-400" />
+            <MapPinIcon className="h-5 w-5 text-orange-400" />
             Billing Address
           </h2>
           
@@ -278,7 +278,7 @@ export function AddEditCustomerPage(): JSX.Element {
                <label className="text-sm font-medium text-gray-400">State</label>
                <select
                  {...register('billing.state')}
-                 className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-base text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                 className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-base text-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer"
                >
                  <option value="" className="bg-gray-900">Select...</option>
                  {STATES.map(st => <option key={st} value={st} className="bg-gray-900">{st}</option>)}
@@ -299,7 +299,7 @@ export function AddEditCustomerPage(): JSX.Element {
         <div className="card-cinema rounded-2xl p-5 space-y-4">
            <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold text-gray-200 flex items-center gap-2 mb-2 mt-2">
-                <MapPinIcon className="h-5 w-5 text-blue-400" />
+                <MapPinIcon className="h-5 w-5 text-orange-400" />
                 Shipping Address
               </h2>
            </div>
@@ -308,7 +308,7 @@ export function AddEditCustomerPage(): JSX.Element {
               <input
                 type="checkbox"
                 {...register('shippingSameAsBilling')}
-                className="h-5 w-5 rounded border-white/20 text-blue-600 focus:ring-blue-500 bg-white/10"
+                className="h-5 w-5 rounded border-white/20 text-orange-500 focus:ring-orange-500/50 bg-white/10"
               />
               <span className="font-medium text-gray-300 select-none">Same as Billing Address</span>
            </label>
@@ -335,7 +335,7 @@ export function AddEditCustomerPage(): JSX.Element {
                  <label className="text-sm font-medium text-gray-400">State</label>
                  <select
                    {...register('shipping.state')}
-                   className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-base text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                   className="w-full min-h-[44px] rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-base text-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer"
                  >
                    <option value="" className="bg-gray-900">Select...</option>
                    {STATES.map(st => <option key={st} value={st} className="bg-gray-900">{st}</option>)}
@@ -356,7 +356,7 @@ export function AddEditCustomerPage(): JSX.Element {
         {/* Notes */}
         <div className="card-cinema rounded-2xl p-5 space-y-4">
           <h2 className="text-base font-semibold text-gray-200 flex items-center gap-2 mb-2">
-            <TagIcon className="h-5 w-5 text-blue-400" />
+            <TagIcon className="h-5 w-5 text-orange-400" />
             Tags & Notes
           </h2>
           <div className="flex flex-col gap-1.5">
@@ -366,7 +366,7 @@ export function AddEditCustomerPage(): JSX.Element {
               {...register('notes')}
               className={clsx(
                 'w-full rounded-xl border bg-white/5 px-4 py-3 text-base text-gray-200 placeholder:text-gray-600 resize-none focus:outline-none focus:ring-2',
-                errors.notes ? 'border-red-500/50 focus:ring-red-500' : 'border-white/10 hover:border-white/20 focus:ring-blue-500'
+                errors.notes ? 'border-red-500/50 focus:ring-red-500' : 'border-white/10 hover:border-white/20 focus:ring-orange-500/50'
               )}
             />
             {errors.notes && <p className="text-xs text-red-500">{errors.notes.message}</p>}

@@ -33,7 +33,7 @@ interface StatusTab {
 const STATUS_TABS: StatusTab[] = [
   { label: 'All', value: '', colorClass: 'text-slate-300' },
   { label: 'Quote', value: 'QUOTE', colorClass: 'text-slate-300' },
-  { label: 'Approved', value: 'APPROVED', colorClass: 'text-blue-600' },
+  { label: 'Approved', value: 'APPROVED', colorClass: 'text-orange-500' },
   { label: 'In Production', value: 'IN_PRODUCTION', colorClass: 'text-purple-600' },
   { label: 'Ready to Ship', value: 'READY_TO_SHIP', colorClass: 'text-emerald-600' },
   { label: 'Shipped', value: 'SHIPPED', colorClass: 'text-cyan-600' },
@@ -150,7 +150,7 @@ function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
               'inline-flex items-center justify-center h-11 w-11 rounded-xl',
               'transition-colors font-semibold text-sm',
               p === page
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[#ff6b00] text-white'
                 : 'text-slate-300 hover:bg-white/[0.06] active:bg-white/[0.08]'
             )}
           >
@@ -213,7 +213,7 @@ function Th({
       <span className="inline-flex items-center gap-1">
         {label}
         {isCurrent && (
-          <span className="text-blue-600 text-xs">
+          <span className="text-orange-500 text-xs">
             {currentSortDir === 'asc' ? '↑' : '↓'}
           </span>
         )}

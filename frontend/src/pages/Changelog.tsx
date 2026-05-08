@@ -25,7 +25,7 @@ const CHANGELOG: ChangelogEntry[] = [
 ];
 
 const TYPE_STYLES: Record<string, string> = {
-  new:      'bg-blue-50 text-blue-700',
+  new:      'bg-orange-500/10 text-orange-600',
   improved: 'bg-green-50 text-green-700',
   fixed:    'bg-orange-50 text-orange-700',
 };

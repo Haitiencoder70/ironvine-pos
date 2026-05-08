@@ -20,7 +20,7 @@ export function SignInPage(): JSX.Element {
             colorInputBackground: 'rgba(255,255,255,0.06)',
             colorInputText: '#f1f5f9',
             colorText: '#dde1ea',
-            colorPrimary: '#3b82f6',
+            colorPrimary: '#ff6b00',
             colorNeutral: '#334155',
           },
           elements: {

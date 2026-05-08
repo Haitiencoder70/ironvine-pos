@@ -464,7 +464,7 @@ export function OrderDetailPage(): JSX.Element {
                   order.customer && (
                     <Link
                       to={`/customers/${order.customer.id}`}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium min-h-[44px] flex items-center px-2 -mr-2 rounded-xl hover:bg-blue-50 transition-colors"
+                      className="text-sm text-orange-500 hover:text-orange-400 font-medium min-h-[44px] flex items-center px-2 -mr-2 rounded-xl hover:bg-orange-500/10 transition-colors"
                     >
                       View Profile
                     </Link>
@@ -476,7 +476,7 @@ export function OrderDetailPage(): JSX.Element {
                   {/* Name + contact */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="h-11 w-11 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0">
+                      <div className="h-11 w-11 rounded-full bg-[#ff6b00] flex items-center justify-center text-white font-bold flex-shrink-0">
                         {order.customer.firstName[0]}{order.customer.lastName[0]}
                       </div>
                       <div>
@@ -494,7 +494,7 @@ export function OrderDetailPage(): JSX.Element {
                     {order.customer.phone && (
                       <p className="text-sm text-slate-400 flex items-center gap-2">
                         <PhoneIcon className="h-4 w-4 text-slate-500 flex-shrink-0" />
-                        <a href={`tel:${order.customer.phone}`} className="hover:text-blue-600 transition-colors">
+                        <a href={`tel:${order.customer.phone}`} className="hover:text-orange-400 transition-colors">
                           {order.customer.phone}
                         </a>
                       </p>
@@ -502,7 +502,7 @@ export function OrderDetailPage(): JSX.Element {
                     {order.customer.email && (
                       <p className="text-sm text-slate-400 flex items-center gap-2">
                         <EnvelopeIcon className="h-4 w-4 text-slate-500 flex-shrink-0" />
-                        <a href={`mailto:${order.customer.email}`} className="hover:text-blue-600 transition-colors truncate">
+                        <a href={`mailto:${order.customer.email}`} className="hover:text-orange-400 transition-colors truncate">
                           {order.customer.email}
                         </a>
                       </p>
@@ -833,7 +833,7 @@ export function OrderDetailPage(): JSX.Element {
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="block text-blue-600 hover:text-blue-700 text-xs truncate"
+                          className="block text-orange-400 hover:text-orange-300 text-xs truncate"
                         >
                           File {i + 1}
                         </a>

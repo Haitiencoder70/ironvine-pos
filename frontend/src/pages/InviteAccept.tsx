@@ -76,7 +76,7 @@ export function InviteAcceptPage(): JSX.Element {
   if (loadingDetails || !isLoaded || (isSignedIn && !error && !accepting === false) || accepting) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-3">
-        <div className="h-8 w-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+        <div className="h-8 w-8 rounded-full border-2 border-[#ff6b00] border-t-transparent animate-spin" />
         {accepting && <p className="text-sm text-gray-500">Accepting your invitation…</p>}
       </div>
     );
@@ -106,7 +106,7 @@ export function InviteAcceptPage(): JSX.Element {
   if (isSignedIn && !isTokenReady) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="h-8 w-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+        <div className="h-8 w-8 rounded-full border-2 border-[#ff6b00] border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -116,8 +116,8 @@ export function InviteAcceptPage(): JSX.Element {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full">
         <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-7 h-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-7 h-7 text-[#ff6b00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
@@ -132,7 +132,7 @@ export function InviteAcceptPage(): JSX.Element {
 
         <button
           onClick={handleSignIn}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl min-h-[44px] px-6 transition-colors"
+          className="w-full bg-[#ff6b00] hover:bg-[#e55f00] text-white font-semibold rounded-xl min-h-[44px] px-6 transition-colors"
         >
           Sign In to Accept Invitation
         </button>

@@ -56,7 +56,7 @@ export function POSTerminal(): React.JSX.Element {
       {!showMobileCart && (
         <button
           onClick={() => setShowMobileCart(true)}
-          className="lg:hidden fixed bottom-20 right-4 z-30 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+          className="lg:hidden fixed bottom-20 right-4 z-30 bg-[#ff6b00] hover:bg-[#e55f00] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg active:scale-95 transition-transform"
           aria-label="Open cart"
         >
           <ShoppingBagIcon className="h-6 w-6" />

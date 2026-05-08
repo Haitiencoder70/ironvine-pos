@@ -107,7 +107,7 @@ export function Select({
             className={clsx(
               'relative w-full min-h-[44px] rounded-xl border bg-white/5 px-4 py-2 text-left text-slate-100',
               'cursor-pointer select-none',
-              'transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-transparent',
+              'transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent',
               error
                 ? 'border-red-500/60 focus:ring-red-500/60'
                 : 'border-white/10 hover:border-white/20',
@@ -151,7 +151,7 @@ export function Select({
                     className={({ focus }) =>
                       clsx(
                         'relative cursor-pointer select-none py-3 pl-4 pr-9 min-h-[44px] flex items-center',
-                        focus ? 'bg-blue-500/15 text-blue-200' : 'text-slate-200',
+                        focus ? 'bg-orange-500/15 text-orange-200' : 'text-slate-200',
                         option.disabled && 'cursor-not-allowed opacity-50'
                       )
                     }
@@ -169,7 +169,7 @@ export function Select({
                         </span>
 
                         {(isSelected(option.value) || selected) && (
-                          <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-400">
+                          <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-orange-400">
                             <CheckIcon className="h-5 w-5" aria-hidden="true" />
                           </span>
                         )}

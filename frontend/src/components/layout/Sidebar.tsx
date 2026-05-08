@@ -110,7 +110,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
       <div
         className="absolute inset-y-0 right-0 w-px pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, transparent 0%, rgba(59,130,246,0.25) 35%, rgba(99,102,241,0.15) 70%, transparent 100%)',
+          background: 'linear-gradient(180deg, transparent 0%, rgba(255,107,0,0.22) 35%, rgba(229,95,0,0.12) 70%, transparent 100%)',
         }}
       />
 
@@ -133,8 +133,8 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
           <div
             className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-[11px] tracking-widest"
             style={{
-              background: 'linear-gradient(145deg, #2563eb 0%, #1d4ed8 50%, #3730a3 100%)',
-              boxShadow: '0 0 20px rgba(59,130,246,0.45), 0 0 40px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.25)',
+              background: 'linear-gradient(145deg, #ff6b00 0%, #e55f00 50%, #cc5400 100%)',
+              boxShadow: '0 0 20px rgba(255,107,0,0.45), 0 0 40px rgba(255,107,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25)',
             }}
           >
             {organization?.name?.[0]?.toUpperCase() ?? 'PF'}
@@ -164,7 +164,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
                   <span
                     className="font-light text-[13px] tracking-tight"
                     style={{
-                      background: 'linear-gradient(90deg, #60a5fa, #818cf8)',
+                      background: 'linear-gradient(90deg, #ff9a4d, #ff6b00)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
                     }}
@@ -228,7 +228,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
                       className={clsx(
                         'flex-shrink-0 transition-all duration-150',
                         isActive
-                          ? 'text-blue-400 drop-shadow-[0_0_6px_rgba(59,130,246,0.6)]'
+                          ? 'text-orange-400 drop-shadow-[0_0_6px_rgba(255,107,0,0.6)]'
                           : 'text-gray-600 group-hover:text-gray-400'
                       )}
                     >
@@ -290,8 +290,8 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps): React.JS
           <div
             className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold"
             style={{
-              background: 'linear-gradient(145deg, #2563eb, #7c3aed)',
-              boxShadow: '0 0 14px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
+              background: 'linear-gradient(145deg, #ff6b00, #e55f00)',
+              boxShadow: '0 0 14px rgba(255,107,0,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
             }}
           >
             {initials}

@@ -19,7 +19,7 @@ const MOVEMENT_ICONS: Record<StockMovement['type'], React.ReactNode> = {
   OUT: <ArrowUpRightIcon className="h-4 w-4 text-red-600" />,
   ADJUSTMENT: <AdjustmentsHorizontalIcon className="h-4 w-4 text-orange-600" />,
   RESERVED: <LockClosedIcon className="h-4 w-4 text-gray-600" />,
-  UNRESERVED: <LockOpenIcon className="h-4 w-4 text-blue-600" />,
+  UNRESERVED: <LockOpenIcon className="h-4 w-4 text-orange-500" />,
 };
 
 const MOVEMENT_STYLES: Record<StockMovement['type'], string> = {
@@ -27,7 +27,7 @@ const MOVEMENT_STYLES: Record<StockMovement['type'], string> = {
   OUT: 'bg-red-50 text-red-700 border-red-200',
   ADJUSTMENT: 'bg-orange-50 text-orange-700 border-orange-200',
   RESERVED: 'bg-gray-100 text-gray-700 border-gray-200',
-  UNRESERVED: 'bg-blue-50 text-blue-700 border-blue-200',
+  UNRESERVED: 'bg-orange-500/10 text-orange-600 border-orange-500/25',
 };
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ export function StockMovementHistory({ inventoryItemId }: StockMovementHistoryPr
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as StockMovement['type'] | 'ALL')}
-            className="pl-9 pr-10 py-1.5 min-h-[44px] rounded-xl border border-gray-300 bg-white text-sm shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer"
+            className="pl-9 pr-10 py-1.5 min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 text-sm shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-orange-500/50 appearance-none cursor-pointer"
           >
             <option value="ALL">All Movements</option>
             <option value="IN">Received (IN)</option>

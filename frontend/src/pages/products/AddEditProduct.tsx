@@ -150,7 +150,7 @@ function ToggleGroup({
           className={clsx(
             'px-4 py-2 rounded-xl text-sm font-semibold border transition-all min-h-[44px]',
             selected.includes(opt)
-              ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+              ? 'bg-[#ff6b00] text-white border-[#ff6b00] shadow-sm'
               : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
           )}
         >

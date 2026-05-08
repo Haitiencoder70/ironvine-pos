@@ -134,7 +134,7 @@ export function GarmentViewer({
               className={clsx(
                 'flex-1 py-2 text-sm font-medium capitalize transition-colors min-h-[44px]',
                 view === v
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#ff6b00] text-white'
                   : 'text-gray-600 hover:bg-gray-100',
               )}
               aria-pressed={view === v}
@@ -225,7 +225,7 @@ export function GarmentViewer({
                   className={clsx(
                     'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium',
                     inCurrentView
-                      ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200'
+                      ? 'bg-orange-500/10 text-orange-600 ring-1 ring-orange-500/30'
                       : 'bg-gray-100 text-gray-500',
                   )}
                 >
@@ -260,7 +260,7 @@ export function GarmentViewer({
       {allowDownload && (
         <button
           onClick={handleDownload}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 transition-colors min-h-[44px]"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-orange-400 hover:text-orange-500 hover:bg-orange-500/5 transition-colors min-h-[44px]"
         >
           <ArrowDownTrayIcon className="h-4 w-4" />
           Download Mockup

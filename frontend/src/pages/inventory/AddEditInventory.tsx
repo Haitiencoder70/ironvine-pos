@@ -134,7 +134,7 @@ export function AddEditInventoryPage(): JSX.Element {
         <div className="flex gap-3 mt-2">
           <button
             onClick={() => canAddInventory(true)}
-            className="min-h-[44px] px-6 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+            className="min-h-[44px] px-6 rounded-xl bg-[#ff6b00] text-white text-sm font-semibold hover:bg-[#e55f00]"
           >
             Upgrade Plan
           </button>
@@ -255,7 +255,7 @@ export function AddEditInventoryPage(): JSX.Element {
                     {...field}
                     className={clsx(
                       'w-full min-h-[44px] rounded-xl border bg-[rgba(10,10,20,0.85)] px-4 py-2 text-slate-100 text-base appearance-none cursor-pointer',
-                      errors.category ? 'border-red-400' : 'border-white/10 hover:border-white/20 focus:ring-2 focus:ring-blue-500 focus:outline-none'
+                      errors.category ? 'border-red-400' : 'border-white/10 hover:border-white/20 focus:ring-2 focus:ring-orange-500/50 focus:outline-none'
                     )}
                   >
                     <option value="">Select Category...</option>
@@ -434,7 +434,7 @@ export function AddEditInventoryPage(): JSX.Element {
               {...register('notes')}
               className={clsx(
                 'w-full rounded-xl border bg-white/[0.06] px-4 py-2 text-slate-100 placeholder:text-slate-500 text-base resize-none',
-                errors.notes ? 'border-red-400' : 'border-white/10 hover:border-white/20 focus:ring-2 focus:ring-blue-500 focus:outline-none'
+                errors.notes ? 'border-red-400' : 'border-white/10 hover:border-white/20 focus:ring-2 focus:ring-orange-500/50 focus:outline-none'
               )}
             />
             {errors.notes && <p className="text-xs text-red-500">{errors.notes.message}</p>}

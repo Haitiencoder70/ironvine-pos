@@ -107,7 +107,7 @@ export function VendorListPage(): JSX.Element {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4">
+      <div className="glass-panel rounded-2xl p-4 shadow-sm border border-white/10 flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
@@ -118,7 +118,7 @@ export function VendorListPage(): JSX.Element {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-gray-300 bg-white text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50"
           />
         </div>
 
@@ -128,7 +128,7 @@ export function VendorListPage(): JSX.Element {
             setCategoryFilter(e.target.value);
             setPage(1);
           }}
-          className="md:w-48 min-h-[44px] rounded-xl border border-gray-300 bg-white px-3 text-base shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="md:w-48 min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-base shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/50"
         >
           <option value="">All Categories</option>
           <option value="Garments">Garments</option>
@@ -143,7 +143,7 @@ export function VendorListPage(): JSX.Element {
             setActiveFilter(e.target.value as 'ALL' | 'ACTIVE' | 'INACTIVE');
             setPage(1);
           }}
-          className="md:w-48 min-h-[44px] rounded-xl border border-gray-300 bg-white px-3 text-base shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="md:w-48 min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-3 text-base shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/50"
         >
           <option value="ALL">All Statuses</option>
           <option value="ACTIVE">Active Only</option>
@@ -211,7 +211,7 @@ export function VendorListPage(): JSX.Element {
                       </td>
                       <td className="px-6 py-4">
                         <p 
-                          className="font-bold text-gray-900 cursor-pointer hover:text-blue-600 truncate max-w-[200px] text-base"
+                          className="font-bold text-gray-900 cursor-pointer hover:text-orange-400 truncate max-w-[200px] text-base"
                           onClick={() => navigate(`/vendors/${v.id}`)}
                         >
                           {v.name}

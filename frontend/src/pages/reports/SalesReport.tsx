@@ -93,7 +93,7 @@ export function SalesReportPage(): React.JSX.Element {
         <button
           onClick={() => data && exportCSV(data.rows, `sales-report-${format(range.startDate, 'yyyy-MM-dd')}.csv`)}
           disabled={!data || data.rows.length === 0}
-          className="min-h-[44px] px-4 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          className="min-h-[44px] px-4 rounded-xl bg-[#ff6b00] text-white text-sm font-medium hover:bg-[#e55f00] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
           <ArrowDownTrayIcon className="h-4 w-4" />
           Export CSV

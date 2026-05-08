@@ -129,7 +129,7 @@ export function CustomerListPage(): JSX.Element {
                setSearch(e.target.value);
                setPage(1);
             }}
-            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-gray-500 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-gray-500 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors"
           />
         </div>
       </div>
@@ -187,13 +187,13 @@ export function CustomerListPage(): JSX.Element {
                   return (
                     <tr key={customer.id} className="hover:bg-white/5 transition-colors group">
                       <td className="px-6 py-4 text-center">
-                        <div className="h-10 w-10 rounded-full bg-blue-500/20 text-blue-400 mx-auto flex items-center justify-center font-bold text-sm border border-blue-500/30">
+                        <div className="h-10 w-10 rounded-full bg-orange-500/20 text-orange-400 mx-auto flex items-center justify-center font-bold text-sm border border-orange-500/30">
                           {customer.firstName[0]}{customer.lastName[0]}
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <p
-                          className="font-bold text-white cursor-pointer hover:text-blue-400 transition-colors truncate max-w-[200px]"
+                          className="font-bold text-white cursor-pointer hover:text-orange-400 transition-colors truncate max-w-[200px]"
                           onClick={() => navigate(`/customers/${customer.id}`)}
                         >
                           {customer.firstName} {customer.lastName}
@@ -263,7 +263,7 @@ export function CustomerListPage(): JSX.Element {
                 padding="md"
                 className="glass-panel border-white/10 active:bg-white/10 transition-colors flex gap-4 items-start"
               >
-                <div className="h-12 w-12 rounded-full bg-blue-500/20 text-blue-400 flex-shrink-0 flex items-center justify-center font-bold text-lg mt-0.5 border border-blue-500/30">
+                <div className="h-12 w-12 rounded-full bg-orange-500/20 text-orange-400 flex-shrink-0 flex items-center justify-center font-bold text-lg mt-0.5 border border-orange-500/30">
                   {customer.firstName[0]}{customer.lastName[0]}
                 </div>
 

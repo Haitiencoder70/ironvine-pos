@@ -175,7 +175,7 @@ function ProductCard({
             type="button"
             onClick={onEdit}
             title="Edit"
-            className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+            className="p-2 rounded-lg text-gray-400 hover:text-orange-400 hover:bg-orange-500/10 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
           >
             <PencilSquareIcon className="h-4 w-4" />
           </button>
@@ -300,7 +300,7 @@ export function ProductListPage(): JSX.Element {
               className={clsx(
                 'flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all min-h-[44px] border',
                 activeCategory === cat
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                  ? 'bg-[#ff6b00] text-white border-[#ff6b00] shadow-md'
                   : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-800'
               )}
             >
@@ -325,14 +325,14 @@ export function ProductListPage(): JSX.Element {
             placeholder="Search by name, SKU..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-gray-200 bg-white text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 min-h-[44px] rounded-xl border border-gray-200 bg-white text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50"
           />
         </div>
 
         <select
           value={methodFilter}
           onChange={e => setMethodFilter(e.target.value)}
-          className="md:w-44 min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="md:w-44 min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/50"
         >
           <option value="All">All Methods</option>
           <option value="DTF">DTF</option>
@@ -344,7 +344,7 @@ export function ProductListPage(): JSX.Element {
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'INACTIVE')}
-          className="md:w-44 min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="md:w-44 min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/50"
         >
           <option value="ALL">All Statuses</option>
           <option value="ACTIVE">Active Only</option>
@@ -354,7 +354,7 @@ export function ProductListPage(): JSX.Element {
         <select
           value={sortBy}
           onChange={e => setSortBy(e.target.value as 'name' | 'price' | 'category')}
-          className="md:w-44 min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="md:w-44 min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/50"
         >
           <option value="name">Sort: Name</option>
           <option value="price">Sort: Price</option>
@@ -373,7 +373,7 @@ export function ProductListPage(): JSX.Element {
       ) : !hasAnyProducts ? (
         /* Full empty state — no products at all */
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 flex flex-col items-center text-center gap-6">
-          <div className="w-20 h-20 rounded-2xl bg-blue-50 flex items-center justify-center text-4xl">👕</div>
+          <div className="w-20 h-20 rounded-2xl bg-orange-500/10 flex items-center justify-center text-4xl">👕</div>
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">No products yet</h2>
             <p className="text-gray-500 max-w-sm">

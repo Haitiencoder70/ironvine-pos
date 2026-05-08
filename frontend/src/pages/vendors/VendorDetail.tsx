@@ -189,7 +189,7 @@ export function VendorDetailPage(): JSX.Element {
 
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5">
+                <div className="h-10 w-10 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5">
                   {vendor.contactName ? vendor.contactName.substring(0, 2).toUpperCase() : vendor.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div>
@@ -202,19 +202,19 @@ export function VendorDetailPage(): JSX.Element {
                 {vendor.phone && (
                   <div className="flex items-center gap-3 bg-gray-50 p-2.5 rounded-xl">
                      <PhoneIcon className="h-4 w-4 text-gray-400 shrink-0" />
-                     <a href={`tel:${vendor.phone}`} className="hover:text-blue-600 transition-colors font-medium">{vendor.phone}</a>
+                     <a href={`tel:${vendor.phone}`} className="hover:text-orange-400 transition-colors font-medium">{vendor.phone}</a>
                   </div>
                 )}
                 {vendor.email && (
                   <div className="flex items-center gap-3 bg-gray-50 p-2.5 rounded-xl">
                      <EnvelopeIcon className="h-4 w-4 text-gray-400 shrink-0" />
-                     <a href={`mailto:${vendor.email}`} className="hover:text-blue-600 transition-colors font-medium truncate">{vendor.email}</a>
+                     <a href={`mailto:${vendor.email}`} className="hover:text-orange-400 transition-colors font-medium truncate">{vendor.email}</a>
                   </div>
                 )}
                 {vendor.website && (
                   <div className="flex items-center gap-3 bg-gray-50 p-2.5 rounded-xl">
                      <GlobeAltIcon className="h-4 w-4 text-gray-400 shrink-0" />
-                     <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 transition-colors font-medium truncate">
+                     <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors font-medium truncate">
                        {vendor.website.replace(/^https?:\/\//, '')}
                      </a>
                   </div>
@@ -351,11 +351,11 @@ export function VendorDetailPage(): JSX.Element {
                     <div 
                       key={po.id} 
                       onClick={() => navigate(`/purchase-orders/${po.id}`)}
-                      className="border border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer bg-white group flex justify-between items-center"
+                      className="border border-gray-200 rounded-xl p-4 hover:border-orange-500/40 hover:shadow-md transition-all cursor-pointer bg-white group flex justify-between items-center"
                     >
                       <div>
                         <div className="flex items-center gap-3 mb-1">
-                          <span className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors flex items-center gap-1.5">
+                          <span className="font-bold text-gray-900 group-hover:text-orange-400 transition-colors flex items-center gap-1.5">
                             <DocumentTextIcon className="h-4 w-4" />
                             {po.poNumber}
                           </span>

@@ -68,8 +68,8 @@ export function QuickActions(): React.JSX.Element {
   const actions: ActionCardProps[] = [
     {
       label: 'New Order',
-      icon: <PlusCircleIcon className="h-8 w-8 text-blue-400" />,
-      accentRgb: '59,130,246',
+      icon: <PlusCircleIcon className="h-8 w-8 text-orange-400" />,
+      accentRgb: '255,107,0',
       delay: 0,
       onClick: () => void navigate('/orders/new'),
     },

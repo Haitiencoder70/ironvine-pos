@@ -138,7 +138,7 @@ export function SupplyForm({ onAdd, onCancel, defaultValues }: SupplyFormProps) 
             value={color}
             onChange={(e) => setValue('color', e.target.value)}
             placeholder="e.g. White"
-            className="w-full min-h-[48px] rounded-xl border border-gray-300 px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 py-2 outline-none focus:ring-2 focus:ring-orange-500/50"
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -148,7 +148,7 @@ export function SupplyForm({ onAdd, onCancel, defaultValues }: SupplyFormProps) 
             value={type}
             onChange={(e) => setValue('type', e.target.value)}
             placeholder="e.g. Standard"
-            className="w-full min-h-[48px] rounded-xl border border-gray-300 px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 py-2 outline-none focus:ring-2 focus:ring-orange-500/50"
           />
         </div>
       </div>
@@ -160,7 +160,7 @@ export function SupplyForm({ onAdd, onCancel, defaultValues }: SupplyFormProps) 
             type="number"
             value={quantity}
             onChange={(e) => setValue('quantity', parseInt(e.target.value) || 0)}
-            className="flex-1 min-h-[48px] rounded-xl border border-gray-300 px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 min-h-[48px] rounded-xl border border-white/10 bg-white/5 text-slate-100 px-4 py-2 outline-none focus:ring-2 focus:ring-orange-500/50"
           />
           <span className="text-sm font-medium text-gray-500 min-w-[80px]">
             {selectedItem?.unit || 'units'}
@@ -168,14 +168,14 @@ export function SupplyForm({ onAdd, onCancel, defaultValues }: SupplyFormProps) 
         </div>
       </div>
 
-      <div className="flex justify-between items-center p-3 bg-blue-50 rounded-xl border border-blue-100">
+      <div className="flex justify-between items-center p-3 bg-orange-500/10 rounded-xl border border-orange-500/15">
         <div>
-          <p className="text-xs text-blue-600 font-bold uppercase">Unit Cost</p>
-          <p className="text-lg font-bold text-blue-900">${unitPrice.toFixed(2)}</p>
+          <p className="text-xs text-orange-500 font-bold uppercase">Unit Cost</p>
+          <p className="text-lg font-bold text-slate-100">${unitPrice.toFixed(2)}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-blue-600 font-bold uppercase">Line Total</p>
-          <p className="text-xl font-bold text-blue-900">${totalPrice.toFixed(2)}</p>
+          <p className="text-xs text-orange-500 font-bold uppercase">Line Total</p>
+          <p className="text-xl font-bold text-slate-100">${totalPrice.toFixed(2)}</p>
         </div>
       </div>
 

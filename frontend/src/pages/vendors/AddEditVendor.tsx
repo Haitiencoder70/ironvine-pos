@@ -308,16 +308,16 @@ export function AddEditVendorPage(): JSX.Element {
                    key={cat.id} 
                    className={clsx(
                      "flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all min-h-[48px]",
-                     currentCategories.includes(cat.id) ? "border-blue-500 bg-blue-50/50 ring-1 ring-blue-500" : "border-gray-200 bg-white hover:border-gray-300"
+                     currentCategories.includes(cat.id) ? "border-orange-500 bg-orange-500/10 ring-1 ring-orange-500" : "border-gray-200 bg-white hover:border-gray-300"
                    )}
                  >
                    <input
                      type="checkbox"
                      value={cat.id}
                      {...register('categories')}
-                     className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                     className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500/50"
                    />
-                   <span className={clsx("text-sm font-medium", currentCategories.includes(cat.id) ? "text-blue-900" : "text-gray-700")}>
+                   <span className={clsx("text-sm font-medium", currentCategories.includes(cat.id) ? "text-orange-900" : "text-gray-700")}>
                      {cat.label}
                    </span>
                  </label>

@@ -87,7 +87,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps): Reac
             className={clsx(
               'min-h-[44px] px-4 rounded-xl text-sm font-medium transition-colors',
               value.preset === p.value
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[#ff6b00] text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
             )}
           >
@@ -105,7 +105,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps): Reac
               type="date"
               value={customStart}
               onChange={(e) => setCustomStart(e.target.value)}
-              className="min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50"
             />
           </div>
           <span className="text-gray-400 text-sm">to</span>
@@ -113,11 +113,11 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps): Reac
             type="date"
             value={customEnd}
             onChange={(e) => setCustomEnd(e.target.value)}
-            className="min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="min-h-[44px] rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50"
           />
           <button
             onClick={applyCustom}
-            className="min-h-[44px] px-4 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="min-h-[44px] px-4 rounded-xl bg-[#ff6b00] text-white text-sm font-medium hover:bg-[#e55f00] transition-colors"
           >
             Apply
           </button>

@@ -44,7 +44,7 @@ export function BottomNav(): React.JSX.Element {
               to={path}
               className={clsx(
                 'flex flex-col items-center justify-center flex-1 gap-0.5 min-h-[44px] transition-colors duration-150 relative',
-                isActive ? 'text-blue-400' : 'text-gray-600 hover:text-gray-400',
+                isActive ? 'text-orange-400' : 'text-gray-600 hover:text-gray-400',
               )}
               aria-label={label}
             >
@@ -53,8 +53,8 @@ export function BottomNav(): React.JSX.Element {
                 <span
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] rounded-full"
                   style={{
-                    background: 'linear-gradient(90deg, #60a5fa, #3b82f6)',
-                    boxShadow: '0 0 8px rgba(59,130,246,0.7)',
+                    background: 'linear-gradient(90deg, #ff9a4d, #ff6b00)',
+                    boxShadow: '0 0 8px rgba(255,107,0,0.7)',
                   }}
                 />
               )}

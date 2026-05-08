@@ -97,8 +97,8 @@ export function TopBar(): React.JSX.Element {
         onClick={() => void navigate('/orders/new')}
         className="flex items-center gap-2 min-h-[36px] px-4 text-[13px] font-bold rounded-xl transition-all duration-150 flex-shrink-0 text-white active:scale-[0.97]"
         style={{
-          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 60%, #1d4ed8 100%)',
-          boxShadow: '0 0 20px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.2)',
+          background: 'linear-gradient(135deg, #ff6b00 0%, #e55f00 60%, #cc5400 100%)',
+          boxShadow: '0 0 20px rgba(255,107,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.2)',
         }}
         aria-label="Create new order"
       >
@@ -123,7 +123,7 @@ export function TopBar(): React.JSX.Element {
       <UserButton
         appearance={{
           elements: {
-            avatarBox: 'w-7 h-7 ring-1 ring-white/10 shadow-[0_0_12px_rgba(59,130,246,0.2)]',
+            avatarBox: 'w-7 h-7 ring-1 ring-white/10 shadow-[0_0_12px_rgba(255,107,0,0.15)]',
           },
         }}
       />

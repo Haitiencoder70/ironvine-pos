@@ -229,7 +229,7 @@ export function DesignMockup({
             onClick={() => setSide(s)}
             className={[
               'flex-1 min-h-[44px] text-sm font-medium transition-colors',
-              side === s ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50',
+              side === s ? 'bg-[#ff6b00] text-white' : 'bg-white text-gray-600 hover:bg-gray-50',
             ].join(' ')}
           >
             {s === 'FRONT' ? 'Front' : 'Back'}
@@ -297,7 +297,7 @@ export function DesignMockup({
             type="button"
             onClick={handleSave}
             disabled={!designImageUrl || isSaving}
-            className="flex-1 flex items-center justify-center gap-2 min-h-[48px] rounded-xl bg-blue-600 text-white font-medium text-sm active:bg-blue-700 disabled:opacity-40"
+            className="flex-1 flex items-center justify-center gap-2 min-h-[48px] rounded-xl bg-[#ff6b00] text-white font-medium text-sm active:bg-[#e55f00] disabled:opacity-40"
           >
             <span aria-hidden>💾</span> {isSaving ? 'Saving…' : 'Save Mockup'}
           </button>

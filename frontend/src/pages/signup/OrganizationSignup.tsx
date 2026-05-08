@@ -90,7 +90,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
         <div
           key={i}
           className={`h-2 rounded-full transition-all ${
-            i + 1 === current ? 'w-8 bg-blue-600' : i + 1 < current ? 'w-2 bg-blue-300' : 'w-2 bg-white/20'
+            i + 1 === current ? 'w-8 bg-[#ff6b00]' : i + 1 < current ? 'w-2 bg-[#ff9a4d]' : 'w-2 bg-white/20'
           }`}
         />
       ))}
@@ -114,7 +114,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full min-h-[44px] px-3 text-sm text-slate-100 placeholder:text-slate-500 bg-white/[0.06] rounded-xl border border-white/10 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${props.className ?? ''}`}
+      className={`w-full min-h-[44px] px-3 text-sm text-slate-100 placeholder:text-slate-500 bg-white/[0.06] rounded-xl border border-white/10 outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/30 ${props.className ?? ''}`}
     />
   );
 }
@@ -225,7 +225,7 @@ export function OrganizationSignup(): React.JSX.Element {
   if (!isLoaded || isSsoCallback || checkingExistingOrg) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="h-8 w-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+        <div className="h-8 w-8 rounded-full border-2 border-[#ff6b00] border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -251,7 +251,7 @@ export function OrganizationSignup(): React.JSX.Element {
               colorInputBackground: 'rgba(255,255,255,0.06)',
               colorInputText: '#f1f5f9',
               colorText: '#dde1ea',
-              colorPrimary: '#3b82f6',
+              colorPrimary: '#ff6b00',
               colorNeutral: '#334155',
             },
             elements: {
@@ -305,7 +305,7 @@ export function OrganizationSignup(): React.JSX.Element {
                 <select
                   value={form.industry}
                   onChange={(e) => set('industry', e.target.value)}
-                  className="w-full min-h-[44px] px-3 text-sm text-slate-100 rounded-xl border border-white/10 outline-none focus:ring-2 focus:ring-blue-500 bg-white/[0.06]"
+                  className="w-full min-h-[44px] px-3 text-sm text-slate-100 rounded-xl border border-white/10 outline-none focus:ring-2 focus:ring-orange-500/50 bg-white/[0.06]"
                 >
                   <option value="">Select industry...</option>
                   {INDUSTRIES.map((ind) => (
@@ -375,7 +375,7 @@ export function OrganizationSignup(): React.JSX.Element {
             {step < totalSteps ? (
               <button
                 onClick={nextStep}
-                className="min-h-[44px] flex-1 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
+                className="min-h-[44px] flex-1 rounded-xl bg-[#ff6b00] text-white text-sm font-medium hover:bg-[#e55f00]"
               >
                 Continue
               </button>
@@ -383,7 +383,7 @@ export function OrganizationSignup(): React.JSX.Element {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="min-h-[44px] flex-1 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                className="min-h-[44px] flex-1 rounded-xl bg-[#ff6b00] text-white text-sm font-medium hover:bg-[#e55f00] disabled:opacity-50"
               >
                 {submitting
                   ? 'Setting up...'

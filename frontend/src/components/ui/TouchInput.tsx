@@ -57,7 +57,7 @@ export const TouchInput = memo(forwardRef<HTMLInputElement, TouchInputProps>(
                 'placeholder:text-slate-500 focus:outline-none focus:ring-2',
                 hasError
                   ? 'border-red-500/60 focus:ring-red-500/60 text-red-300 placeholder:text-red-400/60'
-                  : 'border-white/10 focus:ring-blue-500/60 focus:border-blue-500/40',
+                  : 'border-white/10 focus:ring-orange-500/50 focus:border-orange-500/30',
                 icon && iconPosition === 'left' && 'pl-10',
                 icon && iconPosition === 'right' && 'pr-10',
                 props.disabled && 'cursor-not-allowed opacity-50',

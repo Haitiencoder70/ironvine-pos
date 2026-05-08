@@ -190,7 +190,7 @@ export function CustomerDetailPage(): JSX.Element {
           {/* Contact Card */}
           <TouchCard padding="md" className="border border-gray-200">
             <div className="flex items-center gap-4 mb-5 border-b border-gray-100 pb-4">
-              <div className="h-14 w-14 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xl flex-shrink-0">
+              <div className="h-14 w-14 rounded-full bg-[rgba(255,107,0,0.12)] text-[#ff6b00] flex items-center justify-center font-bold text-xl flex-shrink-0">
                 {customer.firstName[0]}{customer.lastName[0]}
               </div>
               <div>
@@ -257,7 +257,7 @@ export function CustomerDetailPage(): JSX.Element {
                 <button
                   type="button"
                   onClick={handleStartNotesEdit}
-                  className="text-blue-600 hover:bg-blue-50 p-1.5 rounded-lg text-xs font-semibold"
+                  className="text-orange-500 hover:bg-orange-500/10 p-1.5 rounded-lg text-xs font-semibold"
                 >
                   Edit
                 </button>
@@ -270,7 +270,7 @@ export function CustomerDetailPage(): JSX.Element {
                   rows={4}
                   value={notesEdit}
                   onChange={(e) => setNotesEdit(e.target.value)}
-                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white"
+                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none bg-white"
                   placeholder="Enter custom tags (comma separated) or notes here..."
                 />
                 <div className="flex gap-2 justify-end">
@@ -350,11 +350,11 @@ export function CustomerDetailPage(): JSX.Element {
                     <div 
                       key={order.id} 
                       onClick={() => navigate(`/orders/${order.id}`)}
-                      className="border border-gray-100 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer bg-white group flex justify-between items-center"
+                      className="border border-gray-100 rounded-xl p-4 hover:border-orange-500/40 hover:shadow-md transition-all cursor-pointer bg-white group flex justify-between items-center"
                     >
                       <div>
                         <div className="flex items-center gap-3 mb-1">
-                          <span className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                          <span className="font-bold text-gray-900 group-hover:text-orange-500 transition-colors">
                             {order.orderNumber}
                           </span>
                           <span className={clsx('px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide', badge.bg, badge.text)}>

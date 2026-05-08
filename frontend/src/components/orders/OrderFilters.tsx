@@ -134,7 +134,7 @@ export function OrderFilters({
           <FunnelIcon className="h-4 w-4 flex-shrink-0" />
           <span className="hidden sm:inline">Filters</span>
           {activeCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+            <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#ff6b00] text-[10px] font-bold text-white">
               {activeCount}
             </span>
           )}

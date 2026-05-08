@@ -186,7 +186,7 @@ export function InventoryDetailPage(): JSX.Element {
                       style={{ left: `${Math.min(100, Math.max(5, (item.reorderPoint / Math.max(item.quantityOnHand, item.reorderPoint * 2)) * 100))}%` }}
                     />
                     <div
-                      className={clsx('h-full transition-all', isLowStock ? 'bg-red-500' : 'bg-blue-500')}
+                      className={clsx('h-full transition-all', isLowStock ? 'bg-red-500' : 'bg-[#ff6b00]')}
                       style={{ width: `${Math.min(100, (item.quantityAvailable / Math.max(item.quantityOnHand, item.reorderPoint * 2)) * 100)}%` }}
                     />
                   </div>

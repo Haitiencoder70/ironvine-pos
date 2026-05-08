@@ -113,7 +113,7 @@ export function DTFForm({ onAdd, onCancel, defaultValues }: DTFFormProps) {
             onClick={() => setValue('transferType', type)}
             className={clsx(
               'flex-1 py-2 rounded-lg text-sm font-medium border transition-all',
-              transferType === type ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300'
+              transferType === type ? 'bg-[#ff6b00] text-white border-[#ff6b00]' : 'bg-white text-gray-600 border-gray-300'
             )}
           >
             {type === 'single' ? 'Single Transfer' : 'Gang Sheet'}
@@ -168,7 +168,7 @@ export function DTFForm({ onAdd, onCancel, defaultValues }: DTFFormProps) {
               onClick={() => setValue('filmType', type)}
               className={clsx(
                 'px-4 py-2 rounded-lg text-xs font-medium border transition-all',
-                filmType === type ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300'
+                filmType === type ? 'bg-[#ff6b00] text-white border-[#ff6b00]' : 'bg-white text-gray-600 border-gray-300'
               )}
             >
               {type}
@@ -188,7 +188,7 @@ export function DTFForm({ onAdd, onCancel, defaultValues }: DTFFormProps) {
               onClick={() => setValue('finish', finish)}
               className={clsx(
                 'flex-1 py-2 rounded-lg text-sm font-medium border transition-all',
-                finish === finish ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300'
+                finish === finish ? 'bg-[#ff6b00] text-white border-[#ff6b00]' : 'bg-white text-gray-600 border-gray-300'
               )}
             >
               {finish}
@@ -205,7 +205,7 @@ export function DTFForm({ onAdd, onCancel, defaultValues }: DTFFormProps) {
             onClick={() => setValue('whiteInkBase', option)}
             className={clsx(
               'flex-1 py-2 rounded-lg text-sm font-medium border transition-all',
-              whiteInkBase === option ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300'
+              whiteInkBase === option ? 'bg-[#ff6b00] text-white border-[#ff6b00]' : 'bg-white text-gray-600 border-gray-300'
             )}
           >
             {option}
