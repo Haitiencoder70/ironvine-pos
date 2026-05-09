@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import {
@@ -32,12 +32,12 @@ type Tab = 'general' | 'users' | 'roles' | 'tax' | 'notifications' | 'integratio
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'general', label: 'General', icon: <BuildingOfficeIcon className="h-5 w-5" /> },
   { id: 'users', label: 'Users', icon: <UsersIcon className="h-5 w-5" /> },
+  { id: 'billing', label: 'Billing', icon: <CreditCardIcon className="h-5 w-5" /> },
   { id: 'roles', label: 'Roles & Permissions', icon: <ShieldCheckIcon className="h-5 w-5" /> },
   { id: 'tax', label: 'Tax & Pricing', icon: <CalculatorIcon className="h-5 w-5" /> },
   { id: 'notifications', label: 'Notifications', icon: <BellIcon className="h-5 w-5" /> },
   { id: 'integrations', label: 'Integrations', icon: <PuzzlePieceIcon className="h-5 w-5" /> },
   { id: 'branding', label: 'Branding', icon: <PaintBrushIcon className="h-5 w-5" /> },
-  { id: 'billing', label: 'Billing', icon: <CreditCardIcon className="h-5 w-5" /> },
   { id: 'modules', label: 'Advanced Modules', icon: <PuzzlePieceIcon className="h-5 w-5" /> },
 ];
 
@@ -677,9 +677,19 @@ function ModulesTab({ settings, onSave }: { settings: OrgSettings; onSave: (data
 
 // ─── Main Settings Page ───────────────────────────────────────────────────────
 
-export function SettingsPage(): React.JSX.Element {
-  const [activeTab, setActiveTab] = useState<Tab>('general');
+export function SettingsPage({ initialTab }: { initialTab?: Tab } = {}): React.JSX.Element {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    if (initialTab) return initialTab;
+    const p = searchParams.get('tab') as Tab;
+    return TABS.some(t => t.id === p) ? p : 'general';
+  });
   const qc = useQueryClient();
+
+  function handleTabChange(tab: Tab) {
+    setActiveTab(tab);
+    setSearchParams({ tab }, { replace: true });
+  }
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ['settings', 'org'],
@@ -713,11 +723,11 @@ export function SettingsPage(): React.JSX.Element {
       </div>
 
       {/* Tab Bar */}
-      <div className="flex gap-1 bg-white/5 border border-white/10 rounded-2xl p-1 overflow-x-auto">
+      <div className="flex gap-1 bg-white/5 border border-white/10 rounded-2xl p-1 overflow-x-auto [&::-webkit-scrollbar]:h-0 scrollbar-none">
         {TABS.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabChange(tab.id)}
             className={clsx(
               'flex items-center gap-2 min-h-[44px] px-4 rounded-xl text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0',
               activeTab === tab.id

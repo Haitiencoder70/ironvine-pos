@@ -9,6 +9,7 @@ export function SettingsPageRouter(): JSX.Element {
   return (
     <Routes>
       <Route index element={<SettingsPage />} />
+      <Route path="billing" element={<SettingsPage initialTab="billing" />} />
       <Route path="organization" element={<OrganizationSettingsPage />} />
       <Route path="users/new" element={<AddEditUserPage />} />
       <Route path="users/:id" element={<AddEditUserPage />} />
