@@ -12,12 +12,12 @@ import {
 
 function throwAsBillingNotConfigured(err: unknown): never {
   if (err instanceof Stripe.errors.StripeAuthenticationError) {
-    logger.error('Stripe authentication error during billing', { message: err.message });
+    logger.error('Stripe authentication error during billing', { type: err.type, message: err.message });
     throw new AppError(503, 'Billing is not configured — Stripe authentication failed. Contact support.', 'BILLING_NOT_CONFIGURED');
   }
   if (err instanceof Stripe.errors.StripeInvalidRequestError) {
-    logger.error('Stripe invalid request during billing', { code: err.code, param: err.param });
-    throw new AppError(503, 'Billing configuration error — invalid Stripe request. Contact support.', 'BILLING_NOT_CONFIGURED');
+    logger.error('Stripe invalid request during billing', { type: err.type, code: err.code, param: err.param, message: err.message });
+    throw new AppError(503, 'Billing configuration error — invalid Stripe price ID. Contact support.', 'BILLING_NOT_CONFIGURED');
   }
   throw err;
 }
@@ -43,8 +43,13 @@ export async function createCheckoutSession(
   }
 
   const priceId = PLAN_TO_PRICE_ID[plan];
-  if (!priceId || priceId.startsWith('price_placeholder')) {
-    throw new AppError(503, 'Billing is not configured yet. Please add Stripe price IDs to your environment.', 'BILLING_NOT_CONFIGURED');
+  logger.info('Billing checkout price ID check', {
+    plan,
+    exists: !!priceId,
+    validPrefix: !!priceId && priceId.startsWith('price_'),
+  });
+  if (!priceId || !priceId.startsWith('price_')) {
+    throw new AppError(503, 'Billing configuration error — invalid Stripe price ID. Contact support.', 'BILLING_NOT_CONFIGURED');
   }
 
   const org = await prisma.organization.findUnique({

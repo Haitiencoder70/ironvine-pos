@@ -93,7 +93,7 @@ ReactDOM.createRoot(rootElement).render(
         signUp: {
           start: {
             title: 'Create your PrintFlow POS account',
-            subtitle: 'Start your 14-day Free trial.',
+            subtitle: 'Create your account to continue.',
           },
         },
       }}

@@ -60,6 +60,16 @@ describe('Public routes', () => {
     const res = await request(app).get('/api/health');
     expect(res.status).toBe(200);
   });
+
+  it('GET /api/billing/plans returns 200 JSON without auth', async () => {
+    mockGetAuth.mockReturnValue({ userId: null, orgId: null, orgRole: null });
+    const res = await request(app).get('/api/billing/plans');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+    expect(res.body[0]).toHaveProperty('key');
+    expect(res.body[0]).toHaveProperty('priceCents');
+  });
 });
 
 describe('Unauthenticated requests to protected routes', () => {

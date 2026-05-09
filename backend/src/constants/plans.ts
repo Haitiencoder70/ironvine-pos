@@ -33,7 +33,6 @@ export const PLANS = {
       'Custom branding',
       'Advanced reports',
       'Priority email support',
-      '14-day free trial',
     ],
   },
   PRO: {
@@ -55,7 +54,6 @@ export const PLANS = {
       'Bulk operations',
       'Email automation',
       'Phone support',
-      '14-day free trial',
     ],
   },
   ENTERPRISE: {

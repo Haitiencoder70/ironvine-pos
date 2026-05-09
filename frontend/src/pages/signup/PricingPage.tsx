@@ -113,7 +113,7 @@ export function PricingPage(): React.JSX.Element {
               Simple, transparent pricing
             </h1>
             <p className="mx-auto mt-5 max-w-[480px] text-[15px] leading-relaxed text-[#777777] sm:text-[17px]">
-              Start with a 14-day free trial. Upgrade when you need more.
+              Start for free. Upgrade when you need more.
             </p>
 
             {/* Billing toggle */}
