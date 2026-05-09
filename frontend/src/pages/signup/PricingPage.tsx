@@ -2,67 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
-
-const PLANS = [
-  {
-    key: 'FREE' as const,
-    name: 'Free Trial',
-    price: 0 as const,
-    features: [
-      '14-day free trial',
-      '1 user',
-      '50 orders/month',
-      '100 customers',
-      '200 inventory items',
-      'Email support',
-    ],
-  },
-  {
-    key: 'STARTER' as const,
-    name: 'Starter',
-    price: 29 as const,
-    features: [
-      'Everything in Free',
-      '3 users',
-      '500 orders/month',
-      '1,000 customers',
-      'Custom branding',
-      'Advanced reports',
-      'Priority email support',
-    ],
-  },
-  {
-    key: 'PRO' as const,
-    name: 'Pro',
-    price: 79 as const,
-    popular: true,
-    features: [
-      'Everything in Starter',
-      '10 users',
-      'Unlimited orders',
-      'Unlimited customers',
-      'API access',
-      'Bulk operations',
-      'Email automation',
-      'Phone support',
-    ],
-  },
-  {
-    key: 'ENTERPRISE' as const,
-    name: 'Enterprise',
-    price: 'Custom' as const,
-    features: [
-      'Everything in Pro',
-      'Unlimited users',
-      'White-label',
-      'Custom domain',
-      'Dedicated database',
-      '24/7 priority support',
-      'Custom integrations',
-      'SLA guarantee',
-    ],
-  },
-] as const;
+import { useBillingPlans, type BillingPlan } from '@/hooks/useBilling';
 
 const FAQS = [
   {
@@ -83,7 +23,7 @@ const FAQS = [
   },
 ];
 
-function getPricingCtaLabel(planKey: (typeof PLANS)[number]['key'], isSignedIn: boolean | undefined): string {
+function getPricingCtaLabel(planKey: BillingPlan['key'], isSignedIn: boolean | undefined): string {
   if (isSignedIn && planKey !== 'ENTERPRISE') return 'Go to dashboard';
   if (planKey === 'FREE') return 'Start Free Trial';
   if (planKey === 'STARTER') return 'Choose Starter';
@@ -95,19 +35,20 @@ export function PricingPage(): React.JSX.Element {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
   const [cycle, setCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const { data: plans, isLoading: plansLoading, isError: plansError } = useBillingPlans();
 
   const accountCtaPath = isSignedIn ? '/dashboard' : '/signup';
 
-  function getDisplayPrice(price: number | 'Custom'): string {
-    if (price === 'Custom') return 'Custom';
-    if (price === 0) return 'Free';
-    const monthly = cycle === 'yearly' ? Math.round((price as number) * 0.8) : (price as number);
+  function getDisplayPrice(priceCents: number | null): string {
+    if (priceCents === null) return 'Custom';
+    if (priceCents === 0) return 'Free';
+    const monthly = cycle === 'yearly' ? Math.round(priceCents * 0.8) : priceCents;
     return `$${monthly}/mo`;
   }
 
-  function getYearlySavings(price: number | 'Custom'): number | null {
-    if (price === 'Custom' || price === 0 || cycle !== 'yearly') return null;
-    return Math.round((price as number) * 12 * 0.2);
+  function getYearlySavings(priceCents: number | null): number | null {
+    if (priceCents === null || priceCents === 0 || cycle !== 'yearly') return null;
+    return Math.round(priceCents * 12 * 0.2);
   }
 
   function handleSelect(planKey: string) {
@@ -202,60 +143,77 @@ export function PricingPage(): React.JSX.Element {
           <div className="mx-auto max-w-7xl">
             {/* pt-6 gives clearance for the absolute "Most Popular" badge */}
             <div className="grid grid-cols-1 gap-5 pt-6 sm:grid-cols-2 lg:grid-cols-4">
-              {PLANS.map((plan) => {
-                const popular = 'popular' in plan && plan.popular;
-                const displayPrice = getDisplayPrice(plan.price);
-                const savings = getYearlySavings(plan.price);
-                const ctaLabel = getPricingCtaLabel(plan.key, isSignedIn);
-
-                return (
-                  <div
-                    key={plan.key}
-                    className={`relative flex flex-col rounded-2xl border p-6 transition-colors ${
-                      popular
-                        ? 'border-[#ff6b00] bg-[#141414]'
-                        : 'border-[#1e1e1e] bg-[#141414] hover:border-[#2e2e2e]'
-                    }`}
-                  >
-                    {popular && (
-                      <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#ff6b00] px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
-                        Most Popular
-                      </span>
-                    )}
-
-                    {/* Price block — fixed min-height keeps cards aligned across the row */}
-                    <div className="mb-5 min-h-[72px]">
-                      <h3 className="text-[14px] font-semibold uppercase tracking-[2px] text-[#666666]">{plan.name}</h3>
-                      <p className="mt-2 text-[34px] font-extrabold leading-none tracking-tight text-[#f5f5f5]">{displayPrice}</p>
-                      {savings !== null && (
-                        <p className="mt-1.5 text-[12px] font-medium text-[#ff6b00]">Save ${savings}/year</p>
-                      )}
-                    </div>
-
-                    {/* Feature list — flex-1 pushes button to the bottom */}
-                    <ul className="mb-6 flex-1 space-y-2.5">
-                      {plan.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2.5 text-[13px] leading-snug text-[#888888]">
-                          <span className="mt-px shrink-0 text-[#ff6b00]">✓</span>
-                          {f}
-                        </li>
+              {plansLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="rounded-2xl border border-[#1e1e1e] bg-[#141414] p-6 animate-pulse">
+                    <div className="h-4 w-24 rounded bg-[#222] mb-4" />
+                    <div className="h-8 w-20 rounded bg-[#222] mb-6" />
+                    <div className="space-y-3 mb-6">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <div key={j} className="h-3 rounded bg-[#222]" />
                       ))}
-                    </ul>
+                    </div>
+                    <div className="h-11 rounded-xl bg-[#222]" />
+                  </div>
+                ))
+              ) : plansError ? (
+                <p className="col-span-4 text-center text-sm text-[#555555]">Pricing unavailable — please refresh.</p>
+              ) : (
+                (plans ?? []).map((plan) => {
+                  const popular = plan.popular;
+                  const displayPrice = getDisplayPrice(plan.priceCents);
+                  const savings = getYearlySavings(plan.priceCents);
+                  const ctaLabel = getPricingCtaLabel(plan.key, isSignedIn);
 
-                    <button
-                      type="button"
-                      onClick={() => handleSelect(plan.key)}
-                      className={`min-h-[44px] w-full rounded-xl text-sm font-semibold transition-colors ${
+                  return (
+                    <div
+                      key={plan.key}
+                      className={`relative flex flex-col rounded-2xl border p-6 transition-colors ${
                         popular
-                          ? 'bg-[#ff6b00] text-white hover:bg-[#e55f00]'
-                          : 'border border-[#2a2a2a] text-[#888888] hover:border-[#444444] hover:text-[#f5f5f5]'
+                          ? 'border-[#ff6b00] bg-[#141414]'
+                          : 'border-[#1e1e1e] bg-[#141414] hover:border-[#2e2e2e]'
                       }`}
                     >
-                      {ctaLabel}
-                    </button>
-                  </div>
-                );
-              })}
+                      {popular && (
+                        <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#ff6b00] px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                          Most Popular
+                        </span>
+                      )}
+
+                      {/* Price block — fixed min-height keeps cards aligned across the row */}
+                      <div className="mb-5 min-h-[72px]">
+                        <h3 className="text-[14px] font-semibold uppercase tracking-[2px] text-[#666666]">{plan.label}</h3>
+                        <p className="mt-2 text-[34px] font-extrabold leading-none tracking-tight text-[#f5f5f5]">{displayPrice}</p>
+                        {savings !== null && (
+                          <p className="mt-1.5 text-[12px] font-medium text-[#ff6b00]">Save ${savings}/year</p>
+                        )}
+                      </div>
+
+                      {/* Feature list — flex-1 pushes button to the bottom */}
+                      <ul className="mb-6 flex-1 space-y-2.5">
+                        {plan.features.map((f) => (
+                          <li key={f} className="flex items-start gap-2.5 text-[13px] leading-snug text-[#888888]">
+                            <span className="mt-px shrink-0 text-[#ff6b00]">✓</span>
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSelect(plan.key)}
+                        className={`min-h-[44px] w-full rounded-xl text-sm font-semibold transition-colors ${
+                          popular
+                            ? 'bg-[#ff6b00] text-white hover:bg-[#e55f00]'
+                            : 'border border-[#2a2a2a] text-[#888888] hover:border-[#444444] hover:text-[#f5f5f5]'
+                        }`}
+                      >
+                        {ctaLabel}
+                      </button>
+                    </div>
+                  );
+                })
+              )}
             </div>
 
             <p className="mt-8 text-center text-[13px] text-[#444444]">
