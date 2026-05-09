@@ -180,6 +180,10 @@ const orgRateLimiter = rateLimit({
 app.use('/health', healthRouter);
 app.use('/api/health', healthRouter);
 
+// Plan catalog — GET only, no body needed, must be public.
+// Mounted first so no auth middleware can intercept it.
+app.use('/api/billing', publicBillingRouter);
+
 // Stripe webhook must be mounted before express.json so Stripe receives the
 // exact raw request body for signature verification.
 app.use('/api/billing', billingWebhookRouter);
@@ -190,9 +194,6 @@ app.use(sanitizeInput);
 // ─── Public Routes ────────────────────────────────────────────────────────
 // Order tracking is unauthenticated (customers use a share link).
 app.use('/api/tracking', trackingRouter);
-
-// Plan catalog — public, no auth required.
-app.use('/api/billing', publicBillingRouter);
 
 // ─── Stripe webhook (before clerkAuth — raw body, no Clerk JWT) ──────────
 

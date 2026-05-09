@@ -347,7 +347,7 @@ export function OrganizationSignup(): React.JSX.Element {
                     <PlanCard
                       key={plan.key}
                       name={plan.label}
-                      price={plan.priceCents ?? ('Custom' as const)}
+                      price={plan.priceCents !== null ? plan.priceCents / 100 : ('Custom' as const)}
                       features={plan.features}
                       popular={plan.popular}
                       selected={form.plan === plan.key}

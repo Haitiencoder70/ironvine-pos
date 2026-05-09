@@ -42,13 +42,14 @@ export function PricingPage(): React.JSX.Element {
   function getDisplayPrice(priceCents: number | null): string {
     if (priceCents === null) return 'Custom';
     if (priceCents === 0) return 'Free';
-    const monthly = cycle === 'yearly' ? Math.round(priceCents * 0.8) : priceCents;
+    const dollars = priceCents / 100;
+    const monthly = cycle === 'yearly' ? Math.round(dollars * 0.8) : dollars;
     return `$${monthly}/mo`;
   }
 
   function getYearlySavings(priceCents: number | null): number | null {
     if (priceCents === null || priceCents === 0 || cycle !== 'yearly') return null;
-    return Math.round(priceCents * 12 * 0.2);
+    return Math.round((priceCents / 100) * 12 * 0.2);
   }
 
   function handleSelect(planKey: string) {

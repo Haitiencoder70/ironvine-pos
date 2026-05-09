@@ -3,12 +3,24 @@ import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/errorHandler';
 import { logger } from '../lib/logger';
 import { SubscriptionPlan } from '@prisma/client';
-import { stripe, PRICE_IDS } from '../config/stripe';
+import { stripe, PRICE_IDS, isStripeConfigured } from '../config/stripe';
 import {
   notifySubscriptionConfirmed,
   notifyPaymentFailed as notifyPaymentFailedEmail,
   notifySubscriptionCanceled,
 } from './notificationService';
+
+function throwAsBillingNotConfigured(err: unknown): never {
+  if (err instanceof Stripe.errors.StripeAuthenticationError) {
+    logger.error('Stripe authentication error during billing', { message: err.message });
+    throw new AppError(503, 'Billing is not configured — Stripe authentication failed. Contact support.', 'BILLING_NOT_CONFIGURED');
+  }
+  if (err instanceof Stripe.errors.StripeInvalidRequestError) {
+    logger.error('Stripe invalid request during billing', { code: err.code, param: err.param });
+    throw new AppError(503, 'Billing configuration error — invalid Stripe request. Contact support.', 'BILLING_NOT_CONFIGURED');
+  }
+  throw err;
+}
 
 const PLAN_TO_PRICE_ID: Record<string, string | undefined> = {
   STARTER:    PRICE_IDS.STARTER,
@@ -26,6 +38,10 @@ export async function createCheckoutSession(
   plan: 'STARTER' | 'PRO' | 'ENTERPRISE',
   returnUrl: string,
 ): Promise<string> {
+  if (!isStripeConfigured) {
+    throw new AppError(503, 'Billing is not configured for this environment. Contact support.', 'BILLING_NOT_CONFIGURED');
+  }
+
   const priceId = PLAN_TO_PRICE_ID[plan];
   if (!priceId || priceId.startsWith('price_placeholder')) {
     throw new AppError(503, 'Billing is not configured yet. Please add Stripe price IDs to your environment.', 'BILLING_NOT_CONFIGURED');
@@ -40,10 +56,15 @@ export async function createCheckoutSession(
   let customerId = org.stripeCustomerId;
 
   if (!customerId) {
-    const customer = await stripe.customers.create({
-      name: org.name,
-      metadata: { orgDbId },
-    });
+    let customer: Stripe.Customer;
+    try {
+      customer = await stripe.customers.create({
+        name: org.name,
+        metadata: { orgDbId },
+      });
+    } catch (err) {
+      throwAsBillingNotConfigured(err);
+    }
     customerId = customer.id;
     await prisma.organization.update({
       where: { id: orgDbId },
@@ -51,17 +72,22 @@ export async function createCheckoutSession(
     });
   }
 
-  const session = await stripe.checkout.sessions.create(
-    {
-      mode: 'subscription',
-      customer: customerId,
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${returnUrl}?billing=success`,
-      cancel_url: `${returnUrl}?billing=canceled`,
-      metadata: { orgDbId },
-    },
-    { idempotencyKey: `checkout-${orgDbId}-${plan}` },
-  );
+  let session: Stripe.Checkout.Session;
+  try {
+    session = await stripe.checkout.sessions.create(
+      {
+        mode: 'subscription',
+        customer: customerId,
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: `${returnUrl}?billing=success`,
+        cancel_url: `${returnUrl}?billing=canceled`,
+        metadata: { orgDbId },
+      },
+      { idempotencyKey: `checkout-${orgDbId}-${plan}` },
+    );
+  } catch (err) {
+    throwAsBillingNotConfigured(err);
+  }
 
   if (!session.url) throw new AppError(500, 'Failed to create Stripe checkout session', 'STRIPE_ERROR');
   return session.url;

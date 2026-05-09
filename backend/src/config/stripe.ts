@@ -12,3 +12,5 @@ export const PRICE_IDS = {
 } as const;
 
 export type PaidPlan = keyof typeof PRICE_IDS;
+
+export const isStripeConfigured = !!env.STRIPE_SECRET_KEY;
