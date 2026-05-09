@@ -1,21 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { useBillingUsage, useCreateCheckout, useOpenPortal } from '../hooks/useBilling';
+import { BillingPlan, useBillingPlans, useBillingUsage, useCreateCheckout, useOpenPortal } from '../hooks/useBilling';
 
 interface UpgradeModalProps {
   onClose: () => void;
   /** Optional context message, e.g. "You've reached your order limit." */
   message?: string;
 }
-
-const PLAN_ORDER = ['FREE', 'STARTER', 'PRO', 'ENTERPRISE'] as const;
-type Plan = typeof PLAN_ORDER[number];
-
-const PLAN_LABELS: Record<Plan, string> = {
-  FREE: 'Free',
-  STARTER: 'Starter — $29/mo',
-  PRO: 'Professional — $79/mo',
-  ENTERPRISE: 'Enterprise — Custom',
-};
 
 const USAGE_LABELS: Record<string, string> = {
   orders: 'Orders',
@@ -52,11 +42,12 @@ function UsageBar({ label, current, max }: { label: string; current: number; max
 export function UpgradeModal({ onClose, message }: UpgradeModalProps): React.JSX.Element {
   const navigate = useNavigate();
   const { data: billing, isLoading } = useBillingUsage();
+  const { data: plans, isLoading: plansLoading, isError: plansError } = useBillingPlans();
   const checkout = useCreateCheckout();
   const portal = useOpenPortal();
 
-  const currentPlan = (billing?.plan ?? 'FREE') as Plan;
-  const currentIndex = PLAN_ORDER.indexOf(currentPlan);
+  const currentPlan = (billing?.plan ?? 'FREE') as BillingPlan['key'];
+  const currentIndex = plans?.findIndex(p => p.key === currentPlan) ?? -1;
 
   function handleUpgrade(plan: 'STARTER' | 'PRO') {
     checkout.mutate(plan, { onSuccess: onClose });
@@ -111,24 +102,34 @@ export function UpgradeModal({ onClose, message }: UpgradeModalProps): React.JSX
           {/* Upgrade options */}
           <div className="space-y-2">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Available Plans</p>
-            {PLAN_ORDER.filter((p) => PLAN_ORDER.indexOf(p) > currentIndex && p !== 'ENTERPRISE').map((plan) => (
-              <button
-                key={plan}
-                onClick={() => handleUpgrade(plan as 'STARTER' | 'PRO')}
-                disabled={checkout.isPending}
-                className="w-full min-h-[48px] px-4 flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 disabled:opacity-50 transition-colors"
-              >
-                <span className="text-sm font-medium text-blue-900">{PLAN_LABELS[plan]}</span>
-                <span className="text-xs text-blue-600">
-                  {checkout.isPending ? 'Loading…' : 'Upgrade →'}
-                </span>
-              </button>
-            ))}
+            {plansLoading ? (
+              <div className="space-y-2 animate-pulse">
+                {[1, 2].map((i) => <div key={i} className="h-12 bg-gray-100 rounded-xl" />)}
+              </div>
+            ) : plansError ? null : (
+              (plans ?? []).filter((plan, idx) => idx > currentIndex && plan.key !== 'ENTERPRISE').map((plan) => (
+                <button
+                  key={plan.key}
+                  onClick={() => handleUpgrade(plan.key as 'STARTER' | 'PRO')}
+                  disabled={checkout.isPending}
+                  className="w-full min-h-[48px] px-4 flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 disabled:opacity-50 transition-colors"
+                >
+                  <span className="text-sm font-medium text-blue-900">
+                    {`${plan.label} — ${plan.priceCents ? `$${plan.priceCents / 100}/mo` : 'Custom'}`}
+                  </span>
+                  <span className="text-xs text-blue-600">
+                    {checkout.isPending ? 'Loading…' : 'Upgrade →'}
+                  </span>
+                </button>
+              ))
+            )}
             <a
               href="mailto:sales@printflowpos.com"
               className="w-full min-h-[48px] px-4 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
             >
-              <span className="text-sm font-medium text-gray-700">{PLAN_LABELS.ENTERPRISE}</span>
+              <span className="text-sm font-medium text-gray-700">
+                {plans?.find(p => p.key === 'ENTERPRISE')?.label ?? 'Enterprise'} — Custom
+              </span>
               <span className="text-xs text-gray-500">Contact Sales →</span>
             </a>
           </div>
