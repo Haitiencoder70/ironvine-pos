@@ -10,7 +10,21 @@ vi.mock('@/services/organizationApi', () => ({
   organizationApi: {
     checkSubdomain: vi.fn(),
     create:         vi.fn(),
+    findMine:       vi.fn().mockResolvedValue(null),
   },
+}));
+
+vi.mock('@/hooks/useBilling', () => ({
+  useBillingPlans: vi.fn().mockReturnValue({
+    data: [
+      { key: 'FREE', label: 'Free', priceCents: 0, popular: false, active: true, stripePriceConfigured: false, limits: { users: 1, ordersPerMonth: 100, customers: 100, inventoryItems: 500 }, features: ['1 user'] },
+      { key: 'STARTER', label: 'Starter', priceCents: 2900, popular: false, active: true, stripePriceConfigured: true, limits: { users: 3, ordersPerMonth: 1000, customers: 500, inventoryItems: 2000 }, features: ['3 users'] },
+      { key: 'PRO', label: 'Pro', priceCents: 7900, popular: true, active: true, stripePriceConfigured: true, limits: { users: 10, ordersPerMonth: -1, customers: -1, inventoryItems: -1 }, features: ['10 users'] },
+      { key: 'ENTERPRISE', label: 'Enterprise', priceCents: null, popular: false, active: true, stripePriceConfigured: false, limits: { users: -1, ordersPerMonth: -1, customers: -1, inventoryItems: -1 }, features: ['Unlimited users'] },
+    ],
+    isLoading: false,
+    isError: false,
+  }),
 }));
 
 // Mock SubdomainChecker separately to control availability feedback

@@ -7,6 +7,7 @@ import { PlanCard } from '../../components/signup/PlanCard';
 import { SubdomainChecker } from '../../components/signup/SubdomainChecker';
 import { organizationApi } from '../../services/organizationApi';
 import { getApiError } from '../../lib/api';
+import { useBillingPlans } from '@/hooks/useBilling';
 
 // ─── Zod schemas ─────────────────────────────────────────────────────────────
 
@@ -38,34 +39,6 @@ const INDUSTRIES = [
   'T-Shirts', 'Embroidery', 'Screen Printing', 'DTG Printing',
   'Sublimation', 'Embellishments', 'Promotional Products', 'Other',
 ];
-
-const PLANS = [
-  {
-    key: 'FREE' as const,
-    name: 'Free Trial',
-    price: 0 as const,
-    features: ['14-day free trial', '1 user', '50 orders/month', '100 customers', '200 inventory items', 'Email support'],
-  },
-  {
-    key: 'STARTER' as const,
-    name: 'Starter',
-    price: 29 as const,
-    features: ['3 users', '500 orders/month', 'Custom branding', 'Advanced reports', 'Priority email support'],
-  },
-  {
-    key: 'PRO' as const,
-    name: 'Pro',
-    price: 79 as const,
-    popular: true,
-    features: ['10 users', 'Unlimited orders', 'API access', 'Bulk operations', 'Phone support'],
-  },
-  {
-    key: 'ENTERPRISE' as const,
-    name: 'Enterprise',
-    price: 'Custom' as const,
-    features: ['Unlimited users', 'White-label', 'Custom domain', 'Dedicated support'],
-  },
-] as const;
 
 // ─── Step indicators ─────────────────────────────────────────────────────────
 
@@ -125,6 +98,7 @@ export function OrganizationSignup(): React.JSX.Element {
   const [searchParams] = useSearchParams();
   const { isLoaded, isSignedIn } = useAuth();
   const { setActive } = useClerk();
+  const { data: plans, isLoading: plansLoading, isError: plansError } = useBillingPlans();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>({
     ...INITIAL,
@@ -350,22 +324,47 @@ export function OrganizationSignup(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {PLANS.map((plan) => (
-                  <PlanCard
-                    key={plan.key}
-                    name={plan.name}
-                    price={plan.price}
-                    features={plan.features}
-                    popular={'popular' in plan ? plan.popular : false}
-                    selected={form.plan === plan.key}
-                    billingCycle={form.cycle}
-                    ctaLabel={getPlanSelectLabel(plan.key, form.plan === plan.key)}
-                    ctaVariant={form.plan === plan.key ? 'disabled' : 'primary'}
-                    onSelect={() => set('plan', plan.key)}
-                  />
-                ))}
-              </div>
+              {plansLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="rounded-2xl border border-white/10 p-6 animate-pulse">
+                      <div className="h-4 w-24 rounded bg-white/10 mb-3" />
+                      <div className="h-8 w-20 rounded bg-white/10 mb-5" />
+                      <div className="space-y-2 mb-5">
+                        {Array.from({ length: 4 }).map((_, j) => (
+                          <div key={j} className="h-3 rounded bg-white/10" />
+                        ))}
+                      </div>
+                      <div className="h-11 rounded-xl bg-white/10" />
+                    </div>
+                  ))}
+                </div>
+              ) : plansError ? (
+                <p className="text-sm text-slate-500 text-center">Could not load plans — please refresh.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(plans ?? []).map((plan) => (
+                    <PlanCard
+                      key={plan.key}
+                      name={plan.label}
+                      price={plan.priceCents ?? ('Custom' as const)}
+                      features={plan.features}
+                      popular={plan.popular}
+                      selected={form.plan === plan.key}
+                      billingCycle={form.cycle}
+                      ctaLabel={getPlanSelectLabel(plan.key, form.plan === plan.key)}
+                      ctaVariant={form.plan === plan.key ? 'disabled' : 'primary'}
+                      onSelect={() => {
+                        if (plan.key === 'ENTERPRISE') {
+                          window.location.href = 'mailto:sales@printflowpos.com';
+                          return;
+                        }
+                        set('plan', plan.key);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
