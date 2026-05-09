@@ -8,7 +8,7 @@ export const PLANS = {
       ordersPerMonth: 50,
       inventoryItems: 200,
       customers: 100,
-      storage: 500 * 1024 * 1024, // 500MB
+      storage: 500 * 1024 * 1024,
     },
     features: [
       'Basic order management',
@@ -26,7 +26,7 @@ export const PLANS = {
       ordersPerMonth: 500,
       inventoryItems: 2000,
       customers: 1000,
-      storage: 5 * 1024 * 1024 * 1024, // 5GB
+      storage: 5 * 1024 * 1024 * 1024,
     },
     features: [
       'Everything in Free',
@@ -36,17 +36,17 @@ export const PLANS = {
       '14-day free trial',
     ],
   },
-  PROFESSIONAL: {
-    name: 'Professional',
+  PRO: {
+    name: 'Pro',
     price: 79,
     stripePriceId: process.env.STRIPE_PRICE_PRO as string | undefined,
     popular: true,
     limits: {
       users: 10,
-      ordersPerMonth: -1, // unlimited
+      ordersPerMonth: -1,
       inventoryItems: -1,
       customers: -1,
-      storage: 50 * 1024 * 1024 * 1024, // 50GB
+      storage: 50 * 1024 * 1024 * 1024,
     },
     features: [
       'Everything in Starter',
@@ -60,17 +60,17 @@ export const PLANS = {
   },
   ENTERPRISE: {
     name: 'Enterprise',
-    price: 199,
+    price: null,
     stripePriceId: process.env.STRIPE_PRICE_ENTERPRISE as string | undefined,
     limits: {
       users: -1,
       ordersPerMonth: -1,
       inventoryItems: -1,
       customers: -1,
-      storage: 500 * 1024 * 1024 * 1024, // 500GB
+      storage: 500 * 1024 * 1024 * 1024,
     },
     features: [
-      'Everything in Professional',
+      'Everything in Pro',
       'White-label',
       'Custom domain',
       'Dedicated database',
