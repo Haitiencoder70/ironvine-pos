@@ -3,6 +3,7 @@ import express from 'express';
 import { authorize } from '../middleware/authorize';
 import {
   checkoutHandler,
+  plansHandler,
   portalHandler,
   usageHandler,
   webhookHandler,
@@ -11,6 +12,10 @@ import {
 // Stripe webhook — raw body required, mounted BEFORE clerkAuth in app.ts
 export const billingWebhookRouter = Router();
 billingWebhookRouter.post('/webhook', express.raw({ type: 'application/json' }), webhookHandler);
+
+// Public billing routes — no auth required, mounted AFTER express.json in app.ts
+export const publicBillingRouter = Router();
+publicBillingRouter.get('/plans', plansHandler);
 
 // Authenticated billing routes — mounted AFTER clerkAuth + injectTenant + requireAuth in app.ts
 export const billingRouter = Router();

@@ -34,7 +34,7 @@ import { purchaseOrdersRouter } from './routes/purchaseOrders';
 import { shipmentsRouter } from './routes/shipments';
 import { reportsRouter } from './routes/reports';
 import { settingsRouter } from './routes/settings';
-import { billingRouter, billingWebhookRouter } from './routes/billing';
+import { billingRouter, billingWebhookRouter, publicBillingRouter } from './routes/billing';
 import { searchRouter } from './routes/search';
 import { posRouter } from './routes/pos';
 import { productsRouter, productCategoriesRouter, productAddOnsRouter } from './routes/products';
@@ -190,6 +190,9 @@ app.use(sanitizeInput);
 // ─── Public Routes ────────────────────────────────────────────────────────
 // Order tracking is unauthenticated (customers use a share link).
 app.use('/api/tracking', trackingRouter);
+
+// Plan catalog — public, no auth required.
+app.use('/api/billing', publicBillingRouter);
 
 // ─── Stripe webhook (before clerkAuth — raw body, no Clerk JWT) ──────────
 

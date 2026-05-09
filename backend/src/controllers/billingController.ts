@@ -12,6 +12,7 @@ import { AppError } from '../middleware/errorHandler';
 import { env } from '../config/env';
 import { logger } from '../lib/logger';
 import { stripe } from '../config/stripe';
+import { PLANS } from '../constants/plans';
 
 export async function checkoutHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -61,6 +62,8 @@ export async function usageHandler(req: Request, res: Response, next: NextFuncti
           maxCustomers: true,
           maxUsers: true,
           maxInventoryItems: true,
+          stripeCustomerId: true,
+          stripeSubscriptionId: true,
         },
       }),
       prisma.order.count({ where: { organizationId: orgDbId } }),
@@ -76,6 +79,8 @@ export async function usageHandler(req: Request, res: Response, next: NextFuncti
       subscriptionStatus: org.subscriptionStatus,
       trialEndsAt: org.trialEndsAt,
       subscriptionEndsAt: org.subscriptionEndsAt,
+      hasStripeCustomer: !!org.stripeCustomerId,
+      hasStripeSubscription: !!org.stripeSubscriptionId,
       usage: {
         orders:         { current: orderCount,     max: org.maxOrders },
         customers:      { current: customerCount,  max: org.maxCustomers },
@@ -142,4 +147,32 @@ export async function webhookHandler(req: Request, res: Response, next: NextFunc
   } catch (error) {
     next(error);
   }
+}
+
+function isStripePriceConfigured(priceId: string | null | undefined): boolean {
+  return !!priceId && !priceId.startsWith('price_placeholder');
+}
+
+const PLAN_KEYS = ['FREE', 'STARTER', 'PRO', 'ENTERPRISE'] as const;
+
+export function plansHandler(_req: Request, res: Response): void {
+  const plans = PLAN_KEYS.map((key) => {
+    const plan = PLANS[key];
+    return {
+      key,
+      label: plan.name,
+      priceCents: typeof plan.price === 'number' ? plan.price * 100 : null,
+      popular: key === 'PRO',
+      active: true,
+      stripePriceConfigured: isStripePriceConfigured(plan.stripePriceId),
+      limits: {
+        users: plan.limits.users,
+        ordersPerMonth: plan.limits.ordersPerMonth,
+        customers: plan.limits.customers,
+        inventoryItems: plan.limits.inventoryItems,
+      },
+      features: [...plan.features],
+    };
+  });
+  res.json(plans);
 }
