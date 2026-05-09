@@ -159,18 +159,28 @@ publicBillingRouter.get('/plans', plansHandler);
 
 ### 4. `app.ts`
 
-One new line, inserted immediately after the existing webhook mount and before `clerkAuth`:
+One new line added after `express.json` / `sanitizeInput` and before `clerkAuth`, alongside the other public routes:
 
 ```ts
-app.use('/api/billing', billingWebhookRouter);  // existing — raw body, before auth
-app.use('/api/billing', publicBillingRouter);   // new — plain JSON, before auth
-// ...
-app.use('/api', clerkAuth);
+app.use('/api/billing', billingWebhookRouter);  // existing — raw body BEFORE express.json
+
+app.use(express.json({ limit: '10mb' }));       // existing
+app.use(sanitizeInput);                         // existing
+
+app.use('/api/billing', publicBillingRouter);   // new — plain JSON, public, before auth
+app.use('/api/tracking', trackingRouter);       // existing
+app.use('/api/organization', publicInviteRouter); // existing
+
+app.use('/api', clerkAuth);                     // existing
 // ...
 app.use('/api/billing', billingRouter);         // existing — protected routes
 ```
 
-`/webhook` uses `express.raw()` scoped inside its own router — no conflict with the new JSON route.
+**Why this order:**
+- `billingWebhookRouter` must remain before `express.json` so Stripe raw-body signature verification works.
+- `publicBillingRouter` is a normal JSON route — it belongs after `express.json`/`sanitizeInput`.
+- Both are before `clerkAuth` so they require no session.
+- No conflict between `/webhook` (raw body, own router) and `/plans` (plain GET, own router).
 
 ---
 
