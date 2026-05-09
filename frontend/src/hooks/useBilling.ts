@@ -8,6 +8,8 @@ export interface BillingUsage {
   subscriptionStatus: string | null;
   trialEndsAt: string | null;
   subscriptionEndsAt: string | null;
+  hasStripeCustomer: boolean;
+  hasStripeSubscription: boolean;
   usage: {
     orders:         { current: number; max: number };
     customers:      { current: number; max: number };
@@ -55,5 +57,32 @@ export function useOpenPortal() {
     onError: () => {
       toast.error('Failed to open billing portal. Please try again.');
     },
+  });
+}
+
+export interface BillingPlan {
+  key: 'FREE' | 'STARTER' | 'PRO' | 'ENTERPRISE';
+  label: string;
+  priceCents: number | null;
+  popular: boolean;
+  active: boolean;
+  stripePriceConfigured: boolean;
+  limits: {
+    users: number;
+    ordersPerMonth: number;
+    customers: number;
+    inventoryItems: number;
+  };
+  features: string[];
+}
+
+export function useBillingPlans() {
+  return useQuery<BillingPlan[]>({
+    queryKey: ['billing', 'plans'],
+    queryFn: async () => {
+      const res = await api.get<BillingPlan[]>('/billing/plans');
+      return res.data;
+    },
+    staleTime: 10 * 60 * 1000,
   });
 }
