@@ -49,7 +49,20 @@ export function MainLayout(): React.JSX.Element {
     return () => clearInterval(id);
   }, [qc]);
 
-  // Exit focus mode on Escape
+  // Sync browser fullscreen with focus mode
+  useEffect(() => {
+    if (isFocusMode) {
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {/* blocked by browser — app focus mode still works */});
+      }
+    } else {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {/* already exited */});
+      }
+    }
+  }, [isFocusMode]);
+
+  // Exit focus mode on Escape (browser may also exit fullscreen on its own Esc handling)
   const handleEscape = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') exitFocusMode();
   }, [exitFocusMode]);
