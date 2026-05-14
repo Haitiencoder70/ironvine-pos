@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowsPointingInIcon } from '@heroicons/react/24/outline';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { SocketInit } from './SocketInit';
@@ -17,7 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export function MainLayout(): React.JSX.Element {
   const [collapsed, setCollapsed] = useState(false);
-  const { isSidebarOpen, setSidebarOpen } = useUiStore();
+  const { isSidebarOpen, setSidebarOpen, isFocusMode, exitFocusMode } = useUiStore();
   const location = useLocation();
   const qc = useQueryClient();
 
@@ -48,6 +49,17 @@ export function MainLayout(): React.JSX.Element {
     return () => clearInterval(id);
   }, [qc]);
 
+  // Exit focus mode on Escape
+  const handleEscape = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') exitFocusMode();
+  }, [exitFocusMode]);
+
+  useEffect(() => {
+    if (!isFocusMode) return;
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isFocusMode, handleEscape]);
+
   // Swipe from left edge to go back on mobile
   useSwipeBack();
 
@@ -58,13 +70,15 @@ export function MainLayout(): React.JSX.Element {
       <Omnibar />
 
       {/* ── Desktop sidebar (always in DOM, width animated) ── */}
-      <div className="hidden lg:flex flex-shrink-0">
-        <Sidebar collapsed={collapsed} onToggleCollapse={() => setCollapsed((c) => !c)} />
-      </div>
+      {!isFocusMode && (
+        <div className="hidden lg:flex flex-shrink-0">
+          <Sidebar collapsed={collapsed} onToggleCollapse={() => setCollapsed((c) => !c)} />
+        </div>
+      )}
 
       {/* ── Mobile/Tablet sidebar overlay ── */}
       <AnimatePresence>
-        {isSidebarOpen && (
+        {isSidebarOpen && !isFocusMode && (
           <>
             <motion.div
               key="backdrop"
@@ -92,18 +106,37 @@ export function MainLayout(): React.JSX.Element {
 
       {/* ── Main content area ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <TopBar />
-        <TrialBanner />
-        <PlanLimitBanner />
+        {!isFocusMode && <TopBar />}
+        {!isFocusMode && <TrialBanner />}
+        {!isFocusMode && <PlanLimitBanner />}
 
         {/* Scrollable page content — extra bottom padding on mobile for bottom nav */}
-        <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">
+        <main className={`flex-1 overflow-y-auto ${isFocusMode ? 'pb-0' : 'pb-16 lg:pb-0'}`}>
           <Outlet />
         </main>
       </div>
 
       {/* ── Mobile bottom navigation ── */}
-      <BottomNav />
+      {!isFocusMode && <BottomNav />}
+
+      {/* ── Focus mode floating exit button ── */}
+      {isFocusMode && (
+        <button
+          onClick={exitFocusMode}
+          className="fixed top-4 right-4 z-50 flex items-center gap-2 px-4 min-h-[44px] rounded-xl text-[13px] font-semibold text-gray-300 transition-all duration-150 hover:text-white active:scale-[0.97]"
+          style={{
+            background: 'rgba(8,8,18,0.85)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
+          }}
+          aria-label="Exit focus mode"
+        >
+          <ArrowsPointingInIcon className="h-4 w-4" />
+          <span className="hidden sm:inline">Exit Focus</span>
+        </button>
+      )}
 
       {showUpgrade && (
         <UpgradeModal

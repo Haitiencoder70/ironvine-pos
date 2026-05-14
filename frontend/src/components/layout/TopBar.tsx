@@ -1,4 +1,4 @@
-import { Bars3Icon, SignalSlashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, SignalSlashIcon, PlusIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { UserButton, OrganizationSwitcher, useOrganization } from '@clerk/clerk-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUiStore } from '../../store/uiStore';
@@ -30,7 +30,7 @@ function getBreadcrumb(pathname: string): string {
 }
 
 export function TopBar(): React.JSX.Element {
-  const { setSidebarOpen } = useUiStore();
+  const { setSidebarOpen, enterFocusMode } = useUiStore();
   const { isOnline, isBackendReachable } = useOfflineStore();
   const effectivelyOffline = !isOnline || !isBackendReachable;
   const { organization } = useOrganization();
@@ -104,6 +104,15 @@ export function TopBar(): React.JSX.Element {
       >
         <PlusIcon className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">New Order</span>
+      </button>
+
+      {/* Focus mode toggle */}
+      <button
+        onClick={enterFocusMode}
+        className="p-2 rounded-xl text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0"
+        aria-label="Enter focus mode"
+      >
+        <ArrowsPointingOutIcon className="h-5 w-5" />
       </button>
 
       {/* Org switcher — always visible so you can switch/activate an org */}
