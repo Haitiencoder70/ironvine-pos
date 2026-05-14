@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import {
@@ -8,6 +9,7 @@ import {
   UserGroupIcon,
   TruckIcon,
   SwatchIcon,
+  PlayIcon,
 } from '@heroicons/react/24/outline';
 
 const WORKFLOW = ['Quote', 'Approve', 'Order materials', 'Print', 'Quality check', 'Ship'] as const;
@@ -45,6 +47,16 @@ const FEATURES = [
   },
 ] as const;
 
+const SCREENSHOTS = [
+  { src: '/marketing/screenshot-dashboard.png', alt: 'PrintFlow dashboard showing today\'s orders, revenue, and low-stock alerts', label: 'Dashboard' },
+  { src: '/marketing/screenshot-orders.png', alt: 'Order list with status filters and search', label: 'Orders' },
+  { src: '/marketing/screenshot-order-detail.png', alt: 'Single order view with status timeline, line items, and materials', label: 'Order Detail' },
+  { src: '/marketing/screenshot-inventory.png', alt: 'Inventory list with stock levels and low-stock highlights', label: 'Inventory' },
+  { src: '/marketing/screenshot-production.png', alt: 'Production board showing jobs in progress', label: 'Production' },
+] as const;
+
+const DEMO_VIDEO_SRC = '/marketing/printflow-demo-60s.mp4';
+
 const HERO_ORDERS = [
   { id: 'ORD-202605-0182', detail: '50x Black Tee -- DTF Front', status: 'Rush', badge: 'bg-[#ff6b00] text-white' },
   { id: 'ORD-202605-0184', detail: '24x White Hoodie -- Screen Print', status: 'In Production', badge: 'bg-[#1a2a1a] text-[#4caf50]' },
@@ -57,6 +69,113 @@ const PROD_ORDERS = [
   { id: 'ORD-202605-0188', detail: '12x Navy Polo -- Embroidery -- Acme Corp', status: 'Ready to Ship', badge: 'bg-[#142a3a] text-[#38bdf8]' },
   { id: 'ORD-202605-0190', detail: '100x Grey Tee -- HTV -- Daily Planet', status: 'Shipped', badge: 'bg-[#2a1a2a] text-[#a855f7]' },
 ] as const;
+
+function ScreenshotPlaceholder({ label }: { label: string }): React.JSX.Element {
+  return (
+    <div className="flex h-full min-h-[180px] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#2a2a2a] bg-[#111111] p-6 sm:min-h-[220px]">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#3d2200] bg-[#1f1204]">
+        <SwatchIcon className="h-5 w-5 text-[#ff6b00]" aria-hidden="true" />
+      </div>
+      <p className="text-[13px] font-semibold text-[#555555]">{label}</p>
+      <p className="text-[10px] uppercase tracking-widest text-[#333333]">Screenshot coming soon</p>
+    </div>
+  );
+}
+
+function ScreenshotCard({ src, alt, label }: { src: string; alt: string; label: string }): React.JSX.Element {
+  const [failed, setFailed] = useState(false);
+  const handleError = useCallback(() => setFailed(true), []);
+
+  if (failed) {
+    return <ScreenshotPlaceholder label={label} />;
+  }
+
+  return (
+    <div className="group overflow-hidden rounded-xl border border-[#222222] bg-[#141414] transition-colors hover:border-[#ff6b00]">
+      <div className="flex items-center gap-2 border-b border-[#1a1a1a] bg-[#1a1a1a] px-3 py-2">
+        <span className="h-1.5 w-1.5 rounded-full bg-[#ff5f57]" />
+        <span className="h-1.5 w-1.5 rounded-full bg-[#ffbd2e]" />
+        <span className="h-1.5 w-1.5 rounded-full bg-[#28c840]" />
+        <span className="mx-auto text-[10px] tracking-wide text-[#555555]">{label}</span>
+      </div>
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        onError={handleError}
+        className="block w-full"
+      />
+    </div>
+  );
+}
+
+function DemoVideo(): React.JSX.Element | null {
+  const [available, setAvailable] = useState(true);
+  const handleError = useCallback(() => setAvailable(false), []);
+
+  if (!available) return null;
+
+  return (
+    <div className="mt-14">
+      <div className="mx-auto max-w-4xl overflow-hidden rounded-xl border border-[#222222] bg-[#141414]">
+        <div className="flex items-center gap-2 border-b border-[#1a1a1a] bg-[#1a1a1a] px-3 py-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#ff5f57]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#ffbd2e]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#28c840]" />
+          <span className="mx-auto flex items-center gap-1.5 text-[10px] tracking-wide text-[#555555]">
+            <PlayIcon className="h-3 w-3" aria-hidden="true" />
+            60-Second Demo
+          </span>
+        </div>
+        <video
+          src={DEMO_VIDEO_SRC}
+          controls
+          preload="metadata"
+          onError={handleError}
+          className="block w-full"
+          poster="/marketing/demo-poster.png"
+        />
+      </div>
+    </div>
+  );
+}
+
+function ProductShowcase(): React.JSX.Element {
+  const featured = SCREENSHOTS[0];
+  const rest = SCREENSHOTS.slice(1);
+
+  return (
+    <section className="px-4 py-20 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <p className="mb-3 border-l-2 border-[#ff6b00] pl-3 text-[11px] font-semibold uppercase tracking-[4px] text-[#ff6b00]">
+          See it in action
+        </p>
+        <h2 className="text-[26px] font-extrabold tracking-[-1px] sm:text-[30px] lg:text-[34px]">
+          Built for how you{' '}
+          <span className="text-[#ff6b00]">actually work.</span>
+        </h2>
+        <p className="mb-14 mt-2 text-[15px] text-[#666666]">
+          Real screens from PrintFlow -- not a mockup deck.
+        </p>
+
+        {/* Featured screenshot (dashboard) */}
+        <div className="mx-auto max-w-4xl">
+          <ScreenshotCard src={featured.src} alt={featured.alt} label={featured.label} />
+        </div>
+
+        {/* Secondary screenshots grid */}
+        <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {rest.map(({ src, alt, label }) => (
+            <ScreenshotCard key={src} src={src} alt={alt} label={label} />
+          ))}
+        </div>
+
+        {/* Optional demo video -- renders nothing if file is missing */}
+        <DemoVideo />
+      </div>
+    </section>
+  );
+}
 
 export function LandingPage(): React.JSX.Element {
   const navigate = useNavigate();
@@ -196,6 +315,10 @@ export function LandingPage(): React.JSX.Element {
             </div>
           </div>
         </section>
+
+        {/* PRODUCT SHOWCASE */}
+        <div className="border-t border-[#1a1a1a]" />
+        <ProductShowcase />
 
         {/* FEATURES */}
         <div className="border-t border-[#1a1a1a]" />
