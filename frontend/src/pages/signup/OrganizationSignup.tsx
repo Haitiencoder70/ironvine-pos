@@ -50,7 +50,7 @@ function normalizePlan(plan: string | null): PlanKey {
 
 function getPlanSelectLabel(planKey: PlanKey, selected: boolean): string {
   if (selected) return 'Selected';
-  if (planKey === 'FREE') return 'Start Free Trial';
+  if (planKey === 'FREE') return 'Start 14-Day Trial';
   if (planKey === 'STARTER') return 'Select Starter';
   if (planKey === 'PRO') return 'Select Pro';
   return 'Contact Sales';

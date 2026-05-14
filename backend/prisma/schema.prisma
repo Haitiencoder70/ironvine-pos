@@ -23,8 +23,8 @@ model Organization {
   trialEndsAt              DateTime?
   subscriptionEndsAt       DateTime?
   maxUsers                 Int                       @default(1)
-  maxOrders                Int                       @default(100)
-  maxInventoryItems        Int                       @default(500)
+  maxOrders                Int                       @default(50)
+  maxInventoryItems        Int                       @default(200)
   maxCustomers             Int                       @default(100)
   storageLimit             Int                       @default(524288000)
   customDomain             String?

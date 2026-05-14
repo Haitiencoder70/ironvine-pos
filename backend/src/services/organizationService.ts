@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
 import { env } from '../config/env';
+import { getPlanDbLimits, type PlanKey } from '../constants/plans';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -107,6 +108,8 @@ export async function createOrganization(input: CreateOrganizationInput): Promis
       ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
       : null;
 
+    const planLimits = getPlanDbLimits(plan as PlanKey);
+
     const org = await tx.organization.create({
       data: {
         clerkOrgId,
@@ -114,6 +117,7 @@ export async function createOrganization(input: CreateOrganizationInput): Promis
         slug,
         subdomain: slug,
         plan,
+        ...planLimits,
         ...(trialEndsAt && { trialEndsAt }),
       },
     });

@@ -11,7 +11,7 @@ const FAQS = [
   },
   {
     q: 'Is there a free trial?',
-    a: 'The Free plan is a 14-day trial. Starter and Pro are paid upgrades when you are ready.',
+    a: 'Every account starts with a 14-day free trial. Pick Starter or Pro when you are ready to continue.',
   },
   {
     q: 'What happens when I hit a limit?',
@@ -25,7 +25,7 @@ const FAQS = [
 
 function getPricingCtaLabel(planKey: BillingPlan['key'], isSignedIn: boolean | undefined): string {
   if (isSignedIn && planKey !== 'ENTERPRISE') return 'Go to dashboard';
-  if (planKey === 'FREE') return 'Start Free Trial';
+  if (planKey === 'FREE') return 'Start 14-Day Trial';
   if (planKey === 'STARTER') return 'Choose Starter';
   if (planKey === 'PRO') return 'Choose Pro';
   return 'Contact Sales';
@@ -41,7 +41,7 @@ export function PricingPage(): React.JSX.Element {
 
   function getDisplayPrice(priceCents: number | null): string {
     if (priceCents === null) return 'Custom';
-    if (priceCents === 0) return 'Free';
+    if (priceCents === 0) return 'Free trial';
     const dollars = priceCents / 100;
     const monthly = cycle === 'yearly' ? Math.round(dollars * 0.8) : dollars;
     return `$${monthly}/mo`;
@@ -93,7 +93,7 @@ export function PricingPage(): React.JSX.Element {
               onClick={() => navigate(accountCtaPath)}
               className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#ff6b00] px-4 text-sm font-semibold text-white hover:bg-[#e55f00]"
             >
-              {isSignedIn ? 'Go to dashboard' : 'Start free trial'}
+              {isSignedIn ? 'Go to dashboard' : 'Start 14-day trial'}
               <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
             </button>
           </nav>
@@ -113,7 +113,7 @@ export function PricingPage(): React.JSX.Element {
               Simple, transparent pricing
             </h1>
             <p className="mx-auto mt-5 max-w-[480px] text-[15px] leading-relaxed text-[#777777] sm:text-[17px]">
-              Start for free. Upgrade when you need more.
+              Start with a free 14-day trial. Upgrade when you're ready.
             </p>
 
             {/* Billing toggle */}

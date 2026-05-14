@@ -155,7 +155,7 @@ export function BillingTab() {
                 plan.priceCents === null
                   ? 'Custom'
                   : plan.priceCents === 0
-                  ? '$0/mo'
+                  ? 'Trial'
                   : `$${plan.priceCents / 100}/mo`;
 
               return (

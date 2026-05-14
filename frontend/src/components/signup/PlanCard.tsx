@@ -27,7 +27,7 @@ export function PlanCard({
       : billingCycle === 'yearly'
       ? `$${Math.round((price as number) * 0.8)}/mo`
       : price === 0
-      ? 'Free'
+      ? '14 days free'
       : `$${price}/mo`;
 
   const yearlySavings =

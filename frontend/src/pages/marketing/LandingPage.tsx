@@ -82,7 +82,7 @@ export function LandingPage(): React.JSX.Element {
               onClick={() => navigate(accountCtaPath)}
               className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#ff6b00] px-4 text-sm font-semibold text-white hover:bg-[#e55f00]"
             >
-              {isSignedIn ? 'Go to dashboard' : 'Start free trial'}
+              {isSignedIn ? 'Go to dashboard' : 'Start 14-day trial'}
               <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
             </button>
           </nav>
@@ -110,7 +110,7 @@ export function LandingPage(): React.JSX.Element {
                 onClick={() => navigate(accountCtaPath)}
                 className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[#ff6b00] px-7 text-base font-bold text-white hover:bg-[#e55f00] sm:w-auto"
               >
-                {isSignedIn ? 'Go to dashboard' : 'Start free trial'}
+                {isSignedIn ? 'Go to dashboard' : 'Start 14-day trial'}
                 <ArrowRightIcon className="h-5 w-5" aria-hidden="true" />
               </button>
               <button
@@ -122,7 +122,7 @@ export function LandingPage(): React.JSX.Element {
               </button>
             </div>
             <p className="mt-4 text-[11px] tracking-wide text-[#444444]">
-              No credit card required -- Free 14-day trial
+              No credit card required -- 14-day free trial
             </p>
 
             {/* Product signal */}
@@ -280,7 +280,7 @@ export function LandingPage(): React.JSX.Element {
               onClick={() => navigate(accountCtaPath)}
               className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[#ff6b00] px-7 text-base font-bold text-white hover:bg-[#e55f00] sm:w-auto"
             >
-              {isSignedIn ? 'Go to dashboard' : 'Start free trial'}
+              {isSignedIn ? 'Go to dashboard' : 'Start 14-day trial'}
               <ArrowRightIcon className="h-5 w-5" aria-hidden="true" />
             </button>
             <button

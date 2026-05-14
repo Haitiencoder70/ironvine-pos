@@ -6,8 +6,14 @@ import { logger } from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
 import { env } from '../config/env';
 import { createOrganization, getOrganizationUsage } from './organizationService';
+import { getPlanDbLimits } from '../constants/plans';
 
-const resend = new Resend(process.env['RESEND_API_KEY'] ?? 're_dummy_key');
+const resendKey = process.env['RESEND_API_KEY'] ?? (
+  process.env['NODE_ENV'] === 'production'
+    ? (() => { throw new Error('RESEND_API_KEY is required in production'); })()
+    : 're_dummy_key'
+);
+const resend = new Resend(resendKey as string);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -35,15 +41,13 @@ const DEFAULT_CATEGORIES = [
   { name: 'Accessories',         icon: '🎒',  displayOrder: 8 },
 ] as const;
 
-// ─── Plan limit maps ──────────────────────────────────────────────────────────
+// ─── Plan limit maps (derived from canonical plans.ts) ────────────────────────
 
-const PLAN_LIMITS: Record<SubscriptionPlan, {
-  maxUsers: number; maxOrders: number; maxInventoryItems: number; maxCustomers: number; storageLimit: number;
-}> = {
-  FREE:       { maxUsers: 1,  maxOrders: 100,  maxInventoryItems: 500,   maxCustomers: 100,  storageLimit: 524_288_000      }, // 500 MB
-  STARTER:    { maxUsers: 3,  maxOrders: 1000, maxInventoryItems: 2000,  maxCustomers: 500,  storageLimit: 2_147_483_648    }, // 2 GB
-  PRO:        { maxUsers: 10, maxOrders: 5000, maxInventoryItems: 5000,  maxCustomers: 2000, storageLimit: 10_737_418_240   }, // 10 GB
-  ENTERPRISE: { maxUsers: -1, maxOrders: -1,   maxInventoryItems: -1,    maxCustomers: -1,   storageLimit: -1               }, // unlimited
+const PLAN_LIMITS: Record<SubscriptionPlan, ReturnType<typeof getPlanDbLimits>> = {
+  FREE:       getPlanDbLimits('FREE'),
+  STARTER:    getPlanDbLimits('STARTER'),
+  PRO:        getPlanDbLimits('PRO'),
+  ENTERPRISE: getPlanDbLimits('ENTERPRISE'),
 };
 
 const VALID_UPGRADES: Record<SubscriptionPlan, SubscriptionPlan[]> = {

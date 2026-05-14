@@ -78,7 +78,7 @@ export function trialEndingHtml(opts: {
   const urgency = opts.daysLeft <= 1 ? '🚨 Last chance' : opts.daysLeft <= 3 ? '⏰ Ending soon' : '📅 Heads up';
   const body = `
     ${h1(`${urgency} — your trial ends in ${opts.daysLeft} day${opts.daysLeft !== 1 ? 's' : ''}`)}
-    ${p(`Your free trial of <strong>${opts.planName}</strong> for <strong>${opts.orgName}</strong> will end soon.`)}
+    ${p(`Your 14-day trial of <strong>${opts.planName}</strong> for <strong>${opts.orgName}</strong> will end soon.`)}
     ${p('Upgrade now to keep access to all features without interruption.')}
     ${featureList([
       'All your data stays intact',
@@ -87,7 +87,7 @@ export function trialEndingHtml(opts: {
     ])}
     ${ctaButton('Upgrade Now', opts.upgradeUrl)}
     ${divider}
-    ${p(`After your trial ends, your account will revert to the Free plan. You won't lose any data.`, true)}
+    ${p(`After your trial ends, you will need to upgrade to a paid plan to continue using PrintFlow. Your data will be preserved.`, true)}
   `;
   return baseTemplate({ title: `Trial ends in ${opts.daysLeft} days`, previewText: `Your trial ends in ${opts.daysLeft} days — upgrade to keep access`, body, orgName: opts.orgName, orgLogoUrl: opts.orgLogoUrl });
 }
@@ -103,7 +103,7 @@ export function subscriptionCanceledHtml(opts: {
   const body = `
     ${h1('Your subscription has been canceled')}
     ${p(`We're sorry to see you go, <strong>${opts.orgName}</strong>.`)}
-    ${infoBox(`You'll have full access to your account until <strong>${opts.accessUntil.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>. After that, your account will revert to the Free plan.`)}
+    ${infoBox(`You'll have full access to your account until <strong>${opts.accessUntil.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>. After that, your account will be inactive until you resubscribe.`)}
     ${p('Your data will be preserved. You can reactivate anytime.')}
     ${ctaButton('Reactivate Subscription', opts.reactivateUrl, '#16a34a')}
     ${divider}

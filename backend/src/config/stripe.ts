@@ -1,7 +1,13 @@
 import Stripe from 'stripe';
 import { env } from './env';
 
-export const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? 'sk_test_development_placeholder', {
+const stripeKey = env.STRIPE_SECRET_KEY ?? (
+  env.NODE_ENV === 'production'
+    ? (() => { throw new Error('STRIPE_SECRET_KEY is required in production'); })()
+    : 'sk_test_development_placeholder'
+);
+
+export const stripe = new Stripe(stripeKey as string, {
   apiVersion: '2025-02-24.acacia',
 });
 

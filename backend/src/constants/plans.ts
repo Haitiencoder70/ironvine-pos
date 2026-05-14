@@ -1,6 +1,6 @@
 export const PLANS = {
   FREE: {
-    name: 'Free',
+    name: '14-Day Trial',
     price: 0,
     stripePriceId: null as string | null,
     limits: {
@@ -11,10 +11,10 @@ export const PLANS = {
       storage: 500 * 1024 * 1024,
     },
     features: [
-      'Basic order management',
+      'Full POS access for 14 days',
+      'Order management',
       'Inventory tracking',
       'Customer management',
-      'Email support',
     ],
   },
   STARTER: {
@@ -29,7 +29,7 @@ export const PLANS = {
       storage: 5 * 1024 * 1024 * 1024,
     },
     features: [
-      'Everything in Free',
+      'Everything in Trial, plus:',
       'Custom branding',
       'Advanced reports',
       'Priority email support',
@@ -80,3 +80,21 @@ export const PLANS = {
 } as const;
 
 export type PlanKey = keyof typeof PLANS;
+
+/** DB-column-compatible limits derived from the canonical plan catalog. */
+export function getPlanDbLimits(plan: PlanKey): {
+  maxUsers: number;
+  maxOrders: number;
+  maxInventoryItems: number;
+  maxCustomers: number;
+  storageLimit: number;
+} {
+  const p = PLANS[plan];
+  return {
+    maxUsers:         p.limits.users,
+    maxOrders:        p.limits.ordersPerMonth,
+    maxInventoryItems: p.limits.inventoryItems,
+    maxCustomers:     p.limits.customers,
+    storageLimit:     p.limits.storage,
+  };
+}

@@ -383,7 +383,7 @@ function BillingTab() {
     return <div className="space-y-4 animate-pulse max-w-lg">{[1,2,3].map((i) => <div key={i} className="h-12 bg-white/[0.04] rounded-xl" />)}</div>;
   }
 
-  const PLAN_LABELS: Record<string, string> = { FREE: 'Free', STARTER: 'Starter', PRO: 'Professional', ENTERPRISE: 'Enterprise' };
+  const PLAN_LABELS: Record<string, string> = { FREE: 'Trial', STARTER: 'Starter', PRO: 'Professional', ENTERPRISE: 'Enterprise' };
 
   return (
     <div className="space-y-6 max-w-lg">

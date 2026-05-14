@@ -25,8 +25,8 @@ export function TrialBanner(): React.JSX.Element | null {
 
       <span className="flex-1 min-w-0">
         {expired
-          ? 'Your 14-day free trial has expired. Upgrade to keep creating orders, customers, and inventory.'
-          : `Your free trial expires in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Upgrade to keep full access.`}
+          ? 'Your 14-day trial has expired. Upgrade to a paid plan to keep creating orders, customers, and inventory.'
+          : `Your trial expires in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Upgrade to keep full access.`}
       </span>
 
       <button

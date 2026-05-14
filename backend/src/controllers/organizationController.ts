@@ -6,6 +6,9 @@ import { AppError } from '../middleware/errorHandler';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { provisionNewOrganization } from '../services/provisioningService';
+import { createCheckoutSession } from '../services/billingService';
+import { isStripeConfigured } from '../config/stripe';
+import { env } from '../config/env';
 import {
   updateOrganization,
   getOrganizationUsage,
@@ -553,6 +556,8 @@ export const createOrganization = async (req: Request, res: Response, next: Next
       return;
     }
 
+    const selectedPlan = parsed.data.plan ?? 'FREE';
+
     const provisioned = await provisionNewOrganization({
       clerkOrgId:       clerkOrg.id,
       name,
@@ -561,8 +566,31 @@ export const createOrganization = async (req: Request, res: Response, next: Next
       ownerEmail,
       ownerFirstName:   parsed.data.ownerFirstName || clerkUser.firstName || '',
       ownerLastName:    parsed.data.ownerLastName || clerkUser.lastName || '',
-      plan:             parsed.data.plan ?? 'FREE',
+      plan:             selectedPlan,
     });
+
+    // For paid plans, create a Stripe checkout session and return the URL
+    if (selectedPlan !== 'FREE') {
+      if (!isStripeConfigured) {
+        return next(new AppError(
+          503,
+          'Billing is not configured for this environment. Cannot process paid plan signup.',
+          'BILLING_NOT_CONFIGURED',
+        ));
+      }
+
+      const paidPlan = selectedPlan as 'STARTER' | 'PRO' | 'ENTERPRISE';
+      const returnUrl = `${env.FRONTEND_URL}/dashboard`;
+      const checkoutUrl = await createCheckoutSession(provisioned.organizationId, paidPlan, returnUrl);
+
+      res.status(201).json({
+        organizationId: provisioned.organizationId,
+        clerkOrgId: clerkOrg.id,
+        slug,
+        checkoutUrl,
+      });
+      return;
+    }
 
     res.status(201).json({
       organizationId: provisioned.organizationId,

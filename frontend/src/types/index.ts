@@ -5,7 +5,7 @@ export interface Organization {
   id: string;
   name: string;
   slug: string;
-  plan: 'FREE' | 'PRO' | 'ENTERPRISE';
+  plan: 'FREE' | 'STARTER' | 'PRO' | 'ENTERPRISE';
   subscriptionStatus: string | null;
   logoUrl?: string;
   trialEndsAt?: string | null;
@@ -357,7 +357,7 @@ export interface OrgSettings {
   name: string;
   slug: string;
   logoUrl: string | null;
-  plan: 'FREE' | 'PRO' | 'ENTERPRISE';
+  plan: 'FREE' | 'STARTER' | 'PRO' | 'ENTERPRISE';
   subscriptionStatus: string | null;
   taxRate: number;
   orderNumberPrefix: string;

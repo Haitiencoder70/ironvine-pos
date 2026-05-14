@@ -108,7 +108,7 @@ export async function checkTrialExpiry(
       return next(
         new AppError(
           402,
-          'Your 14-day free trial has expired. Please upgrade your plan to continue.',
+          'Your 14-day trial has expired. Please upgrade to a paid plan to continue.',
           'TRIAL_EXPIRED',
         ),
       );

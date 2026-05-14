@@ -1,54 +1,36 @@
-import { useBillingUsage, useCreateCheckout } from '../../hooks/useBilling';
+import { useBillingUsage, useBillingPlans, useCreateCheckout, type BillingPlan } from '../../hooks/useBilling';
 
 interface UpgradePlanModalProps {
   onClose: () => void;
 }
 
-type PaidPlan = 'STARTER' | 'PRO' | 'ENTERPRISE';
-
-const PLANS: {
-  key: PaidPlan;
-  name: string;
-  price: number | 'Custom';
-  features: string[];
-  highlight?: boolean;
-}[] = [
-  {
-    key: 'STARTER',
-    name: 'Starter',
-    price: 29,
-    features: ['3 users', '500 orders/month', '1,000 customers', 'Custom branding', 'Priority email support'],
-  },
-  {
-    key: 'PRO',
-    name: 'Professional',
-    price: 79,
-    highlight: true,
-    features: ['10 users', 'Unlimited orders', 'Unlimited customers', 'API access', 'Phone support'],
-  },
-  {
-    key: 'ENTERPRISE',
-    name: 'Enterprise',
-    price: 'Custom',
-    features: ['Unlimited users', 'White-label', 'Custom domain', 'Dedicated DB', '24/7 support'],
-  },
-];
-
 const PLAN_ORDER = ['FREE', 'STARTER', 'PRO', 'ENTERPRISE'] as const;
 
 export function UpgradePlanModal({ onClose }: UpgradePlanModalProps): React.JSX.Element {
-  const { data: billing, isLoading } = useBillingUsage();
+  const { data: billing, isLoading: billingLoading } = useBillingUsage();
+  const { data: plans, isLoading: plansLoading } = useBillingPlans();
   const checkout = useCreateCheckout();
 
+  const isLoading = billingLoading || plansLoading;
   const currentPlan = billing?.plan ?? 'FREE';
   const currentIndex = PLAN_ORDER.indexOf(currentPlan as typeof PLAN_ORDER[number]);
 
-  function handleUpgrade(plan: PaidPlan) {
-    if (plan === 'ENTERPRISE') {
+  // Filter to paid plans only, in display order
+  const paidPlans = (plans ?? []).filter(
+    (p): p is BillingPlan & { key: 'STARTER' | 'PRO' | 'ENTERPRISE' } => p.key !== 'FREE',
+  );
+
+  function handleUpgrade(plan: BillingPlan) {
+    if (plan.key === 'ENTERPRISE' && !plan.stripePriceConfigured) {
       window.location.href = 'mailto:sales@printflowpos.com';
       return;
     }
-    checkout.mutate(plan, { onSuccess: onClose });
+    checkout.mutate(plan.key as 'STARTER' | 'PRO' | 'ENTERPRISE', { onSuccess: onClose });
+  }
+
+  function formatPrice(plan: BillingPlan): string {
+    if (plan.priceCents === null) return 'Custom';
+    return `$${plan.priceCents / 100}/mo`;
   }
 
   return (
@@ -79,7 +61,7 @@ export function UpgradePlanModal({ onClose }: UpgradePlanModalProps): React.JSX.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {PLANS.map((plan) => {
+              {paidPlans.map((plan) => {
                 const planIndex = PLAN_ORDER.indexOf(plan.key);
                 const isCurrent = plan.key === currentPlan;
                 const isDowngrade = planIndex < currentIndex;
@@ -88,12 +70,12 @@ export function UpgradePlanModal({ onClose }: UpgradePlanModalProps): React.JSX.
                   <div
                     key={plan.key}
                     className={`relative rounded-2xl border p-5 flex flex-col gap-4 ${
-                      plan.highlight ? 'border-blue-500 ring-2 ring-blue-100' :
-                      isCurrent     ? 'border-green-400 bg-green-50' :
-                                      'border-gray-200'
+                      plan.popular ? 'border-blue-500 ring-2 ring-blue-100' :
+                      isCurrent   ? 'border-green-400 bg-green-50' :
+                                    'border-gray-200'
                     }`}
                   >
-                    {plan.highlight && (
+                    {plan.popular && (
                       <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">
                         Most Popular
                       </span>
@@ -105,9 +87,9 @@ export function UpgradePlanModal({ onClose }: UpgradePlanModalProps): React.JSX.
                     )}
 
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{plan.name}</p>
+                      <p className="text-sm font-semibold text-gray-900">{plan.label}</p>
                       <p className="text-2xl font-bold text-gray-900 mt-1">
-                        {plan.price === 'Custom' ? 'Custom' : `$${plan.price}/mo`}
+                        {formatPrice(plan)}
                       </p>
                     </div>
 
@@ -121,19 +103,19 @@ export function UpgradePlanModal({ onClose }: UpgradePlanModalProps): React.JSX.
                     </ul>
 
                     <button
-                      onClick={() => handleUpgrade(plan.key)}
+                      onClick={() => handleUpgrade(plan)}
                       disabled={isCurrent || isDowngrade || checkout.isPending}
                       className={`min-h-[44px] w-full rounded-xl text-sm font-medium transition-colors ${
                         isCurrent   ? 'bg-green-100 text-green-700 cursor-default' :
                         isDowngrade ? 'bg-gray-100 text-gray-400 cursor-not-allowed' :
-                        plan.highlight ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50' :
-                                        'border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50'
+                        plan.popular ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50' :
+                                       'border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50'
                       }`}
                     >
                       {isCurrent    ? 'Current Plan' :
                        isDowngrade  ? 'Downgrade via portal' :
                        checkout.isPending ? 'Loading…' :
-                       plan.key === 'ENTERPRISE' ? 'Contact Sales' :
+                       (plan.key === 'ENTERPRISE' && !plan.stripePriceConfigured) ? 'Contact Sales' :
                        'Upgrade'}
                     </button>
                   </div>
