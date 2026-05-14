@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
@@ -34,7 +33,6 @@ function getPricingCtaLabel(planKey: BillingPlan['key'], isSignedIn: boolean | u
 export function PricingPage(): React.JSX.Element {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
-  const [cycle, setCycle] = useState<'monthly' | 'yearly'>('monthly');
   const { data: plans, isLoading: plansLoading, isError: plansError } = useBillingPlans();
 
   const accountCtaPath = isSignedIn ? '/dashboard' : '/signup';
@@ -42,14 +40,7 @@ export function PricingPage(): React.JSX.Element {
   function getDisplayPrice(priceCents: number | null): string {
     if (priceCents === null) return 'Custom';
     if (priceCents === 0) return 'Free trial';
-    const dollars = priceCents / 100;
-    const monthly = cycle === 'yearly' ? Math.round(dollars * 0.8) : dollars;
-    return `$${monthly}/mo`;
-  }
-
-  function getYearlySavings(priceCents: number | null): number | null {
-    if (priceCents === null || priceCents === 0 || cycle !== 'yearly') return null;
-    return Math.round((priceCents / 100) * 12 * 0.2);
+    return `$${priceCents / 100}/mo`;
   }
 
   function handleSelect(planKey: string) {
@@ -116,26 +107,9 @@ export function PricingPage(): React.JSX.Element {
               Start with a free 14-day trial. Upgrade when you're ready.
             </p>
 
-            {/* Billing toggle */}
-            <div className="mt-8 inline-flex items-center rounded-xl border border-[#1e1e1e] bg-[#141414] p-1 gap-1">
-              {(['monthly', 'yearly'] as const).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setCycle(c)}
-                  className={`min-h-[40px] px-5 rounded-lg text-sm font-medium capitalize transition-colors ${
-                    cycle === c
-                      ? 'bg-[#222222] text-[#f5f5f5] shadow-sm'
-                      : 'text-[#555555] hover:text-[#999999]'
-                  }`}
-                >
-                  {c}
-                  {c === 'yearly' && (
-                    <span className="ml-1.5 text-xs font-semibold text-[#ff6b00]">Save 20%</span>
-                  )}
-                </button>
-              ))}
-            </div>
+            <p className="mt-6 text-[13px] text-[#555555]">
+              Yearly billing coming soon.
+            </p>
           </div>
         </section>
 
@@ -163,7 +137,6 @@ export function PricingPage(): React.JSX.Element {
                 (plans ?? []).map((plan) => {
                   const popular = plan.popular;
                   const displayPrice = getDisplayPrice(plan.priceCents);
-                  const savings = getYearlySavings(plan.priceCents);
                   const ctaLabel = getPricingCtaLabel(plan.key, isSignedIn);
 
                   return (
@@ -185,9 +158,6 @@ export function PricingPage(): React.JSX.Element {
                       <div className="mb-5 min-h-[72px]">
                         <h3 className="text-[14px] font-semibold uppercase tracking-[2px] text-[#666666]">{plan.label}</h3>
                         <p className="mt-2 text-[34px] font-extrabold leading-none tracking-tight text-[#f5f5f5]">{displayPrice}</p>
-                        {savings !== null && (
-                          <p className="mt-1.5 text-[12px] font-medium text-[#ff6b00]">Save ${savings}/year</p>
-                        )}
                       </div>
 
                       {/* Feature list — flex-1 pushes button to the bottom */}
