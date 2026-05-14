@@ -5,24 +5,42 @@ import {
   ClipboardDocumentListIcon,
   CubeIcon,
   DeviceTabletIcon,
+  UserGroupIcon,
+  TruckIcon,
+  SwatchIcon,
 } from '@heroicons/react/24/outline';
 
 const WORKFLOW = ['Quote', 'Approve', 'Order materials', 'Print', 'Quality check', 'Ship'] as const;
 
 const FEATURES = [
   {
-    title: 'Orders stay connected',
-    body: 'Quote details, customer history, line items, due dates, art files, and production status all live in one tenant-scoped workspace.',
+    title: 'Orders from quote to completion',
+    body: 'Every job tracks customer info, line items, art files, due dates, and production status in one place. No more digging through email threads.',
     Icon: ClipboardDocumentListIcon,
   },
   {
-    title: 'Inventory moves with the job',
-    body: 'Receive blank shirts, reserve stock, track low inventory, and connect purchase orders back to the customer order that needs them.',
+    title: 'Customer history on every call',
+    body: 'Pull up past orders, reprint details, and lifetime value the moment a customer calls back. Stop asking "what did we print for you last time?"',
+    Icon: UserGroupIcon,
+  },
+  {
+    title: 'Production board you actually use',
+    body: 'See what\'s in queue, what\'s printing, and what\'s waiting for pickup. Rush jobs surface automatically so nothing ships late.',
+    Icon: SwatchIcon,
+  },
+  {
+    title: 'Inventory tied to real jobs',
+    body: 'Receive blanks, reserve stock for open orders, and get low-stock alerts before you run out mid-run. Purchase orders link back to the customer job.',
     Icon: CubeIcon,
   },
   {
+    title: 'Shipping without the spreadsheet',
+    body: 'Create shipments, add tracking numbers, and update customers -- all from the same order screen. No separate shipping app needed.',
+    Icon: TruckIcon,
+  },
+  {
     title: 'Built for the counter',
-    body: 'Touch-friendly screens, tablet-first layouts, offline-aware queues, and printer-ready workflows keep the shop moving when the line gets busy.',
+    body: 'Touch-friendly screens, tablet-first layouts, and offline mode keep the shop moving when the internet drops or the line gets long.',
     Icon: DeviceTabletIcon,
   },
 ] as const;
@@ -95,14 +113,14 @@ export function LandingPage(): React.JSX.Element {
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-7 inline-flex items-center gap-2 rounded border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[3px] text-[#ff6b00]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#ff6b00]" />
-              POS built for print shops
+              Built for custom apparel shops
             </div>
             <h1 className="text-[42px] font-extrabold leading-none tracking-[-1.5px] text-[#f5f5f5] sm:text-[54px] sm:tracking-[-2px] lg:text-[62px] lg:tracking-[-2.5px]">
-              The POS that keeps<br />your shop{' '}
-              <span className="text-[#ff6b00]">moving.</span>
+              Stop losing jobs in<br />
+              <span className="text-[#ff6b00]">spreadsheets&nbsp;&&nbsp;DMs.</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-[520px] text-[15px] leading-relaxed text-[#777777] sm:text-[18px]">
-              From first quote to final shipment -- track every order, manage inventory, and never lose a job again.
+            <p className="mx-auto mt-6 max-w-[540px] text-[15px] leading-relaxed text-[#777777] sm:text-[18px]">
+              PrintFlow POS gives screen printers, DTF shops, and custom apparel decorators one simple workflow -- from quote to shipped -- so every job stays on track.
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <button
@@ -157,7 +175,7 @@ export function LandingPage(): React.JSX.Element {
               From quote to shipped.
             </h2>
             <p className="mb-14 mt-2 text-[15px] text-[#666666]">
-              Every step in one place -- no spreadsheets, no sticky notes.
+              Every step in one place -- no spreadsheets, no sticky notes, no group-chat chaos.
             </p>
             <div className="relative grid grid-cols-3 gap-y-10 sm:grid-cols-6">
               <div className="absolute left-[8%] right-[8%] top-[22px] hidden h-px bg-gradient-to-r from-[#ff6b00] to-[rgba(255,107,0,0.1)] sm:block" />
@@ -187,12 +205,12 @@ export function LandingPage(): React.JSX.Element {
               Features
             </p>
             <h2 className="text-[26px] font-extrabold tracking-[-1px] sm:text-[30px] lg:text-[34px]">
-              Everything your shop needs.
+              No bloated ERP. No generic retail POS.
             </h2>
             <p className="mb-14 mt-2 text-[15px] text-[#666666]">
-              No bloat. No fluff. Just what print shops actually use.
+              Just the workflow apparel decorators actually use -- orders, customers, production, inventory, and shipping.
             </p>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {FEATURES.map(({ title, body, Icon }) => (
                 <article
                   key={title}
@@ -222,7 +240,7 @@ export function LandingPage(): React.JSX.Element {
                 <span className="text-[#ff6b00]">under control.</span>
               </h2>
               <p className="mb-8 mt-4 text-[15px] leading-relaxed text-[#666666]">
-                See every active job at a glance. Rush orders surface automatically. Nothing falls through the cracks.
+                See every active job at a glance -- what&apos;s printing, what&apos;s waiting on materials, and what ships today. Rush orders surface automatically so nothing falls through the cracks.
               </p>
               <div className="grid grid-cols-2 gap-4">
                 {(
@@ -268,11 +286,11 @@ export function LandingPage(): React.JSX.Element {
       <div className="px-4 pb-20 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-[#1e1e1e] bg-[#141414] px-8 py-14 text-center">
           <h2 className="text-[26px] font-extrabold tracking-[-1px] sm:text-[30px] lg:text-[34px]">
-            Ready to run a{' '}
-            <span className="text-[#ff6b00]">tighter shop?</span>
+            Simple enough for a home shop.{' '}
+            <span className="text-[#ff6b00]">Organized enough to grow.</span>
           </h2>
           <p className="mx-auto mt-3 max-w-md text-[15px] text-[#666666]">
-            Join print shops already using PrintFlow to stay on top of every job.
+            Whether you&apos;re printing out of your garage or running a full production floor, PrintFlow keeps every job on track.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <button
