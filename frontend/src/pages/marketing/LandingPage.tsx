@@ -310,7 +310,7 @@ export function LandingPage(): React.JSX.Element {
             </button>
           </div>
           <p className="mt-4 text-[11px] tracking-wide text-[#444444]">
-            No credit card required -- Cancel anytime
+            No credit card required -- 14-day trial
           </p>
         </div>
       </div>
