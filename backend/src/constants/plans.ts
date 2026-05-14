@@ -19,7 +19,7 @@ export const PLANS = {
   },
   STARTER: {
     name: 'Starter',
-    price: 29,
+    price: 39,
     stripePriceId: process.env.STRIPE_PRICE_STARTER as string | undefined,
     limits: {
       users: 3,

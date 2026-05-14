@@ -36,10 +36,10 @@ describe('GET /api/billing/plans — public endpoint', () => {
     expect(free.priceCents).toBe(0);
   });
 
-  it('returns priceCents: 2900 for STARTER', async () => {
+  it('returns priceCents: 3900 for STARTER', async () => {
     const res = await request(app).get('/api/billing/plans');
     const plan = res.body.find((p: { key: string }) => p.key === 'STARTER');
-    expect(plan.priceCents).toBe(2900);
+    expect(plan.priceCents).toBe(3900);
   });
 
   it('returns priceCents: 7900 for PRO', async () => {

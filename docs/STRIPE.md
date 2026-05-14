@@ -12,7 +12,7 @@ Create one product per paid plan:
 
 | Product Name | Price | Interval | Env var |
 |---|---|---|---|
-| Starter Plan | $29.00 | Monthly | `STRIPE_STARTER_PRICE_ID` |
+| Starter Plan | $39.00 | Monthly | `STRIPE_STARTER_PRICE_ID` |
 | Pro Plan | $79.00 | Monthly | `STRIPE_PRO_PRICE_ID` |
 
 After creating each price, copy the **Price ID** (starts with `price_`) and add it to `backend/.env`.
