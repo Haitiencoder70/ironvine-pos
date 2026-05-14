@@ -9,6 +9,7 @@ import {
   notifyPaymentFailed as notifyPaymentFailedEmail,
   notifySubscriptionCanceled,
 } from './notificationService';
+import { sendPlatformUpgradeNotification } from './provisioningService';
 
 function throwAsBillingNotConfigured(err: unknown): never {
   if (err instanceof Stripe.errors.StripeAuthenticationError) {
@@ -138,7 +139,7 @@ export async function syncSubscription(stripeEvent: Stripe.Event): Promise<void>
 
   const org = await prisma.organization.findUnique({
     where: { stripeCustomerId: customerId },
-    select: { id: true, plan: true },
+    select: { id: true, plan: true, name: true, slug: true },
   });
 
   if (!org) {
@@ -190,6 +191,17 @@ export async function syncSubscription(stripeEvent: Stripe.Event): Promise<void>
       planFeatures: planFeatures[newPlan] ?? [],
       amountCents: (subscription.items.data[0]?.price.unit_amount ?? 0),
       nextBillingDate: new Date((subscription.current_period_end ?? 0) * 1000),
+    });
+
+    // Notify platform owner of paid upgrade (non-blocking)
+    await sendPlatformUpgradeNotification({
+      orgName: org.name,
+      orgSlug: org.slug,
+      newPlan,
+      subscriptionStatus: subscription.status,
+      amountCents: subscription.items.data[0]?.price.unit_amount ?? 0,
+      stripeCustomerId: customerId,
+      stripeSubscriptionId: subscription.id,
     });
   }
 

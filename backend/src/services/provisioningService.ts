@@ -152,6 +152,100 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   }
 }
 
+// ─── Platform-owner notifications (internal, non-blocking) ──────────────────
+
+async function sendPlatformSignupNotification(input: ProvisionInput): Promise<void> {
+  const to = env.PLATFORM_NOTIFY_EMAIL;
+  if (!to) return;
+
+  const plan = input.plan ?? 'FREE';
+  const html = `
+<!DOCTYPE html><html><head><style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f9fafb;margin:0;padding:40px 20px}
+.c{max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden}
+.h{background:#7c3aed;padding:30px 40px;text-align:center}
+.h h1{color:#fff;margin:0;font-size:22px;font-weight:600}
+.b{padding:36px 40px;color:#374151;font-size:15px;line-height:1.6}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6}
+.label{color:#6b7280;font-size:14px}.val{font-weight:600}
+.f{text-align:center;padding:16px 40px;color:#9ca3af;font-size:13px;border-top:1px solid #f3f4f6}
+</style></head><body>
+<div class="c">
+  <div class="h"><h1>New Organization Signed Up</h1></div>
+  <div class="b">
+    <div class="row"><span class="label">Organization</span><span class="val">${input.name}</span></div>
+    <div class="row"><span class="label">Slug</span><span class="val">${input.slug}</span></div>
+    <div class="row"><span class="label">Owner</span><span class="val">${input.ownerFirstName} ${input.ownerLastName}</span></div>
+    <div class="row"><span class="label">Owner Email</span><span class="val">${input.ownerEmail}</span></div>
+    <div class="row"><span class="label">Plan</span><span class="val">${plan}</span></div>
+  </div>
+  <div class="f">PrintFlow POS — Internal Notification</div>
+</div>
+</body></html>`;
+
+  try {
+    await resend.emails.send({
+      from: 'PrintFlow POS <noreply@printflowpos.com>',
+      to,
+      subject: `[New Signup] ${input.name} (${plan})`,
+      html,
+    });
+  } catch (err) {
+    logger.warn('Platform signup notification failed — non-blocking', { err, to });
+  }
+}
+
+export async function sendPlatformUpgradeNotification(opts: {
+  orgName: string;
+  orgSlug: string;
+  newPlan: string;
+  subscriptionStatus: string;
+  amountCents: number;
+  stripeCustomerId: string;
+  stripeSubscriptionId: string;
+}): Promise<void> {
+  const to = env.PLATFORM_NOTIFY_EMAIL;
+  if (!to) return;
+
+  const amount = `$${(opts.amountCents / 100).toFixed(2)}/mo`;
+  const html = `
+<!DOCTYPE html><html><head><style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f9fafb;margin:0;padding:40px 20px}
+.c{max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden}
+.h{background:#16a34a;padding:30px 40px;text-align:center}
+.h h1{color:#fff;margin:0;font-size:22px;font-weight:600}
+.b{padding:36px 40px;color:#374151;font-size:15px;line-height:1.6}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6}
+.label{color:#6b7280;font-size:14px}.val{font-weight:600}
+.f{text-align:center;padding:16px 40px;color:#9ca3af;font-size:13px;border-top:1px solid #f3f4f6}
+</style></head><body>
+<div class="c">
+  <div class="h"><h1>New Paid Subscription</h1></div>
+  <div class="b">
+    <div class="row"><span class="label">Organization</span><span class="val">${opts.orgName}</span></div>
+    <div class="row"><span class="label">Slug</span><span class="val">${opts.orgSlug}</span></div>
+    <div class="row"><span class="label">Plan</span><span class="val">${opts.newPlan}</span></div>
+    <div class="row"><span class="label">Amount</span><span class="val">${amount}</span></div>
+    <div class="row"><span class="label">Status</span><span class="val">${opts.subscriptionStatus}</span></div>
+    <div class="row"><span class="label">Stripe Customer</span><span class="val">${opts.stripeCustomerId}</span></div>
+    <div class="row"><span class="label">Subscription</span><span class="val">${opts.stripeSubscriptionId}</span></div>
+  </div>
+  <div class="f">PrintFlow POS — Internal Notification</div>
+</div>
+</body></html>`;
+
+  try {
+    await resend.emails.send({
+      from: 'PrintFlow POS <noreply@printflowpos.com>',
+      to,
+      subject: `[Paid Upgrade] ${opts.orgName} → ${opts.newPlan} (${amount})`,
+      html,
+    });
+  } catch (err) {
+    logger.warn('Platform upgrade notification failed — non-blocking', { err, to });
+  }
+}
+
 // ─── provisionNewOrganization ─────────────────────────────────────────────────
 
 export async function provisionNewOrganization(input: ProvisionInput): Promise<{ organizationId: string; userId: string }> {
@@ -184,6 +278,9 @@ export async function provisionNewOrganization(input: ProvisionInput): Promise<{
 
   // Send welcome email (non-fatal)
   await sendWelcomeEmail(input.ownerEmail, input.ownerFirstName, input.name, input.slug);
+
+  // Notify platform owner (non-fatal)
+  await sendPlatformSignupNotification(input);
 
   logger.info('Organisation provisioned', { orgId, slug: input.slug });
   return { organizationId: orgId, userId: owner.id };

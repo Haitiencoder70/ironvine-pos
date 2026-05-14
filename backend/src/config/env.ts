@@ -20,6 +20,7 @@ const envSchema = z.object({
   S3_PUBLIC_URL: z.string().url().optional(),
   FRONTEND_URL: z.string().url().default('http://localhost:5173'),
   CORS_ORIGINS: z.string().default('http://localhost:5173,https://pos.printflowpos.com'),
+  PLATFORM_NOTIFY_EMAIL: z.string().email().optional(),
 }).superRefine((value, ctx) => {
   if (value.NODE_ENV !== 'production') return;
 
