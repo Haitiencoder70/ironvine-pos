@@ -106,10 +106,10 @@ export function TopBar(): React.JSX.Element {
         <span className="hidden sm:inline">New Order</span>
       </button>
 
-      {/* Focus mode toggle */}
+      {/* Focus mode toggle — desktop only; tablets use the floating button in MainLayout */}
       <button
         onClick={enterFocusMode}
-        className="p-2 rounded-xl text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0"
+        className="hidden lg:flex p-2 rounded-xl text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-colors min-h-[44px] min-w-[44px] items-center justify-center flex-shrink-0"
         aria-label="Enter focus mode"
       >
         <ArrowsPointingOutIcon className="h-5 w-5" />

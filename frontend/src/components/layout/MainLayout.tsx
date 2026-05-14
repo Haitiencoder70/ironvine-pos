@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowsPointingInIcon } from '@heroicons/react/24/outline';
+import { ArrowsPointingInIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { SocketInit } from './SocketInit';
@@ -18,7 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export function MainLayout(): React.JSX.Element {
   const [collapsed, setCollapsed] = useState(false);
-  const { isSidebarOpen, setSidebarOpen, isFocusMode, exitFocusMode } = useUiStore();
+  const { isSidebarOpen, setSidebarOpen, isFocusMode, enterFocusMode, exitFocusMode } = useUiStore();
   const location = useLocation();
   const qc = useQueryClient();
 
@@ -118,6 +118,24 @@ export function MainLayout(): React.JSX.Element {
 
       {/* ── Mobile bottom navigation ── */}
       {!isFocusMode && <BottomNav />}
+
+      {/* ── Mobile/tablet floating Enter Focus button (above bottom nav) ── */}
+      {!isFocusMode && (
+        <button
+          onClick={enterFocusMode}
+          className="fixed bottom-20 right-4 z-40 lg:hidden flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl text-gray-300 transition-all duration-150 hover:text-white active:scale-[0.97]"
+          style={{
+            background: 'rgba(8,8,18,0.85)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
+          }}
+          aria-label="Enter focus mode"
+        >
+          <ArrowsPointingOutIcon className="h-5 w-5" />
+        </button>
+      )}
 
       {/* ── Focus mode floating exit button ── */}
       {isFocusMode && (
