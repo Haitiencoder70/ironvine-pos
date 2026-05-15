@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import {
@@ -10,6 +10,8 @@ import {
   TruckIcon,
   SwatchIcon,
   PlayIcon,
+  ArrowsPointingOutIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 
 const WORKFLOW = ['Quote', 'Approve', 'Order materials', 'Print', 'Quality check', 'Ship'] as const;
@@ -57,6 +59,8 @@ const SCREENSHOTS = [
 
 const DEMO_VIDEO_SRC = '/marketing/printflow-demo-60s.mp4';
 
+type Screenshot = (typeof SCREENSHOTS)[number];
+
 const HERO_ORDERS = [
   { id: 'ORD-202605-0182', detail: '50x Black Tee -- DTF Front', status: 'Rush', badge: 'bg-[#ff6b00] text-white' },
   { id: 'ORD-202605-0184', detail: '24x White Hoodie -- Screen Print', status: 'In Production', badge: 'bg-[#1a2a1a] text-[#4caf50]' },
@@ -82,7 +86,12 @@ function ScreenshotPlaceholder({ label }: { label: string }): React.JSX.Element 
   );
 }
 
-function ScreenshotCard({ src, alt, label }: { src: string; alt: string; label: string }): React.JSX.Element {
+function ScreenshotCard({
+  src,
+  alt,
+  label,
+  onOpen,
+}: Screenshot & { onOpen: () => void }): React.JSX.Element {
   const [failed, setFailed] = useState(false);
   const handleError = useCallback(() => setFailed(true), []);
 
@@ -91,20 +100,90 @@ function ScreenshotCard({ src, alt, label }: { src: string; alt: string; label: 
   }
 
   return (
-    <div className="group overflow-hidden rounded-xl border border-[#222222] bg-[#141414] transition-colors hover:border-[#ff6b00]">
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group block w-full overflow-hidden rounded-xl border border-[#222222] bg-[#141414] text-left transition-colors hover:border-[#ff6b00] focus:outline-none focus:ring-2 focus:ring-[#ff6b00] focus:ring-offset-2 focus:ring-offset-[#0f0f0f]"
+      aria-label={`Open ${label} screenshot full screen`}
+    >
       <div className="flex items-center gap-2 border-b border-[#1a1a1a] bg-[#1a1a1a] px-3 py-2">
         <span className="h-1.5 w-1.5 rounded-full bg-[#ff5f57]" />
         <span className="h-1.5 w-1.5 rounded-full bg-[#ffbd2e]" />
         <span className="h-1.5 w-1.5 rounded-full bg-[#28c840]" />
         <span className="mx-auto text-[10px] tracking-wide text-[#555555]">{label}</span>
+        <ArrowsPointingOutIcon className="h-3.5 w-3.5 text-[#777777] opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100" aria-hidden="true" />
       </div>
       <img
         src={src}
         alt={alt}
         loading="lazy"
         onError={handleError}
-        className="block w-full"
+        className="block w-full transition-transform duration-300 group-hover:scale-[1.015]"
       />
+    </button>
+  );
+}
+
+function ScreenshotLightbox({
+  screenshot,
+  onClose,
+}: {
+  screenshot: Screenshot | null;
+  onClose: () => void;
+}): React.JSX.Element | null {
+  useEffect(() => {
+    if (!screenshot) return undefined;
+
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') onClose();
+    };
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, screenshot]);
+
+  if (!screenshot) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 px-3 py-4 backdrop-blur-sm sm:px-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${screenshot.label} screenshot preview`}
+      onClick={onClose}
+    >
+      <div
+        className="relative max-h-full w-full max-w-7xl overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#101010] shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex min-h-[52px] items-center gap-2 border-b border-[#1a1a1a] bg-[#171717] px-4">
+          <span className="h-2 w-2 rounded-full bg-[#ff5f57]" />
+          <span className="h-2 w-2 rounded-full bg-[#ffbd2e]" />
+          <span className="h-2 w-2 rounded-full bg-[#28c840]" />
+          <span className="ml-3 text-sm font-semibold text-[#dddddd]">{screenshot.label}</span>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-auto inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-[#999999] hover:bg-[#222222] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]"
+            aria-label="Close screenshot preview"
+          >
+            <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
+        <div className="max-h-[calc(100vh-92px)] overflow-auto bg-[#070707]">
+          <img
+            src={screenshot.src}
+            alt={screenshot.alt}
+            className="mx-auto block h-auto w-full"
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -141,8 +220,10 @@ function DemoVideo(): React.JSX.Element | null {
 }
 
 function ProductShowcase(): React.JSX.Element {
+  const [selectedScreenshot, setSelectedScreenshot] = useState<Screenshot | null>(null);
   const featured = SCREENSHOTS[0];
   const rest = SCREENSHOTS.slice(1);
+  const closeScreenshot = useCallback(() => setSelectedScreenshot(null), []);
 
   return (
     <section className="px-4 py-20 sm:px-6 lg:px-8">
@@ -160,19 +241,24 @@ function ProductShowcase(): React.JSX.Element {
 
         {/* Featured screenshot (dashboard) */}
         <div className="mx-auto max-w-4xl">
-          <ScreenshotCard src={featured.src} alt={featured.alt} label={featured.label} />
+          <ScreenshotCard {...featured} onOpen={() => setSelectedScreenshot(featured)} />
         </div>
 
         {/* Secondary screenshots grid */}
         <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {rest.map(({ src, alt, label }) => (
-            <ScreenshotCard key={src} src={src} alt={alt} label={label} />
+          {rest.map((screenshot) => (
+            <ScreenshotCard
+              key={screenshot.src}
+              {...screenshot}
+              onOpen={() => setSelectedScreenshot(screenshot)}
+            />
           ))}
         </div>
 
         {/* Optional demo video -- renders nothing if file is missing */}
         <DemoVideo />
       </div>
+      <ScreenshotLightbox screenshot={selectedScreenshot} onClose={closeScreenshot} />
     </section>
   );
 }
