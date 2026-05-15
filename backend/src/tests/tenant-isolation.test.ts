@@ -108,3 +108,46 @@ describe('Tenant middleware', () => {
     expect([401, 403]).toContain(res.status);
   });
 });
+
+describe('Central-domain tenant resolution (no subdomain)', () => {
+  it('resolves org by exact clerkOrgId match', async () => {
+    asAcme();
+    const res = await request(app)
+      .get('/api/dashboard/stats')
+      .set('Host', 'localhost');
+
+    expect(res.status).toBe(200);
+  });
+
+  it('does NOT fall back to a local membership when the active Clerk org has no DB row', async () => {
+    // User belongs to acme locally, but switches Clerk org to a brand-new
+    // org that has no DB row yet. Should NOT silently resolve to acme.
+    mockGetAuth.mockReturnValue({
+      userId:  acmeOwner.clerkUserId,
+      orgId:   'org_brand_new_no_db_row',
+      orgRole: 'org:admin',
+    });
+
+    const res = await request(app)
+      .get('/api/orders')
+      .set('Host', 'localhost');
+
+    expect(res.status).toBe(409);
+    expect(res.body.code).toBe('ORG_SETUP_REQUIRED');
+  });
+
+  it('returns ORG_SETUP_REQUIRED when no DB org exists for the Clerk org', async () => {
+    mockGetAuth.mockReturnValue({
+      userId:  'user_new_signup',
+      orgId:   'org_not_provisioned',
+      orgRole: 'org:admin',
+    });
+
+    const res = await request(app)
+      .get('/api/orders')
+      .set('Host', 'localhost');
+
+    expect(res.status).toBe(409);
+    expect(res.body.code).toBe('ORG_SETUP_REQUIRED');
+  });
+});

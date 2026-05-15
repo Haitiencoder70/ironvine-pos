@@ -9,22 +9,6 @@ import { cacheService } from '../services/cacheService';
 const ORG_CACHE_TTL = 300; // 5 minutes
 const RESERVED_SUBDOMAINS = new Set(['www', 'app', 'api', 'staging', 'mail', 'pos', 'clerk', 'accounts']);
 
-interface ResolvedOrg {
-  id: string;
-  clerkOrgId: string;
-  subdomain: string;
-  _count: {
-    orders: number;
-    customers: number;
-    inventoryItems: number;
-    products: number;
-  };
-}
-
-function dataWeight(org: ResolvedOrg): number {
-  return org._count.orders + org._count.customers + org._count.inventoryItems + org._count.products;
-}
-
 declare module 'express-serve-static-core' {
   interface Request {
     organizationId?: string;    // Clerk org ID (external)
@@ -67,7 +51,8 @@ function extractSubdomain(hostname: string): string | null {
  *
  * Strategy (in order):
  *  1. Subdomain of the request hostname  → look up by `organization.subdomain`
- *  2. Clerk org_id from the verified JWT → upsert a local DB record on first call
+ *  2. Clerk org_id from the verified JWT → exact match on `organization.clerkOrgId`
+ *     Returns ORG_SETUP_REQUIRED if no DB row exists (user must complete signup).
  *
  * Attaches to `req`:
  *  - `organizationId`   – Clerk org ID string  (used for Clerk API calls)
@@ -197,79 +182,33 @@ export async function injectTenant(
       req.organizationId   = org.clerkOrgId;
       req.organizationDbId = org.id;
     } else {
-      // ── Path 2: Clerk orgId fallback (local / API clients) ──────────────────
+      // ── Path 2: central-domain / no subdomain — resolve by exact Clerk orgId ─
       if (!authReq.auth?.orgId) {
         return next(new AppError(403, 'Organisation context required.', 'NO_ORG_CONTEXT'));
       }
 
       const exactClerkOrg = await prisma.organization.findUnique({
         where: { clerkOrgId: authReq.auth.orgId },
-        select: {
-          id: true,
-          clerkOrgId: true,
-          subdomain: true,
-          _count: {
-            select: { orders: true, customers: true, inventoryItems: true, products: true },
-          },
-        },
+        select: { id: true, clerkOrgId: true },
       });
 
-      const localMemberships = authReq.auth.userId
-        ? await prisma.user.findMany({
-          where: { clerkUserId: authReq.auth.userId, isActive: true },
-          select: {
-            organization: {
-              select: {
-                id: true,
-                clerkOrgId: true,
-                subdomain: true,
-                _count: {
-                  select: { orders: true, customers: true, inventoryItems: true, products: true },
-                },
-              },
-            },
-          },
-        })
-        : [];
-
-      const bestLocalOrg = localMemberships
-        .map((membership) => membership.organization)
-        .sort((a, b) => dataWeight(b) - dataWeight(a))[0];
-
-      const org =
-        bestLocalOrg && (!exactClerkOrg || dataWeight(bestLocalOrg) > dataWeight(exactClerkOrg))
-          ? bestLocalOrg
-          : exactClerkOrg;
-
-      if (org) {
-        if (org.clerkOrgId !== authReq.auth.orgId) {
-          logger.warn('Resolved central-domain request to existing local workspace with different Clerk org id', {
-            orgId: org.id,
-            subdomain: org.subdomain,
-            dbClerkOrgId: org.clerkOrgId,
-            tokenOrgId: authReq.auth.orgId,
-            userId: authReq.auth.userId,
-          });
-        }
-
-        req.organizationId = authReq.auth.orgId;
-        req.organizationDbId = org.id;
+      if (exactClerkOrg) {
+        req.organizationId   = exactClerkOrg.clerkOrgId;
+        req.organizationDbId = exactClerkOrg.id;
       } else {
-        // Signup provisioning should normally create the local row first. This
-        // fallback exists for legacy Clerk orgs that reach the app before setup.
-        const created = await prisma.organization.create({
-          data: {
-            clerkOrgId: authReq.auth.orgId,
-            name:       authReq.auth.orgId,
-            slug:       authReq.auth.orgId,
-            subdomain:  authReq.auth.orgId,
-            plan:       'FREE',
-          },
-          select: { id: true },
+        // No DB organisation exists for this Clerk org — the user must complete
+        // org setup via /signup before accessing the app.
+        logger.info('No DB organisation for active Clerk org; setup required', {
+          tokenOrgId: authReq.auth.orgId,
+          userId: authReq.auth.userId,
         });
-
-        req.organizationId = authReq.auth.orgId;
-        req.organizationDbId = created.id;
+        return next(
+          new AppError(
+            409,
+            'Your organisation has not been set up yet. Please complete organisation setup.',
+            'ORG_SETUP_REQUIRED',
+          ),
+        );
       }
     }
 

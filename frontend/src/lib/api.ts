@@ -134,6 +134,14 @@ api.interceptors.response.use(
       if (error.response) {
         const data = error.response.data as { error?: string, code?: string, details?: unknown };
 
+        // Org not provisioned — redirect to setup flow (avoid loops)
+        if (error.response.status === 409 && data.code === 'ORG_SETUP_REQUIRED') {
+          if (!/^\/(signup|sign-up)/.test(window.location.pathname)) {
+            window.location.href = '/signup';
+          }
+          return Promise.reject(error);
+        }
+
         if (error.response.status === 402) {
           const limitMsg = data.error ?? "You've reached a limit on your current plan.";
           if (onPlanLimitExceeded) {
