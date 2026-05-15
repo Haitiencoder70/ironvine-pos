@@ -7,6 +7,9 @@
  * Usage:
  *   MARKETING_DEMO_ORG_SLUG=demo-print-shop npx tsx src/scripts/seed-marketing-demo.ts
  *
+ * The value can be a slug, subdomain, or org name (case-insensitive).
+ * If no match is found, the script lists all available organizations.
+ *
  * Safety:
  *   - Only touches records in the target org
  *   - Only deletes records tagged with [MARKETING DEMO] / DEMO- prefix / demo+ emails
@@ -585,21 +588,52 @@ function daysFromNow(days: number): Date {
 // ─── Main ───────────────────────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
-  const slug = process.env['MARKETING_DEMO_ORG_SLUG'];
-  if (!slug) {
-    console.error('ERROR: Set MARKETING_DEMO_ORG_SLUG to the target organization slug.');
+  const input = process.env['MARKETING_DEMO_ORG_SLUG'];
+  if (!input) {
+    console.error('ERROR: Set MARKETING_DEMO_ORG_SLUG to the target organization slug, subdomain, or name.');
     console.error('Example: MARKETING_DEMO_ORG_SLUG=demo-print-shop npx tsx src/scripts/seed-marketing-demo.ts');
     process.exit(1);
   }
 
-  const org = await prisma.organization.findUnique({ where: { slug } });
+  // Try slug (exact), then subdomain (exact), then case-insensitive name/slug/subdomain
+  const inputLower = input.toLowerCase();
+  let org = await prisma.organization.findUnique({ where: { slug: input } });
   if (!org) {
-    console.error(`ERROR: Organization with slug "${slug}" not found.`);
-    console.error('Create the org in the app first, then run this script.');
+    org = await prisma.organization.findUnique({ where: { subdomain: input } });
+  }
+  if (!org) {
+    org = await prisma.organization.findFirst({
+      where: {
+        OR: [
+          { slug: { equals: inputLower, mode: 'insensitive' } },
+          { subdomain: { equals: inputLower, mode: 'insensitive' } },
+          { name: { equals: input, mode: 'insensitive' } },
+        ],
+      },
+    });
+  }
+
+  if (!org) {
+    console.error(`ERROR: No organization found matching "${input}".`);
+    console.error('Tried: slug, subdomain, and case-insensitive name match.\n');
+    const allOrgs = await prisma.organization.findMany({
+      select: { slug: true, subdomain: true, name: true },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+    if (allOrgs.length > 0) {
+      console.error('Available organizations:');
+      for (const o of allOrgs) {
+        console.error(`  slug: ${o.slug}  subdomain: ${o.subdomain}  name: ${o.name}`);
+      }
+      console.error('\nUse one of these slugs as MARKETING_DEMO_ORG_SLUG.');
+    } else {
+      console.error('No organizations exist in the database. Create one in the app first.');
+    }
     process.exit(1);
   }
 
-  console.log(`Target org: ${org.name} (${org.id}) — slug: ${org.slug}`);
+  console.log(`Target org: ${org.name} (${org.id}) — slug: ${org.slug} — subdomain: ${org.subdomain}`);
   console.log('');
 
   // ─── Cleanup existing demo data (child-first order) ─────────────────────────
