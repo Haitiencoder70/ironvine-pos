@@ -28,15 +28,37 @@ $env:MARKETING_DEMO_ORG_SLUG="your-org-slug"; npm run seed:marketing-demo
 
 ## What Gets Seeded
 
-| Entity          | Count | Markers                               |
-| --------------- | ----- | ------------------------------------- |
-| Vendors         | 3     | `[MARKETING DEMO]` in notes           |
-| Customers       | 7     | `demo+*@printflowpos.com` emails      |
-| Inventory items | 15    | SKUs prefixed `DEMO-`                 |
-| Orders          | 11    | Order numbers prefixed `DEMO-ORD-`    |
-| Purchase orders | 3     | PO numbers prefixed `DEMO-PO-`        |
-| Shipments       | 2     | Tracking numbers prefixed `DEMO`      |
-| Stock movements | 8     | Linked to demo inventory/orders       |
+| Entity                    | Count | Markers                               |
+| ------------------------- | ----- | ------------------------------------- |
+| Vendors                   | 3     | `[MARKETING DEMO]` in notes           |
+| Customers                 | 7     | `demo+*@printflowpos.com` emails      |
+| Inventory items           | 15    | SKUs prefixed `DEMO-`                 |
+| Product categories        | 7     | Upserted by name (shared, not deleted) |
+| Products                  | 10    | SKUs prefixed `DEMO-PROD-`            |
+| Product material templates| 18    | Cascaded from demo products           |
+| Orders                    | 11    | Order numbers prefixed `DEMO-ORD-`    |
+| Purchase orders           | 3     | PO numbers prefixed `DEMO-PO-`        |
+| Shipments                 | 2     | Tracking numbers prefixed `DEMO`      |
+| Stock movements           | 8     | Linked to demo inventory/orders       |
+
+### Products & Pricing
+
+10 products across 7 categories with realistic pricing tiers, size upcharges, and material templates:
+
+| Product                        | Method       | Base Price | Featured |
+| ------------------------------ | ------------ | ---------- | -------- |
+| Classic DTF T-Shirt            | DTF          | $15        | ✓        |
+| Premium Screen Print Hoodie    | Screen Print | $38        | ✓        |
+| Embroidered Polo               | Embroidery   | $28        |          |
+| HTV Staff Tee                  | HTV          | $14        |          |
+| Youth Team Shirt               | DTF          | $12        |          |
+| Direct-to-Garment Retail Tee   | DTG          | $22        |          |
+| Sublimated Performance Shirt   | Sublimation  | $25        |          |
+| Custom Tote Bag                | HTV          | $12        | ✓        |
+| Long Sleeve Event Shirt        | DTF          | $20        |          |
+| Screen Print Tank Top          | Screen Print | $16        |          |
+
+Material templates are linked to seeded demo inventory items where SKUs match.
 
 ### Order Statuses Covered
 

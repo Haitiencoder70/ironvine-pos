@@ -26,6 +26,7 @@ const prisma = new PrismaClient();
 const DEMO_TAG = '[MARKETING DEMO]';
 const DEMO_EMAIL_PREFIX = 'demo+';
 const DEMO_SKU_PREFIX = 'DEMO-';
+const DEMO_PRODUCT_SKU_PREFIX = 'DEMO-PROD-';
 const DEMO_ORDER_PREFIX = 'DEMO-ORD-';
 const DEMO_PO_PREFIX = 'DEMO-PO-';
 
@@ -249,6 +250,329 @@ const SHIPMENT_SPECS = [
   { orderNumber: `${DEMO_ORDER_PREFIX}009`, tracking: 'DEMO1Z999AA10123456780001', carrier: 'UPS' as ShipmentCarrier,  status: 'DELIVERED' },
 ];
 
+// ─── Product Categories & Products ────────────────────────────────────────────
+
+const CATEGORY_SPECS = [
+  { name: 'DTF Transfer',         description: 'Direct-to-Film heat transfer printing — full color, no minimums', icon: '🖨️',  displayOrder: 1 },
+  { name: 'Screen Print',         description: 'Traditional ink-on-garment screen printing — best for bulk runs',  icon: '🎨',  displayOrder: 2 },
+  { name: 'Heat Transfer Vinyl',  description: 'Cut vinyl applied with a heat press — great for names & numbers',  icon: '✂️',  displayOrder: 3 },
+  { name: 'Embroidery',           description: 'Stitched logos — professional look for polos and caps',            icon: '🧵',  displayOrder: 4 },
+  { name: 'Sublimation',          description: 'Dye-sublimation for polyester performance garments',                icon: '🌈',  displayOrder: 5 },
+  { name: 'Direct-to-Garment',    description: 'Inkjet printing directly on fabric — photo-quality detail',        icon: '👕',  displayOrder: 6 },
+  { name: 'Accessories',          description: 'Bags, hats, and other customizable items',                          icon: '👜',  displayOrder: 7 },
+] as const;
+
+type PriceTier = { minQty: number; price: number };
+type SizeUpcharges = Record<string, number>;
+
+type MaterialTemplateSpec = {
+  materialCategory: string;
+  description: string;
+  quantityPerUnit: number;
+  estimatedCostPerUnit: number;
+  inventorySku?: string;
+};
+
+type ProductSpec = {
+  sku: string;
+  name: string;
+  description: string;
+  categoryName: string;
+  garmentType: string;
+  printMethod: string;
+  includedPrintLocations: string[];
+  maxPrintLocations: number;
+  basePrice: number;
+  priceTiers: PriceTier[];
+  sizeUpcharges: SizeUpcharges;
+  availableBrands: string[];
+  availableSizes: string[];
+  availableColors: string[];
+  estimatedProductionMinutes: number;
+  difficultyLevel: string;
+  isFeatured: boolean;
+  materialTemplates: MaterialTemplateSpec[];
+};
+
+const PRODUCT_SPECS: ProductSpec[] = [
+  {
+    sku: `${DEMO_PRODUCT_SKU_PREFIX}DTF-TEE`,
+    name: 'Classic DTF T-Shirt',
+    description: 'Full-color direct-to-film print on a premium unisex tee. No minimum order. Perfect for events, teams, and promos.',
+    categoryName: 'DTF Transfer',
+    garmentType: 'TSHIRT',
+    printMethod: 'DTF',
+    includedPrintLocations: ['FRONT'],
+    maxPrintLocations: 3,
+    basePrice: 15.00,
+    priceTiers: [
+      { minQty: 1,  price: 18.00 },
+      { minQty: 12, price: 15.00 },
+      { minQty: 24, price: 13.00 },
+      { minQty: 50, price: 11.00 },
+    ],
+    sizeUpcharges: { '2XL': 2.00, '3XL': 3.00 },
+    availableBrands: ['Gildan 5000', 'Bella+Canvas 3001', 'Next Level 3600', 'Comfort Colors 1717'],
+    availableSizes: ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'],
+    availableColors: ['Black', 'White', 'Navy', 'Heather Grey', 'Red', 'Royal Blue', 'Forest Green', 'Cardinal'],
+    estimatedProductionMinutes: 8,
+    difficultyLevel: 'Beginner',
+    isFeatured: true,
+    materialTemplates: [
+      { materialCategory: 'BLANK_GARMENT', description: 'Gildan 5000 blank tee (per unit)', quantityPerUnit: 1, estimatedCostPerUnit: 3.50, inventorySku: 'DEMO-GILD5000-BLK-M' },
+      { materialCategory: 'DTF_TRANSFER',  description: 'DTF transfer (1/10 gang sheet per print)', quantityPerUnit: 0.1, estimatedCostPerUnit: 3.00, inventorySku: 'DEMO-DTF-GANG-22x60' },
+    ],
+  },
+  {
+    sku: `${DEMO_PRODUCT_SKU_PREFIX}SP-HOODIE`,
+    name: 'Premium Screen Print Hoodie',
+    description: 'Crisp, durable screen print on a heavyweight hoodie. Minimum 12 pieces per color. Best value for large runs.',
+    categoryName: 'Screen Print',
+    garmentType: 'HOODIE',
+    printMethod: 'SCREEN_PRINT',
+    includedPrintLocations: ['FRONT'],
+    maxPrintLocations: 2,
+    basePrice: 38.00,
+    priceTiers: [
+      { minQty: 12, price: 42.00 },
+      { minQty: 24, price: 38.00 },
+      { minQty: 50, price: 34.00 },
+      { minQty: 72, price: 30.00 },
+    ],
+    sizeUpcharges: { '2XL': 3.00, '3XL': 5.00 },
+    availableBrands: ['Gildan 18500', 'Bella+Canvas 3719', 'Independent Trading SS4500'],
+    availableSizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'],
+    availableColors: ['Black', 'White', 'Navy', 'Sport Grey', 'Carolina Blue'],
+    estimatedProductionMinutes: 25,
+    difficultyLevel: 'Intermediate',
+    isFeatured: true,
+    materialTemplates: [
+      { materialCategory: 'BLANK_GARMENT', description: 'Blank hoodie (per unit)', quantityPerUnit: 1, estimatedCostPerUnit: 14.00 },
+    ],
+  },
+  {
+    sku: `${DEMO_PRODUCT_SKU_PREFIX}EMBR-POLO`,
+    name: 'Embroidered Polo',
+    description: 'Professional left-chest logo embroidery on a moisture-wicking polo. Ideal for corporate, hospitality, and service teams.',
+    categoryName: 'Embroidery',
+    garmentType: 'POLO',
+    printMethod: 'EMBROIDERY',
+    includedPrintLocations: ['FRONT'],
+    maxPrintLocations: 2,
+    basePrice: 28.00,
+    priceTiers: [
+      { minQty: 1,  price: 32.00 },
+      { minQty: 6,  price: 28.00 },
+      { minQty: 12, price: 26.00 },
+      { minQty: 24, price: 24.00 },
+    ],
+    sizeUpcharges: { 'XL': 2.00, '2XL': 4.00, '3XL': 6.00 },
+    availableBrands: ['Port Authority K500', 'OGIO Limit Polo', 'Harriton M200'],
+    availableSizes: ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'],
+    availableColors: ['Black', 'White', 'Navy', 'Royal Blue', 'Burgundy', 'Dark Green'],
+    estimatedProductionMinutes: 18,
+    difficultyLevel: 'Intermediate',
+    isFeatured: false,
+    materialTemplates: [
+      { materialCategory: 'BLANK_GARMENT',      description: 'Blank polo (per unit)', quantityPerUnit: 1, estimatedCostPerUnit: 12.00 },
+      { materialCategory: 'EMBROIDERY_THREAD',   description: 'Embroidery thread (per logo stitch, ~5000 stitches)', quantityPerUnit: 0.05, estimatedCostPerUnit: 0.43, inventorySku: 'DEMO-EMBR-BLK-5000M' },
+    ],
+  },
+  {
+    sku: `${DEMO_PRODUCT_SKU_PREFIX}HTV-TEE`,
+    name: 'HTV Staff Tee',
+    description: 'Cut vinyl on a cotton tee — perfect for staff uniforms, names on back, or simple 1-color logos.',
+    categoryName: 'Heat Transfer Vinyl',
+    garmentType: 'TSHIRT',
+    printMethod: 'HTV',
+    includedPrintLocations: ['FRONT'],
+    maxPrintLocations: 3,
+    basePrice: 14.00,
+    priceTiers: [
+      { minQty: 1,  price: 20.00 },
+      { minQty: 6,  price: 17.00 },
+      { minQty: 12, price: 14.00 },
+      { minQty: 24, price: 12.00 },
+    ],
+    sizeUpcharges: { '2XL': 2.00, '3XL': 3.00 },
+    availableBrands: ['Gildan 5000', 'Bella+Canvas 3001'],
+    availableSizes: ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'],
+    availableColors: ['Black', 'White', 'Navy', 'Red', 'Safety Orange', 'Forest Green'],
+    estimatedProductionMinutes: 12,
+    difficultyLevel: 'Beginner',
+    isFeatured: false,
+    materialTemplates: [
+      { materialCategory: 'BLANK_GARMENT', description: 'Blank tee (per unit)', quantityPerUnit: 1, estimatedCostPerUnit: 3.50, inventorySku: 'DEMO-GILD5000-WHT-M' },
+      { materialCategory: 'HTV_VINYL',     description: 'Siser EasyWeed HTV (per print, approx 0.03yd per shirt)', quantityPerUnit: 0.03, estimatedCostPerUnit: 0.66, inventorySku: 'DEMO-SISR-EW-BLK' },
+    ],
+  },
+  {
+    sku: `${DEMO_PRODUCT_SKU_PREFIX}DTF-YOUTH`,
+    name: 'Youth Team Shirt',
+    description: 'DTF print on youth-sized tees — great for school teams, youth sports, and camps. Same full-color quality, kid-friendly sizing.',
+    categoryName: 'DTF Transfer',
+    garmentType: 'TSHIRT',
+    printMethod: 'DTF',
+    includedPrintLocations: ['FRONT'],
+    maxPrintLocations: 2,
+    basePrice: 12.00,
+    priceTiers: [
+      { minQty: 1,  price: 16.00 },
+      { minQty: 12, price: 12.00 },
+      { minQty: 24, price: 10.00 },
+      { minQty: 50, price: 9.00 },
+    ],
+    sizeUpcharges: {},
+    availableBrands: ['Gildan 5000B', 'Bella+Canvas 3001Y'],
+    availableSizes: ['XS (4)', 'S (6-8)', 'M (10-12)', 'L (14-16)', 'XL (18-20)'],
+    availableColors: ['Black', 'White', 'Navy', 'Red', 'Royal Blue', 'Gold', 'Cardinal'],
+    estimatedProductionMinutes: 7,
+    difficultyLevel: 'Beginner',
+    isFeatured: false,
+    materialTemplates: [
+      { materialCategory: 'BLANK_GARMENT', description: 'Youth blank tee (per unit)', quantityPerUnit: 1, estimatedCostPerUnit: 2.85 },
+      { materialCategory: 'DTF_TRANSFER',  description: 'DTF transfer — youth size (1/12 gang sheet)', quantityPerUnit: 0.083, estimatedCostPerUnit: 2.50, inventorySku: 'DEMO-DTF-GANG-22x60' },
+    ],
+  },
+  {
+    sku: `${DEMO_PRODUCT_SKU_PREFIX}DTG-TEE`,
+    name: 'Direct-to-Garment Retail Tee',
+    description: 'Photo-quality inkjet print on a premium ring-spun cotton tee. Ideal for detailed artwork, gradients, and retail-ready products.',
+    categoryName: 'Direct-to-Garment',
+    garmentType: 'TSHIRT',
+    printMethod: 'DTG',
+    includedPrintLocations: ['FRONT'],
+    maxPrintLocations: 2,
+    basePrice: 22.00,
+    priceTiers: [
+      { minQty: 1,  price: 28.00 },
+      { minQty: 6,  price: 24.00 },
+      { minQty: 12, price: 22.00 },
+      { minQty: 24, price: 20.00 },
+    ],
+    sizeUpcharges: { '2XL': 2.00, '3XL': 4.00 },
+    availableBrands: ['Bella+Canvas 3001', 'Next Level 3600', 'American Apparel 2001'],
+    availableSizes: ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'],
+    availableColors: ['White', 'Light Blue', 'Natural', 'Heather Grey'],
+    estimatedProductionMinutes: 15,
+    difficultyLevel: 'Intermediate',
+    isFeatured: false,
+    materialTemplates: [
+      { materialCategory: 'BLANK_GARMENT', description: 'Bella+Canvas 3001 (per unit)', quantityPerUnit: 1, estimatedCostPerUnit: 4.25, inventorySku: 'DEMO-BC3001-WHT-M' },
+    ],
+  },
+  {
+    sku: `${DEMO_PRODUCT_SKU_PREFIX}SUBL-PERF`,
+    name: 'Sublimated Performance Shirt',
+    description: 'All-over dye-sublimation on a moisture-wicking polyester performance shirt. Vivid, permanent color that won\'t crack or peel.',
+    categoryName: 'Sublimation',
+    garmentType: 'TSHIRT',
+    printMethod: 'SUBLIMATION',
+    includedPrintLocations: ['FRONT', 'BACK'],
+    maxPrintLocations: 4,
+    basePrice: 25.00,
+    priceTiers: [
+      { minQty: 1,  price: 32.00 },
+      { minQty: 6,  price: 28.00 },
+      { minQty: 12, price: 25.00 },
+      { minQty: 24, price: 22.00 },
+    ],
+    sizeUpcharges: { '2XL': 2.00, '3XL': 4.00 },
+    availableBrands: ['Augusta Sportswear 790', 'A4 N3013', 'Badger 4120'],
+    availableSizes: ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'],
+    availableColors: ['White', 'Light Grey (base only)'],
+    estimatedProductionMinutes: 20,
+    difficultyLevel: 'Advanced',
+    isFeatured: false,
+    materialTemplates: [
+      { materialCategory: 'BLANK_GARMENT', description: 'Polyester performance blank (per unit)', quantityPerUnit: 1, estimatedCostPerUnit: 6.00 },
+    ],
+  },
+  {
+    sku: `${DEMO_PRODUCT_SKU_PREFIX}HTV-TOTE`,
+    name: 'Custom Tote Bag',
+    description: 'HTV or DTF print on a natural canvas tote. Great for events, retail merchandise, and branded giveaways.',
+    categoryName: 'Accessories',
+    garmentType: 'BAG',
+    printMethod: 'HTV',
+    includedPrintLocations: ['FRONT'],
+    maxPrintLocations: 2,
+    basePrice: 12.00,
+    priceTiers: [
+      { minQty: 1,  price: 16.00 },
+      { minQty: 12, price: 12.00 },
+      { minQty: 24, price: 10.00 },
+      { minQty: 50, price: 8.00 },
+    ],
+    sizeUpcharges: {},
+    availableBrands: ['Liberty Bags 8501', 'Gemline Hampton'],
+    availableSizes: ['One Size'],
+    availableColors: ['Natural', 'Black', 'Navy'],
+    estimatedProductionMinutes: 10,
+    difficultyLevel: 'Beginner',
+    isFeatured: true,
+    materialTemplates: [
+      { materialCategory: 'BLANK_GARMENT', description: 'Canvas tote bag (per unit)', quantityPerUnit: 1, estimatedCostPerUnit: 4.00 },
+      { materialCategory: 'HTV_VINYL',     description: 'Siser EasyWeed HTV (per bag, approx 0.04yd)', quantityPerUnit: 0.04, estimatedCostPerUnit: 0.88, inventorySku: 'DEMO-SISR-EW-BLK' },
+    ],
+  },
+  {
+    sku: `${DEMO_PRODUCT_SKU_PREFIX}DTF-LS`,
+    name: 'Long Sleeve Event Shirt',
+    description: 'DTF full-color print on a long-sleeve tee — popular for fall events, school spirit, and seasonal promotions.',
+    categoryName: 'DTF Transfer',
+    garmentType: 'LONG_SLEEVE',
+    printMethod: 'DTF',
+    includedPrintLocations: ['FRONT'],
+    maxPrintLocations: 4,
+    basePrice: 20.00,
+    priceTiers: [
+      { minQty: 1,  price: 24.00 },
+      { minQty: 12, price: 20.00 },
+      { minQty: 24, price: 17.00 },
+      { minQty: 50, price: 15.00 },
+    ],
+    sizeUpcharges: { '2XL': 2.00, '3XL': 3.00 },
+    availableBrands: ['Gildan 5400', 'Bella+Canvas 3501'],
+    availableSizes: ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'],
+    availableColors: ['Black', 'White', 'Navy', 'Heather Grey', 'Forest Green', 'Maroon'],
+    estimatedProductionMinutes: 10,
+    difficultyLevel: 'Beginner',
+    isFeatured: false,
+    materialTemplates: [
+      { materialCategory: 'BLANK_GARMENT', description: 'Long sleeve blank (per unit)', quantityPerUnit: 1, estimatedCostPerUnit: 5.50 },
+      { materialCategory: 'DTF_TRANSFER',  description: 'DTF transfer (1/10 gang sheet per print)', quantityPerUnit: 0.1, estimatedCostPerUnit: 3.00, inventorySku: 'DEMO-DTF-GANG-22x60' },
+    ],
+  },
+  {
+    sku: `${DEMO_PRODUCT_SKU_PREFIX}SP-TANK`,
+    name: 'Screen Print Tank Top',
+    description: 'Classic screen print on a lightweight tank — a summer staple for gyms, races, and outdoor events.',
+    categoryName: 'Screen Print',
+    garmentType: 'TANK_TOP',
+    printMethod: 'SCREEN_PRINT',
+    includedPrintLocations: ['FRONT'],
+    maxPrintLocations: 2,
+    basePrice: 16.00,
+    priceTiers: [
+      { minQty: 12, price: 18.00 },
+      { minQty: 24, price: 16.00 },
+      { minQty: 48, price: 13.00 },
+      { minQty: 72, price: 11.00 },
+    ],
+    sizeUpcharges: { '2XL': 2.00 },
+    availableBrands: ['Gildan 2200', 'Bella+Canvas 3480', 'Next Level 3633'],
+    availableSizes: ['XS', 'S', 'M', 'L', 'XL', '2XL'],
+    availableColors: ['Black', 'White', 'Navy', 'Red', 'Gold', 'Royal Blue'],
+    estimatedProductionMinutes: 18,
+    difficultyLevel: 'Intermediate',
+    isFeatured: false,
+    materialTemplates: [
+      { materialCategory: 'BLANK_GARMENT', description: 'Blank tank top (per unit)', quantityPerUnit: 1, estimatedCostPerUnit: 4.00 },
+    ],
+  },
+];
+
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
 function daysFromNow(days: number): Date {
@@ -340,6 +664,18 @@ async function main(): Promise<void> {
     where: { organizationId: org.id, notes: { contains: DEMO_TAG } },
   });
 
+  // Find and delete demo products (by DEMO-PROD- SKU prefix)
+  const demoProducts = await prisma.product.findMany({
+    where: { organizationId: org.id, sku: { startsWith: DEMO_PRODUCT_SKU_PREFIX } },
+    select: { id: true },
+  });
+  const demoProductIds = demoProducts.map(p => p.id);
+  if (demoProductIds.length > 0) {
+    await prisma.productMaterialTemplate.deleteMany({ where: { productId: { in: demoProductIds } } });
+    await prisma.productAddOn.deleteMany({ where: { productId: { in: demoProductIds } } });
+    await prisma.product.deleteMany({ where: { id: { in: demoProductIds } } });
+  }
+
   console.log('  Previous demo data removed.\n');
 
   // ─── Vendors ────────────────────────────────────────────────────────────────
@@ -383,6 +719,77 @@ async function main(): Promise<void> {
   );
   const invBySku = Object.fromEntries(inventoryItems.map(i => [i.sku, i]));
   console.log(`  Inventory: ${inventoryItems.length} items created`);
+
+  // ─── Product Categories ──────────────────────────────────────────────────────
+
+  const categories = await Promise.all(
+    CATEGORY_SPECS.map(c =>
+      prisma.productCategory.upsert({
+        where: { organizationId_name: { organizationId: org.id, name: c.name } },
+        update: { description: c.description, displayOrder: c.displayOrder },
+        create: { ...c, organizationId: org.id },
+      })
+    )
+  );
+  const catByName = Object.fromEntries(categories.map(c => [c.name, c]));
+  console.log(`  Product categories: ${categories.length} upserted`);
+
+  // ─── Products ───────────────────────────────────────────────────────────────
+
+  let productsCreated = 0;
+  let templatesCreated = 0;
+
+  for (const spec of PRODUCT_SPECS) {
+    const category = catByName[spec.categoryName];
+    if (!category) {
+      console.warn(`  WARN: category "${spec.categoryName}" not found — skipping ${spec.sku}`);
+      continue;
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        sku: spec.sku,
+        name: spec.name,
+        description: spec.description,
+        categoryId: category.id,
+        organizationId: org.id,
+        garmentType: spec.garmentType as never,
+        printMethod: spec.printMethod as never,
+        includedPrintLocations: spec.includedPrintLocations,
+        maxPrintLocations: spec.maxPrintLocations,
+        basePrice: spec.basePrice,
+        priceTiers: spec.priceTiers,
+        sizeUpcharges: spec.sizeUpcharges,
+        availableBrands: spec.availableBrands,
+        availableSizes: spec.availableSizes,
+        availableColors: spec.availableColors,
+        estimatedProductionMinutes: spec.estimatedProductionMinutes,
+        difficultyLevel: spec.difficultyLevel,
+        isFeatured: spec.isFeatured,
+        isActive: true,
+      },
+    });
+
+    productsCreated++;
+
+    for (const tmpl of spec.materialTemplates) {
+      const invItem = tmpl.inventorySku ? invBySku[tmpl.inventorySku] : undefined;
+      await prisma.productMaterialTemplate.create({
+        data: {
+          productId: product.id,
+          organizationId: org.id,
+          materialCategory: tmpl.materialCategory,
+          description: tmpl.description,
+          quantityPerUnit: tmpl.quantityPerUnit,
+          estimatedCostPerUnit: tmpl.estimatedCostPerUnit,
+          inventoryItemId: invItem?.id ?? undefined,
+        },
+      });
+      templatesCreated++;
+    }
+  }
+
+  console.log(`  Products: ${productsCreated} created (${templatesCreated} material templates)`);
 
   // ─── Orders + Items ─────────────────────────────────────────────────────────
 
@@ -529,6 +936,7 @@ async function main(): Promise<void> {
   console.log(`  Vendors:    ${vendors.length}`);
   console.log(`  Customers:  ${customers.length}`);
   console.log(`  Inventory:  ${inventoryItems.length} items (${lowStockCount} low-stock)`);
+  console.log(`  Categories: ${categories.length} | Products: ${productsCreated} (${PRODUCT_SPECS.filter(p => p.isFeatured).length} featured)`);
   console.log(`  Orders:     ${ORDER_SPECS.length} across ${new Set(ORDER_SPECS.map(o => o.status)).size} statuses`);
   console.log(`  POs:        ${PO_SPECS.length}`);
   console.log(`  Shipments:  ${SHIPMENT_SPECS.length}`);
