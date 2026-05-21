@@ -4,48 +4,42 @@ import { logger } from '../lib/logger';
 const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
 
 let client: RedisClientType | null = null;
-let connected = false;
 
-let unavailable = false; // set permanently after first failed connect attempt
+// Create the client once and let node-redis manage (re)connection in the
+// background. A remote managed Redis (e.g. Upstash) needs a generous connect
+// timeout, and must be allowed to reconnect after an idle disconnect.
+function initRedis(): void {
+  const c = createClient({
+    url: REDIS_URL,
+    socket: {
+      connectTimeout: 10000,
+      reconnectStrategy: (retries) =>
+        retries > 10 ? false : Math.min(retries * 500, 5000),
+    },
+  }) as RedisClientType;
 
-async function getClient(): Promise<RedisClientType | null> {
-  if (unavailable) return null;
-  if (connected) return client;
-  if (client) return null; // connection in progress
+  c.on('ready', () => logger.info('Redis connected'));
+  c.on('error', () => undefined); // suppress spam; reconnectStrategy handles recovery
 
-  try {
-    client = createClient({
-      url: REDIS_URL,
-      socket: {
-        reconnectStrategy: false, // don't retry — if Redis isn't there, skip it
-        connectTimeout: 2000,
-      },
-    }) as RedisClientType;
-
-    client.on('error', () => {
-      // Suppress repeated error logs — already warned on first connect failure
-      connected = false;
+  client = c;
+  c.connect().catch((err) => {
+    logger.warn('Redis unavailable — running without cache', {
+      error: (err as Error).message,
     });
-
-    await client.connect();
-    connected = true;
-    logger.info('Redis connected', { url: REDIS_URL });
-  } catch (err) {
-    logger.warn('Redis unavailable — running without cache', { error: (err as Error).message });
-    client = null;
-    connected = false;
-    unavailable = true; // stop all future attempts
-  }
-
-  return connected ? client : null;
+  });
 }
 
-// Initialize connection at startup (non-blocking)
-void getClient();
+initRedis();
+
+// Usable only when connected and ready; null means "no cache", and every
+// caller already treats null as "skip the cache and continue".
+function getClient(): RedisClientType | null {
+  return client !== null && client.isReady ? client : null;
+}
 
 export const cacheService = {
   async get<T>(key: string): Promise<T | null> {
-    const redis = await getClient();
+    const redis = getClient();
     if (!redis) return null;
 
     try {
@@ -58,7 +52,7 @@ export const cacheService = {
   },
 
   async set(key: string, value: unknown, ttlSeconds = 300): Promise<void> {
-    const redis = await getClient();
+    const redis = getClient();
     if (!redis) return;
 
     try {
@@ -69,7 +63,7 @@ export const cacheService = {
   },
 
   async invalidate(pattern: string): Promise<void> {
-    const redis = await getClient();
+    const redis = getClient();
     if (!redis) return;
 
     try {
