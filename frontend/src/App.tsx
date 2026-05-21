@@ -57,11 +57,24 @@ const mainDomainRouter = createBrowserRouter([
   { path: '*',       element: <Navigate to="/" replace /> },
 ]);
 
+/**
+ * Root route for the app router. On the central/legacy host (pos.) the root
+ * stays the marketing landing page. On a tenant subdomain the root IS the app,
+ * so redirect to the dashboard — ProtectedRoute bounces to /sign-in when the
+ * visitor is signed out.
+ */
+function AppIndex(): React.JSX.Element {
+  if (isCentralAppDomain()) {
+    return <Suspense fallback={<PageFallback />}><LandingPage /></Suspense>;
+  }
+  return <Navigate to="/dashboard" replace />;
+}
+
 /** Routes shown when on an org subdomain (acme.yourapp.com) — the full app */
 const appRouter = createBrowserRouter([
   {
     index: true,
-    element: <Suspense fallback={<PageFallback />}><LandingPage /></Suspense>,
+    element: <AppIndex />,
   },
   {
     path: '/sign-in/*',

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@clerk/clerk-react';
 import { api } from '../lib/api';
 import { getCurrentSubdomain } from '../utils/tenant';
 
@@ -48,6 +49,7 @@ function applyCustomCSS(css: string | null): void {
 
 export function useBranding() {
   const isSubdomain = !!getCurrentSubdomain();
+  const { isSignedIn } = useAuth();
 
   const query = useQuery<OrgBranding>({
     queryKey: ['branding'],
@@ -56,7 +58,9 @@ export function useBranding() {
       return res.data.data;
     },
     staleTime: 5 * 60 * 1000,
-    enabled: isSubdomain,
+    // `/branding` requires auth — only fetch once signed in, otherwise the
+    // unauthenticated tenant root would 401 and surface an error toast.
+    enabled: isSubdomain && !!isSignedIn,
   });
 
   const branding = query.data;
