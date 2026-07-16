@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import {
   ArrowRightIcon,
-  ClipboardDocumentListIcon,
   CubeIcon,
   DeviceTabletIcon,
   UserGroupIcon,
@@ -12,30 +11,64 @@ import {
   PlayIcon,
   ArrowsPointingOutIcon,
   XMarkIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ChevronDownIcon,
+  DocumentCheckIcon,
+  ShoppingCartIcon,
 } from '@heroicons/react/24/outline';
 
 const WORKFLOW = ['Quote', 'Approve', 'Order materials', 'Print', 'Quality check', 'Ship'] as const;
 
+const AUDIENCES = [
+  'Screen Printing',
+  'DTF Transfers',
+  'HTV & Vinyl',
+  'Embroidery',
+  'Sublimation',
+  'Home Shops',
+  'Growing Production Shops',
+] as const;
+
+const BEFORE_ITEMS = [
+  'Orders scattered across texts, DMs, and sticky notes',
+  "No idea what materials you need until you're already mid-print",
+  'Digging through old messages to find reprint details',
+  'Tracking shipments in a separate app or spreadsheet',
+] as const;
+
+const AFTER_ITEMS = [
+  'Every order tracked from quote to shipped in one place',
+  'Materials and purchase orders generated straight from the job',
+  'Full customer and reprint history one search away',
+  'Shipping and tracking updates from the same order screen',
+] as const;
+
 const FEATURES = [
   {
-    title: 'Orders from quote to completion',
-    body: 'Every job tracks customer info, line items, art files, due dates, and production status in one place. No more digging through email threads.',
-    Icon: ClipboardDocumentListIcon,
+    title: 'Quotes that turn into orders',
+    body: 'Build a quote with sizes, colors, and print methods, send it, and the moment the customer approves it becomes a tracked order -- no re-entering anything.',
+    Icon: DocumentCheckIcon,
   },
   {
-    title: 'Customer history on every call',
+    title: 'Customer history and reprints',
     body: 'Pull up past orders, reprint details, and lifetime value the moment a customer calls back. Stop asking "what did we print for you last time?"',
     Icon: UserGroupIcon,
   },
   {
-    title: 'Production board you actually use',
+    title: 'A production queue you\'ll actually use',
     body: 'See what\'s in queue, what\'s printing, and what\'s waiting for pickup. Rush jobs surface automatically so nothing ships late.',
     Icon: SwatchIcon,
   },
   {
     title: 'Inventory tied to real jobs',
-    body: 'Receive blanks, reserve stock for open orders, and get low-stock alerts before you run out mid-run. Purchase orders link back to the customer job.',
+    body: 'Receive blanks, reserve stock for open orders, and get low-stock alerts before you run out mid-run. Every count reflects what\'s actually reserved for a job.',
     Icon: CubeIcon,
+  },
+  {
+    title: 'Purchase orders that write themselves',
+    body: 'When a job needs more blanks or transfers than you have on hand, PrintFlow drafts the purchase order and links it back to the job. Receive it and inventory updates automatically.',
+    Icon: ShoppingCartIcon,
   },
   {
     title: 'Shipping without the spreadsheet',
@@ -44,28 +77,74 @@ const FEATURES = [
   },
   {
     title: 'Built for the counter',
-    body: 'Touch-friendly screens, tablet-first layouts, and offline mode keep the shop moving when the internet drops or the line gets long.',
+    body: 'Touch-friendly screens, tablet-first layouts, Focus Mode for heads-down production, and offline-aware syncing keep the shop moving when the internet drops or the line gets long.',
     Icon: DeviceTabletIcon,
   },
 ] as const;
 
+const FAQS = [
+  {
+    q: 'Is this only for apparel decorators?',
+    a: 'PrintFlow is purpose-built for custom apparel businesses -- screen printing, DTF, HTV, embroidery, and sublimation shops. If you take custom orders, decorate garments, and ship or hand off finished product, it\'s built for your workflow.',
+  },
+  {
+    q: 'Does it work on tablets?',
+    a: 'Yes. Every screen is touch-first with large tap targets, and the counter and production views are designed to run on a tablet at the register or on the shop floor.',
+  },
+  {
+    q: 'Do I need a credit card to start?',
+    a: 'No. The 14-day trial starts with just an email -- no credit card required.',
+  },
+  {
+    q: 'Can I track inventory and purchase orders?',
+    a: 'Yes. Inventory is tied to real jobs, so you can see what\'s reserved for open orders and what\'s actually available. When a job needs more than you have on hand, PrintFlow can draft the purchase order for you, and receiving it updates stock automatically.',
+  },
+  {
+    q: 'Does each shop get its own subdomain?',
+    a: 'Every shop\'s data lives in its own fully isolated workspace, separate from every other business on PrintFlow. Custom per-shop subdomains are on our roadmap -- for now, everyone signs in through the main app with their shop selected automatically.',
+  },
+  {
+    q: 'What happens after the 14-day trial?',
+    a: 'You\'ll be prompted to choose a paid plan to keep going. Nothing is deleted -- your orders, customers, and inventory stay exactly where you left them. New orders and purchase orders pause until you pick a plan.',
+  },
+] as const;
+
 const SCREENSHOTS = [
-  { src: '/marketing/screenshot-dashboard.png', alt: 'PrintFlow dashboard showing today\'s orders, revenue, and low-stock alerts', label: 'Dashboard' },
-  { src: '/marketing/screenshot-orders.png', alt: 'Order list with status filters and search', label: 'Orders' },
-  { src: '/marketing/screenshot-order-detail.png', alt: 'Single order view with status timeline, line items, and materials', label: 'Order Detail' },
-  { src: '/marketing/screenshot-inventory.png', alt: 'Inventory list with stock levels and low-stock highlights', label: 'Inventory' },
-  { src: '/marketing/screenshot-production.png', alt: 'Production board showing jobs in progress', label: 'Production' },
+  {
+    src: '/marketing/screenshot-dashboard.png',
+    alt: 'PrintFlow dashboard showing today\'s orders, revenue, and low-stock alerts',
+    label: 'Dashboard',
+    caption: 'Your day at a glance -- orders due today, revenue, and anything running low before it becomes a problem.',
+  },
+  {
+    src: '/marketing/screenshot-orders.png',
+    alt: 'Order list with status filters and search',
+    label: 'Orders',
+    caption: 'Every order in one list -- filter by status, search by customer, and spot rush jobs instantly.',
+  },
+  {
+    src: '/marketing/screenshot-order-detail.png',
+    alt: 'Single order view with status timeline, line items, and materials',
+    label: 'Order Detail',
+    caption: 'One screen for the whole job -- line items, art files, materials, and a status timeline from quote to shipped.',
+  },
+  {
+    src: '/marketing/screenshot-inventory.png',
+    alt: 'Inventory list with stock levels and low-stock highlights',
+    label: 'Inventory',
+    caption: 'Real stock levels tied to real orders, with low-stock items flagged before you run out mid-print.',
+  },
+  {
+    src: '/marketing/screenshot-production.png',
+    alt: 'Production board showing jobs in progress',
+    label: 'Production',
+    caption: 'What\'s printing, what\'s queued, and what\'s ready for pickup -- rush jobs surface automatically.',
+  },
 ] as const;
 
 const DEMO_VIDEO_SRC = '/marketing/printflow-demo-60s.mp4';
 
 type Screenshot = (typeof SCREENSHOTS)[number];
-
-const HERO_ORDERS = [
-  { id: 'ORD-202605-0182', detail: '50x Black Tee -- DTF Front', status: 'Rush', badge: 'bg-[#ff6b00] text-white' },
-  { id: 'ORD-202605-0184', detail: '24x White Hoodie -- Screen Print', status: 'In Production', badge: 'bg-[#1a2a1a] text-[#4caf50]' },
-  { id: 'ORD-202605-0188', detail: '12x Navy Polo -- Embroidery', status: 'Ready to Ship', badge: 'bg-[#142a3a] text-[#38bdf8]' },
-] as const;
 
 const PROD_ORDERS = [
   { id: 'ORD-202605-0182', detail: '50x Black Tee -- DTF Front -- Stark Industries', status: 'Rush', badge: 'bg-[#ff6b00] text-white' },
@@ -90,6 +169,7 @@ function ScreenshotCard({
   src,
   alt,
   label,
+  caption,
   onOpen,
 }: Screenshot & { onOpen: () => void }): React.JSX.Element {
   const [failed, setFailed] = useState(false);
@@ -100,27 +180,33 @@ function ScreenshotCard({
   }
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="group block w-full overflow-hidden rounded-xl border border-[#222222] bg-[#141414] text-left transition-colors hover:border-[#ff6b00] focus:outline-none focus:ring-2 focus:ring-[#ff6b00] focus:ring-offset-2 focus:ring-offset-[#0f0f0f]"
-      aria-label={`Open ${label} screenshot full screen`}
-    >
-      <div className="flex items-center gap-2 border-b border-[#1a1a1a] bg-[#1a1a1a] px-3 py-2">
-        <span className="h-1.5 w-1.5 rounded-full bg-[#ff5f57]" />
-        <span className="h-1.5 w-1.5 rounded-full bg-[#ffbd2e]" />
-        <span className="h-1.5 w-1.5 rounded-full bg-[#28c840]" />
-        <span className="mx-auto text-[10px] tracking-wide text-[#555555]">{label}</span>
-        <ArrowsPointingOutIcon className="h-3.5 w-3.5 text-[#777777] opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100" aria-hidden="true" />
-      </div>
-      <img
-        src={src}
-        alt={alt}
-        loading="lazy"
-        onError={handleError}
-        className="block w-full transition-transform duration-300 group-hover:scale-[1.015]"
-      />
-    </button>
+    <div className="w-full">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="group block w-full overflow-hidden rounded-xl border border-[#222222] bg-[#141414] text-left transition-colors hover:border-[#ff6b00] focus:outline-none focus:ring-2 focus:ring-[#ff6b00] focus:ring-offset-2 focus:ring-offset-[#0f0f0f]"
+        aria-label={`Open ${label} screenshot full screen`}
+      >
+        <div className="flex items-center gap-2 border-b border-[#1a1a1a] bg-[#1a1a1a] px-3 py-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#ff5f57]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#ffbd2e]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#28c840]" />
+          <span className="mx-auto text-[10px] tracking-wide text-[#555555]">{label}</span>
+          <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide text-[#ff6b00]">
+            <ArrowsPointingOutIcon className="h-3 w-3" aria-hidden="true" />
+            Enlarge
+          </span>
+        </div>
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onError={handleError}
+          className="block w-full transition-transform duration-300 group-hover:scale-[1.015]"
+        />
+      </button>
+      <p className="mt-3 text-[13px] leading-relaxed text-[#666666]">{caption}</p>
+    </div>
   );
 }
 
@@ -219,6 +305,18 @@ function DemoVideo(): React.JSX.Element | null {
   );
 }
 
+function HeroPreview(): React.JSX.Element {
+  const [selected, setSelected] = useState<Screenshot | null>(null);
+  const featured = SCREENSHOTS[2];
+
+  return (
+    <div className="mx-auto mt-14 max-w-4xl">
+      <ScreenshotCard {...featured} onOpen={() => setSelected(featured)} />
+      <ScreenshotLightbox screenshot={selected} onClose={() => setSelected(null)} />
+    </div>
+  );
+}
+
 function ProductShowcase(): React.JSX.Element {
   const [selectedScreenshot, setSelectedScreenshot] = useState<Screenshot | null>(null);
   const featured = SCREENSHOTS[0];
@@ -236,7 +334,7 @@ function ProductShowcase(): React.JSX.Element {
           <span className="text-[#ff6b00]">actually work.</span>
         </h2>
         <p className="mb-14 mt-2 text-[15px] text-[#666666]">
-          Real screens from PrintFlow -- not a mockup deck.
+          Real screens from PrintFlow -- not a mockup deck. Click any screenshot to view it full size.
         </p>
 
         {/* Featured screenshot (dashboard) */}
@@ -245,7 +343,7 @@ function ProductShowcase(): React.JSX.Element {
         </div>
 
         {/* Secondary screenshots grid */}
-        <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {rest.map((screenshot) => (
             <ScreenshotCard
               key={screenshot.src}
@@ -268,8 +366,8 @@ export function LandingPage(): React.JSX.Element {
   const { isSignedIn } = useAuth();
   const accountCtaPath = isSignedIn ? '/dashboard' : '/signup';
 
-  const scrollToFeatures = (): void => {
-    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToSection = (id: string): void => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
@@ -321,11 +419,11 @@ export function LandingPage(): React.JSX.Element {
               Built for custom apparel shops
             </div>
             <h1 className="text-[42px] font-extrabold leading-none tracking-[-1.5px] text-[#f5f5f5] sm:text-[54px] sm:tracking-[-2px] lg:text-[62px] lg:tracking-[-2.5px]">
-              Stop losing jobs in<br />
-              <span className="text-[#ff6b00]">spreadsheets&nbsp;&&nbsp;DMs.</span>
+              Run every custom apparel order<br />
+              <span className="text-[#ff6b00]">from quote to shipped.</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-[540px] text-[15px] leading-relaxed text-[#777777] sm:text-[18px]">
-              PrintFlow POS gives screen printers, DTF shops, and custom apparel decorators one simple workflow -- from quote to shipped -- so every job stays on track.
+            <p className="mx-auto mt-6 max-w-[600px] text-[15px] leading-relaxed text-[#777777] sm:text-[18px]">
+              Screen printers, DTF and HTV shops, embroiderers, and sublimation decorators run every job -- quotes, materials, production, and shipping -- in one place instead of spreadsheets, sticky notes, and scattered text threads.
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <button
@@ -347,23 +445,27 @@ export function LandingPage(): React.JSX.Element {
             <p className="mt-4 text-[11px] tracking-wide text-[#444444]">
               No credit card required -- 14-day free trial
             </p>
+          </div>
 
-            {/* Product signal */}
-            <div className="mx-auto mt-12 max-w-lg overflow-hidden rounded-xl border border-[#222222] bg-[#141414]">
-              <div className="flex items-center gap-2 border-b border-[#1a1a1a] bg-[#1a1a1a] px-4 py-2.5">
-                <span className="h-2 w-2 rounded-full bg-[#ff5f57]" />
-                <span className="h-2 w-2 rounded-full bg-[#ffbd2e]" />
-                <span className="h-2 w-2 rounded-full bg-[#28c840]" />
-                <span className="mx-auto text-[11px] tracking-wide text-[#555555]">Active Orders</span>
-              </div>
-              {HERO_ORDERS.map(({ id, detail, status, badge }) => (
-                <div key={id} className="flex min-h-[52px] items-center justify-between border-b border-[#1a1a1a] px-4 last:border-b-0">
-                  <div>
-                    <p className="text-[12px] font-bold text-[#cccccc]">{id}</p>
-                    <p className="text-[11px] text-[#555555]">{detail}</p>
-                  </div>
-                  <span className={`rounded px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${badge}`}>{status}</span>
-                </div>
+          {/* Larger real product preview instead of a small mockup */}
+          <HeroPreview />
+        </section>
+
+        {/* AUDIENCE STRIP */}
+        <div className="border-t border-[#1a1a1a]" />
+        <section className="px-4 py-10 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-5xl text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[3px] text-[#555555]">
+              Built for every way you decorate
+            </p>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+              {AUDIENCES.map((label) => (
+                <span
+                  key={label}
+                  className="rounded-full border border-[#2a2a2a] bg-[#161616] px-4 py-2 text-[12px] font-semibold text-[#bbbbbb]"
+                >
+                  {label}
+                </span>
               ))}
             </div>
           </div>
@@ -398,6 +500,51 @@ export function LandingPage(): React.JSX.Element {
                   <p className="text-[12px] font-semibold text-[#cccccc]">{step}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* BEFORE / AFTER */}
+        <div className="border-t border-[#1a1a1a]" />
+        <section className="px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl">
+            <p className="mb-3 border-l-2 border-[#ff6b00] pl-3 text-[11px] font-semibold uppercase tracking-[4px] text-[#ff6b00]">
+              Why shops switch
+            </p>
+            <h2 className="text-[26px] font-extrabold tracking-[-1px] sm:text-[30px] lg:text-[34px]">
+              From scattered chaos to{' '}
+              <span className="text-[#ff6b00]">one connected workflow.</span>
+            </h2>
+            <p className="mb-14 mt-2 text-[15px] text-[#666666]">
+              The same jobs, without the spreadsheets, sticky notes, and group-chat guesswork.
+            </p>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-xl border border-[#2a1a1a] bg-[#161111] p-7">
+                <h3 className="mb-5 text-[13px] font-bold uppercase tracking-wide text-[#a86b5c]">
+                  Before PrintFlow
+                </h3>
+                <ul className="space-y-4">
+                  {BEFORE_ITEMS.map((item) => (
+                    <li key={item} className="flex items-start gap-3">
+                      <XCircleIcon className="mt-0.5 h-5 w-5 flex-none text-[#7a4a42]" aria-hidden="true" />
+                      <span className="text-[14px] leading-relaxed text-[#999999]">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-[#3d2200] bg-[#171310] p-7">
+                <h3 className="mb-5 text-[13px] font-bold uppercase tracking-wide text-[#ff6b00]">
+                  With PrintFlow
+                </h3>
+                <ul className="space-y-4">
+                  {AFTER_ITEMS.map((item) => (
+                    <li key={item} className="flex items-start gap-3">
+                      <CheckCircleIcon className="mt-0.5 h-5 w-5 flex-none text-[#ff6b00]" aria-hidden="true" />
+                      <span className="text-[14px] leading-relaxed text-[#e5e5e5]">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </section>
@@ -489,6 +636,33 @@ export function LandingPage(): React.JSX.Element {
             </div>
           </div>
         </section>
+
+        {/* FAQ */}
+        <div className="border-t border-[#1a1a1a]" />
+        <section id="faq" className="scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl">
+            <p className="mb-3 border-l-2 border-[#ff6b00] pl-3 text-[11px] font-semibold uppercase tracking-[4px] text-[#ff6b00]">
+              FAQ
+            </p>
+            <h2 className="mb-10 text-[26px] font-extrabold tracking-[-1px] sm:text-[30px] lg:text-[34px]">
+              Questions shop owners ask.
+            </h2>
+            <div className="divide-y divide-[#1a1a1a] border-y border-[#1a1a1a]">
+              {FAQS.map(({ q, a }) => (
+                <details key={q} className="group py-5">
+                  <summary className="flex min-h-[44px] w-full cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-[#f5f5f5] [&::-webkit-details-marker]:hidden">
+                    {q}
+                    <ChevronDownIcon
+                      className="h-5 w-5 flex-none text-[#777777] transition-transform group-open:rotate-180"
+                      aria-hidden="true"
+                    />
+                  </summary>
+                  <p className="mt-3 text-[14px] leading-relaxed text-[#888888]">{a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* CTA STRIP */}
@@ -537,10 +711,17 @@ export function LandingPage(): React.JSX.Element {
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             <button
               type="button"
-              onClick={scrollToFeatures}
+              onClick={() => scrollToSection('features')}
               className="min-h-[44px] text-[13px] text-[#555555] hover:text-[#f5f5f5]"
             >
               Features
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection('faq')}
+              className="min-h-[44px] text-[13px] text-[#555555] hover:text-[#f5f5f5]"
+            >
+              FAQ
             </button>
             <button
               type="button"
